@@ -23,7 +23,7 @@ func checkErr(ctx iris.Context, err error) bool {
 	}
 }
 
-func checkPasswordLength(password string, ctx iris.Context) bool {
+func failIfPasswordTooShort(password string, ctx iris.Context) bool {
 	if len(password) < 8 {
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.JSON(errorResponse{Error: "passwordTooShort"})
@@ -33,7 +33,7 @@ func checkPasswordLength(password string, ctx iris.Context) bool {
 	}
 }
 
-func checkEmailWellFormed(email string, ctx iris.Context) bool {
+func failIfEmailMalformed(email string, ctx iris.Context) bool {
 	err := checkmail.ValidateFormat(email)
 	if err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
@@ -44,41 +44,34 @@ func checkEmailWellFormed(email string, ctx iris.Context) bool {
 	}
 }
 
-func checkEmailDoesntExist(emailToCheck string, ctx iris.Context, psql squirrel.StatementBuilderType, db sql.DB ) bool {
+func failIfEmailInUse(emailToCheck string, ctx iris.Context, psql squirrel.StatementBuilderType, db *sql.DB ) bool {
 	//check if email already exists
-	var email sql.NullString
+	var email string
 	err := psql.Select("email").
 		From("users").
 		Where("email = ?", emailToCheck).
-		RunWith(&db).QueryRow().Scan(&email)
-	if err != nil && err != sql.ErrNoRows {
-		log.Fatal(err)
-		ctx.StatusCode(iris.StatusBadRequest)
-		return true
-	} else if email.Valid {
-		ctx.StatusCode(iris.StatusBadRequest)
-		ctx.JSON(errorResponse{Error: "emailInUse"})
-		return true
+		RunWith(db).QueryRow().Scan(&email)
+	if err != nil {
+	 	return false
 	} else {
-		return false
+		 ctx.JSON(errorResponse{Error: "emailInUse"})
+		 ctx.StatusCode(iris.StatusBadRequest)
+		 return true
 	}
 }
 
-func checkEmailExists(emailToCheck string, ctx iris.Context, psql squirrel.StatementBuilderType, db sql.DB ) bool {
+func failIfEmailNotInUse(emailToCheck string, ctx iris.Context, psql squirrel.StatementBuilderType, db *sql.DB ) bool {
 	//check if email already exists
-	var email sql.NullString
+	var email string
 	err := psql.Select("email").
 		From("users").
 		Where("email = ?", emailToCheck).
-		RunWith(&db).QueryRow().Scan(&email)
+		RunWith(db).QueryRow().Scan(&email)
 
-	if err == sql.ErrNoRows{
+	println("got here")
+	if err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.JSON(errorResponse{Error: "invalidLogin"})
-		return true
-	} else if err != nil {
-		log.Fatal(err)
-		ctx.StatusCode(iris.StatusBadRequest)
 		return true
 	} else {
 		return false

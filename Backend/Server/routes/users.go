@@ -7,9 +7,14 @@ import (
 	"github.com/gorilla/securecookie"
 	"golang.org/x/crypto/scrypt"
 	"encoding/hex"
+	"github.com/kataras/iris/sessions"
 )
 
-func RegisterUserHandlers(app iris.Party, db sql.DB) {
+type userProfile struct {
+	Id int `json:"id"`
+}
+
+func RegisterUserHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessions) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 	/**
@@ -30,11 +35,10 @@ func RegisterUserHandlers(app iris.Party, db sql.DB) {
 		var usrInfo userInfo
 		err := ctx.ReadJSON(&usrInfo)
 		if checkErr(ctx, err) {return}
-
 		//check parameters
-		if checkPasswordLength(usrInfo.Password, ctx) {return}
-		if checkEmailWellFormed(usrInfo.Email, ctx) {return}
-		if checkEmailDoesntExist(usrInfo.Email, ctx, psql, db) {return}
+		if failIfPasswordTooShort(usrInfo.Password, ctx) {return}
+		if failIfEmailMalformed(usrInfo.Email, ctx) {return}
+		if failIfEmailInUse(usrInfo.Email, ctx, psql, db) {return}
 
 		//create users password information
 		salt := securecookie.GenerateRandomKey(32)
@@ -43,9 +47,22 @@ func RegisterUserHandlers(app iris.Party, db sql.DB) {
 
 		//create user in database
 		_, err = psql.Insert("users").Columns("email", "salt", "hash").
-			Values(usrInfo.Email, hex.EncodeToString(salt), hex.EncodeToString(hash)).RunWith(&db).Exec()
+			Values(usrInfo.Email, hex.EncodeToString(salt), hex.EncodeToString(hash)).RunWith(db).Exec()
 		if checkErr(ctx, err) {return}
 	})//post
 
+	app.Get("/profile", func(ctx iris.Context) {
+		session := sessions.Start(ctx)
+		//check if user logged in
+		if auth, _ := session.GetBoolean("authenticated"); !auth {
+			ctx.StatusCode(iris.StatusForbidden)
+			return
+		}
 
-}
+		//get id
+		userID, _ := session.GetInt("userID")
+
+		ctx.StatusCode(iris.StatusOK)
+		ctx.JSON(userProfile{Id: userID})
+	})
+}//register function

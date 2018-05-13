@@ -24,8 +24,8 @@ func newApp(db sql.DB) *iris.Application {
 		Encode: secureCookie.Encode,
 		Decode: secureCookie.Decode,
 	})
-	routes.RegisterLoginHandlers(app.Party("/login"), db, elmSessions)
-	routes.RegisterUserHandlers(app.Party("/api/users"), db)
+	routes.RegisterLoginHandlers(app.Party("/login"), &db, elmSessions)
+	routes.RegisterUserHandlers(app.Party("/api/users"), &db, elmSessions)
 
 	return app
 }

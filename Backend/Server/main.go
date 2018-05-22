@@ -26,6 +26,7 @@ func newApp(db sql.DB) *iris.Application {
 	})
 	routes.RegisterLoginHandlers(app.Party("/login"), &db, elmSessions)
 	routes.RegisterUserHandlers(app.Party("/api/users"), &db, elmSessions)
+	routes.RegisterLeagueHandlers(app.Party("/api/leagues"), &db, elmSessions)
 
 	return app
 }

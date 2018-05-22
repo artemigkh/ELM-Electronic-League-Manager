@@ -5,10 +5,9 @@ CREATE SEQUENCE gamesIDSeq;
 
 CREATE TABLE leagues (
   id              INT           PRIMARY KEY DEFAULT nextval('leaguesIDSeq'),
-  name            VARCHAR(50)   NOT NULL         ,
-  tag             VARCHAR(5)    NOT NULL         ,
-  publicView      BOOLEAN                        ,
-  publicJoin      BOOLEAN
+  name            VARCHAR(50)   UNIQUE NOT NULL         ,
+  publicView      BOOLEAN       NOT NULL                ,
+  publicJoin      BOOLEAN       NOT NULL
 );
 ALTER SEQUENCE leaguesIDSeq OWNED BY leagues.id;
 
@@ -22,34 +21,36 @@ ALTER SEQUENCE usersIDSeq OWNED BY users.id;
 
 CREATE TABLE teams (
   id              INT           PRIMARY KEY DEFAULT nextval('teamsIDSeq'),
+  leagueID        INT           NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
   tag             VARCHAR(5)    NOT NULL         ,
-  wins            INT                            ,
-  losses          INT
+  wins            INT           NOT NULL         ,
+  losses          INT           NOT NULL
 );
 ALTER SEQUENCE teamsIDSeq OWNED BY teams.id;
 
 CREATE TABLE permissions (
-  userID          INT                            ,
-  leagueID        INT                            ,
-  teamID          INT                            ,
-  editTeams       BOOLEAN                        ,
-  editUsers       BOOLEAN                        ,
-  editSchedule    BOOLEAN                        ,
-  editGames       BOOLEAN                        ,
-  reportResult    BOOLEAN
+  userID          INT           NOT NULL         ,
+  leagueID        INT           NOT NULL         ,
+  teamID          INT           NOT NULL         ,
+  editPermissions BOOLEAN       NOT NULL         ,
+  editTeams       BOOLEAN       NOT NULL         ,
+  editUsers       BOOLEAN       NOT NULL         ,
+  editSchedule    BOOLEAN       NOT NULL         ,
+  editGames       BOOLEAN       NOT NULL         ,
+  reportResult    BOOLEAN       NOT NULL
 );
 
 
 CREATE TABLE games (
   id              INT           PRIMARY KEY DEFAULT nextval('gamesIDSeq'),
-  team1           INT                            ,
-  team2           INT                            ,
-  gametime        TIMESTAMP WITH TIME ZONE       ,
-  complete        BOOLEAN                        ,
-  winner          INT                            ,
-  scoreteam1      INT                            ,
-  scoreteam2      INT
+  team1           INT                      NOT NULL      ,
+  team2           INT                      NOT NULL      ,
+  gametime        TIMESTAMP WITH TIME ZONE NOT NULL      ,
+  complete        BOOLEAN                  NOT NULL      ,
+  winner          INT                      NOT NULL      ,
+  scoreteam1      INT                      NOT NULL      ,
+  scoreteam2      INT                      NOT NULL
 );
 ALTER SEQUENCE gamesIDSeq OWNED BY games.id;
 

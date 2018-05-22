@@ -53,14 +53,10 @@ func RegisterUserHandlers(app iris.Party, db *sql.DB, sessions *sessions.Session
 
 	app.Get("/profile", func(ctx iris.Context) {
 		session := sessions.Start(ctx)
-		//check if user logged in
-		if auth, _ := session.GetBoolean("authenticated"); !auth {
-			ctx.StatusCode(iris.StatusForbidden)
+		userID := authenticateAndGetCurrUserId(ctx, session)
+		if userID == -1 {
 			return
 		}
-
-		//get id
-		userID, _ := session.GetInt("userID")
 
 		ctx.StatusCode(iris.StatusOK)
 		ctx.JSON(userProfile{Id: userID})

@@ -68,10 +68,19 @@ func failIfEmailNotInUse(emailToCheck string, ctx iris.Context, psql squirrel.St
 		Where("email = ?", emailToCheck).
 		RunWith(db).QueryRow().Scan(&email)
 
-	println("got here")
 	if err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.JSON(errorResponse{Error: "invalidLogin"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func failIfLeagueNameTooLong(leagueName string, ctx iris.Context) bool {
+	if len(leagueName) > 50 {
+		ctx.StatusCode(iris.StatusBadRequest)
+		ctx.JSON(errorResponse{Error: "nameTooLong"})
 		return true
 	} else {
 		return false

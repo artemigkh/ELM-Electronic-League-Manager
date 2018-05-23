@@ -13,6 +13,10 @@ type leagueRequest struct {
 	PublicJoin bool `json:"publicJoin"`
 }
 
+type idWrapper struct {
+	Id int `json:"id"`
+}
+
 // /api/leagues
 func RegisterLeagueHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessions) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
@@ -26,7 +30,10 @@ func RegisterLeagueHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessi
   * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
   * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
   *
+  * @apiSuccess {int} id the primary id of the created league
+  *
   * @apiError nameTooLong The league name has exceeded 50 characters
+  * @apiError nameInUse The league name is currently in use
   */
 	app.Post("/", func(ctx iris.Context) {
 		//get params
@@ -40,17 +47,23 @@ func RegisterLeagueHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessi
 			return
 		}
 
-		if failIfLeagueNameTooLong(lgRequest.Name, ctx) {return}
+		if failIfLeagueNameTooLong(lgRequest.Name, ctx)  {return}
+		if failIfLeagueNameInUse(lgRequest.Name, ctx, psql, db)  {return}
 
 		//create new league
-		res, err := psql.Insert("leagues").Columns("name", "publicView", "publicJoin").
-			Values(lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin).RunWith(db).Exec()
+		var leagueID int
+		err = psql.Insert("leagues").Columns("name", "publicView", "publicJoin").
+			Values(lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin).Suffix("RETURNING \"id\"").
+			RunWith(db).QueryRow().Scan(&leagueID)
 		if checkErr(ctx, err) {return}
 
-		id, err := res.LastInsertId()
+		//create permissions entry linking current user ID as the league creator
+		_, err = psql.Insert("leaguePermissions").Columns("userID", "leagueID", "editPermissions", "editTeams",
+					"editUsers", "editSchedule", "editResults").Values(userID, leagueID, true, true, true, true, true).
+					RunWith(db).Exec()
 		if checkErr(ctx, err) {return}
-		println(id)
 
+		ctx.JSON(idWrapper{Id: leagueID})
 	})
 
 	app.Get("/", func(ctx iris.Context) {

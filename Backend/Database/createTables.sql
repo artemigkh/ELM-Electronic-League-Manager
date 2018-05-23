@@ -29,6 +29,25 @@ CREATE TABLE teams (
 );
 ALTER SEQUENCE teamsIDSeq OWNED BY teams.id;
 
+CREATE TABLE leaguePermissions (
+  userID          INT           NOT NULL         ,
+  leagueID        INT           NOT NULL         ,
+  editPermissions BOOLEAN       NOT NULL         ,
+  editTeams       BOOLEAN       NOT NULL         ,
+  editUsers       BOOLEAN       NOT NULL         ,
+  editSchedule    BOOLEAN       NOT NULL         ,
+  editResults     BOOLEAN       NOT NULL
+);
+
+CREATE TABLE teamPermissions (
+  userID          INT           NOT NULL         ,
+  teamID          INT           NOT NULL         ,
+  editPermissions BOOLEAN       NOT NULL         ,
+  editTeamInfo    BOOLEAN       NOT NULL         ,
+  editUsers       BOOLEAN       NOT NULL         ,
+  reportResult    BOOLEAN       NOT NULL
+);
+
 CREATE TABLE permissions (
   userID          INT           NOT NULL         ,
   leagueID        INT           NOT NULL         ,

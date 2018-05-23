@@ -77,6 +77,21 @@ func failIfEmailNotInUse(emailToCheck string, ctx iris.Context, psql squirrel.St
 	}
 }
 
+func failIfLeagueNameInUse(leagueName string, ctx iris.Context, psql squirrel.StatementBuilderType, db *sql.DB ) bool {
+	var name string
+	err := psql.Select("name").
+		From("leagues").
+		Where("name = ?", leagueName).
+		RunWith(db).QueryRow().Scan(&name)
+	if err != nil {
+		return false
+	} else {
+		ctx.JSON(errorResponse{Error: "nameInUse"})
+		ctx.StatusCode(iris.StatusBadRequest)
+		return true
+	}
+}
+
 func failIfLeagueNameTooLong(leagueName string, ctx iris.Context) bool {
 	if len(leagueName) > 50 {
 		ctx.StatusCode(iris.StatusBadRequest)

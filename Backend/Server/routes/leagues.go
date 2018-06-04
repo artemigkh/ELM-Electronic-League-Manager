@@ -66,12 +66,60 @@ func RegisterLeagueHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessi
 		ctx.JSON(idWrapper{Id: leagueID})
 	})
 
-	app.Get("/", func(ctx iris.Context) {
-		ctx.Writef("list of all leagues")
+/**
+  * @api{POST} /api/leagues/setActiveLeague/:id Attempt to set the active league with id
+  * @apiName setActiveLeague
+  * @apiGroup leagues
+  * @apiDescription Attempt to set the active league to :id
+  * @apiParam {int} id the primary id of the league
+  *
+  * @apiError leagueDoesNotExist The league does not exist
+  * @apiError 403 Forbidden
+  */
+	app.Post("/setActiveLeague/{id:int}", func(ctx iris.Context) {
+		id, _ := ctx.Params().GetInt("id")
+
+		//if public, set the session variable of current league to the requested league
+		var publicview bool
+
+		row := psql.Select("publicview").From("leagues").Where("id=?", id)
+		err := row.Scan(&publicview)
+
+		//check if league with specified id does not exist
+		if err == sql.ErrNoRows {
+			ctx.StatusCode(iris.StatusBadRequest)
+			ctx.JSON(errorResponse{Error: "leagueDoesNotExist"})
+			return
+		}
+		if checkErr(ctx, err) {return}
+
+		//get the session
+		session := sessions.Start(ctx)
+
+		if publicview {
+			//the league is publically viewable, so set the session variable to current league
+			session.Set("activeLeague", id)
+		} else {
+			// the league is not public, so check if the logged in user (if logged in) has permissions to view
+			userID := authenticateAndGetCurrUserId(ctx, session)
+			if userID == -1 {
+				ctx.StatusCode(iris.StatusForbidden)
+				return
+			}
+
+			//if row exists, means that user is linked with this league and thus can view it as it is base privilege
+			var userid int
+			row := psql.Select("userid").From("leagues").Where("userid=? AND leagueid=?", userID, id)
+			err := row.Scan(&userid)
+
+			if err == sql.ErrNoRows {
+				ctx.StatusCode(iris.StatusForbidden)
+				return
+			} else {
+				session.Set("activeLeague", id)
+			}
+		}
 	})
 
-	app.Delete("/{id:int}", func(ctx iris.Context) {
-		id, _ := ctx.Params().GetInt("id")
-		println(id)
-	})
+
 }

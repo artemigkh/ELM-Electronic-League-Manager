@@ -10,6 +10,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"log"
 	"os"
+	"esports-league-manager/Backend/Server/sessionManager"
 )
 
 //TODO: put this in its own file preferrably in own package
@@ -28,18 +29,8 @@ func newApp(db *sql.DB) *gin.Engine {
 	app := gin.Default()
 
 	routes.UsersDAO = databaseAccess.CreateUsersDao(db)
+	routes.ElmSessions = sessionManager.CreateCookieSessionManager()
 
-	//create session manager with secure cookies
-	//cookieName := "elmsession"
-	//hashKey := securecookie.GenerateRandomKey(24)
-	//blockKey := securecookie.GenerateRandomKey(24)
-	//secureCookie := securecookie.New(hashKey, blockKey)
-	//
-	//elmSessions := sessions.New(sessions.Config{
-	//	Cookie: cookieName,
-	//	Encode: secureCookie.Encode,
-	//	Decode: secureCookie.Decode,
-	//})
 	//routesTest.RegisterLoginHandlers(app.Party("/login"), &db, elmSessions)
 	routes.RegisterUserHandlers(app.Group("/api/users"))
 	//routesTest.RegisterLeagueHandlers(app.Party("/api/leagues"), &db, elmSessions)

@@ -6,6 +6,8 @@ import (
 	"golang.org/x/crypto/scrypt"
 	"encoding/hex"
 	"github.com/gorilla/securecookie"
+	"esports-league-manager/Backend/Server/sessionManager"
+	"net/http"
 )
 
 type userProfile struct {
@@ -13,6 +15,7 @@ type userProfile struct {
 }
 
 var UsersDAO databaseAccess.UsersDAO
+var ElmSessions sessionManager.SessionManager
 
 /**
  * @api{POST} /api/users/ Create a new user
@@ -60,17 +63,34 @@ func createNewUser(ctx *gin.Context) {
 	}
 }
 
+/**
+ * @api{POST} /api/users/profile Get current users profile
+ * @apiName getUserProfile
+ * @apiGroup users
+ * @apiDescription If a user is logged in, get their profile information
+ *
+ * @apiSuccess {int} id the userID
+ *
+ * @apiError notLoggedIn 403 No user is currently logged in
+ */
+func getProfile(ctx *gin.Context) {
+	userID, err := ElmSessions.AuthenticateAndGetUserID()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return
+	}
+
+	if userID == -1 {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, userProfile{
+		Id: userID,
+	})
+}
+
 func RegisterUserHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewUser)
-
-	//app.Get("/profile", func(ctx iris.Context) {
-	//	session := sessions.Start(ctx)
-	//	userID := authenticateAndGetCurrUserId(ctx, session)
-	//	if userID == -1 {
-	//		return
-	//	}
-	//
-	//	ctx.StatusCode(iris.StatusOK)
-	//	ctx.JSON(userProfile{Id: userID})
-	//})
-} //register function
+	g.GET("/profile", getProfile)
+}

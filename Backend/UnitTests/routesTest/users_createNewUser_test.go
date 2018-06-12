@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"testing"
 	"github.com/kataras/iris/core/errors"
+	"bytes"
+	"encoding/json"
 )
 
 type userCreateRequest struct {
@@ -12,12 +14,14 @@ type userCreateRequest struct {
 	Password string `json:"password"`
 }
 
-type errorResponse struct {
-	Error string `json:"error"`
+func createUserCreateRequestBody(email, pass string) *bytes.Buffer {
+	reqBody := userCreateRequest{
+		Email:    email,
+		Password: pass,
+	}
+	reqBodyB, _ := json.Marshal(&reqBody)
+	return bytes.NewBuffer(reqBodyB)
 }
-
-var router *gin.Engine
-
 
 //set up mock user daos
 type mockUsersDAO struct {
@@ -51,24 +55,28 @@ func (u *mockUsersDAOCreateUser) IsEmailInUse(email string) (bool, error) {
 }
 
 
-func testPasswordTooShort(t *testing.T, pass string) {
-	jsonErrorTest(t, "test@test.com", pass, "passwordTooShort")
+func testCreateNewUserPasswordTooShort(t *testing.T, pass string) {
+	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", pass),
+		"passwordTooShort", "POST", 400)
 }
 
-func testMalformedEmail(t *testing.T, email string) {
-	jsonErrorTest(t, email, "abcd1234", "emailMalformed")
+func testCreateNewUserMalformedEmail(t *testing.T, email string) {
+	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody(email, "abcd1234"),
+		"emailMalformed", "POST", 400)
 }
 
-func testEmailInUse(t *testing.T) {
-	jsonErrorTest(t, "test@test.com", "abcd1234", "emailInUse")
+func testCreateNewUserEmailInUse(t *testing.T) {
+	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
+		"emailInUse", "POST", 400)
 }
 
-func testDatabaseEror(t *testing.T) {
+func testCreateNewUserDatabaseError(t *testing.T) {
 	routes.UsersDAO = &mockUsersDAO{
 		t: t,
 		e: errors.New("fake database error"),
 	}
-	responseCodeTest(t, "test@test.com", "abcd1234", 500)
+	responseCodeTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
+		500, "POST")
 }
 
 func testCorrectUserCreation(t *testing.T) {
@@ -78,7 +86,8 @@ func testCorrectUserCreation(t *testing.T) {
 	}
 	routes.UsersDAO = mockDAO
 
-	responseCodeTest(t, "test@test.com", "abcd1234", 200)
+	responseCodeTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
+		200, "POST")
 	if !mockDAO.UserCreated {
 		t.Error("User creation DAO function was not called")
 	}
@@ -95,24 +104,24 @@ func Test_CreateNewUser(t *testing.T) {
 	}
 
 	t.Run("passwordTooShort=Length7A", func(t *testing.T) {
-		testPasswordTooShort(t, "1234567")
+		testCreateNewUserPasswordTooShort(t, "1234567")
 	})
 	t.Run("passwordTooShort=Length=7B", func(t *testing.T) {
-		testPasswordTooShort(t, "123456 ")
+		testCreateNewUserPasswordTooShort(t, "123456 ")
 	})
 	t.Run("passwordTooShortLength=0", func(t *testing.T) {
-		testPasswordTooShort(t, "")
+		testCreateNewUserPasswordTooShort(t, "")
 	})
 
 	//these do not have to be comprehensive as they are handled by a third party lib
 	t.Run("malformedEmail=InvalidCharacters", func(t *testing.T) {
-		testMalformedEmail(t, "ç$€§/az@gmail.com")
+		testCreateNewUserMalformedEmail(t, "ç$€§/az@gmail.com")
 	})
 	t.Run("malformedEmail=NoName", func(t *testing.T) {
-		testMalformedEmail(t, "@gmail.com")
+		testCreateNewUserMalformedEmail(t, "@gmail.com")
 	})
 
-	t.Run("emailInUse", testEmailInUse)
-	t.Run("databaseError", testDatabaseEror)
+	t.Run("emailInUse", testCreateNewUserEmailInUse)
+	t.Run("databaseError", testCreateNewUserDatabaseError)
 	t.Run("correctUserCreation", testCorrectUserCreation)
 }

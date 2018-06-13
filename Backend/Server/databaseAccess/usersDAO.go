@@ -6,11 +6,6 @@ import (
 	"log"
 )
 
-type UsersDAO interface {
-	InsertUser(email, salt, hash string) error
-	IsEmailInUse(email string) (bool, error)
-}
-
 type PgUsersDAO struct {
 	db   *sql.DB
 	psql squirrel.StatementBuilderType

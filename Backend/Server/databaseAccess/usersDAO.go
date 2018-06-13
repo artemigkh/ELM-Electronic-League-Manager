@@ -31,3 +31,7 @@ func (u *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
 		return true, nil
 	}
 }
+
+func (u *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, string) {
+	return 0, "", ""
+}

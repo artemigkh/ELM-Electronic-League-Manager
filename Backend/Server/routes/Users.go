@@ -2,20 +2,15 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/databaseAccess"
 	"golang.org/x/crypto/scrypt"
 	"encoding/hex"
 	"github.com/gorilla/securecookie"
-	"esports-league-manager/Backend/Server/sessionManager"
 	"net/http"
 )
 
 type userProfile struct {
 	Id int `json:"id"`
 }
-
-var UsersDAO databaseAccess.UsersDAO
-var ElmSessions sessionManager.SessionManager
 
 /**
  * @api{POST} /api/users/ Create a new user
@@ -31,7 +26,7 @@ var ElmSessions sessionManager.SessionManager
  * @apiError emailInUse 400 This email is already in use
  */
 func createNewUser(ctx *gin.Context) {
-	//get params
+	//get parameters
 	var usrInfo userInfo
 	err := ctx.ShouldBindJSON(&usrInfo)
 	if checkErr(ctx, err) {
@@ -74,7 +69,7 @@ func createNewUser(ctx *gin.Context) {
  * @apiError notLoggedIn 403 No user is currently logged in
  */
 func getProfile(ctx *gin.Context) {
-	userID, err := ElmSessions.AuthenticateAndGetUserID()
+	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return

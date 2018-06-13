@@ -55,23 +55,20 @@ func failIfEmailInUse(ctx *gin.Context, emailToCheck string) bool {
 	}
 }
 
-//func failIfEmailNotInUse(emailToCheck string, ctx gin.Context, psql squirrel.StatementBuilderType, db *sql.DB ) bool {
-//	//check if email already exists
-//	var email string
-//	err := psql.Select("email").
-//		From("users").
-//		Where("email = ?", emailToCheck).
-//		RunWith(db).QueryRow().Scan(&email)
-//
-//	if err != nil {
-//		ctx.StatusCode(iris.StatusBadRequest)
-//		ctx.JSON(errorResponse{Error: "invalidLogin"})
-//		return true
-//	} else {
-//		return false
-//	}
-//}
-//
+func failIfEmailNotInUse(ctx *gin.Context, emailToCheck string) bool {
+	//check if email already exists
+	inUse, err := UsersDAO.IsEmailInUse(emailToCheck)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if !inUse {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalidLogin"})
+		return true
+	} else {
+		return false
+	}
+}
+
 //func failIfLeagueNameInUse(leagueName string, ctx gin.Context, psql squirrel.StatementBuilderType, db *sql.DB ) bool {
 //	var name string
 //	err := psql.Select("name").

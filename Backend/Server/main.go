@@ -32,7 +32,9 @@ func newApp(db *sql.DB) *gin.Engine {
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager()
 
 	//routesTest.RegisterLoginHandlers(app.Party("/login"), &db, elmSessions)
+	routes.RegisterLoginHandlers(app.Group("/login"))
 	routes.RegisterUserHandlers(app.Group("/api/users"))
+
 	//routesTest.RegisterLeagueHandlers(app.Party("/api/leagues"), &db, elmSessions)
 
 	return app

@@ -11,7 +11,7 @@ type CookieSessionManager struct {
 	store *sessions.CookieStore
 }
 
-func (s *CookieSessionManager) AuthenticateAndGetUserID(ctx gin.Context) (int, error) {
+func (s *CookieSessionManager) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
 	session, err := s.store.Get(ctx.Request, "elm-session")
 	if err != nil {
 		return -1, err
@@ -29,7 +29,7 @@ func (s *CookieSessionManager) AuthenticateAndGetUserID(ctx gin.Context) (int, e
 	return userID, nil
 }
 
-func (s *CookieSessionManager) LogIn(ctx gin.Context, userID int) error {
+func (s *CookieSessionManager) LogIn(ctx *gin.Context, userID int) error {
 	session, err := s.store.Get(ctx.Request, "elm-session")
 	if err != nil {
 		return err

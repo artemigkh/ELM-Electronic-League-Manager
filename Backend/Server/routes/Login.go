@@ -1,5 +1,7 @@
 package routes
 
+import "github.com/gin-gonic/gin"
+
 //
 //import (
 //	sq "github.com/Masterminds/squirrel"
@@ -12,21 +14,54 @@ package routes
 //	"bytes"
 //)
 //
+
+type loginRequest struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
+/**
+  * @api{POST} /login/ Get authentication cookie
+  * @apiName createNewUser
+  * @apiGroup login
+  * @apiDescription Provide user email and password to get login authorization
+  *
+  * @apiParam {string} email
+  * @apiParam {string} password
+  *
+  * @apiError passwordTooShort The password was too short
+  * @apiError emailMalformed The email was not formed correctly
+  * @apiError invalidLogin The user does not exist or password was incorrect
+  */
+
+func login(ctx *gin.Context) {
+	//get parameters
+	var request loginRequest
+	err := ctx.ShouldBindJSON(&request)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	//check parameters
+	if failIfPasswordTooShort(ctx, request.Password) {
+		return
+	}
+	if failIfEmailMalformed(ctx, request.Email) {
+		return
+	}
+	if failIfEmailNotInUse(ctx, request.Email) {
+		return
+	}
+
+}
+
+func RegisterLoginHandlers(g *gin.RouterGroup) {
+	g.POST("/", login)
+}
+
 //func RegisterLoginHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessions) {
 //	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-//  /**
-//	* @api{POST} /login/ Get authentication cookie
-//	* @apiName createNewUser
-//	* @apiGroup login
-//	* @apiDescription Provide user email and password to get login authorization
-//	*
-//    * @apiParam {string} email
-//	* @apiParam {string} password
-//	*
-//    * @apiError passwordTooShort The password was too short
-//	* @apiError emailMalformed The email was not formed correctly
-//	* @apiError invalidLogin The user does not exist or password was incorrect
-//	*/
+
 //	app.Post("/", func(ctx iris.Context) {
 //		//get params
 //		var usrInfo userInfo

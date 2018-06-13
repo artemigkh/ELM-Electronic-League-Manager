@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"esports-league-manager/Backend/Server/routes"
 	"bytes"
-	"github.com/kataras/iris/core/errors"
 	"encoding/json"
+	"errors"
 )
 
 type userProfile struct {
@@ -19,8 +19,12 @@ type mockSessionManager struct {
 	err error
 }
 
-func (s *mockSessionManager) AuthenticateAndGetUserID() (int, error) {
+func (s *mockSessionManager) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
 	return s.id, s.err
+}
+
+func (s *mockSessionManager) LogIn(ctx *gin.Context, userID int) error {
+	return nil
 }
 
 func testGetProfileNotLoggedIn(t *testing.T) {

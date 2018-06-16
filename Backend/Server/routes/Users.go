@@ -29,7 +29,7 @@ func createNewUser(ctx *gin.Context) {
 	//get parameters
 	var usrInfo userInfo
 	err := ctx.ShouldBindJSON(&usrInfo)
-	if checkErr(ctx, err) {
+	if checkJsonErr(ctx, err) {
 		return
 	}
 

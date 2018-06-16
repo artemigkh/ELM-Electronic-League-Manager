@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/badoux/checkmail"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -11,11 +10,18 @@ const (
 	MIN_PASSWORD_LENGTH = 8
 )
 
+func checkJsonErr(ctx *gin.Context, err error) bool {
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformed input"})
+		return true
+	} else {
+		return false
+	}
+}
+
 func checkErr(ctx *gin.Context, err error) bool {
 	if err != nil {
-		log.Fatal(err)
-		println(err.Error())
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformed input"})
+		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
 	} else {
 		return false
@@ -68,28 +74,3 @@ func failIfEmailNotInUse(ctx *gin.Context, emailToCheck string) bool {
 		return false
 	}
 }
-
-//func failIfLeagueNameInUse(leagueName string, ctx gin.Context, psql squirrel.StatementBuilderType, db *sql.DB ) bool {
-//	var name string
-//	err := psql.Select("name").
-//		From("leagues").
-//		Where("name = ?", leagueName).
-//		RunWith(db).QueryRow().Scan(&name)
-//	if err != nil {
-//		return false
-//	} else {
-//		ctx.JSON(errorResponse{Error: "nameInUse"})
-//		ctx.StatusCode(iris.StatusBadRequest)
-//		return true
-//	}
-//}
-//
-//func failIfLeagueNameTooLong(leagueName string, ctx gin.Context) bool {
-//	if len(leagueName) > 50 {
-//		ctx.StatusCode(iris.StatusBadRequest)
-//		ctx.JSON(errorResponse{Error: "nameTooLong"})
-//		return true
-//	} else {
-//		return false
-//	}
-//}

@@ -2,5 +2,5 @@
   "dbUser": "postgres",
   "dbPass": "123",
   "dbName": "elmdb",
-  "port": "0.0.0.0:8080"
+  "port": "8080"
 }

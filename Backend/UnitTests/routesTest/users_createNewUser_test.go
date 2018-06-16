@@ -34,8 +34,8 @@ func (u *mockUsersDAO) InsertUser(email, salt, hash string) error {
 func (u *mockUsersDAO) IsEmailInUse(email string) (bool, error) {
 	return true, u.e
 }
-func (u *mockUsersDAO) GetAuthenticationInformation(email string) (int, string, string) {
-	return 0, "", ""
+func (u *mockUsersDAO) GetAuthenticationInformation(email string) (int, string, string, error) {
+	return 0, "", "", nil
 }
 
 
@@ -56,8 +56,8 @@ func (u *mockUsersDAOCreateUser) InsertUser(email, salt, hash string) error {
 func (u *mockUsersDAOCreateUser) IsEmailInUse(email string) (bool, error) {
 	return false, nil
 }
-func (u *mockUsersDAOCreateUser) GetAuthenticationInformation(email string) (int, string, string) {
-	return 0, "", ""
+func (u *mockUsersDAOCreateUser) GetAuthenticationInformation(email string) (int, string, string, error) {
+	return 0, "", "", nil
 }
 
 

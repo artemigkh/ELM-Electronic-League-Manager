@@ -10,7 +10,6 @@ import (
 
 func responseCodeTest(t *testing.T, body *bytes.Buffer, responseCode int, reqType string) *httptest.ResponseRecorder{
 	//set up HTTP request
-
 	req, _ := http.NewRequest(reqType, "/", body)
 
 
@@ -18,12 +17,12 @@ func responseCodeTest(t *testing.T, body *bytes.Buffer, responseCode int, reqTyp
 
 	res := httptest.NewRecorder()
 
-	//get response from server a  nd check that it's expected
+	//get response from server and check that it's expected
 	router.ServeHTTP(res, req)
+
 	if res.Code != responseCode {
 		t.Errorf("Response code should be %v, was: %v", responseCode, res.Code)
 	}
-
 	return res
 }
 

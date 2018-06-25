@@ -28,7 +28,7 @@ type mockUsersDAO struct {
 	t *testing.T
 	e error
 }
-func (u *mockUsersDAO) InsertUser(email, salt, hash string) error {
+func (u *mockUsersDAO) CreateUser(email, salt, hash string) error {
 	return nil
 }
 func (u *mockUsersDAO) IsEmailInUse(email string) (bool, error) {
@@ -43,7 +43,7 @@ type mockUsersDAOCreateUser struct {
 	t *testing.T
 	UserCreated bool
 }
-func (u *mockUsersDAOCreateUser) InsertUser(email, salt, hash string) error {
+func (u *mockUsersDAOCreateUser) CreateUser(email, salt, hash string) error {
 	if len(salt) != 64 {
 		u.t.Errorf("Salt is incorrect length. Got %v, expected 64", len(salt))
 	}

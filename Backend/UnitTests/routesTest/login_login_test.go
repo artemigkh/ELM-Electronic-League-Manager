@@ -16,7 +16,7 @@ type mockUsersDAOLogin struct {
 	salt string
 	storedHash string
 }
-func (u *mockUsersDAOLogin) InsertUser(email, salt, hash string) error {
+func (u *mockUsersDAOLogin) CreateUser(email, salt, hash string) error {
 	return nil
 }
 func (u *mockUsersDAOLogin) IsEmailInUse(email string) (bool, error) {

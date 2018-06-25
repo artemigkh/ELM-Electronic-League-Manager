@@ -3,14 +3,13 @@ package databaseAccess
 import (
 	"database/sql"
 	"github.com/Masterminds/squirrel"
-	"log"
 )
 
 type PgUsersDAO struct {
 	psql squirrel.StatementBuilderType
 }
 
-func (u *PgUsersDAO) InsertUser(email, salt, hash string) error {
+func (u *PgUsersDAO) CreateUser(email, salt, hash string) error {
 	_, err := u.psql.Insert("users").Columns("email", "salt", "hash").
 		Values(email, salt, hash).RunWith(db).Exec()
 	return err
@@ -24,7 +23,6 @@ func (u *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Fatal("PgUsersDAO.isEmailInUse: ", err)
 		return false, err
 	} else {
 		return true, nil

@@ -8,11 +8,12 @@ import (
 
 const (
 	MIN_PASSWORD_LENGTH = 8
+	MAX_LEAGUE_LENGTH = 50
 )
 
 func checkJsonErr(ctx *gin.Context, err error) bool {
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformed input"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 		return true
 	} else {
 		return false
@@ -29,7 +30,7 @@ func checkErr(ctx *gin.Context, err error) bool {
 }
 
 func failIfPasswordTooShort(ctx *gin.Context, password string) bool {
-	if len(password) < 8 {
+	if len(password) < MIN_PASSWORD_LENGTH {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "passwordTooShort"})
 		return true
 	} else {
@@ -48,7 +49,6 @@ func failIfEmailMalformed(ctx *gin.Context, email string) bool {
 }
 
 func failIfEmailInUse(ctx *gin.Context, emailToCheck string) bool {
-	//check if email already exists
 	inUse, err := UsersDAO.IsEmailInUse(emailToCheck)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
@@ -62,13 +62,34 @@ func failIfEmailInUse(ctx *gin.Context, emailToCheck string) bool {
 }
 
 func failIfEmailNotInUse(ctx *gin.Context, emailToCheck string) bool {
-	//check if email already exists
 	inUse, err := UsersDAO.IsEmailInUse(emailToCheck)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
 	} else if !inUse {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalidLogin"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func failIfLeagueNameTooLong(ctx *gin.Context, name string) bool {
+	if len(name) > MAX_LEAGUE_LENGTH {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "nameTooLong"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func failIfLeagueNameInUse(ctx *gin.Context, name string) bool {
+	inUse, err := LeaguesDAO.IsNameInUse(name)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if inUse {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "nameInUse"})
 		return true
 	} else {
 		return false

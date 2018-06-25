@@ -52,7 +52,7 @@ func createNewUser(ctx *gin.Context) {
 	}
 
 	//create user in database
-	err = UsersDAO.InsertUser(usrInfo.Email, hex.EncodeToString(salt), hex.EncodeToString(hash))
+	err = UsersDAO.CreateUser(usrInfo.Email, hex.EncodeToString(salt), hex.EncodeToString(hash))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -70,8 +70,7 @@ func createNewUser(ctx *gin.Context) {
  */
 func getProfile(ctx *gin.Context) {
 	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, nil)
+	if checkErr(ctx, err) {
 		return
 	}
 

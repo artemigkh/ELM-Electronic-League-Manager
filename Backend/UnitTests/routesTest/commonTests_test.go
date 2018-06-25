@@ -21,7 +21,15 @@ func responseCodeTest(t *testing.T, body *bytes.Buffer, responseCode int, reqTyp
 	router.ServeHTTP(res, req)
 
 	if res.Code != responseCode {
-		t.Errorf("Response code should be %v, was: %v", responseCode, res.Code)
+		var errorJson errorResponse
+		err := json.Unmarshal(res.Body.Bytes(), &errorJson)
+		var error string
+		if err != nil {
+			error = "unknown"
+		} else {
+			error = errorJson.Error
+		}
+		t.Errorf("Response code should be %v, was: %v. Error was: %v", responseCode, res.Code, error)
 	}
 	return res
 }

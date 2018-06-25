@@ -34,11 +34,24 @@ func (s *CookieSessionManager) AuthenticateAndGetUserID(ctx *gin.Context) (int, 
 func (s *CookieSessionManager) LogIn(ctx *gin.Context, userID int) error {
 	session, err := s.store.Get(ctx.Request, "lm-session")
 	if err != nil {
+		println(err.Error())
 		return err
 	}
 
 	session.Values["authenticated"] = true
 	session.Values["userID"] = userID
+	session.Save(ctx.Request, ctx.Writer)
+	return nil
+}
+
+func (s *CookieSessionManager) SetActiveLeague(ctx *gin.Context, leagueID int) error {
+	session, err := s.store.Get(ctx.Request, "lm-session")
+	if err != nil {
+		println(err.Error())
+		return err
+	}
+
+	session.Values["leagueID"] = leagueID
 	session.Save(ctx.Request, ctx.Writer)
 	return nil
 }

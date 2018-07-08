@@ -48,6 +48,10 @@ func (d *PgLeaguesDAO) IsNameInUse(name string) (bool, error) {
 	return false, nil
 }
 
+func (d *PgLeaguesDAO) IsLeagueViewable(leagueID, userID int) (bool, error) {
+	return false, nil
+}
+
 func (d *PgLeaguesDAO) GetLeagueInformation(userID int) (*LeagueInformation, error) {
 	return nil, nil
 }

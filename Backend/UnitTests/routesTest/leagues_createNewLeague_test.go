@@ -6,8 +6,9 @@ import (
 	"esports-league-manager/Backend/Server/routes"
 	"testing"
 	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/databaseAccess"
-	"github.com/kataras/iris/core/errors"
+	"esports-league-manager/mocks"
+	"github.com/stretchr/testify/mock"
+	"errors"
 )
 
 func createLeagueRequestBody(name string, publicView, publicJoin bool) *bytes.Buffer {
@@ -20,137 +21,117 @@ func createLeagueRequestBody(name string, publicView, publicJoin bool) *bytes.Bu
 	return bytes.NewBuffer(reqBodyB)
 }
 
-type mockSessionsLeagueCreate struct {
-	t *testing.T
-	id int
-	err error
-}
-func (s *mockSessionsLeagueCreate) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
-	return s.id, s.err
-}
-func (s *mockSessionsLeagueCreate) LogIn(ctx *gin.Context, userID int) error {
-	return nil
+type leagueRes struct {
+	Id int `json:"id"`
 }
 
-
-type mockLeaguesDAO struct {
-	t *testing.T
-	id int
-	err error
-	inUse bool
-	LeagueCreated bool
-}
-func (d *mockLeaguesDAO) CreateLeague(userID int, name string, publicView, publicJoin bool) (int, error) {
-	if name != "testname" {
-		d.t.Error("Did not get correct name from request. Should have gotten: testname")
-	} else {
-		d.LeagueCreated = true
+func createLeagueResponseBody(id int) *bytes.Buffer {
+	resBody := leagueRes{
+		Id: id,
 	}
-	return d.id, d.err
-}
-func (d *mockLeaguesDAO) IsNameInUse(name string) (bool, error) {
-	return d.inUse, nil
-}
-func (d *mockLeaguesDAO) GetLeagueInformation(userID int) (*databaseAccess.LeagueInformation, error) {
-	return nil, nil
+	resBodyB, _ := json.Marshal(&resBody)
+	return bytes.NewBuffer(resBodyB)
 }
 
 func testCreateNewLeagueMalformedBody(t *testing.T) {
-	responseCodeAndErrorJsonTest(t, new(bytes.Buffer), "malformedInput", "POST", 400)
+	httpTest(t, nil, "POST", "/", 400, testParams{Error: "malformedInput"})
 }
 
 func testCreateNewLeagueSessionError(t *testing.T) {
-	routes.ElmSessions = &mockSessionsLeagueCreate{
-		t: t,
-		id: 1,
-		err: errors.New("fake cookie error"),
-	}
-	responseCodeTest(t, createLeagueRequestBody("testname", true, true), 500, "POST")
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, errors.New("session error"))
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLeagueRequestBody("testname", true, true),
+		"POST", "/", 500, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func testCreateNewLeagueNotLoggedIn(t *testing.T) {
-	routes.ElmSessions = &mockSessionsLeagueCreate{
-		t: t,
-		id: -1,
-		err: nil,
-	}
-	responseCodeAndErrorJsonTest(t, createLeagueRequestBody("testname", true, true),
-		"notLoggedIn","POST", 403)
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(-1, nil)
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLeagueRequestBody("testname", true, true),
+		"POST", "/", 403, testParams{Error: "notLoggedIn"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func testCreateNewLeagueNameTooLong(t *testing.T) {
-	routes.ElmSessions = &mockSessionsLeagueCreate{
-		t: t,
-		id: 1,
-		err: nil,
-	}
-	responseCodeAndErrorJsonTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901",
-		true, true), "nameTooLong", "POST", 400)
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901", true, true),
+		"POST", "/", 400, testParams{Error: "nameTooLong"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func testCreateNewLeagueNameInUse(t *testing.T) {
-	routes.ElmSessions = &mockSessionsLeagueCreate{
-		t: t,
-		id: 1,
-		err: nil,
-	}
-	routes.LeaguesDAO = &mockLeaguesDAO{
-		t: t,
-		id: 0,
-		err: nil,
-		inUse: true,
-		LeagueCreated: false,
-	}
-	responseCodeAndErrorJsonTest(t, createLeagueRequestBody("12345678901234567890123456789012345678901234567890",
-		true, true), "nameInUse", "POST", 400)
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("IsNameInUse", "12345678901234567890123456789012345678901234567890").
+		Return(true, nil)
+
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createLeagueRequestBody("12345678901234567890123456789012345678901234567890", true, true),
+		"POST", "/", 400, testParams{Error: "nameInUse"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }
 
 func testCreateNewLeagueDatabaseError(t *testing.T) {
-	routes.ElmSessions = &mockSessionsLeagueCreate{
-		t: t,
-		id: 1,
-		err: nil,
-	}
-	routes.LeaguesDAO = &mockLeaguesDAO{
-		t: t,
-		id: 0,
-		err: errors.New("fake database error"),
-		inUse: false,
-		LeagueCreated: false,
-	}
-	responseCodeTest(t, createLeagueRequestBody("testname", true, true), 500, "POST")
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("IsNameInUse", "testName").
+		Return(false, nil)
+	mockLeaguesDao.On("CreateLeague", 1, "testName", true, true).
+		Return(-1, errors.New("fake db error"))
+
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createLeagueRequestBody("testName", true, true),
+		"POST", "/", 500, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }
 
 func testCorrectLeagueCreation(t *testing.T) {
-	routes.ElmSessions = &mockSessionsLeagueCreate{
-		t: t,
-		id: 1,
-		err: nil,
-	}
-	mockDAO := &mockLeaguesDAO{
-		t: t,
-		id: 2,
-		err: nil,
-		inUse: false,
-		LeagueCreated: false,
-	}
-	routes.LeaguesDAO = mockDAO
-	res := responseCodeTest(t, createLeagueRequestBody("testname", true, true),
-		200, "POST")
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
-	if !mockDAO.LeagueCreated {
-		t.Error("League creation DAO function was not called")
-	}
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("IsNameInUse", "testName").
+		Return(false, nil)
+	mockLeaguesDao.On("CreateLeague", 1, "testName", true, true).
+		Return(3, nil)
 
-	var idBody idResponse
-	err := json.Unmarshal(res.Body.Bytes(), &idBody)
-	if err != nil {
-		t.Error("Response was not of a valid form")
-	}
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
 
-	if idBody.Id != 2 {
-		t.Error("Did not receive correct ID in HTTP response")
-	}
+	httpTest(t, createLeagueRequestBody("testName", true, true),
+		"POST", "/", 200, testParams{ResponseBody: createLeagueResponseBody(3)})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }
 
 func Test_CreateNewLeague(t *testing.T) {

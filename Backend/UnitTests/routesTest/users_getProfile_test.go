@@ -27,12 +27,16 @@ func (s *mockSessionManager) LogIn(ctx *gin.Context, userID int) error {
 	return nil
 }
 
+func (s *mockSessionManager) SetActiveLeague(ctx *gin.Context, leagueID int) error {
+	return nil
+}
+
 func testGetProfileNotLoggedIn(t *testing.T) {
 	routes.ElmSessions = &mockSessionManager{
 		id: -1,
 		err: nil,
 	}
-	responseCodeAndErrorJsonTest(t, new(bytes.Buffer), "notLoggedIn", "GET", 403)
+	responseCodeAndErrorJsonTest(t, new(bytes.Buffer), "notLoggedIn", "GET", "/", 403)
 }
 
 func testGetProfileDatabaseError(t *testing.T) {
@@ -40,7 +44,7 @@ func testGetProfileDatabaseError(t *testing.T) {
 		id: -1,
 		err: errors.New("fake database error"),
 	}
-	responseCodeTest(t, new(bytes.Buffer), 500, "GET")
+	responseCodeTest(t, new(bytes.Buffer), 500, "GET", "/")
 }
 
 func testGetProfileCorrectly(t *testing.T) {
@@ -50,7 +54,7 @@ func testGetProfileCorrectly(t *testing.T) {
 	}
 	resBodyB, _ := json.Marshal(userProfile{Id: 1})
 
-	testResponseAndCode(t, new(bytes.Buffer), bytes.NewBuffer(resBodyB), "GET", 200)
+	testResponseAndCode(t, new(bytes.Buffer), bytes.NewBuffer(resBodyB), "GET", "/", 200)
 }
 
 func Test_GetProfile(t *testing.T) {

@@ -4,130 +4,128 @@ import (
 	"testing"
 	"github.com/gin-gonic/gin"
 	"esports-league-manager/Backend/Server/routes"
-	"errors"
+	"bytes"
+	"encoding/json"
+	"esports-league-manager/mocks"
+	"github.com/stretchr/testify/mock"
+	"strings"
+	"github.com/kataras/iris/core/errors"
 )
 
-//set up mocks
-type mockUsersDAOLogin struct {
-	t *testing.T
-	e error
-	emailInUse bool
-	id int
-	salt string
-	storedHash string
-}
-func (u *mockUsersDAOLogin) CreateUser(email, salt, hash string) error {
-	return nil
-}
-func (u *mockUsersDAOLogin) IsEmailInUse(email string) (bool, error) {
-	return u.emailInUse, nil
-}
-func (u *mockUsersDAOLogin) GetAuthenticationInformation(email string) (int, string, string, error) {
-	return u.id, u.salt, u.storedHash, u.e
-}
-
-type mockSessionsLoginError struct {
-	t *testing.T
-}
-func (s *mockSessionsLoginError) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
-	return -1, nil
-}
-func (s *mockSessionsLoginError) LogIn(ctx *gin.Context, userID int) error {
-	return errors.New("fake cookie error")
-}
-
-type mockSessionsLoginCorrect struct {
-	t *testing.T
-	LoggedIn bool
-}
-func (s *mockSessionsLoginCorrect) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
-	return 0, nil
-}
-func (s *mockSessionsLoginCorrect) LogIn(ctx *gin.Context, userID int) error {
-	if userID != 517 {
-		s.t.Errorf("login Id should be returned value (517), was %v", userID)
+func createLoginRequestBody(email, pass string) *bytes.Buffer {
+	reqBody := userCreateRequest{
+		Email:    email,
+		Password: pass,
 	}
-	s.LoggedIn = true
-	return nil
+	reqBodyB, _ := json.Marshal(&reqBody)
+	return bytes.NewBuffer(reqBodyB)
+}
+
+func testLoginMalformedBody(t *testing.T) {
+	httpTest(t, nil, "POST", "/", 400, testParams{Error: "malformedInput"})
+}
+
+func testLoginPasswordTooShort(t *testing.T, pass string) {
+	httpTest(t, createLoginRequestBody("test@test.com", pass), "POST", "/",
+		400, testParams{Error: "passwordTooShort"})
+}
+
+func testLoginMalformedEmail(t *testing.T, email string) {
+	httpTest(t, createLoginRequestBody(email, "12345678"), "POST", "/",
+		400, testParams{Error: "emailMalformed"})
 }
 
 func testCreateNewUserNotEmailInUse(t *testing.T) {
-	routes.UsersDAO = &mockUsersDAOLogin{
-		t: t,
-		e: nil,
-		emailInUse: false,
-		id: 1,
-		salt: "f569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424",
-		storedHash: "f05579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097",
-	}
-	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
-		"invalidLogin", "POST", 400)
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(false, nil)
+
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
+		"POST", "/", 400, testParams{Error: "invalidLogin"})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
 }
 
+var salt = "f569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424"
+var storedHash = "f05579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097"
+
 func testBadPassword(t *testing.T) {
-	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", "123456789lo7s"),
-		"invalidLogin", "POST", 400)
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
+	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
+		Return(1, salt, storedHash, nil)
+
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678o3294"),
+		"POST", "/", 400, testParams{Error: "invalidLogin"})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
 }
 
 func testBadHash(t *testing.T) {
-	routes.UsersDAO = &mockUsersDAOLogin{
-		t: t,
-		e: nil,
-		emailInUse: false,
-		id: 1,
-		salt: "f569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424",
-		storedHash: "005579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097",
-	}
-	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", "12345678"),
-"invalidLogin", "POST", 400)
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
+	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
+		Return(1, salt, strings.Replace(storedHash, "f", "0", 1), nil)
+
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678o3294"),
+		"POST", "/", 400, testParams{Error: "invalidLogin"})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
 }
 
 func testBadSalt(t *testing.T) {
-	routes.UsersDAO = &mockUsersDAOLogin{
-		t: t,
-		e: nil,
-		emailInUse: true,
-		id: 1,
-		salt: "0569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424",
-		storedHash: "f05579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097",
-	}
-	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", "12345678"),
-		"invalidLogin", "POST", 400)
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
+	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
+		Return(1, strings.Replace(salt, "f", "0", 1), storedHash, nil)
+
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678o3294"),
+		"POST", "/", 400, testParams{Error: "invalidLogin"})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
 }
 
 func testSessionError(t *testing.T) {
-	routes.UsersDAO = &mockUsersDAOLogin{
-		t: t,
-		e: nil,
-		emailInUse: true,
-		id: 1,
-		salt: "f569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424",
-		storedHash: "f05579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097",
-	}
-	routes.ElmSessions = &mockSessionsLoginError{
-		t: t,
-	}
-	responseCodeTest(t, createUserCreateRequestBody("test@test.com", "12345678"), 500, "POST")
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
+	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
+		Return(1, salt, storedHash, nil)
+
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("LogIn", mock.Anything, 1).Return(errors.New("fake session error"))
+
+	routes.UsersDAO = mockUsersDao
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
+		"POST", "/", 500, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
 }
 
 func testCorrectLogin(t *testing.T) {
-	routes.UsersDAO = &mockUsersDAOLogin{
-		t: t,
-		e: nil,
-		emailInUse: true,
-		id: 517,
-		salt: "f569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424",
-		storedHash: "f05579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097",
-	}
-	 mockSessions := &mockSessionsLoginCorrect{
-		t: t,
-		LoggedIn: false,
-	}
-	routes.ElmSessions = mockSessions
-	responseCodeTest(t, createUserCreateRequestBody("test@test.com", "12345678"), 200, "POST")
-	if mockSessions.LoggedIn == false {
-		t.Error("Session login function was not called")
-	}
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
+	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
+		Return(1, salt, storedHash, nil)
+
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("LogIn", mock.Anything, 1).Return(nil)
+
+	routes.UsersDAO = mockUsersDao
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
+		"POST", "/", 200, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
 }
 
 func Test_Login(t *testing.T) {
@@ -135,30 +133,24 @@ func Test_Login(t *testing.T) {
 	router = gin.New()
 	router.POST("/", routes.Testing_Export_login)
 
-	routes.UsersDAO = &mockUsersDAOLogin{
-		t: t,
-		e: nil,
-		emailInUse: true,
-		id: 1,
-		salt: "f569dcbc75aa0d39462c00db0cdec7c5fae4e19bb3210838e8de0c843578a424",
-		storedHash: "f05579a607c6847e35b2555453e2335b759b013fc313bf384f6b35810929b04bda7b448e6a9c784fea1015b06f74fff3784347d7e48df4af9e125d63499d3097",
-	}
+	t.Run("malformedBody", testLoginMalformedBody)
+
 	t.Run("passwordTooShort=Length7A", func(t *testing.T) {
-		testCreateNewUserPasswordTooShort(t, "1234567")
+		testLoginPasswordTooShort(t, "1234567")
 	})
 	t.Run("passwordTooShort=Length=7B", func(t *testing.T) {
-		testCreateNewUserPasswordTooShort(t, "123456 ")
+		testLoginPasswordTooShort(t, "123456 ")
 	})
 	t.Run("passwordTooShortLength=0", func(t *testing.T) {
-		testCreateNewUserPasswordTooShort(t, "")
+		testLoginPasswordTooShort(t, "")
 	})
 
 	//these do not have to be comprehensive as they are handled by a third party lib
 	t.Run("malformedEmail=InvalidCharacters", func(t *testing.T) {
-		testCreateNewUserMalformedEmail(t, "ç$€§/az@gmail.com")
+		testLoginMalformedEmail(t, "ç$€§/az@gmail.com")
 	})
 	t.Run("malformedEmail=NoName", func(t *testing.T) {
-		testCreateNewUserMalformedEmail(t, "@gmail.com")
+		testLoginMalformedEmail(t, "@gmail.com")
 	})
 
 	t.Run("loginEmailNotInUse", testCreateNewUserNotEmailInUse)

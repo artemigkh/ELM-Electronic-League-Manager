@@ -79,15 +79,10 @@ func createNewLeague(ctx *gin.Context) {
  * @apiError 403 Forbidden
  */
 func setActiveLeague(ctx *gin.Context) {
-	//get string from path and convert to int
-	idString := ctx.Param("id")
-	if idString == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "noIdSpecified"})
-	}
-
-	leagueId, err := strconv.Atoi(idString)
+	leagueId, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
+		return
 	}
 
 	//get user ID (or -1 if not logged in)
@@ -97,64 +92,23 @@ func setActiveLeague(ctx *gin.Context) {
 	}
 
 	viewable, err := LeaguesDAO.IsLeagueViewable(leagueId, userID)
+	if checkErr(ctx, err) {
+		return
+	}
 
 	if !viewable {
 		ctx.JSON(http.StatusForbidden, nil)
 	} else {
-		ElmSessions.SetActiveLeague(ctx, leagueId)
+		err := ElmSessions.SetActiveLeague(ctx, leagueId)
+		if checkErr(ctx, err) {
+			return
+		}
 	}
 }
 
-//	app.Post("/setActiveLeague/{id:int}", func(ctx iris.Context) {
-//		id, _ := ctx.Params().GetInt("id")
-//
-//		//if public, set the session variable of current league to the requested league
-//		var publicview bool
-//
-//		row := psql.Select("publicview").From("leagues").Where("id=?", id).RunWith(db).QueryRow()
-//		err := row.Scan(&publicview)
-//
-//		//check if league with specified id does not exist
-//		if err == sql.ErrNoRows {
-//			ctx.StatusCode(iris.StatusBadRequest)
-//			ctx.JSON(errorResponse{Error: "leagueDoesNotExist"})
-//			return
-//		}
-//		if checkErr(ctx, err) {return}
-//
-//		//get the session
-//		session := sessions.Start(ctx)
-//
-//		if publicview {
-//			//the league is publically viewable, so set the session variable to current league
-//			session.Set("activeLeague", id)
-//		} else {
-//			// the league is not public, so check if the logged in user (if logged in) has permissions to view
-//			userID := authenticateAndGetCurrUserId(ctx, session)
-//			if userID == -1 {
-//				ctx.StatusCode(iris.StatusForbidden)
-//				return
-//			}
-//
-//			//if row exists, means that user is linked with this league and thus can view it as it is base privilege
-//			var userid int
-//			row := psql.Select("userid").From("leagues").Where("userid=? AND leagueid=?", userID, id).
-//					RunWith(db).QueryRow()
-//			err := row.Scan(&userid)
-//
-//			if err == sql.ErrNoRows {
-//				ctx.StatusCode(iris.StatusForbidden)
-//				return
-//			} else {
-//				session.Set("activeLeague", id)
-//			}
-//		}
-//	})
-//
-
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewLeague)
-	g.POST("/setActiveLeague/:id")
+	g.POST("/setActiveLeague/:id", setActiveLeague)
 }
 
 //// /api/leagues

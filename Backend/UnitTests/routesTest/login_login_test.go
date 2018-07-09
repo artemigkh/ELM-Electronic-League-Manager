@@ -107,7 +107,7 @@ func testSessionError(t *testing.T) {
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
 		"POST", "/", 500, testParams{})
 
-	mock.AssertExpectationsForObjects(t, mockUsersDao)
+	mock.AssertExpectationsForObjects(t, mockUsersDao, mockSession)
 }
 
 func testCorrectLogin(t *testing.T) {
@@ -125,7 +125,7 @@ func testCorrectLogin(t *testing.T) {
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
 		"POST", "/", 200, testParams{})
 
-	mock.AssertExpectationsForObjects(t, mockUsersDao)
+	mock.AssertExpectationsForObjects(t, mockUsersDao, mockSession)
 }
 
 func Test_Login(t *testing.T) {

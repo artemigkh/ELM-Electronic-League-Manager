@@ -6,6 +6,9 @@ import (
 	"testing"
 	"bytes"
 	"encoding/json"
+	"esports-league-manager/mocks"
+	"github.com/stretchr/testify/mock"
+	"github.com/kataras/iris/core/errors"
 )
 
 type userCreateRequest struct {
@@ -36,33 +39,45 @@ func testCreateNewUserMalformedEmail(t *testing.T, email string) {
 		400, testParams{Error: "emailMalformed"})
 }
 
-//func testCreateNewUserEmailInUse(t *testing.T) {
-//	responseCodeAndErrorJsonTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
-//		"emailInUse", "POST", "/", 400)
-//}
+func testCreateNewUserEmailInUse(t *testing.T) {
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
 
-//func testCreateNewUserDatabaseError(t *testing.T) {
-//	routes.UsersDAO = &mockUsersDAO{
-//		t: t,
-//		e: errors.New("fake database error"),
-//	}
-//	responseCodeTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
-//		500, "POST", "/")
-//}
-//
-//func testCorrectUserCreation(t *testing.T) {
-//	mockDAO := &mockUsersDAOCreateUser{
-//		t: t,
-//		UserCreated: false,
-//	}
-//	routes.UsersDAO = mockDAO
-//
-//	responseCodeTest(t, createUserCreateRequestBody("test@test.com", "abcd1234"),
-//		200, "POST", "/")
-//	if !mockDAO.UserCreated {
-//		t.Error("User creation DAO function was not called")
-//	}
-//}
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
+		"POST", "/", 400, testParams{Error: "emailInUse"})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
+}
+
+func testCreateNewUserDatabaseError(t *testing.T) {
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(false, nil)
+	mockUsersDao.On("CreateUser", "test@test.com", mock.Anything, mock.Anything).
+		Return(errors.New("fake db error"))
+
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
+		"POST", "/", 500, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
+}
+
+func testCorrectUserCreation(t *testing.T) {
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(false, nil)
+	mockUsersDao.On("CreateUser", "test@test.com", mock.Anything, mock.Anything).
+		Return(nil)
+
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
+		"POST", "/", 200, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockUsersDao)
+}
 
 func Test_CreateNewUser(t *testing.T) {
 	//set up router and path to test
@@ -90,7 +105,7 @@ func Test_CreateNewUser(t *testing.T) {
 		testCreateNewUserMalformedEmail(t, "@gmail.com")
 	})
 
-	//t.Run("emailInUse", testCreateNewUserEmailInUse)
-	//t.Run("databaseError", testCreateNewUserDatabaseError)
-	//t.Run("correctUserCreation", testCorrectUserCreation)
+	t.Run("emailInUse", testCreateNewUserEmailInUse)
+	t.Run("databaseError", testCreateNewUserDatabaseError)
+	t.Run("correctUserCreation", testCorrectUserCreation)
 }

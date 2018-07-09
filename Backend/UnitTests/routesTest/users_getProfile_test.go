@@ -4,57 +4,57 @@ import (
 	"testing"
 	"github.com/gin-gonic/gin"
 	"esports-league-manager/Backend/Server/routes"
+	"errors"
+	"github.com/stretchr/testify/mock"
+	"esports-league-manager/mocks"
 	"bytes"
 	"encoding/json"
-	"errors"
 )
 
 type userProfile struct {
 	Id int `json:"id"`
 }
 
-//set up mock session managers
-type mockSessionManager struct {
-	id int
-	err error
-}
-
-func (s *mockSessionManager) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
-	return s.id, s.err
-}
-
-func (s *mockSessionManager) LogIn(ctx *gin.Context, userID int) error {
-	return nil
-}
-
-func (s *mockSessionManager) SetActiveLeague(ctx *gin.Context, leagueID int) error {
-	return nil
+func createUserProfileBody(id int) *bytes.Buffer {
+	body := userProfile{Id: id}
+	reqBodyB, _ := json.Marshal(&body)
+	return bytes.NewBuffer(reqBodyB)
 }
 
 func testGetProfileNotLoggedIn(t *testing.T) {
-	routes.ElmSessions = &mockSessionManager{
-		id: -1,
-		err: nil,
-	}
-	responseCodeAndErrorJsonTest(t, new(bytes.Buffer), "notLoggedIn", "GET", "/", 403)
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(-1, nil)
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, nil, "GET", "/", 403, testParams{Error: "notLoggedIn"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
-func testGetProfileDatabaseError(t *testing.T) {
-	routes.ElmSessions = &mockSessionManager{
-		id: -1,
-		err: errors.New("fake database error"),
-	}
-	responseCodeTest(t, new(bytes.Buffer), 500, "GET", "/")
+func testGetProfileSessionError(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(-1, errors.New("fake session error"))
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, nil, "GET", "/", 500, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func testGetProfileCorrectly(t *testing.T) {
-	routes.ElmSessions = &mockSessionManager{
-		id: 1,
-		err: nil,
-	}
-	resBodyB, _ := json.Marshal(userProfile{Id: 1})
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(14, nil)
 
-	testResponseAndCode(t, new(bytes.Buffer), bytes.NewBuffer(resBodyB), "GET", "/", 200)
+	routes.ElmSessions = mockSession
+
+	httpTest(t, nil, "GET", "/", 200, testParams{ResponseBody: createUserProfileBody(14)})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func Test_GetProfile(t *testing.T) {
@@ -63,6 +63,6 @@ func Test_GetProfile(t *testing.T) {
 	router.GET("/", routes.Testing_Export_getProfile)
 
 	t.Run("getProfileNotLoggedIn", testGetProfileNotLoggedIn)
-	t.Run("getProfileDatabaseError", testGetProfileDatabaseError)
+	t.Run("getProfileSessionError", testGetProfileSessionError)
 	t.Run("getProfileCorrectly", testGetProfileCorrectly)
 }

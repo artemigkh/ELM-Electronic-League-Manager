@@ -6,15 +6,6 @@ import (
 	"strconv"
 )
 
-//
-//import (
-//	sq "github.com/Masterminds/squirrel"
-//	"github.com/kataras/iris"
-//	"database/sql"
-//	"github.com/kataras/iris/sessions"
-//)
-//
-
 type LeagueRequest struct {
 	Name       string `json:"name"`
 	PublicView bool   `json:"publicView"`
@@ -110,67 +101,3 @@ func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewLeague)
 	g.POST("/setActiveLeague/:id", setActiveLeague)
 }
-
-//// /api/leagues
-//func RegisterLeagueHandlers(app iris.Party, db *sql.DB, sessions *sessions.Sessions) {
-//
-
-//	app.Post("/", func(ctx iris.Context) {
-//		//get params
-//		var lgRequest LeagueRequest
-//		err := ctx.ReadJSON(&lgRequest)
-//		if checkErr(ctx, err) {return}
-//
-//		session := sessions.Start(ctx)
-//		userID := authenticateAndGetCurrUserId(ctx, session)
-//		if userID == -1 {
-//			return
-//		}
-//
-//		if failIfLeagueNameTooLong(lgRequest.Name, ctx)  {return}
-//		if failIfLeagueNameInUse(lgRequest.Name, ctx, psql, db)  {return}
-//
-//		//create new league
-//		var leagueID int
-//		err = psql.Insert("leagues").Columns("name", "publicView", "publicJoin").
-//			Values(lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin).Suffix("RETURNING \"id\"").
-//			RunWith(db).QueryRow().Scan(&leagueID)
-//		if checkErr(ctx, err) {return}
-//
-//		//create permissions entry linking current user ID as the league creator
-//		_, err = psql.Insert("leaguePermissions").Columns("userID", "leagueID", "editPermissions", "editTeams",
-//					"editUsers", "editSchedule", "editResults").Values(userID, leagueID, true, true, true, true, true).
-//					RunWith(db).Exec()
-//		if checkErr(ctx, err) {return}
-//
-//		ctx.JSON(idWrapper{Id: leagueID})
-//	})
-//
-
-///**
-// * @api{GET} /api/leagues/ Get information about the current league
-// * @apiName getLeagueInformation
-// * @apiGroup leagues
-// * @apiDescription get information about the current league
-// *
-// * @apiError noCurrentActiveLeague There is no currently active league
-// *
-// * @apiSuccess {int} id the id of the current league
-// *
-// */
-//	app.Get("/", func(ctx iris.Context) {
-//		session := sessions.Start(ctx)
-//
-//		//fail if active league does not exist
-//		id, err := session.GetInt("activeLeague")
-//		if err != nil {
-//			ctx.JSON(errorResponse{Error: "noCurrentActiveLeague"})
-//			ctx.StatusCode(iris.StatusBadRequest)
-//			return
-//		}
-//
-//		ctx.JSON(leagueInformation{Id: id})
-//		ctx.StatusCode(iris.StatusOK)
-//	})
-//
-//}

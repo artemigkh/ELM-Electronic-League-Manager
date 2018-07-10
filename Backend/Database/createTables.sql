@@ -48,19 +48,6 @@ CREATE TABLE teamPermissions (
   reportResult    BOOLEAN       NOT NULL
 );
 
-CREATE TABLE permissions (
-  userID          INT           NOT NULL         ,
-  leagueID        INT           NOT NULL         ,
-  teamID          INT           NOT NULL         ,
-  editPermissions BOOLEAN       NOT NULL         ,
-  editTeams       BOOLEAN       NOT NULL         ,
-  editUsers       BOOLEAN       NOT NULL         ,
-  editSchedule    BOOLEAN       NOT NULL         ,
-  editGames       BOOLEAN       NOT NULL         ,
-  reportResult    BOOLEAN       NOT NULL
-);
-
-
 CREATE TABLE games (
   id              INT           PRIMARY KEY DEFAULT nextval('gamesIDSeq'),
   team1           INT                      NOT NULL      ,

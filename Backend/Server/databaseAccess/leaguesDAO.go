@@ -49,7 +49,34 @@ func (d *PgLeaguesDAO) IsNameInUse(name string) (bool, error) {
 }
 
 func (d *PgLeaguesDAO) IsLeagueViewable(leagueID, userID int) (bool, error) {
-	return false, nil
+	//check if publicly viewable
+	var publicView bool
+	err := d.psql.Select("publicview").
+		From("leagues").
+		Where("id = ?", leagueID).
+		RunWith(db).QueryRow().Scan(&publicView)
+	if err != nil {
+		return false, err
+	}
+
+	if publicView {
+		return true, nil
+	}
+
+	//if not publicly viewable, see if user has permission to view it. This is checked by seeing if there is a
+	//leaguePermissions row with that userId and leagueId, if there is they have at least the base (viewing) privileges
+	var uid int
+	err = d.psql.Select("userID").
+		From("leaguePermissions").
+		Where("userID = ? AND leagueID = ?", userID, leagueID).
+		RunWith(db).QueryRow().Scan(&uid)
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (d *PgLeaguesDAO) GetLeagueInformation(userID int) (*LeagueInformation, error) {

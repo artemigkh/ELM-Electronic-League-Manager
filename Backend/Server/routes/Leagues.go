@@ -102,7 +102,6 @@ func getActiveLeagueInformation(ctx *gin.Context) {
 	if checkErr(ctx, err) {
 		return
 	}
-
 	if leagueId == -1 {
 		ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
 		return

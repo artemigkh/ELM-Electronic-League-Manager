@@ -17,4 +17,6 @@ type LeaguesDAO interface {
 type TeamsDAO interface {
 	CreateTeam(leagueID, userID int, name, tag string) (int, error)
 	IsInfoInUse(name, tag string, leagueID int) (bool, string, error)
+	GetTeamInformation(teamID, leagueID int) (*TeamInformation, error)
+	DoesTeamExist(teamID, leagueID int) (bool, error)
 }

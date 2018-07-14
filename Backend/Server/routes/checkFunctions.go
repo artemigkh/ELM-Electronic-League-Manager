@@ -129,3 +129,16 @@ func failIfTeamInfoInUse(ctx *gin.Context, name, tag string, leagueId int) bool 
 		return false
 	}
 }
+
+func failIfTeamDoesNotExist(ctx *gin.Context, teamID, leagueID int) bool {
+	exists, err := TeamsDAO.DoesTeamExist(teamID, leagueID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if !exists {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "teamDoesNotExist"})
+		return true
+	} else {
+		return false
+	}
+}

@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type TeamInformation struct {
@@ -66,6 +67,36 @@ func createNewTeam(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"id": teamID})
 }
 
+func getTeamInformation(ctx *gin.Context) {
+	teamID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
+		return
+	}
+
+	//must have an active league
+	leagueID, err := ElmSessions.GetActiveLeague(ctx)
+	if checkErr(ctx, err) {
+		return
+	}
+	if leagueID == -1 {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
+		return
+	}
+
+	if failIfTeamDoesNotExist(ctx, teamID, leagueID) {
+		return
+	}
+
+	teamInfo, err := TeamsDAO.GetTeamInformation(teamID, leagueID)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, teamInfo)
+}
+
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewTeam)
+	g.GET("/:id", getTeamInformation)
 }

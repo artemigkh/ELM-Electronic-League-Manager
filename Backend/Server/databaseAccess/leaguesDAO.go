@@ -79,6 +79,19 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueID, userID int) (bool, error) {
 	return true, nil
 }
 
-func (d *PgLeaguesDAO) GetLeagueInformation(userID int) (*LeagueInformation, error) {
-	return nil, nil
+func (d *PgLeaguesDAO) GetLeagueInformation(leagueID int) (*LeagueInformation, error) {
+	return &LeagueInformation{Id: leagueID}, nil
+}
+
+func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueID, userID int) (bool, error) {
+	var canEdit bool
+	err := d.psql.Select("editPermissions").
+		From("leaguePermissions").
+		Where("userID = ? AND leagueID = ?", userID, leagueID).
+		RunWith(db).QueryRow().Scan(&canEdit)
+	if err != nil {
+		return false, err
+	}
+
+	return canEdit, nil
 }

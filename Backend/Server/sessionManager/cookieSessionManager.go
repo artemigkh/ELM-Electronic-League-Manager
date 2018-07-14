@@ -55,3 +55,21 @@ func (s *CookieSessionManager) SetActiveLeague(ctx *gin.Context, leagueID int) e
 	session.Save(ctx.Request, ctx.Writer)
 	return nil
 }
+
+func (s *CookieSessionManager) GetActiveLeague(ctx *gin.Context) (int, error) {
+	session, err := s.store.Get(ctx.Request, "lm-session")
+	if err != nil {
+		println(err.Error())
+		return -1, err
+	}
+
+	IDValue := session.Values["leagueID"]
+
+	if IDValue == nil {
+		return -1, nil
+	}
+
+	leagueID := IDValue.(int)
+
+	return leagueID, nil
+}

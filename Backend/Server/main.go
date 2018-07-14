@@ -22,15 +22,13 @@ func newApp(conf config.Config) *gin.Engine {
 	databaseAccess.Init(conf)
 	routes.UsersDAO = databaseAccess.CreateUsersDao()
 	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()
+	routes.TeamsDAO = databaseAccess.CreateTeamsDAO()
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager()
 
-
-	//routesTest.RegisterLoginHandlers(app.Party("/login"), &db, elmSessions)
 	routes.RegisterLoginHandlers(app.Group("/login"))
 	routes.RegisterUserHandlers(app.Group("/api/users"))
 	routes.RegisterLeagueHandlers(app.Group("/api/leagues"))
-
-	//routesTest.RegisterLeagueHandlers(app.Party("/api/leagues"), &db, elmSessions)
+	routes.RegisterTeamHandlers(app.Group("/api/teams"))
 
 	return app
 }

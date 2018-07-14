@@ -30,6 +30,27 @@ func (_m *SessionManager) AuthenticateAndGetUserID(ctx *gin.Context) (int, error
 	return r0, r1
 }
 
+// GetActiveLeague provides a mock function with given fields: ctx
+func (_m *SessionManager) GetActiveLeague(ctx *gin.Context) (int, error) {
+	ret := _m.Called(ctx)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(*gin.Context) int); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*gin.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // LogIn provides a mock function with given fields: ctx, userID
 func (_m *SessionManager) LogIn(ctx *gin.Context, userID int) error {
 	ret := _m.Called(ctx, userID)

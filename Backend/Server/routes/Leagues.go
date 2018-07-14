@@ -97,7 +97,27 @@ func setActiveLeague(ctx *gin.Context) {
 	}
 }
 
+func getActiveLeagueInformation(ctx *gin.Context) {
+	leagueId, err := ElmSessions.GetActiveLeague(ctx)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	if leagueId == -1 {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
+		return
+	}
+
+	leagueInfo, err := LeaguesDAO.GetLeagueInformation(leagueId)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, leagueInfo)
+}
+
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewLeague)
 	g.POST("/setActiveLeague/:id", setActiveLeague)
+	g.GET("/", getActiveLeagueInformation)
 }

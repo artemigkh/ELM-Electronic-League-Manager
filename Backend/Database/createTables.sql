@@ -50,11 +50,11 @@ CREATE TABLE teamPermissions (
 
 CREATE TABLE games (
   id              INT           PRIMARY KEY DEFAULT nextval('gamesIDSeq'),
-  team1           INT                      NOT NULL      ,
-  team2           INT                      NOT NULL      ,
+  team1ID         INT                      NOT NULL      ,
+  team2ID         INT                      NOT NULL      ,
   gametime        TIMESTAMP WITH TIME ZONE NOT NULL      ,
   complete        BOOLEAN                  NOT NULL      ,
-  winner          INT                      NOT NULL      ,
+  winnerID        INT                      NOT NULL      ,
   scoreteam1      INT                      NOT NULL      ,
   scoreteam2      INT                      NOT NULL
 );

@@ -21,3 +21,9 @@ func CreateTeamsDAO() TeamsDAO {
 		psql: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
 	}
 }
+
+func CreateGamesDAO() GamesDAO {
+	return &PgGamesDAO{
+		psql: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+	}
+}

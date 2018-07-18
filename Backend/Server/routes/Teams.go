@@ -74,21 +74,11 @@ func getTeamInformation(ctx *gin.Context) {
 		return
 	}
 
-	//must have an active league
-	leagueID, err := ElmSessions.GetActiveLeague(ctx)
-	if checkErr(ctx, err) {
-		return
-	}
-	if leagueID == -1 {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
+	if failIfTeamDoesNotExist(ctx, teamID, ctx.GetInt("")) {
 		return
 	}
 
-	if failIfTeamDoesNotExist(ctx, teamID, leagueID) {
-		return
-	}
-
-	teamInfo, err := TeamsDAO.GetTeamInformation(teamID, leagueID)
+	teamInfo, err := TeamsDAO.GetTeamInformation(teamID, ctx.GetInt("leagueID"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -97,6 +87,8 @@ func getTeamInformation(ctx *gin.Context) {
 }
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
+	g.Use(getActiveLeague())
+
 	g.POST("/", createNewTeam)
 	g.GET("/:id", getTeamInformation)
 }

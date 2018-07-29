@@ -33,11 +33,29 @@ func createTeamResponseBody(id int) *bytes.Buffer {
 }
 
 func testCreateNewTeamMalformedBody(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
+		Return(true, nil)
+
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
 	httpTest(t, nil, "POST", "/", 400, testParams{Error: "malformedInput"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+
 }
 
 func testCreateNewTeamSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(5, nil)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(1, errors.New("session error"))
 
@@ -51,6 +69,8 @@ func testCreateNewTeamSessionError(t *testing.T) {
 
 func testCreateNewTeamNotLoggedIn(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(1, nil)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(-1, nil)
 
@@ -64,8 +84,6 @@ func testCreateNewTeamNotLoggedIn(t *testing.T) {
 
 func testCreateNewTeamNoActiveLeague(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(-1, nil)
 
@@ -79,11 +97,11 @@ func testCreateNewTeamNoActiveLeague(t *testing.T) {
 
 func testCreateNewTeamNoEditPermissions(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
+
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
 		Return(false, nil)
@@ -99,10 +117,11 @@ func testCreateNewTeamNoEditPermissions(t *testing.T) {
 
 func testCreateNewTeamDbError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
+
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -119,10 +138,10 @@ func testCreateNewTeamDbError(t *testing.T) {
 
 func testCreateNewTeamNameTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -139,10 +158,10 @@ func testCreateNewTeamNameTooLong(t *testing.T) {
 
 func testCreateNewTeamTagTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -159,10 +178,10 @@ func testCreateNewTeamTagTooLong(t *testing.T) {
 
 func testCreateNewTeamNameInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -184,10 +203,10 @@ func testCreateNewTeamNameInUse(t *testing.T) {
 
 func testCreateNewTeamTagInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -209,10 +228,10 @@ func testCreateNewTeamTagInUse(t *testing.T) {
 
 func testCorrectTeamCreation(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(4, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -238,7 +257,12 @@ func Test_CreateNewTeam(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
-	router.POST("/", routes.Testing_Export_createNewTeam)
+
+	router.Use(routes.Testing_Export_getActiveLeague())
+	router.POST("/",
+		routes.Testing_Export_authenticate(),
+		routes.Testing_Export_getTeamEditPermissions(),
+		routes.Testing_Export_createNewTeam)
 
 	t.Run("malformedBody", testCreateNewTeamMalformedBody)
 	t.Run("sessionsError", testCreateNewTeamSessionError)

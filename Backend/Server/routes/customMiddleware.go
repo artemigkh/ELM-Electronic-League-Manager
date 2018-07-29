@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func authenticate() gin.HandlerFunc {
@@ -40,5 +41,35 @@ func getActiveLeague() gin.HandlerFunc {
 
 		ctx.Set("leagueID", leagueID)
 		ctx.Next()
+	}
+}
+
+func getUrlId() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		println("id is: ", ctx.Param("id"))
+		urlId, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set("urlId", urlId)
+		ctx.Next()
+	}
+}
+
+func getTeamEditPermissions() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		canEditTeams, err := LeaguesDAO.HasEditTeamsPermission(ctx.GetInt("leagueID"), ctx.GetInt("userID"))
+		if checkErr(ctx, err) {
+			ctx.Abort()
+			return
+		}
+		if !canEditTeams {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "noEditLeaguePermissions"})
+			ctx.Abort()
+			return
+		}
 	}
 }

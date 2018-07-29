@@ -25,11 +25,28 @@ func createTeamInfoBody(name, tag string, wins, losses int, members []databaseAc
 }
 
 func testGetTeamInformationNoId(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
 	httpTest(t, nil, "GET", "/", 404, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
+
 }
 
 func testGetTeamInformationNotInt(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
 	httpTest(t, nil, "GET", "/a", 400, testParams{Error: "IdMustBeInteger"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func testGetTeamInformationSessionError(t *testing.T) {
@@ -182,12 +199,14 @@ func Test_GetTeamInformation(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
-	router.GET("/:id", routes.Testing_Export_getTeamInformation)
+
+	router.Use(routes.Testing_Export_getActiveLeague())
+	router.GET("/:id", routes.Testing_Export_getUrlId(), routes.Testing_Export_getTeamInformation)
 
 	t.Run("noId", testGetTeamInformationNoId)
 	t.Run("IdNotInt", testGetTeamInformationNotInt)
 	t.Run("sessionError", testGetTeamInformationSessionError)
-	t.Run("noActiveSession", testGetTeamInformationNoActiveLeague)
+	t.Run("noActiveLeague", testGetTeamInformationNoActiveLeague)
 	t.Run("teamDoesNotExist", testGetTeamInformationTeamDoesNotExist)
 	t.Run("dbError", testGetTeamInformationDbError)
 	t.Run("getOneMemberTeam", testCorrectGetTeamInformationOneMember)

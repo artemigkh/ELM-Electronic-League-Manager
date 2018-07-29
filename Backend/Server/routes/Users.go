@@ -69,22 +69,12 @@ func createNewUser(ctx *gin.Context) {
  * @apiError notLoggedIn 403 No user is currently logged in
  */
 func getProfile(ctx *gin.Context) {
-	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	if userID == -1 {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
-		return
-	}
-
 	ctx.JSON(http.StatusOK, userProfile{
-		Id: userID,
+		Id: ctx.GetInt("userID"),
 	})
 }
 
 func RegisterUserHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewUser)
-	g.GET("/profile", getProfile)
+	g.GET("/profile", authenticate(), getProfile)
 }

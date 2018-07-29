@@ -60,7 +60,7 @@ func testGetProfileCorrectly(t *testing.T) {
 func Test_GetProfile(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
-	router.GET("/", routes.Testing_Export_getProfile)
+	router.GET("/", routes.Testing_Export_authenticate(), routes.Testing_Export_getProfile)
 
 	t.Run("getProfileNotLoggedIn", testGetProfileNotLoggedIn)
 	t.Run("getProfileSessionError", testGetProfileSessionError)

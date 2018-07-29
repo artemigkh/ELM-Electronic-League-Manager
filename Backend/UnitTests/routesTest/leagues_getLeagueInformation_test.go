@@ -84,7 +84,7 @@ func Test_CreateGetLeagueInformation(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
-	router.GET("/", routes.Testing_Export_getActiveLeagueInformation)
+	router.GET("/", routes.Testing_Export_getActiveLeague(), routes.Testing_Export_getActiveLeagueInformation)
 
 	t.Run("sessionError", testGetLeagueDataSessionError)
 	t.Run("noActiveLeague", testGetLeagueDataNoActiveLeague)

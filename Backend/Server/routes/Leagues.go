@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 type LeagueRequest struct {
@@ -70,19 +69,13 @@ func createNewLeague(ctx *gin.Context) {
  * @apiError 403 Forbidden
  */
 func setActiveLeague(ctx *gin.Context) {
-	leagueId, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
-		return
-	}
-
 	//get user ID (or -1 if not logged in)
 	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	viewable, err := LeaguesDAO.IsLeagueViewable(leagueId, userID)
+	viewable, err := LeaguesDAO.IsLeagueViewable(ctx.GetInt("urlId"), userID)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -90,7 +83,7 @@ func setActiveLeague(ctx *gin.Context) {
 	if !viewable {
 		ctx.JSON(http.StatusForbidden, nil)
 	} else {
-		err := ElmSessions.SetActiveLeague(ctx, leagueId)
+		err := ElmSessions.SetActiveLeague(ctx, ctx.GetInt("urlId"))
 		if checkErr(ctx, err) {
 			return
 		}
@@ -98,16 +91,7 @@ func setActiveLeague(ctx *gin.Context) {
 }
 
 func getActiveLeagueInformation(ctx *gin.Context) {
-	leagueId, err := ElmSessions.GetActiveLeague(ctx)
-	if checkErr(ctx, err) {
-		return
-	}
-	if leagueId == -1 {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
-		return
-	}
-
-	leagueInfo, err := LeaguesDAO.GetLeagueInformation(leagueId)
+	leagueInfo, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("leagueID"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -117,6 +101,6 @@ func getActiveLeagueInformation(ctx *gin.Context) {
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewLeague)
-	g.POST("/setActiveLeague/:id", setActiveLeague)
-	g.GET("/", getActiveLeagueInformation)
+	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
+	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 }

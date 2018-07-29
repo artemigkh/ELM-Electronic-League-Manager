@@ -100,7 +100,7 @@ func Test_CreateSetLeague(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
-	router.POST("/:id", routes.Testing_Export_setActiveLeague)
+	router.POST("/:id", routes.Testing_Export_getUrlId(), routes.Testing_Export_setActiveLeague)
 
 	t.Run("noId", testSetLeagueNoId)
 	t.Run("IdNotInt", testSetLeagueIdNotInt)

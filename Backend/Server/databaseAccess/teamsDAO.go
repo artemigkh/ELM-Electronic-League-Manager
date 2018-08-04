@@ -4,7 +4,6 @@ import (
 	"github.com/Masterminds/squirrel"
 	"database/sql"
 	"strings"
-	"log"
 )
 
 type UserInformation struct {
@@ -104,7 +103,7 @@ func (d *PgTeamsDAO) GetTeamInformation(teamID, leagueID int) (*TeamInformation,
 	for rows.Next() {
 		err := rows.Scan(&member.Id, &member.Email)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 		members = append(members, member)
 	}

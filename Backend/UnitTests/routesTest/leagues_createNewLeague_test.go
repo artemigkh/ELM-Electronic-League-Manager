@@ -34,7 +34,15 @@ func createLeagueResponseBody(id int) *bytes.Buffer {
 }
 
 func testCreateNewLeagueMalformedBody(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
 	httpTest(t, nil, "POST", "/", 400, testParams{Error: "malformedInput"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
 func testCreateNewLeagueSessionError(t *testing.T) {
@@ -138,7 +146,7 @@ func Test_CreateNewLeague(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
-	router.POST("/", routes.Testing_Export_createNewLeague)
+	router.POST("/", routes.Testing_Export_authenticate(), routes.Testing_Export_createNewLeague)
 
 	t.Run("malformedBody", testCreateNewLeagueMalformedBody)
 	t.Run("sessionsError", testCreateNewLeagueSessionError)

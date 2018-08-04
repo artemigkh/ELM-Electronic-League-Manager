@@ -22,7 +22,7 @@ type TeamsDAO interface {
 }
 
 type GamesDAO interface {
-	CreateGame(team1ID, team2ID, gameTime int) (int, error)
+	CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, error)
 	DoesExistConflict(team1ID, team2ID, gameTime int) (bool, error)
 	GetGameInformation(gameID int) (*GameInformation, error)
 }

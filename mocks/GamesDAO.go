@@ -9,20 +9,20 @@ type GamesDAO struct {
 	mock.Mock
 }
 
-// CreateGame provides a mock function with given fields: team1ID, team2ID, gameTime
-func (_m *GamesDAO) CreateGame(team1ID int, team2ID int, gameTime int) (int, error) {
-	ret := _m.Called(team1ID, team2ID, gameTime)
+// CreateGame provides a mock function with given fields: leagueID, team1ID, team2ID, gameTime
+func (_m *GamesDAO) CreateGame(leagueID int, team1ID int, team2ID int, gameTime int) (int, error) {
+	ret := _m.Called(leagueID, team1ID, team2ID, gameTime)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, int) int); ok {
-		r0 = rf(team1ID, team2ID, gameTime)
+	if rf, ok := ret.Get(0).(func(int, int, int, int) int); ok {
+		r0 = rf(leagueID, team1ID, team2ID, gameTime)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
-		r1 = rf(team1ID, team2ID, gameTime)
+	if rf, ok := ret.Get(1).(func(int, int, int, int) error); ok {
+		r1 = rf(leagueID, team1ID, team2ID, gameTime)
 	} else {
 		r1 = ret.Error(1)
 	}

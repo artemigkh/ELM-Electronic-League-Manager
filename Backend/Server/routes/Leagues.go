@@ -34,16 +34,6 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
-	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	if userID == -1 {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
-		return
-	}
-
 	if failIfLeagueNameTooLong(ctx, lgRequest.Name) {
 		return
 	}
@@ -51,7 +41,7 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
-	leagueID, err := LeaguesDAO.CreateLeague(userID, lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin)
+	leagueID, err := LeaguesDAO.CreateLeague(ctx.GetInt("userID"), lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -68,6 +58,7 @@ func createNewLeague(ctx *gin.Context) {
  *
  * @apiError 403 Forbidden
  */
+ //TODO: check if league exists
 func setActiveLeague(ctx *gin.Context) {
 	//get user ID (or -1 if not logged in)
 	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
@@ -100,7 +91,7 @@ func getActiveLeagueInformation(ctx *gin.Context) {
 }
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
-	g.POST("/", createNewLeague)
+	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 }

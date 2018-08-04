@@ -15,3 +15,5 @@ var Testing_Export_getActiveLeagueInformation = getActiveLeagueInformation
 
 var Testing_Export_createNewTeam = createNewTeam
 var Testing_Export_getTeamInformation = getTeamInformation
+
+var Testing_Export_createNewGame = createNewGame

@@ -11,6 +11,7 @@ type GameInformation struct {
 	GameTime int `json:"gameTime"`
 }
 
+//TODO: check if there exists the same player on both teams
 func createNewGame(ctx *gin.Context) {
 	//get parameters
 	var gameInfo GameInformation
@@ -19,27 +20,24 @@ func createNewGame(ctx *gin.Context) {
 		return
 	}
 
-	//must be logged in to create a game
-	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
-	if checkErr(ctx, err) {
+	if failIfTeamDoesNotExist(ctx, gameInfo.Team1ID, ctx.GetInt("leagueID")) {
 		return
 	}
-	if userID == -1 {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
+	if failIfTeamDoesNotExist(ctx, gameInfo.Team2ID, ctx.GetInt("leagueID")) {
+		return
+	}
+	if failIfConflictExists(ctx, gameInfo.Team1ID, gameInfo.Team2ID, gameInfo.GameTime) {
 		return
 	}
 
-	//must have an active game to create a team in it
-	leagueId, err := ElmSessions.GetActiveLeague(ctx)
+	gameID, err := GamesDAO.CreateGame(ctx.GetInt("leagueID"), gameInfo.Team1ID, gameInfo.Team2ID, gameInfo.GameTime)
 	if checkErr(ctx, err) {
 		return
 	}
-	if leagueId == -1 {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
-		return
-	}
+
+	ctx.JSON(http.StatusOK, gin.H{"id": gameID})
 }
 
 func RegisterGameHandlers(g *gin.RouterGroup) {
-	g.POST("/", createNewGame)
+	g.POST("/", authenticate(), getActiveLeague(), createNewGame)
 }

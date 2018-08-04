@@ -51,13 +51,13 @@ func (_m *GamesDAO) DoesExistConflict(team1ID int, team2ID int, gameTime int) (b
 	return r0, r1
 }
 
-// GetGameInformation provides a mock function with given fields: gameID
-func (_m *GamesDAO) GetGameInformation(gameID int) (*databaseAccess.GameInformation, error) {
-	ret := _m.Called(gameID)
+// GetGameInformation provides a mock function with given fields: gameID, leagueID
+func (_m *GamesDAO) GetGameInformation(gameID int, leagueID int) (*databaseAccess.GameInformation, error) {
+	ret := _m.Called(gameID, leagueID)
 
 	var r0 *databaseAccess.GameInformation
-	if rf, ok := ret.Get(0).(func(int) *databaseAccess.GameInformation); ok {
-		r0 = rf(gameID)
+	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.GameInformation); ok {
+		r0 = rf(gameID, leagueID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*databaseAccess.GameInformation)
@@ -65,8 +65,8 @@ func (_m *GamesDAO) GetGameInformation(gameID int) (*databaseAccess.GameInformat
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
-		r1 = rf(gameID)
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(gameID, leagueID)
 	} else {
 		r1 = ret.Error(1)
 	}

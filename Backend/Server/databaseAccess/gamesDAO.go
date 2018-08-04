@@ -3,6 +3,7 @@ package databaseAccess
 import (
 	"github.com/Masterminds/squirrel"
 	"math"
+	"database/sql"
 )
 
 const (
@@ -93,17 +94,19 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 	return false, nil
 }
 
-func (d *PgGamesDAO) GetGameInformation(gameID int) (*GameInformation, error) {
+func (d *PgGamesDAO) GetGameInformation(gameID, leagueID int) (*GameInformation, error) {
 	var gameInformation GameInformation
 
 	err := d.psql.Select("*").
 		From("games").
-		Where("id = ?", gameID).
+		Where("id = ? AND leagueID = ?", gameID, leagueID).
 		RunWith(db).QueryRow().
 		Scan(&gameInformation.Id, &gameInformation.LeagueID, &gameInformation.Team1ID, &gameInformation.Team2ID,
 			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerID,
 			&gameInformation.ScoreTeam1, &gameInformation.ScoreTeam2)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

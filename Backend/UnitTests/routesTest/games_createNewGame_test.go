@@ -35,6 +35,8 @@ func createGamesResponseBody(id int) *bytes.Buffer {
 
 func testCreateNewGameNotLoggedIn(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(2, nil)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(-1, nil)
 
@@ -48,8 +50,6 @@ func testCreateNewGameNotLoggedIn(t *testing.T) {
 
 func testCreateNewGameNoActiveLeague(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(-1, nil)
 
@@ -63,10 +63,10 @@ func testCreateNewGameNoActiveLeague(t *testing.T) {
 
 func testCreateNewGameTeam1DoesNotExist(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(false, nil)
@@ -82,10 +82,10 @@ func testCreateNewGameTeam1DoesNotExist(t *testing.T) {
 
 func testCreateNewGameTeam2DoesNotExist(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
@@ -102,6 +102,8 @@ func testCreateNewGameTeam2DoesNotExist(t *testing.T) {
 
 func testCreateNewGameSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(2, nil)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(1, errors.New("Fake Cookie Error"))
 
@@ -115,10 +117,10 @@ func testCreateNewGameSessionError(t *testing.T) {
 
 func testCreateNewGameDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
@@ -135,10 +137,10 @@ func testCreateNewGameDatabaseError(t *testing.T) {
 
 func testCreateNewGameConflictExists(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
@@ -159,10 +161,10 @@ func testCreateNewGameConflictExists(t *testing.T) {
 
 func testCreateNewGameCorrectDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
@@ -184,10 +186,10 @@ func testCreateNewGameCorrectDatabaseError(t *testing.T) {
 
 func testCreateNewGameCorrectCreation(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
-		Return(1, nil)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
@@ -211,9 +213,10 @@ func Test_CreateNewGame(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()
+
+	router.Use(routes.Testing_Export_getActiveLeague())
 	router.POST("/",
 		routes.Testing_Export_authenticate(),
-		routes.Testing_Export_getActiveLeague(),
 		routes.Testing_Export_createNewGame)
 
 	t.Run("notLoggedIn", testCreateNewGameNotLoggedIn)

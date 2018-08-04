@@ -80,7 +80,7 @@ func testCorrectGetLeagueData(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }
 
-func Test_CreateGetLeagueInformation(t *testing.T) {
+func Test_GetLeagueInformation(t *testing.T) {
 	//set up router and path to test
 	gin.SetMode(gin.ReleaseMode) //opposite of gin.DebugMode to make tests faster by removing logging
 	router = gin.New()

@@ -34,7 +34,6 @@ func testGetTeamInformationNoId(t *testing.T) {
 	httpTest(t, nil, "GET", "/", 404, testParams{})
 
 	mock.AssertExpectationsForObjects(t, mockSession)
-
 }
 
 func testGetTeamInformationNotInt(t *testing.T) {
@@ -152,25 +151,25 @@ func testCorrectGetTeamInformationManyMembers(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 1, 2).
 		Return(&databaseAccess.TeamInformation{
-		Name: "sampleName",
-		Tag: "TAG",
-		Wins: 10,
-		Losses: 2,
-		Members: []databaseAccess.UserInformation{
-			{
-				Id: 1,
-				Email: "test1@email.com",
+			Name: "sampleName",
+			Tag: "TAG",
+			Wins: 10,
+			Losses: 2,
+			Members: []databaseAccess.UserInformation{
+				{
+					Id: 1,
+					Email: "test1@email.com",
+				},
+				{
+					Id: 5,
+					Email: "test5@email.com",
+				},
+				{
+					Id: 3,
+					Email: "test3@email.com",
+				},
 			},
-			{
-				Id: 5,
-				Email: "test5@email.com",
-			},
-			{
-				Id: 3,
-				Email: "test3@email.com",
-			},
-		},
-	}, nil)
+		}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao

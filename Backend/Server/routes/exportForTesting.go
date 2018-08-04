@@ -4,6 +4,7 @@ var Testing_Export_authenticate = authenticate
 var Testing_Export_getActiveLeague = getActiveLeague
 var Testing_Export_getUrlId = getUrlId
 var Testing_Export_getTeamEditPermissions = getTeamEditPermissions
+var Testing_Export_getReportResultPermissions = getReportResultPermissions
 
 var Testing_Export_createNewUser = createNewUser
 var Testing_Export_getProfile = getProfile
@@ -18,3 +19,4 @@ var Testing_Export_getTeamInformation = getTeamInformation
 
 var Testing_Export_createNewGame = createNewGame
 var Testing_Export_getGameInformation = getGameInformation
+var Testing_Export_reportGameResult = reportGameResult

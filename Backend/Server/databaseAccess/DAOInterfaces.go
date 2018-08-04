@@ -25,4 +25,6 @@ type GamesDAO interface {
 	CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, error)
 	DoesExistConflict(team1ID, team2ID, gameTime int) (bool, error)
 	GetGameInformation(gameID, leagueID int) (*GameInformation, error)
+	HasReportResultPermissions(leagueID, gameID, userID int) (bool, error)
+	ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2 int) error
 }

@@ -73,3 +73,22 @@ func getTeamEditPermissions() gin.HandlerFunc {
 		}
 	}
 }
+
+func getReportResultPermissions() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		canReportResult, err := GamesDAO.HasReportResultPermissions(
+			ctx.GetInt("leagueID"),
+			ctx.GetInt("urlId"),
+			ctx.GetInt("userID"),
+		)
+		if checkErr(ctx, err) {
+			ctx.Abort()
+			return
+		}
+		if !canReportResult {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "noReportResultPermissions"})
+			ctx.Abort()
+			return
+		}
+	}
+}

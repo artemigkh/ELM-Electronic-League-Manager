@@ -55,6 +55,23 @@ func getGamesOfTeam(psql squirrel.StatementBuilderType, teamId int) ([]GameInfor
 	return games, nil
 }
 
+func getTeamsInGame(psql squirrel.StatementBuilderType, gameID, leagueID int) (int, int, error) {
+	var (
+		team1 int
+		team2 int
+	)
+
+	err := psql.Select("team1ID", "team2ID").
+		From("games").
+		Where("id = ? AND leagueID = ?", gameID, leagueID).
+		RunWith(db).QueryRow().Scan(&team1, &team2)
+	if err != nil {
+		return -1, -1, err
+	}
+
+	return team1, team2, nil
+}
+
 func (d *PgGamesDAO) CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, error) {
 	var gameID int
 	err := d.psql.Insert("games").
@@ -111,4 +128,66 @@ func (d *PgGamesDAO) GetGameInformation(gameID, leagueID int) (*GameInformation,
 	}
 
 	return &gameInformation, nil
+}
+
+func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (bool, error) {
+	//check if user has league editResults permission
+	var canReport bool
+	err := d.psql.Select("editResults").
+		From("leaguePermissions").
+		Where("userID = ? AND leagueID = ?", userID, leagueID).
+		RunWith(db).QueryRow().Scan(&canReport)
+	if err != nil {
+		return false, err
+	}
+
+	if canReport {
+		return true, nil
+	}
+
+	//check if user has team reportResult permissions on one of the two teams
+	team1ID, team2ID, err := getTeamsInGame(d.psql, gameID, leagueID)
+
+	//check for team 1
+	err = d.psql.Select("reportResult").
+		From("teamPermissions").
+		Where("userID = ? AND teamID = ?", userID, team1ID).
+		RunWith(db).QueryRow().Scan(&canReport)
+	if err != nil {
+		return false, err
+	}
+
+	if canReport {
+		return true, nil
+	}
+
+	//check for team 2
+	err = d.psql.Select("reportResult").
+		From("teamPermissions").
+		Where("userID = ? AND teamID = ?", userID, team2ID).
+		RunWith(db).QueryRow().Scan(&canReport)
+	if err != nil {
+		return false, err
+	}
+
+	if canReport {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2 int) error {
+	_, err := d.psql.Update("games").
+		Set("complete", true).
+		Set("winnerID", winnerID).
+		Set("scoreteam1", scoreTeam1).
+		Set("scoreteam2", scoreTeam2).
+		Where("id = ? AND leagueID = ?", gameID, leagueID).RunWith(db).Exec()
+
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
 }

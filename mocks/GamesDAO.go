@@ -73,3 +73,38 @@ func (_m *GamesDAO) GetGameInformation(gameID int, leagueID int) (*databaseAcces
 
 	return r0, r1
 }
+
+// HasReportResultPermissions provides a mock function with given fields: leagueID, gameID, userID
+func (_m *GamesDAO) HasReportResultPermissions(leagueID int, gameID int, userID int) (bool, error) {
+	ret := _m.Called(leagueID, gameID, userID)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(int, int, int) bool); ok {
+		r0 = rf(leagueID, gameID, userID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
+		r1 = rf(leagueID, gameID, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ReportGame provides a mock function with given fields: gameID, leagueID, winnerID, scoreTeam1, scoreTeam2
+func (_m *GamesDAO) ReportGame(gameID int, leagueID int, winnerID int, scoreTeam1 int, scoreTeam2 int) error {
+	ret := _m.Called(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, int, int, int) error); ok {
+		r0 = rf(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

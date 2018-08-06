@@ -4,6 +4,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"math"
 	"database/sql"
+	"github.com/kataras/iris/core/errors"
 )
 
 const (
@@ -70,6 +71,30 @@ func getTeamsInGame(psql squirrel.StatementBuilderType, gameID, leagueID int) (i
 	}
 
 	return team1, team2, nil
+}
+
+func getLosingTeamID(psql squirrel.StatementBuilderType, gameID, leagueID, winnerID int) (int, error) {
+	var (
+		team1 int
+		team2 int
+	)
+
+	err := psql.Select("team1ID", "team2ID").
+		From("games").
+		Where("id = ? AND leagueID = ?", gameID, leagueID).
+		RunWith(db).QueryRow().Scan(&team1, &team2)
+	if err != nil {
+		return -1, err
+	}
+
+	if winnerID == team1 {
+		return team2, nil
+	} else if winnerID == team2 {
+		return team1, nil
+	} else {
+		println("the winner was not either of the IDs")
+		return -1, errors.New("")
+	}
 }
 
 func (d *PgGamesDAO) CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, error) {
@@ -178,16 +203,43 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 }
 
 func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2 int) error {
+	//update game entry
 	_, err := d.psql.Update("games").
 		Set("complete", true).
 		Set("winnerID", winnerID).
 		Set("scoreteam1", scoreTeam1).
 		Set("scoreteam2", scoreTeam2).
 		Where("id = ? AND leagueID = ?", gameID, leagueID).RunWith(db).Exec()
-
 	if err != nil {
 		return err
-	} else {
-		return nil
 	}
+
+	//update wins and losses of both teams
+	_, err = db.Exec(
+	`
+		UPDATE teams SET wins = wins + 1
+		WHERE teams.id = $1
+		`, winnerID)
+	if err != nil {
+		return err
+	}
+
+	loserID, err := getLosingTeamID(d.psql, gameID, leagueID, winnerID)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(
+		`
+		UPDATE teams SET losses = losses + 1
+		WHERE teams.id = $1
+		`, loserID)
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

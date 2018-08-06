@@ -53,6 +53,29 @@ func (_m *LeaguesDAO) GetLeagueInformation(leagueID int) (*databaseAccess.League
 	return r0, r1
 }
 
+// GetTeamSummary provides a mock function with given fields: leagueID
+func (_m *LeaguesDAO) GetTeamSummary(leagueID int) ([]databaseAccess.TeamSummaryInformation, error) {
+	ret := _m.Called(leagueID)
+
+	var r0 []databaseAccess.TeamSummaryInformation
+	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamSummaryInformation); ok {
+		r0 = rf(leagueID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]databaseAccess.TeamSummaryInformation)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(leagueID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // HasEditTeamsPermission provides a mock function with given fields: leagueID, userID
 func (_m *LeaguesDAO) HasEditTeamsPermission(leagueID int, userID int) (bool, error) {
 	ret := _m.Called(leagueID, userID)

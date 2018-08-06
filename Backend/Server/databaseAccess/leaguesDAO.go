@@ -9,6 +9,14 @@ type LeagueInformation struct {
 	Id int `json:"id"`
 }
 
+type TeamSummaryInformation struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Tag string `json:"tag"`
+	Wins int `json:"wins"`
+	Losses int `json:"losses"`
+}
+
 type PgLeaguesDAO struct {
 	psql squirrel.StatementBuilderType
 }
@@ -94,4 +102,33 @@ func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueID, userID int) (bool, error
 	}
 
 	return canEdit, nil
+}
+
+func (d *PgLeaguesDAO) GetTeamSummary(leagueID int) ([]TeamSummaryInformation, error) {
+	rows, err := d.psql.Select("id", "name", "tag", "wins", "losses").From("teams").
+		Where("leagueID = ?", leagueID).
+		OrderBy("wins DESC").
+		RunWith(db).Query()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var teams []TeamSummaryInformation
+	var team TeamSummaryInformation
+
+	for rows.Next() {
+		err := rows.Scan(&team.Id, &team.Name, &team.Tag, &team.Wins, &team.Losses)
+		if err != nil {
+			return nil, err
+		}
+		teams = append(teams, team)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return teams, nil
 }

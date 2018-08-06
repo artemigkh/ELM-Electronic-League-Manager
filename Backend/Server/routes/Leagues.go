@@ -90,8 +90,18 @@ func getActiveLeagueInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, leagueInfo)
 }
 
+func getTeamSummary(ctx *gin.Context) {
+	teamSummary, err := LeaguesDAO.GetTeamSummary(ctx.GetInt("leagueID"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, teamSummary)
+}
+
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
+	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
 }

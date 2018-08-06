@@ -58,6 +58,7 @@ func getGameInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gameInformation)
 }
 
+//TODO: check if the winner ID is one of the two team IDs in the game
 func reportGameResult(ctx *gin.Context) {
 	//get parameters
 	var gameInfo GameReportInformation

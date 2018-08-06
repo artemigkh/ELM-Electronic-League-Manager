@@ -79,6 +79,14 @@ func login(ctx *gin.Context) {
 	}
 }
 
+func logout(ctx *gin.Context) {
+	err := ElmSessions.LogOut(ctx)
+	if checkErr(ctx, err) {
+		return
+	}
+}
+
 func RegisterLoginHandlers(g *gin.RouterGroup) {
-	g.POST("/", login)
+	g.POST("/login", login)
+	g.POST("/logout", logout)
 }

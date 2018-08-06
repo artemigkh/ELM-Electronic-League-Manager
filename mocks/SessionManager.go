@@ -65,6 +65,20 @@ func (_m *SessionManager) LogIn(ctx *gin.Context, userID int) error {
 	return r0
 }
 
+// LogOut provides a mock function with given fields: ctx
+func (_m *SessionManager) LogOut(ctx *gin.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*gin.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SetActiveLeague provides a mock function with given fields: ctx, leagueID
 func (_m *SessionManager) SetActiveLeague(ctx *gin.Context, leagueID int) error {
 	ret := _m.Called(ctx, leagueID)

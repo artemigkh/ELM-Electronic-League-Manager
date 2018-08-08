@@ -1,12 +1,12 @@
 package main
 
 import (
+	"esports-league-manager/Backend/Server/config"
 	"esports-league-manager/Backend/Server/databaseAccess"
 	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/Backend/Server/sessionManager"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
-	"esports-league-manager/Backend/Server/sessionManager"
-    "esports-league-manager/Backend/Server/config"
 )
 
 type Configuration struct {

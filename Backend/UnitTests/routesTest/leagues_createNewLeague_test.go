@@ -3,17 +3,17 @@ package routesTest
 import (
 	"bytes"
 	"encoding/json"
-	"esports-league-manager/Backend/Server/routes"
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
 	"errors"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createLeagueRequestBody(name string, publicView, publicJoin bool) *bytes.Buffer {
 	reqBody := routes.LeagueRequest{
-		Name: name,
+		Name:       name,
 		PublicView: publicView,
 		PublicJoin: publicJoin,
 	}

@@ -8,9 +8,9 @@ import (
 
 const (
 	MIN_PASSWORD_LENGTH = 8
-	MAX_LEAGUE_LENGTH = 50
-	MAX_TEAM_LENGTH = 50
-	MAX_TAG_LENGTH = 5
+	MAX_LEAGUE_LENGTH   = 50
+	MAX_TEAM_LENGTH     = 50
+	MAX_TAG_LENGTH      = 5
 )
 
 func checkJsonErr(ctx *gin.Context, err error) bool {

@@ -2,14 +2,14 @@ package routesTest
 
 import (
 	"bytes"
-	"esports-league-manager/Backend/Server/databaseAccess"
-	"testing"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
-	"esports-league-manager/Backend/Server/routes"
-	"github.com/gin-gonic/gin"
-	"errors"
 	"encoding/json"
+	"errors"
+	"esports-league-manager/Backend/Server/databaseAccess"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createTeamSummaryBody(body []databaseAccess.TeamSummaryInformation) *bytes.Buffer {
@@ -61,24 +61,24 @@ func testGetTeamSummaryDatabaseError(t *testing.T) {
 func testCorrectGetTeamSummary(t *testing.T) {
 	var teamSummary []databaseAccess.TeamSummaryInformation
 	teamSummary = append(teamSummary, databaseAccess.TeamSummaryInformation{
-		Id: 1,
-		Name: "team1",
-		Tag: "T1",
-		Wins: 2,
+		Id:     1,
+		Name:   "team1",
+		Tag:    "T1",
+		Wins:   2,
 		Losses: 0,
 	})
 	teamSummary = append(teamSummary, databaseAccess.TeamSummaryInformation{
-		Id: 2,
-		Name: "team2",
-		Tag: "T2",
-		Wins: 1,
+		Id:     2,
+		Name:   "team2",
+		Tag:    "T2",
+		Wins:   1,
 		Losses: 1,
 	})
 	teamSummary = append(teamSummary, databaseAccess.TeamSummaryInformation{
-		Id: 3,
-		Name: "team3",
-		Tag: "T3",
-		Wins: 0,
+		Id:     3,
+		Name:   "team3",
+		Tag:    "T3",
+		Wins:   0,
 		Losses: 2,
 	})
 

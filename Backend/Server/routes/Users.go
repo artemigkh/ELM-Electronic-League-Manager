@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/scrypt"
 	"encoding/hex"
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/securecookie"
+	"golang.org/x/crypto/scrypt"
 	"net/http"
 )
 

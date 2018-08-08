@@ -1,15 +1,15 @@
 package routesTest
 
 import (
-	"net/http"
 	"bytes"
-	"net/http/httptest"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 type testParams struct {
-	Error string
+	Error        string
 	ResponseBody *bytes.Buffer
 }
 
@@ -60,10 +60,9 @@ func httpTest(t *testing.T, body *bytes.Buffer, reqType, url string, responseCod
 	}
 }
 
-func responseCodeTest(t *testing.T, body *bytes.Buffer, responseCode int, reqType, url string) *httptest.ResponseRecorder{
+func responseCodeTest(t *testing.T, body *bytes.Buffer, responseCode int, reqType, url string) *httptest.ResponseRecorder {
 	//set up HTTP request
 	req, _ := http.NewRequest(reqType, url, body)
-
 
 	req.Header.Set("Content-Type", "application/json")
 

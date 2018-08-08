@@ -1,10 +1,10 @@
 package databaseAccess
 
 import (
-	"github.com/Masterminds/squirrel"
-	"math"
 	"database/sql"
 	"errors"
+	"github.com/Masterminds/squirrel"
+	"math"
 )
 
 const (
@@ -12,18 +12,18 @@ const (
 )
 
 type GameInformation struct {
-	Id int `json:"id"`
-	LeagueID int `json:"leagueId"`
-	Team1ID int `json:"team1Id"`
-	Team2ID int `json:"team2Id"`
-	GameTime int `json:"gameTime"`
-	Complete bool `json:"complete"`
-	WinnerID int `json:"winnerId"`
-	ScoreTeam1 int `json:"scoreTeam1"`
-	ScoreTeam2 int `json:"scoreTeam2"`
+	Id         int  `json:"id"`
+	LeagueID   int  `json:"leagueId"`
+	Team1ID    int  `json:"team1Id"`
+	Team2ID    int  `json:"team2Id"`
+	GameTime   int  `json:"gameTime"`
+	Complete   bool `json:"complete"`
+	WinnerID   int  `json:"winnerId"`
+	ScoreTeam1 int  `json:"scoreTeam1"`
+	ScoreTeam2 int  `json:"scoreTeam2"`
 }
 
-type PgGamesDAO struct {}
+type PgGamesDAO struct{}
 
 func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	rows, err := psql.Select("*").From("games").
@@ -115,7 +115,7 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 	}
 
 	for _, game := range team1Games {
-		if math.Abs(float64(gameTime) - float64(game.GameTime)) < SCHEDULING_CONFLICT_THRESHOLD_SECONDS {
+		if math.Abs(float64(gameTime)-float64(game.GameTime)) < SCHEDULING_CONFLICT_THRESHOLD_SECONDS {
 			return true, nil
 		}
 	}
@@ -126,7 +126,7 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 	}
 
 	for _, game := range team2Games {
-		if math.Abs(float64(gameTime) - float64(game.GameTime)) < SCHEDULING_CONFLICT_THRESHOLD_SECONDS {
+		if math.Abs(float64(gameTime)-float64(game.GameTime)) < SCHEDULING_CONFLICT_THRESHOLD_SECONDS {
 			return true, nil
 		}
 	}
@@ -214,7 +214,7 @@ func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTea
 
 	//update wins and losses of both teams
 	_, err = db.Exec(
-	`
+		`
 		UPDATE teams SET wins = wins + 1
 		WHERE teams.id = $1
 		`, winnerID)

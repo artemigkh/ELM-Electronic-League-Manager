@@ -1,10 +1,10 @@
 package config
 
 import (
-	"fmt"
-	"os"
-	"log"
 	"encoding/json"
+	"fmt"
+	"log"
+	"os"
 )
 
 type Config interface {

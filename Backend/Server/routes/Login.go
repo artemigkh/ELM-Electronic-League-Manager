@@ -1,31 +1,31 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"encoding/hex"
-	"golang.org/x/crypto/scrypt"
 	"bytes"
+	"encoding/hex"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/scrypt"
 	"net/http"
 )
 
 type loginRequest struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 /**
-  * @api{POST} /login/ Get authentication cookie
-  * @apiName createNewUser
-  * @apiGroup login
-  * @apiDescription Provide user email and password to get login authorization
-  *
-  * @apiParam {string} email
-  * @apiParam {string} password
-  *
-  * @apiError passwordTooShort The password was too short
-  * @apiError emailMalformed The email was not formed correctly
-  * @apiError invalidLogin The user does not exist or password was incorrect
-  */
+ * @api{POST} /login/ Get authentication cookie
+ * @apiName createNewUser
+ * @apiGroup login
+ * @apiDescription Provide user email and password to get login authorization
+ *
+ * @apiParam {string} email
+ * @apiParam {string} password
+ *
+ * @apiError passwordTooShort The password was too short
+ * @apiError emailMalformed The email was not formed correctly
+ * @apiError invalidLogin The user does not exist or password was incorrect
+ */
 
 func login(ctx *gin.Context) {
 	//get parameters

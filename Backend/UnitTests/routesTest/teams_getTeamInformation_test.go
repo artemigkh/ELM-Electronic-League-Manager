@@ -1,23 +1,23 @@
 package routesTest
 
 import (
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/routes"
 	"bytes"
-	"esports-league-manager/Backend/Server/databaseAccess"
 	"encoding/json"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
 	"errors"
+	"esports-league-manager/Backend/Server/databaseAccess"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createTeamInfoBody(name, tag string, wins, losses int, members []databaseAccess.UserInformation) *bytes.Buffer {
 	body := databaseAccess.TeamInformation{
-		Name: name,
-		Tag: tag,
-		Wins: wins,
-		Losses: losses,
+		Name:    name,
+		Tag:     tag,
+		Wins:    wins,
+		Losses:  losses,
 		Members: members,
 	}
 	bodyB, _ := json.Marshal(&body)
@@ -115,17 +115,17 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 1, 2).
 		Return(&databaseAccess.TeamInformation{
-		Name: "sampleName",
-		Tag: "TAG",
-		Wins: 10,
-		Losses: 2,
-		Members: []databaseAccess.UserInformation{
-			{
-				Id: 1,
-				Email: "test1@email.com",
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Members: []databaseAccess.UserInformation{
+				{
+					Id:    1,
+					Email: "test1@email.com",
+				},
 			},
-		},
-	}, nil)
+		}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -134,10 +134,10 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 		testParams{ResponseBody: createTeamInfoBody("sampleName", "TAG", 10, 2,
 			[]databaseAccess.UserInformation{
 				{
-					Id: 1,
+					Id:    1,
 					Email: "test1@email.com",
 				},
-		})})
+			})})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
 }
@@ -151,21 +151,21 @@ func testCorrectGetTeamInformationManyMembers(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 1, 2).
 		Return(&databaseAccess.TeamInformation{
-			Name: "sampleName",
-			Tag: "TAG",
-			Wins: 10,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
 			Losses: 2,
 			Members: []databaseAccess.UserInformation{
 				{
-					Id: 1,
+					Id:    1,
 					Email: "test1@email.com",
 				},
 				{
-					Id: 5,
+					Id:    5,
 					Email: "test5@email.com",
 				},
 				{
-					Id: 3,
+					Id:    3,
 					Email: "test3@email.com",
 				},
 			},
@@ -178,15 +178,15 @@ func testCorrectGetTeamInformationManyMembers(t *testing.T) {
 		testParams{ResponseBody: createTeamInfoBody("sampleName", "TAG", 10, 2,
 			[]databaseAccess.UserInformation{
 				{
-					Id: 1,
+					Id:    1,
 					Email: "test1@email.com",
 				},
 				{
-					Id: 5,
+					Id:    5,
 					Email: "test5@email.com",
 				},
 				{
-					Id: 3,
+					Id:    3,
 					Email: "test3@email.com",
 				},
 			})})

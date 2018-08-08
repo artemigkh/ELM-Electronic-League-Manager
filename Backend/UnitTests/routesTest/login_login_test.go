@@ -1,15 +1,15 @@
 package routesTest
 
 import (
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/routes"
 	"bytes"
 	"encoding/json"
+	"errors"
+	"esports-league-manager/Backend/Server/routes"
 	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
 	"strings"
-	"errors"
+	"testing"
 )
 
 func createLoginRequestBody(email, pass string) *bytes.Buffer {

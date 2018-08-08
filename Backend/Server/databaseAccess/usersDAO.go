@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-type PgUsersDAO struct {}
+type PgUsersDAO struct{}
 
 func (d *PgUsersDAO) CreateUser(email, salt, hash string) error {
 	_, err := psql.Insert("users").Columns("email", "salt", "hash").
@@ -32,7 +32,7 @@ func (d *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, st
 	var storedHash string
 
 	err := psql.Select("id", "salt", "hash").From("users").Where("email = ?", email).
-					RunWith(db).QueryRow().Scan(&id, &salt, &storedHash)
+		RunWith(db).QueryRow().Scan(&id, &salt, &storedHash)
 	if err != nil {
 		return 0, "", "", err
 	}

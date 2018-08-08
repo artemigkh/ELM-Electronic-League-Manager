@@ -1,8 +1,8 @@
 package sessionManager
 
 import (
-	"github.com/gorilla/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/sessions"
 )
 
 type CookieSessionManager struct {

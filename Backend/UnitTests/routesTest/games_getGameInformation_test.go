@@ -1,27 +1,27 @@
 package routesTest
 
 import (
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/routes"
 	"bytes"
-	"esports-league-manager/Backend/Server/databaseAccess"
 	"encoding/json"
-	"github.com/stretchr/testify/mock"
-	"esports-league-manager/mocks"
 	"errors"
+	"esports-league-manager/Backend/Server/databaseAccess"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createGameInfoBody(id int, leagueID, team1ID, team2ID, gameTime,
 	winnerID, scoreTeam1, scoreTeam2 int, complete bool) *bytes.Buffer {
 	body := databaseAccess.GameInformation{
-		Id: id,
-		LeagueID: leagueID,
-		Team1ID: team1ID,
-		Team2ID: team2ID,
-		GameTime: gameTime,
-		Complete: complete,
-		WinnerID: winnerID,
+		Id:         id,
+		LeagueID:   leagueID,
+		Team1ID:    team1ID,
+		Team2ID:    team2ID,
+		GameTime:   gameTime,
+		Complete:   complete,
+		WinnerID:   winnerID,
 		ScoreTeam1: scoreTeam1,
 		ScoreTeam2: scoreTeam2,
 	}
@@ -99,7 +99,6 @@ func testGetGameInformationTeamDoesNotExist(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession, mockGamesDao)
 }
 
-
 func testGetGameInformationNotInt(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
@@ -120,23 +119,22 @@ func testGetGameInformationCorrectGetInfo(t *testing.T) {
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 1, 2).
 		Return(&databaseAccess.GameInformation{
-			Id: 1,
-			LeagueID: 2,
-			Team1ID: 4,
-			Team2ID: 5,
-			GameTime: 1532913359,
-			Complete: true,
-			WinnerID: 4,
+			Id:         1,
+			LeagueID:   2,
+			Team1ID:    4,
+			Team2ID:    5,
+			GameTime:   1532913359,
+			Complete:   true,
+			WinnerID:   4,
 			ScoreTeam1: 2,
 			ScoreTeam2: 1,
-	}, nil)
+		}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.GamesDAO = mockGamesDao
 
-	httpTest(t, nil, "GET", "/1", 200, testParams{ResponseBody:
-		createGameInfoBody(1, 2, 4, 5,
-			1532913359, 4, 2, 1, true)})
+	httpTest(t, nil, "GET", "/1", 200, testParams{ResponseBody: createGameInfoBody(1, 2, 4, 5,
+		1532913359, 4, 2, 1, true)})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockGamesDao)
 }

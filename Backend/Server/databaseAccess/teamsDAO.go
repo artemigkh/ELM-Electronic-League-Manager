@@ -6,21 +6,21 @@ import (
 )
 
 type UserInformation struct {
-	Id int `json:"id"`
+	Id    int    `json:"id"`
 	Email string `json:"email"`
 }
 
 type TeamInformation struct {
-	Name string `json:"name"`
-	Tag string `json:"tag"`
-	Wins int `json:"wins"`
-	Losses int `json:"losses"`
+	Name    string            `json:"name"`
+	Tag     string            `json:"tag"`
+	Wins    int               `json:"wins"`
+	Losses  int               `json:"losses"`
 	Members []UserInformation `json:"members"`
 }
 
-type PgTeamsDAO struct {}
+type PgTeamsDAO struct{}
 
-func (d* PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, error) {
+func (d *PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, error) {
 	var teamID int
 	err := psql.Insert("teams").Columns("leagueID", "name", "tag", "wins", "losses").
 		Values(leagueID, name, strings.ToUpper(tag), 0, 0).Suffix("RETURNING \"id\"").
@@ -41,7 +41,7 @@ func (d* PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, er
 	return teamID, nil
 }
 
-func (d* PgTeamsDAO)IsInfoInUse(name, tag string, leagueID int) (bool, string, error) {
+func (d *PgTeamsDAO) IsInfoInUse(name, tag string, leagueID int) (bool, string, error) {
 	//check if name in use
 	err := psql.Select("name").
 		From("teams").

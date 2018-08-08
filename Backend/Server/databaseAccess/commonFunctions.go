@@ -2,10 +2,10 @@ package databaseAccess
 
 import (
 	"database/sql"
-	_ "github.com/jackc/pgx/stdlib"
-	"log"
 	"esports-league-manager/Backend/Server/config"
 	"github.com/Masterminds/squirrel"
+	_ "github.com/jackc/pgx/stdlib"
+	"log"
 )
 
 func openDB(conf config.Config) {

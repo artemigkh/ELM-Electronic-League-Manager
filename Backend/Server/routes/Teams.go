@@ -7,7 +7,7 @@ import (
 
 type TeamInformation struct {
 	Name string `json:"name"`
-	Tag string `json:"tag"`
+	Tag  string `json:"tag"`
 }
 
 func createNewTeam(ctx *gin.Context) {

@@ -58,7 +58,7 @@ func createNewLeague(ctx *gin.Context) {
  *
  * @apiError 403 Forbidden
  */
- //TODO: check if league exists
+//TODO: check if league exists
 func setActiveLeague(ctx *gin.Context) {
 	//get user ID (or -1 if not logged in)
 	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)

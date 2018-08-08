@@ -1,14 +1,14 @@
 package routesTest
 
 import (
-	"esports-league-manager/Backend/Server/routes"
-	"github.com/gin-gonic/gin"
-	"testing"
 	"bytes"
 	"encoding/json"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
 	"errors"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 type userCreateRequest struct {

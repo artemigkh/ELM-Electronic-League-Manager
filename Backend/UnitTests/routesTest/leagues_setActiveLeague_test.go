@@ -1,12 +1,12 @@
 package routesTest
 
 import (
-	"testing"
-	"github.com/gin-gonic/gin"
+	"errors"
 	"esports-league-manager/Backend/Server/routes"
 	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
-	"errors"
+	"testing"
 )
 
 func testSetLeagueNoId(t *testing.T) {
@@ -66,7 +66,7 @@ func testSetLeagueSetSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(1, nil)
-	mockSession.On( "SetActiveLeague", mock.Anything, 2).Return(errors.New("set session error"))
+	mockSession.On("SetActiveLeague", mock.Anything, 2).Return(errors.New("set session error"))
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("IsLeagueViewable", 2, 1).Return(true, nil)
@@ -83,7 +83,7 @@ func testCorrectSetLeague(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(1, nil)
-	mockSession.On( "SetActiveLeague", mock.Anything, 2).Return(nil)
+	mockSession.On("SetActiveLeague", mock.Anything, 2).Return(nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("IsLeagueViewable", 2, 1).Return(true, nil)

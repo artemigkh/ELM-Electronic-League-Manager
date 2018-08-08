@@ -2,19 +2,19 @@ package routesTest
 
 import (
 	"bytes"
-	"esports-league-manager/Backend/Server/routes"
 	"encoding/json"
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
 	"errors"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createTeamRequestBody(name, tag string) *bytes.Buffer {
 	body := routes.TeamInformation{
 		Name: name,
-		Tag: tag,
+		Tag:  tag,
 	}
 	bodyB, _ := json.Marshal(&body)
 	return bytes.NewBuffer(bodyB)
@@ -121,7 +121,6 @@ func testCreateNewTeamDbError(t *testing.T) {
 		Return(5, nil)
 	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
 		Return(4, nil)
-
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -248,7 +247,7 @@ func testCorrectTeamCreation(t *testing.T) {
 	routes.TeamsDAO = mockTeamsDao
 
 	httpTest(t, createTeamRequestBody("sampleName", "TAG"),
-		"POST", "/", 200, testParams{ResponseBody:createTeamResponseBody(6)})
+		"POST", "/", 200, testParams{ResponseBody: createTeamResponseBody(6)})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao, mockTeamsDao)
 }

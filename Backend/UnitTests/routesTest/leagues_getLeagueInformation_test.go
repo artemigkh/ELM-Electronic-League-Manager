@@ -1,15 +1,15 @@
 package routesTest
 
 import (
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/routes"
-	"testing"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
-	"esports-league-manager/Backend/Server/databaseAccess"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"esports-league-manager/Backend/Server/databaseAccess"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createLeagueInfoBody(id int) *bytes.Buffer {

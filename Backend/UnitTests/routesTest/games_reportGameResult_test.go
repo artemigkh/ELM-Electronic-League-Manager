@@ -1,15 +1,15 @@
 package routesTest
 
 import (
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/Backend/Server/routes"
 	"bytes"
 	"encoding/json"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
 	"errors"
 	"esports-league-manager/Backend/Server/databaseAccess"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createGamesReportBody(winnerId, scoreTeam1, scoreTeam2 int) *bytes.Buffer {
@@ -238,6 +238,3 @@ func Test_ReportGameResult(t *testing.T) {
 	t.Run("CorrectReport", testReportGameResultCorrectReport)
 
 }
-
-
-

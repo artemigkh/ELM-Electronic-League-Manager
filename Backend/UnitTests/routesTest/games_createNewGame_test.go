@@ -2,19 +2,19 @@ package routesTest
 
 import (
 	"bytes"
-	"esports-league-manager/Backend/Server/routes"
 	"encoding/json"
-	"testing"
-	"github.com/gin-gonic/gin"
-	"esports-league-manager/mocks"
-	"github.com/stretchr/testify/mock"
 	"errors"
+	"esports-league-manager/Backend/Server/routes"
+	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func createGamesRequestBody(team1ID, team2ID, gameTime int) *bytes.Buffer {
 	reqBody := routes.GameInformation{
-		Team1ID: team1ID,
-		Team2ID: team2ID,
+		Team1ID:  team1ID,
+		Team2ID:  team2ID,
 		GameTime: gameTime,
 	}
 	reqBodyB, _ := json.Marshal(&reqBody)
@@ -204,7 +204,7 @@ func testCreateNewGameCorrectCreation(t *testing.T) {
 	routes.GamesDAO = mockGamesDao
 
 	httpTest(t, createGamesRequestBody(1, 3, 1532913359),
-		"POST", "/", 200, testParams{ResponseBody:createGamesResponseBody(14)})
+		"POST", "/", 200, testParams{ResponseBody: createGamesResponseBody(14)})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockGamesDao)
 }

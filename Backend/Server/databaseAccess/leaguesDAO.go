@@ -9,14 +9,14 @@ type LeagueInformation struct {
 }
 
 type TeamSummaryInformation struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Tag string `json:"tag"`
-	Wins int `json:"wins"`
-	Losses int `json:"losses"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	Tag    string `json:"tag"`
+	Wins   int    `json:"wins"`
+	Losses int    `json:"losses"`
 }
 
-type PgLeaguesDAO struct {}
+type PgLeaguesDAO struct{}
 
 func (d *PgLeaguesDAO) CreateLeague(userID int, name string, publicView, publicJoin bool) (int, error) {
 	var leagueID int
@@ -29,8 +29,8 @@ func (d *PgLeaguesDAO) CreateLeague(userID int, name string, publicView, publicJ
 
 	//create permissions entry linking current user ID as the league creator
 	_, err = psql.Insert("leaguePermissions").Columns("userID", "leagueID", "editPermissions", "editTeams",
-				"editUsers", "editSchedule", "editResults").Values(userID, leagueID, true, true, true, true, true).
-				RunWith(db).Exec()
+		"editUsers", "editSchedule", "editResults").Values(userID, leagueID, true, true, true, true, true).
+		RunWith(db).Exec()
 	if err != nil {
 		return -1, err
 	}

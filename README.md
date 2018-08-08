@@ -35,6 +35,16 @@ go test -v ./Backend/UnitTests/...
 
 Or in GoLand, right click on the UnitTests folder in project view, and press Run->Go Test
 
+## Development
+
+### Go Backend
+
+This repository strives to maintain readable, reusable, stable, and easily augmentable code. 
+
+As such, the style guide at https://golang.org/doc/effective_go.html is strictly enforced.
+
+All PRs must come with unit tests that cover new functionality, and pass the full suite of tests.
+
 #
 
 This project is licensed under the terms of the MIT license

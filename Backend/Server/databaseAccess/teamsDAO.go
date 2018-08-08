@@ -1,7 +1,6 @@
 package databaseAccess
 
 import (
-	"github.com/Masterminds/squirrel"
 	"database/sql"
 	"strings"
 )
@@ -19,13 +18,11 @@ type TeamInformation struct {
 	Members []UserInformation `json:"members"`
 }
 
-type PgTeamsDAO struct {
-	psql squirrel.StatementBuilderType
-}
+type PgTeamsDAO struct {}
 
 func (d* PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, error) {
 	var teamID int
-	err := d.psql.Insert("teams").Columns("leagueID", "name", "tag", "wins", "losses").
+	err := psql.Insert("teams").Columns("leagueID", "name", "tag", "wins", "losses").
 		Values(leagueID, name, strings.ToUpper(tag), 0, 0).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&teamID)
 	if err != nil {
@@ -33,7 +30,7 @@ func (d* PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, er
 	}
 
 	//create permissions entry linking current user ID as the league creator
-	_, err = d.psql.Insert("teamPermissions").
+	_, err = psql.Insert("teamPermissions").
 		Columns("userID", "teamID", "editPermissions", "editTeamInfo", "editUsers", "reportResult").
 		Values(userID, teamID, true, true, true, true).
 		RunWith(db).Exec()
@@ -46,7 +43,7 @@ func (d* PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, er
 
 func (d* PgTeamsDAO)IsInfoInUse(name, tag string, leagueID int) (bool, string, error) {
 	//check if name in use
-	err := d.psql.Select("name").
+	err := psql.Select("name").
 		From("teams").
 		Where("name = ?", name).
 		RunWith(db).QueryRow().Scan(&name)
@@ -59,7 +56,7 @@ func (d* PgTeamsDAO)IsInfoInUse(name, tag string, leagueID int) (bool, string, e
 	}
 
 	//check if name in use
-	err = d.psql.Select("tag").
+	err = psql.Select("tag").
 		From("teams").
 		Where("tag = ?", strings.ToUpper(tag)).
 		RunWith(db).QueryRow().Scan(&tag)
@@ -75,7 +72,7 @@ func (d* PgTeamsDAO)IsInfoInUse(name, tag string, leagueID int) (bool, string, e
 func (d *PgTeamsDAO) GetTeamInformation(teamID, leagueID int) (*TeamInformation, error) {
 	var teamInformation TeamInformation
 	//get team information
-	err := d.psql.Select("name", "tag", "wins", "losses").
+	err := psql.Select("name", "tag", "wins", "losses").
 		From("teams").
 		Where("id = ? AND leagueID = ?", teamID, leagueID).
 		RunWith(db).QueryRow().Scan(&teamInformation.Name, &teamInformation.Tag, &teamInformation.Wins, &teamInformation.Losses)
@@ -118,7 +115,7 @@ func (d *PgTeamsDAO) GetTeamInformation(teamID, leagueID int) (*TeamInformation,
 
 func (d *PgTeamsDAO) DoesTeamExist(teamID, leagueID int) (bool, error) {
 	var name string
-	err := d.psql.Select("name").
+	err := psql.Select("name").
 		From("teams").
 		Where("id = ? AND leagueID = ?", teamID, leagueID).
 		RunWith(db).QueryRow().Scan(&name)

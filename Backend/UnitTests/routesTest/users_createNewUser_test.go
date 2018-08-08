@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"esports-league-manager/mocks"
 	"github.com/stretchr/testify/mock"
-	"github.com/kataras/iris/core/errors"
+	"errors"
 )
 
 type userCreateRequest struct {

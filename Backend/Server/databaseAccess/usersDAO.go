@@ -2,21 +2,18 @@ package databaseAccess
 
 import (
 	"database/sql"
-	"github.com/Masterminds/squirrel"
 )
 
-type PgUsersDAO struct {
-	psql squirrel.StatementBuilderType
-}
+type PgUsersDAO struct {}
 
-func (u *PgUsersDAO) CreateUser(email, salt, hash string) error {
-	_, err := u.psql.Insert("users").Columns("email", "salt", "hash").
+func (d *PgUsersDAO) CreateUser(email, salt, hash string) error {
+	_, err := psql.Insert("users").Columns("email", "salt", "hash").
 		Values(email, salt, hash).RunWith(db).Exec()
 	return err
 }
 
-func (u *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
-	err := u.psql.Select("email").
+func (d *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
+	err := psql.Select("email").
 		From("users").
 		Where("email = ?", email).
 		RunWith(db).QueryRow().Scan(&email)
@@ -29,12 +26,12 @@ func (u *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
 	}
 }
 
-func (u *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, string, error) {
+func (d *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, string, error) {
 	var id int
 	var salt string
 	var storedHash string
 
-	err := u.psql.Select("id", "salt", "hash").From("users").Where("email = ?", email).
+	err := psql.Select("id", "salt", "hash").From("users").Where("email = ?", email).
 					RunWith(db).QueryRow().Scan(&id, &salt, &storedHash)
 	if err != nil {
 		return 0, "", "", err

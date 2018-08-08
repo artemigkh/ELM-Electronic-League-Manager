@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"esports-league-manager/mocks"
 	"github.com/stretchr/testify/mock"
-	"github.com/kataras/iris/core/errors"
+	"errors"
 )
 
 func createGamesRequestBody(team1ID, team2ID, gameTime int) *bytes.Buffer {

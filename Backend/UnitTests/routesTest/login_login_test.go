@@ -9,7 +9,7 @@ import (
 	"esports-league-manager/mocks"
 	"github.com/stretchr/testify/mock"
 	"strings"
-	"github.com/kataras/iris/core/errors"
+	"errors"
 )
 
 func createLoginRequestBody(email, pass string) *bytes.Buffer {

@@ -4,7 +4,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"math"
 	"database/sql"
-	"github.com/kataras/iris/core/errors"
+	"errors"
 )
 
 const (
@@ -23,11 +23,9 @@ type GameInformation struct {
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
 
-type PgGamesDAO struct {
-	psql squirrel.StatementBuilderType
-}
+type PgGamesDAO struct {}
 
-func getGamesOfTeam(psql squirrel.StatementBuilderType, teamId int) ([]GameInformation, error) {
+func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	rows, err := psql.Select("*").From("games").
 		Where(squirrel.Or{squirrel.Eq{"team1ID": teamId}, squirrel.Eq{"team2ID": teamId}}).
 		RunWith(db).Query()
@@ -56,7 +54,7 @@ func getGamesOfTeam(psql squirrel.StatementBuilderType, teamId int) ([]GameInfor
 	return games, nil
 }
 
-func getTeamsInGame(psql squirrel.StatementBuilderType, gameID, leagueID int) (int, int, error) {
+func getTeamsInGame(gameID, leagueID int) (int, int, error) {
 	var (
 		team1 int
 		team2 int
@@ -73,7 +71,7 @@ func getTeamsInGame(psql squirrel.StatementBuilderType, gameID, leagueID int) (i
 	return team1, team2, nil
 }
 
-func getLosingTeamID(psql squirrel.StatementBuilderType, gameID, leagueID, winnerID int) (int, error) {
+func getLosingTeamID(gameID, leagueID, winnerID int) (int, error) {
 	var (
 		team1 int
 		team2 int
@@ -99,7 +97,7 @@ func getLosingTeamID(psql squirrel.StatementBuilderType, gameID, leagueID, winne
 
 func (d *PgGamesDAO) CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, error) {
 	var gameID int
-	err := d.psql.Insert("games").
+	err := psql.Insert("games").
 		Columns("leagueID", "team1ID", "team2ID", "gametime", "complete", "winnerID", "scoreteam1", "scoreteam2").
 		Values(leagueID, team1ID, team2ID, gameTime, false, -1, 0, 0).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&gameID)
@@ -111,7 +109,7 @@ func (d *PgGamesDAO) CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, 
 
 func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, error) {
 	//check if any game of each team is within the threshold of another scheduled game
-	team1Games, err := getGamesOfTeam(d.psql, team1ID)
+	team1Games, err := getGamesOfTeam(team1ID)
 	if err != nil {
 		return false, err
 	}
@@ -122,7 +120,7 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 		}
 	}
 
-	team2Games, err := getGamesOfTeam(d.psql, team2ID)
+	team2Games, err := getGamesOfTeam(team2ID)
 	if err != nil {
 		return false, err
 	}
@@ -139,7 +137,7 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 func (d *PgGamesDAO) GetGameInformation(gameID, leagueID int) (*GameInformation, error) {
 	var gameInformation GameInformation
 
-	err := d.psql.Select("*").
+	err := psql.Select("*").
 		From("games").
 		Where("id = ? AND leagueID = ?", gameID, leagueID).
 		RunWith(db).QueryRow().
@@ -158,7 +156,7 @@ func (d *PgGamesDAO) GetGameInformation(gameID, leagueID int) (*GameInformation,
 func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (bool, error) {
 	//check if user has league editResults permission
 	var canReport bool
-	err := d.psql.Select("editResults").
+	err := psql.Select("editResults").
 		From("leaguePermissions").
 		Where("userID = ? AND leagueID = ?", userID, leagueID).
 		RunWith(db).QueryRow().Scan(&canReport)
@@ -171,10 +169,10 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 	}
 
 	//check if user has team reportResult permissions on one of the two teams
-	team1ID, team2ID, err := getTeamsInGame(d.psql, gameID, leagueID)
+	team1ID, team2ID, err := getTeamsInGame(gameID, leagueID)
 
 	//check for team 1
-	err = d.psql.Select("reportResult").
+	err = psql.Select("reportResult").
 		From("teamPermissions").
 		Where("userID = ? AND teamID = ?", userID, team1ID).
 		RunWith(db).QueryRow().Scan(&canReport)
@@ -187,7 +185,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 	}
 
 	//check for team 2
-	err = d.psql.Select("reportResult").
+	err = psql.Select("reportResult").
 		From("teamPermissions").
 		Where("userID = ? AND teamID = ?", userID, team2ID).
 		RunWith(db).QueryRow().Scan(&canReport)
@@ -204,7 +202,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 
 func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2 int) error {
 	//update game entry
-	_, err := d.psql.Update("games").
+	_, err := psql.Update("games").
 		Set("complete", true).
 		Set("winnerID", winnerID).
 		Set("scoreteam1", scoreTeam1).
@@ -224,7 +222,7 @@ func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTea
 		return err
 	}
 
-	loserID, err := getLosingTeamID(d.psql, gameID, leagueID, winnerID)
+	loserID, err := getLosingTeamID(gameID, leagueID, winnerID)
 	if err != nil {
 		return err
 	}

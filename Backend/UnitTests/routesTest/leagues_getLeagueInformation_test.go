@@ -6,10 +6,10 @@ import (
 	"testing"
 	"esports-league-manager/mocks"
 	"github.com/stretchr/testify/mock"
-	"github.com/kataras/iris/core/errors"
 	"esports-league-manager/Backend/Server/databaseAccess"
 	"bytes"
 	"encoding/json"
+	"errors"
 )
 
 func createLeagueInfoBody(id int) *bytes.Buffer {

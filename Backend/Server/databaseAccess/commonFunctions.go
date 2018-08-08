@@ -5,6 +5,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"log"
 	"esports-league-manager/Backend/Server/config"
+	"github.com/Masterminds/squirrel"
 )
 
 func openDB(conf config.Config) {
@@ -21,4 +22,5 @@ func openDB(conf config.Config) {
 
 func Init(conf config.Config) {
 	openDB(conf)
+	psql = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 }

@@ -67,14 +67,7 @@ func reportGameResult(ctx *gin.Context) {
 		return
 	}
 
-	//check if game exists
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueID"))
-	if checkErr(ctx, err) {
-		return
-	}
-
-	if gameInformation == nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameDoesNotExist"})
+	if failIfGameDoesNotExist(ctx) {
 		return
 	}
 

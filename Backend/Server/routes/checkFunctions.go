@@ -155,3 +155,18 @@ func failIfConflictExists(ctx *gin.Context, team1ID, team2ID, gameTime int) bool
 		return false
 	}
 }
+
+func failIfGameDoesNotExist(ctx *gin.Context) bool {
+	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueID"))
+	if checkErr(ctx, err) {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	}
+
+	if gameInformation == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameDoesNotExist"})
+		return true
+	}
+
+	return false
+}

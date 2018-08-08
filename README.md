@@ -41,9 +41,12 @@ Or in GoLand, right click on the UnitTests folder in project view, and press Run
 
 This repository strives to maintain readable, reusable, stable, and easily augmentable code. 
 
-As such, the style guide at https://golang.org/doc/effective_go.html is strictly enforced.
+As such, the style guide at https://golang.org/doc/effective_go.html is strictly enforced (GoLand automatically highlights
+problems with these guidelines).
 
 All PRs must come with unit tests that cover new functionality, and pass the full suite of tests.
+
+All PRs must have files `go fmt`d
 
 #
 

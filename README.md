@@ -48,6 +48,12 @@ All PRs must come with unit tests that cover new functionality, and pass the ful
 
 All PRs must have files `go fmt`d
 
+This project uses `github.com/stretchr/testify/mock` for testing. To generate mocks after changing an interface, run
+```
+go get github.com/vektra/mockery/.../
+mockery -all
+```
+
 #
 
 This project is licensed under the terms of the MIT license

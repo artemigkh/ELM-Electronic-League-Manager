@@ -19,7 +19,7 @@ func testSetLeagueIdNotInt(t *testing.T) {
 
 func testSetLeagueNotViewable(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -35,7 +35,7 @@ func testSetLeagueNotViewable(t *testing.T) {
 
 func testSetLeagueSessionInternalError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, errors.New("session error"))
 
 	routes.ElmSessions = mockSession
@@ -47,7 +47,7 @@ func testSetLeagueSessionInternalError(t *testing.T) {
 
 func testSetLeagueDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -64,7 +64,7 @@ func testSetLeagueDatabaseError(t *testing.T) {
 
 func testSetLeagueSetSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 	mockSession.On("SetActiveLeague", mock.Anything, 2).Return(errors.New("set session error"))
 
@@ -81,7 +81,7 @@ func testSetLeagueSetSessionError(t *testing.T) {
 
 func testCorrectSetLeague(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 	mockSession.On("SetActiveLeague", mock.Anything, 2).Return(nil)
 

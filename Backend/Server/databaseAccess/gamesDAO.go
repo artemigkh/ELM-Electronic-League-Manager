@@ -13,12 +13,12 @@ const (
 
 type GameInformation struct {
 	Id         int  `json:"id"`
-	LeagueID   int  `json:"leagueId"`
-	Team1ID    int  `json:"team1Id"`
-	Team2ID    int  `json:"team2Id"`
+	LeagueId   int  `json:"leagueId"`
+	Team1Id    int  `json:"team1Id"`
+	Team2Id    int  `json:"team2Id"`
 	GameTime   int  `json:"gameTime"`
 	Complete   bool `json:"complete"`
-	WinnerID   int  `json:"winnerId"`
+	WinnerId   int  `json:"winnerId"`
 	ScoreTeam1 int  `json:"scoreTeam1"`
 	ScoreTeam2 int  `json:"scoreTeam2"`
 }
@@ -27,7 +27,7 @@ type PgGamesDAO struct{}
 
 func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	rows, err := psql.Select("*").From("games").
-		Where(squirrel.Or{squirrel.Eq{"team1ID": teamId}, squirrel.Eq{"team2ID": teamId}}).
+		Where(squirrel.Or{squirrel.Eq{"team1Id": teamId}, squirrel.Eq{"team2Id": teamId}}).
 		RunWith(db).Query()
 
 	if err != nil {
@@ -39,8 +39,8 @@ func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	var game GameInformation
 
 	for rows.Next() {
-		err := rows.Scan(&game.Id, &game.LeagueID, &game.Team1ID, &game.Team2ID, &game.GameTime,
-			&game.Complete, &game.WinnerID, &game.ScoreTeam1, &game.ScoreTeam2)
+		err := rows.Scan(&game.Id, &game.LeagueId, &game.Team1Id, &game.Team2Id, &game.GameTime,
+			&game.Complete, &game.WinnerId, &game.ScoreTeam1, &game.ScoreTeam2)
 		if err != nil {
 			return nil, err
 		}
@@ -54,15 +54,15 @@ func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	return games, nil
 }
 
-func getTeamsInGame(gameID, leagueID int) (int, int, error) {
+func getTeamsInGame(gameId, leagueId int) (int, int, error) {
 	var (
 		team1 int
 		team2 int
 	)
 
-	err := psql.Select("team1ID", "team2ID").
+	err := psql.Select("team1Id", "team2Id").
 		From("games").
-		Where("id = ? AND leagueID = ?", gameID, leagueID).
+		Where("id = ? AND leagueId = ?", gameId, leagueId).
 		RunWith(db).QueryRow().Scan(&team1, &team2)
 	if err != nil {
 		return -1, -1, err
@@ -71,45 +71,45 @@ func getTeamsInGame(gameID, leagueID int) (int, int, error) {
 	return team1, team2, nil
 }
 
-func getLosingTeamID(gameID, leagueID, winnerID int) (int, error) {
+func getLosingTeamId(gameId, leagueId, winnerId int) (int, error) {
 	var (
 		team1 int
 		team2 int
 	)
 
-	err := psql.Select("team1ID", "team2ID").
+	err := psql.Select("team1Id", "team2Id").
 		From("games").
-		Where("id = ? AND leagueID = ?", gameID, leagueID).
+		Where("id = ? AND leagueId = ?", gameId, leagueId).
 		RunWith(db).QueryRow().Scan(&team1, &team2)
 	if err != nil {
 		return -1, err
 	}
 
-	if winnerID == team1 {
+	if winnerId == team1 {
 		return team2, nil
-	} else if winnerID == team2 {
+	} else if winnerId == team2 {
 		return team1, nil
 	} else {
-		println("the winner was not either of the IDs")
+		println("the winner was not either of the Ids")
 		return -1, errors.New("")
 	}
 }
 
-func (d *PgGamesDAO) CreateGame(leagueID, team1ID, team2ID, gameTime int) (int, error) {
-	var gameID int
+func (d *PgGamesDAO) CreateGame(leagueId, team1Id, team2Id, gameTime int) (int, error) {
+	var gameId int
 	err := psql.Insert("games").
-		Columns("leagueID", "team1ID", "team2ID", "gametime", "complete", "winnerID", "scoreteam1", "scoreteam2").
-		Values(leagueID, team1ID, team2ID, gameTime, false, -1, 0, 0).Suffix("RETURNING \"id\"").
-		RunWith(db).QueryRow().Scan(&gameID)
+		Columns("leagueId", "team1Id", "team2Id", "gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
+		Values(leagueId, team1Id, team2Id, gameTime, false, -1, 0, 0).Suffix("RETURNING \"id\"").
+		RunWith(db).QueryRow().Scan(&gameId)
 	if err != nil {
 		return -1, err
 	}
-	return gameID, nil
+	return gameId, nil
 }
 
-func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, error) {
+func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error) {
 	//check if any game of each team is within the threshold of another scheduled game
-	team1Games, err := getGamesOfTeam(team1ID)
+	team1Games, err := getGamesOfTeam(team1Id)
 	if err != nil {
 		return false, err
 	}
@@ -120,7 +120,7 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 		}
 	}
 
-	team2Games, err := getGamesOfTeam(team2ID)
+	team2Games, err := getGamesOfTeam(team2Id)
 	if err != nil {
 		return false, err
 	}
@@ -134,15 +134,15 @@ func (d *PgGamesDAO) DoesExistConflict(team1ID, team2ID, gameTime int) (bool, er
 	return false, nil
 }
 
-func (d *PgGamesDAO) GetGameInformation(gameID, leagueID int) (*GameInformation, error) {
+func (d *PgGamesDAO) GetGameInformation(gameId, leagueId int) (*GameInformation, error) {
 	var gameInformation GameInformation
 
 	err := psql.Select("*").
 		From("games").
-		Where("id = ? AND leagueID = ?", gameID, leagueID).
+		Where("id = ? AND leagueId = ?", gameId, leagueId).
 		RunWith(db).QueryRow().
-		Scan(&gameInformation.Id, &gameInformation.LeagueID, &gameInformation.Team1ID, &gameInformation.Team2ID,
-			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerID,
+		Scan(&gameInformation.Id, &gameInformation.LeagueId, &gameInformation.Team1Id, &gameInformation.Team2Id,
+			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerId,
 			&gameInformation.ScoreTeam1, &gameInformation.ScoreTeam2)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -153,12 +153,12 @@ func (d *PgGamesDAO) GetGameInformation(gameID, leagueID int) (*GameInformation,
 	return &gameInformation, nil
 }
 
-func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (bool, error) {
+func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (bool, error) {
 	//check if user has league editResults permission
 	var canReport bool
 	err := psql.Select("editResults").
 		From("leaguePermissions").
-		Where("userID = ? AND leagueID = ?", userID, leagueID).
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -169,12 +169,12 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 	}
 
 	//check if user has team reportResult permissions on one of the two teams
-	team1ID, team2ID, err := getTeamsInGame(gameID, leagueID)
+	team1Id, team2Id, err := getTeamsInGame(gameId, leagueId)
 
 	//check for team 1
 	err = psql.Select("reportResult").
 		From("teamPermissions").
-		Where("userID = ? AND teamID = ?", userID, team1ID).
+		Where("userId = ? AND teamId = ?", userId, team1Id).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -187,7 +187,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 	//check for team 2
 	err = psql.Select("reportResult").
 		From("teamPermissions").
-		Where("userID = ? AND teamID = ?", userID, team2ID).
+		Where("userId = ? AND teamId = ?", userId, team2Id).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -200,14 +200,14 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueID, gameID, userID int) (b
 	return false, nil
 }
 
-func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2 int) error {
+func (d *PgGamesDAO) ReportGame(gameId, leagueId, winnerId, scoreTeam1, scoreTeam2 int) error {
 	//update game entry
 	_, err := psql.Update("games").
 		Set("complete", true).
-		Set("winnerID", winnerID).
+		Set("winnerId", winnerId).
 		Set("scoreteam1", scoreTeam1).
 		Set("scoreteam2", scoreTeam2).
-		Where("id = ? AND leagueID = ?", gameID, leagueID).RunWith(db).Exec()
+		Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
 	if err != nil {
 		return err
 	}
@@ -217,12 +217,12 @@ func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTea
 		`
 		UPDATE teams SET wins = wins + 1
 		WHERE teams.id = $1
-		`, winnerID)
+		`, winnerId)
 	if err != nil {
 		return err
 	}
 
-	loserID, err := getLosingTeamID(gameID, leagueID, winnerID)
+	loserId, err := getLosingTeamId(gameId, leagueId, winnerId)
 	if err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func (d *PgGamesDAO) ReportGame(gameID, leagueID, winnerID, scoreTeam1, scoreTea
 		`
 		UPDATE teams SET losses = losses + 1
 		WHERE teams.id = $1
-		`, loserID)
+		`, loserId)
 	if err != nil {
 		return err
 	}

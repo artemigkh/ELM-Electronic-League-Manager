@@ -130,8 +130,8 @@ func failIfTeamInfoInUse(ctx *gin.Context, name, tag string, leagueId int) bool 
 	}
 }
 
-func failIfTeamDoesNotExist(ctx *gin.Context, teamID, leagueID int) bool {
-	exists, err := TeamsDAO.DoesTeamExist(teamID, leagueID)
+func failIfTeamDoesNotExist(ctx *gin.Context, teamId, leagueId int) bool {
+	exists, err := TeamsDAO.DoesTeamExist(teamId, leagueId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -143,8 +143,8 @@ func failIfTeamDoesNotExist(ctx *gin.Context, teamID, leagueID int) bool {
 	}
 }
 
-func failIfConflictExists(ctx *gin.Context, team1ID, team2ID, gameTime int) bool {
-	conflictExists, err := GamesDAO.DoesExistConflict(team1ID, team2ID, gameTime)
+func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool {
+	conflictExists, err := GamesDAO.DoesExistConflict(team1Id, team2Id, gameTime)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -157,7 +157,7 @@ func failIfConflictExists(ctx *gin.Context, team1ID, team2ID, gameTime int) bool
 }
 
 func failIfGameDoesNotExist(ctx *gin.Context) bool {
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueID"))
+	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true

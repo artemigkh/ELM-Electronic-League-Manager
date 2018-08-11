@@ -35,7 +35,7 @@ func createLeagueResponseBody(id int) *bytes.Buffer {
 
 func testCreateNewLeagueMalformedBody(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	routes.ElmSessions = mockSession
@@ -47,7 +47,7 @@ func testCreateNewLeagueMalformedBody(t *testing.T) {
 
 func testCreateNewLeagueSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, errors.New("session error"))
 
 	routes.ElmSessions = mockSession
@@ -60,7 +60,7 @@ func testCreateNewLeagueSessionError(t *testing.T) {
 
 func testCreateNewLeagueNotLoggedIn(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(-1, nil)
 
 	routes.ElmSessions = mockSession
@@ -73,7 +73,7 @@ func testCreateNewLeagueNotLoggedIn(t *testing.T) {
 
 func testCreateNewLeagueNameTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	routes.ElmSessions = mockSession
@@ -86,7 +86,7 @@ func testCreateNewLeagueNameTooLong(t *testing.T) {
 
 func testCreateNewLeagueNameInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -104,7 +104,7 @@ func testCreateNewLeagueNameInUse(t *testing.T) {
 
 func testCreateNewLeagueDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -124,7 +124,7 @@ func testCreateNewLeagueDatabaseError(t *testing.T) {
 
 func testCorrectLeagueCreation(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)

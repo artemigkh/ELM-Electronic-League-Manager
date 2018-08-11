@@ -36,7 +36,7 @@ func testCreateNewTeamMalformedBody(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -56,7 +56,7 @@ func testCreateNewTeamSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, errors.New("session error"))
 
 	routes.ElmSessions = mockSession
@@ -71,7 +71,7 @@ func testCreateNewTeamNotLoggedIn(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(1, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(-1, nil)
 
 	routes.ElmSessions = mockSession
@@ -100,7 +100,7 @@ func testCreateNewTeamNoEditPermissions(t *testing.T) {
 
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("HasEditTeamsPermission", 5, 4).
@@ -119,7 +119,7 @@ func testCreateNewTeamDbError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -139,7 +139,7 @@ func testCreateNewTeamNameTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -159,7 +159,7 @@ func testCreateNewTeamTagTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -179,7 +179,7 @@ func testCreateNewTeamNameInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -204,7 +204,7 @@ func testCreateNewTeamTagInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
@@ -229,7 +229,7 @@ func testCorrectTeamCreation(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(5, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)

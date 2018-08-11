@@ -8,38 +8,38 @@ import (
 
 func authenticate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
+		userId, err := ElmSessions.AuthenticateAndGetUserId(ctx)
 		if checkErr(ctx, err) {
 			ctx.Abort()
 			return
 		}
 
-		if userID == -1 {
+		if userId == -1 {
 			ctx.JSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
 			ctx.Abort()
 			return
 		}
 
-		ctx.Set("userID", userID)
+		ctx.Set("userId", userId)
 		ctx.Next()
 	}
 }
 
 func getActiveLeague() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		leagueID, err := ElmSessions.GetActiveLeague(ctx)
+		leagueId, err := ElmSessions.GetActiveLeague(ctx)
 		if checkErr(ctx, err) {
 			ctx.Abort()
 			return
 		}
 
-		if leagueID == -1 {
+		if leagueId == -1 {
 			ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
 			ctx.Abort()
 			return
 		}
 
-		ctx.Set("leagueID", leagueID)
+		ctx.Set("leagueId", leagueId)
 		ctx.Next()
 	}
 }
@@ -61,7 +61,7 @@ func getUrlId() gin.HandlerFunc {
 
 func getTeamEditPermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		canEditTeams, err := LeaguesDAO.HasEditTeamsPermission(ctx.GetInt("leagueID"), ctx.GetInt("userID"))
+		canEditTeams, err := LeaguesDAO.HasEditTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 		if checkErr(ctx, err) {
 			ctx.Abort()
 			return
@@ -77,9 +77,9 @@ func getTeamEditPermissions() gin.HandlerFunc {
 func getReportResultPermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canReportResult, err := GamesDAO.HasReportResultPermissions(
-			ctx.GetInt("leagueID"),
+			ctx.GetInt("leagueId"),
 			ctx.GetInt("urlId"),
-			ctx.GetInt("userID"),
+			ctx.GetInt("userId"),
 		)
 		if checkErr(ctx, err) {
 			ctx.Abort()

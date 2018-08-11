@@ -12,16 +12,16 @@ import (
 	"testing"
 )
 
-func createGameInfoBody(id int, leagueID, team1ID, team2ID, gameTime,
-	winnerID, scoreTeam1, scoreTeam2 int, complete bool) *bytes.Buffer {
+func createGameInfoBody(id int, leagueId, team1Id, team2Id, gameTime,
+	winnerId, scoreTeam1, scoreTeam2 int, complete bool) *bytes.Buffer {
 	body := databaseAccess.GameInformation{
 		Id:         id,
-		LeagueID:   leagueID,
-		Team1ID:    team1ID,
-		Team2ID:    team2ID,
+		LeagueId:   leagueId,
+		Team1Id:    team1Id,
+		Team2Id:    team2Id,
 		GameTime:   gameTime,
 		Complete:   complete,
-		WinnerID:   winnerID,
+		WinnerId:   winnerId,
 		ScoreTeam1: scoreTeam1,
 		ScoreTeam2: scoreTeam2,
 	}
@@ -120,12 +120,12 @@ func testGetGameInformationCorrectGetInfo(t *testing.T) {
 	mockGamesDao.On("GetGameInformation", 1, 2).
 		Return(&databaseAccess.GameInformation{
 			Id:         1,
-			LeagueID:   2,
-			Team1ID:    4,
-			Team2ID:    5,
+			LeagueId:   2,
+			Team1Id:    4,
+			Team2Id:    5,
 			GameTime:   1532913359,
 			Complete:   true,
-			WinnerID:   4,
+			WinnerId:   4,
 			ScoreTeam1: 2,
 			ScoreTeam2: 1,
 		}, nil)

@@ -6,13 +6,13 @@ import (
 )
 
 type GameInformation struct {
-	Team1ID  int `json:"team1Id"`
-	Team2ID  int `json:"team2Id"`
+	Team1Id  int `json:"team1Id"`
+	Team2Id  int `json:"team2Id"`
 	GameTime int `json:"gameTime"`
 }
 
 type GameReportInformation struct {
-	WinnerID   int `json:"winnerId"`
+	WinnerId   int `json:"winnerId"`
 	ScoreTeam1 int `json:"scoreTeam1"`
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
@@ -26,26 +26,26 @@ func createNewGame(ctx *gin.Context) {
 		return
 	}
 
-	if failIfTeamDoesNotExist(ctx, gameInfo.Team1ID, ctx.GetInt("leagueID")) {
+	if failIfTeamDoesNotExist(ctx, gameInfo.Team1Id, ctx.GetInt("leagueId")) {
 		return
 	}
-	if failIfTeamDoesNotExist(ctx, gameInfo.Team2ID, ctx.GetInt("leagueID")) {
+	if failIfTeamDoesNotExist(ctx, gameInfo.Team2Id, ctx.GetInt("leagueId")) {
 		return
 	}
-	if failIfConflictExists(ctx, gameInfo.Team1ID, gameInfo.Team2ID, gameInfo.GameTime) {
+	if failIfConflictExists(ctx, gameInfo.Team1Id, gameInfo.Team2Id, gameInfo.GameTime) {
 		return
 	}
 
-	gameID, err := GamesDAO.CreateGame(ctx.GetInt("leagueID"), gameInfo.Team1ID, gameInfo.Team2ID, gameInfo.GameTime)
+	gameId, err := GamesDAO.CreateGame(ctx.GetInt("leagueId"), gameInfo.Team1Id, gameInfo.Team2Id, gameInfo.GameTime)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"id": gameID})
+	ctx.JSON(http.StatusOK, gin.H{"id": gameId})
 }
 
 func getGameInformation(ctx *gin.Context) {
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueID"))
+	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -58,7 +58,7 @@ func getGameInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gameInformation)
 }
 
-//TODO: check if the winner ID is one of the two team IDs in the game
+//TODO: check if the winner Id is one of the two team Ids in the game
 func reportGameResult(ctx *gin.Context) {
 	//get parameters
 	var gameInfo GameReportInformation
@@ -72,8 +72,8 @@ func reportGameResult(ctx *gin.Context) {
 	}
 
 	//report the result
-	err = GamesDAO.ReportGame(ctx.GetInt("urlId"), ctx.GetInt("leagueID"),
-		gameInfo.WinnerID, gameInfo.ScoreTeam1, gameInfo.ScoreTeam2)
+	err = GamesDAO.ReportGame(ctx.GetInt("urlId"), ctx.GetInt("leagueId"),
+		gameInfo.WinnerId, gameInfo.ScoreTeam1, gameInfo.ScoreTeam2)
 	if checkErr(ctx, err) {
 		return
 	}

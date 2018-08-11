@@ -9,8 +9,8 @@ type SessionManager struct {
 	mock.Mock
 }
 
-// AuthenticateAndGetUserID provides a mock function with given fields: ctx
-func (_m *SessionManager) AuthenticateAndGetUserID(ctx *gin.Context) (int, error) {
+// AuthenticateAndGetUserId provides a mock function with given fields: ctx
+func (_m *SessionManager) AuthenticateAndGetUserId(ctx *gin.Context) (int, error) {
 	ret := _m.Called(ctx)
 
 	var r0 int
@@ -51,13 +51,13 @@ func (_m *SessionManager) GetActiveLeague(ctx *gin.Context) (int, error) {
 	return r0, r1
 }
 
-// LogIn provides a mock function with given fields: ctx, userID
-func (_m *SessionManager) LogIn(ctx *gin.Context, userID int) error {
-	ret := _m.Called(ctx, userID)
+// LogIn provides a mock function with given fields: ctx, userId
+func (_m *SessionManager) LogIn(ctx *gin.Context, userId int) error {
+	ret := _m.Called(ctx, userId)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*gin.Context, int) error); ok {
-		r0 = rf(ctx, userID)
+		r0 = rf(ctx, userId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -79,13 +79,13 @@ func (_m *SessionManager) LogOut(ctx *gin.Context) error {
 	return r0
 }
 
-// SetActiveLeague provides a mock function with given fields: ctx, leagueID
-func (_m *SessionManager) SetActiveLeague(ctx *gin.Context, leagueID int) error {
-	ret := _m.Called(ctx, leagueID)
+// SetActiveLeague provides a mock function with given fields: ctx, leagueId
+func (_m *SessionManager) SetActiveLeague(ctx *gin.Context, leagueId int) error {
+	ret := _m.Called(ctx, leagueId)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*gin.Context, int) error); ok {
-		r0 = rf(ctx, leagueID)
+		r0 = rf(ctx, leagueId)
 	} else {
 		r0 = ret.Error(0)
 	}

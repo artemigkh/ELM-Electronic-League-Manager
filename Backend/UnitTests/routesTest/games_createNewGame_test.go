@@ -11,10 +11,10 @@ import (
 	"testing"
 )
 
-func createGamesRequestBody(team1ID, team2ID, gameTime int) *bytes.Buffer {
+func createGamesRequestBody(team1Id, team2Id, gameTime int) *bytes.Buffer {
 	reqBody := routes.GameInformation{
-		Team1ID:  team1ID,
-		Team2ID:  team2ID,
+		Team1Id:  team1Id,
+		Team2Id:  team2Id,
 		GameTime: gameTime,
 	}
 	reqBodyB, _ := json.Marshal(&reqBody)
@@ -37,7 +37,7 @@ func testCreateNewGameNotLoggedIn(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(-1, nil)
 
 	routes.ElmSessions = mockSession
@@ -65,7 +65,7 @@ func testCreateNewGameTeam1DoesNotExist(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
@@ -84,7 +84,7 @@ func testCreateNewGameTeam2DoesNotExist(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
@@ -104,7 +104,7 @@ func testCreateNewGameSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, errors.New("Fake Cookie Error"))
 
 	routes.ElmSessions = mockSession
@@ -119,7 +119,7 @@ func testCreateNewGameDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
@@ -139,7 +139,7 @@ func testCreateNewGameConflictExists(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
@@ -163,7 +163,7 @@ func testCreateNewGameCorrectDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
@@ -188,7 +188,7 @@ func testCreateNewGameCorrectCreation(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)

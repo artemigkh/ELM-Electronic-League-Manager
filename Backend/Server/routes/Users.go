@@ -64,13 +64,13 @@ func createNewUser(ctx *gin.Context) {
  * @apiGroup users
  * @apiDescription If a user is logged in, get their profile information
  *
- * @apiSuccess {int} id the userID
+ * @apiSuccess {int} id the userId
  *
  * @apiError notLoggedIn 403 No user is currently logged in
  */
 func getProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userProfile{
-		Id: ctx.GetInt("userID"),
+		Id: ctx.GetInt("userId"),
 	})
 }
 

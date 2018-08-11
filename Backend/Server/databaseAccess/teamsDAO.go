@@ -18,30 +18,36 @@ type TeamInformation struct {
 	Members []UserInformation `json:"members"`
 }
 
+type PlayerInformation struct {
+	Name string `json:"name"`
+	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
+	MainRoster bool `json:"mainRoster"`
+}
+
 type PgTeamsDAO struct{}
 
-func (d *PgTeamsDAO) CreateTeam(leagueID, userID int, name, tag string) (int, error) {
-	var teamID int
-	err := psql.Insert("teams").Columns("leagueID", "name", "tag", "wins", "losses").
-		Values(leagueID, name, strings.ToUpper(tag), 0, 0).Suffix("RETURNING \"id\"").
-		RunWith(db).QueryRow().Scan(&teamID)
+func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, error) {
+	var teamId int
+	err := psql.Insert("teams").Columns("leagueId", "name", "tag", "wins", "losses").
+		Values(leagueId, name, strings.ToUpper(tag), 0, 0).Suffix("RETURNING \"id\"").
+		RunWith(db).QueryRow().Scan(&teamId)
 	if err != nil {
 		return -1, err
 	}
 
-	//create permissions entry linking current user ID as the league creator
+	//create permissions entry linking current user Id as the league creator
 	_, err = psql.Insert("teamPermissions").
-		Columns("userID", "teamID", "editPermissions", "editTeamInfo", "editUsers", "reportResult").
-		Values(userID, teamID, true, true, true, true).
+		Columns("userId", "teamId", "editPermissions", "editTeamInfo", "editUsers", "reportResult").
+		Values(userId, teamId, true, true, true, true).
 		RunWith(db).Exec()
 	if err != nil {
 		return -1, err
 	}
 
-	return teamID, nil
+	return teamId, nil
 }
 
-func (d *PgTeamsDAO) IsInfoInUse(name, tag string, leagueID int) (bool, string, error) {
+func (d *PgTeamsDAO) IsInfoInUse(name, tag string, leagueId int) (bool, string, error) {
 	//check if name in use
 	err := psql.Select("name").
 		From("teams").
@@ -69,12 +75,12 @@ func (d *PgTeamsDAO) IsInfoInUse(name, tag string, leagueID int) (bool, string, 
 	}
 }
 
-func (d *PgTeamsDAO) GetTeamInformation(teamID, leagueID int) (*TeamInformation, error) {
+func (d *PgTeamsDAO) GetTeamInformation(teamId, leagueId int) (*TeamInformation, error) {
 	var teamInformation TeamInformation
 	//get team information
 	err := psql.Select("name", "tag", "wins", "losses").
 		From("teams").
-		Where("id = ? AND leagueID = ?", teamID, leagueID).
+		Where("id = ? AND leagueId = ?", teamId, leagueId).
 		RunWith(db).QueryRow().Scan(&teamInformation.Name, &teamInformation.Tag, &teamInformation.Wins, &teamInformation.Losses)
 	if err != nil {
 		return nil, err
@@ -87,10 +93,10 @@ func (d *PgTeamsDAO) GetTeamInformation(teamID, leagueID int) (*TeamInformation,
 		SELECT id, email FROM users
 			WHERE id IN
 				(
-					SELECT userID FROM teamPermissions
-					WHERE teamID = $1
+					SELECT userId FROM teamPermissions
+					WHERE teamId = $1
 				)
-	`, teamID)
+	`, teamId)
 	if err != nil {
 		return nil, err
 	}
@@ -113,11 +119,11 @@ func (d *PgTeamsDAO) GetTeamInformation(teamID, leagueID int) (*TeamInformation,
 	return &teamInformation, nil
 }
 
-func (d *PgTeamsDAO) DoesTeamExist(teamID, leagueID int) (bool, error) {
+func (d *PgTeamsDAO) DoesTeamExist(teamId, leagueId int) (bool, error) {
 	var name string
 	err := psql.Select("name").
 		From("teams").
-		Where("id = ? AND leagueID = ?", teamID, leagueID).
+		Where("id = ? AND leagueId = ?", teamId, leagueId).
 		RunWith(db).QueryRow().Scan(&name)
 	if err == sql.ErrNoRows {
 		return false, nil

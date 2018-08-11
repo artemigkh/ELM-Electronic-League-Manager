@@ -9,20 +9,20 @@ type GamesDAO struct {
 	mock.Mock
 }
 
-// CreateGame provides a mock function with given fields: leagueID, team1ID, team2ID, gameTime
-func (_m *GamesDAO) CreateGame(leagueID int, team1ID int, team2ID int, gameTime int) (int, error) {
-	ret := _m.Called(leagueID, team1ID, team2ID, gameTime)
+// CreateGame provides a mock function with given fields: leagueId, team1Id, team2Id, gameTime
+func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime int) (int, error) {
+	ret := _m.Called(leagueId, team1Id, team2Id, gameTime)
 
 	var r0 int
 	if rf, ok := ret.Get(0).(func(int, int, int, int) int); ok {
-		r0 = rf(leagueID, team1ID, team2ID, gameTime)
+		r0 = rf(leagueId, team1Id, team2Id, gameTime)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int, int, int) error); ok {
-		r1 = rf(leagueID, team1ID, team2ID, gameTime)
+		r1 = rf(leagueId, team1Id, team2Id, gameTime)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -30,20 +30,20 @@ func (_m *GamesDAO) CreateGame(leagueID int, team1ID int, team2ID int, gameTime 
 	return r0, r1
 }
 
-// DoesExistConflict provides a mock function with given fields: team1ID, team2ID, gameTime
-func (_m *GamesDAO) DoesExistConflict(team1ID int, team2ID int, gameTime int) (bool, error) {
-	ret := _m.Called(team1ID, team2ID, gameTime)
+// DoesExistConflict provides a mock function with given fields: team1Id, team2Id, gameTime
+func (_m *GamesDAO) DoesExistConflict(team1Id int, team2Id int, gameTime int) (bool, error) {
+	ret := _m.Called(team1Id, team2Id, gameTime)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(int, int, int) bool); ok {
-		r0 = rf(team1ID, team2ID, gameTime)
+		r0 = rf(team1Id, team2Id, gameTime)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
-		r1 = rf(team1ID, team2ID, gameTime)
+		r1 = rf(team1Id, team2Id, gameTime)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -51,13 +51,13 @@ func (_m *GamesDAO) DoesExistConflict(team1ID int, team2ID int, gameTime int) (b
 	return r0, r1
 }
 
-// GetGameInformation provides a mock function with given fields: gameID, leagueID
-func (_m *GamesDAO) GetGameInformation(gameID int, leagueID int) (*databaseAccess.GameInformation, error) {
-	ret := _m.Called(gameID, leagueID)
+// GetGameInformation provides a mock function with given fields: gameId, leagueId
+func (_m *GamesDAO) GetGameInformation(gameId int, leagueId int) (*databaseAccess.GameInformation, error) {
+	ret := _m.Called(gameId, leagueId)
 
 	var r0 *databaseAccess.GameInformation
 	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.GameInformation); ok {
-		r0 = rf(gameID, leagueID)
+		r0 = rf(gameId, leagueId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*databaseAccess.GameInformation)
@@ -66,7 +66,7 @@ func (_m *GamesDAO) GetGameInformation(gameID int, leagueID int) (*databaseAcces
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(gameID, leagueID)
+		r1 = rf(gameId, leagueId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -74,20 +74,20 @@ func (_m *GamesDAO) GetGameInformation(gameID int, leagueID int) (*databaseAcces
 	return r0, r1
 }
 
-// HasReportResultPermissions provides a mock function with given fields: leagueID, gameID, userID
-func (_m *GamesDAO) HasReportResultPermissions(leagueID int, gameID int, userID int) (bool, error) {
-	ret := _m.Called(leagueID, gameID, userID)
+// HasReportResultPermissions provides a mock function with given fields: leagueId, gameId, userId
+func (_m *GamesDAO) HasReportResultPermissions(leagueId int, gameId int, userId int) (bool, error) {
+	ret := _m.Called(leagueId, gameId, userId)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(int, int, int) bool); ok {
-		r0 = rf(leagueID, gameID, userID)
+		r0 = rf(leagueId, gameId, userId)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
-		r1 = rf(leagueID, gameID, userID)
+		r1 = rf(leagueId, gameId, userId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -95,13 +95,13 @@ func (_m *GamesDAO) HasReportResultPermissions(leagueID int, gameID int, userID 
 	return r0, r1
 }
 
-// ReportGame provides a mock function with given fields: gameID, leagueID, winnerID, scoreTeam1, scoreTeam2
-func (_m *GamesDAO) ReportGame(gameID int, leagueID int, winnerID int, scoreTeam1 int, scoreTeam2 int) error {
-	ret := _m.Called(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2)
+// ReportGame provides a mock function with given fields: gameId, leagueId, winnerId, scoreTeam1, scoreTeam2
+func (_m *GamesDAO) ReportGame(gameId int, leagueId int, winnerId int, scoreTeam1 int, scoreTeam2 int) error {
+	ret := _m.Called(gameId, leagueId, winnerId, scoreTeam1, scoreTeam2)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(int, int, int, int, int) error); ok {
-		r0 = rf(gameID, leagueID, winnerID, scoreTeam1, scoreTeam2)
+		r0 = rf(gameId, leagueId, winnerId, scoreTeam1, scoreTeam2)
 	} else {
 		r0 = ret.Error(0)
 	}

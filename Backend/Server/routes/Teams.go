@@ -24,29 +24,33 @@ func createNewTeam(ctx *gin.Context) {
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
 		return
 	}
-	if failIfTeamInfoInUse(ctx, teamInfo.Name, teamInfo.Tag, ctx.GetInt("leagueID")) {
+	if failIfTeamInfoInUse(ctx, teamInfo.Name, teamInfo.Tag, ctx.GetInt("leagueId")) {
 		return
 	}
 
-	teamID, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueID"), ctx.GetInt("userID"), teamInfo.Name, teamInfo.Tag)
+	teamId, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueId"), ctx.GetInt("userId"), teamInfo.Name, teamInfo.Tag)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"id": teamID})
+	ctx.JSON(http.StatusOK, gin.H{"id": teamId})
 }
 
 func getTeamInformation(ctx *gin.Context) {
-	if failIfTeamDoesNotExist(ctx, ctx.GetInt("urlId"), ctx.GetInt("leagueID")) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("urlId"), ctx.GetInt("leagueId")) {
 		return
 	}
 
-	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueID"))
+	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
 	}
 
 	ctx.JSON(http.StatusOK, teamInfo)
+}
+
+func addPlayerToTeam(ctx *gin.Context) {
+
 }
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {

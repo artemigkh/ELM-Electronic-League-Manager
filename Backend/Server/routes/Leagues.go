@@ -41,12 +41,12 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
-	leagueID, err := LeaguesDAO.CreateLeague(ctx.GetInt("userID"), lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin)
+	leagueId, err := LeaguesDAO.CreateLeague(ctx.GetInt("userId"), lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"id": leagueID})
+	ctx.JSON(http.StatusOK, gin.H{"id": leagueId})
 }
 
 /**
@@ -60,13 +60,13 @@ func createNewLeague(ctx *gin.Context) {
  */
 //TODO: check if league exists
 func setActiveLeague(ctx *gin.Context) {
-	//get user ID (or -1 if not logged in)
-	userID, err := ElmSessions.AuthenticateAndGetUserID(ctx)
+	//get user Id (or -1 if not logged in)
+	userId, err := ElmSessions.AuthenticateAndGetUserId(ctx)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	viewable, err := LeaguesDAO.IsLeagueViewable(ctx.GetInt("urlId"), userID)
+	viewable, err := LeaguesDAO.IsLeagueViewable(ctx.GetInt("urlId"), userId)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -82,7 +82,7 @@ func setActiveLeague(ctx *gin.Context) {
 }
 
 func getActiveLeagueInformation(ctx *gin.Context) {
-	leagueInfo, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("leagueID"))
+	leagueInfo, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -91,7 +91,7 @@ func getActiveLeagueInformation(ctx *gin.Context) {
 }
 
 func getTeamSummary(ctx *gin.Context) {
-	teamSummary, err := LeaguesDAO.GetTeamSummary(ctx.GetInt("leagueID"))
+	teamSummary, err := LeaguesDAO.GetTeamSummary(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
 	}

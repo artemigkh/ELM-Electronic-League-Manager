@@ -18,24 +18,24 @@ type TeamSummaryInformation struct {
 
 type PgLeaguesDAO struct{}
 
-func (d *PgLeaguesDAO) CreateLeague(userID int, name string, publicView, publicJoin bool) (int, error) {
-	var leagueID int
+func (d *PgLeaguesDAO) CreateLeague(userId int, name string, publicView, publicJoin bool) (int, error) {
+	var leagueId int
 	err := psql.Insert("leagues").Columns("name", "publicView", "publicJoin").
 		Values(name, publicView, publicJoin).Suffix("RETURNING \"id\"").
-		RunWith(db).QueryRow().Scan(&leagueID)
+		RunWith(db).QueryRow().Scan(&leagueId)
 	if err != nil {
 		return -1, err
 	}
 
-	//create permissions entry linking current user ID as the league creator
-	_, err = psql.Insert("leaguePermissions").Columns("userID", "leagueID", "editPermissions", "editTeams",
-		"editUsers", "editSchedule", "editResults").Values(userID, leagueID, true, true, true, true, true).
+	//create permissions entry linking current user Id as the league creator
+	_, err = psql.Insert("leaguePermissions").Columns("userId", "leagueId", "editPermissions", "editTeams",
+		"editUsers", "editSchedule", "editResults").Values(userId, leagueId, true, true, true, true, true).
 		RunWith(db).Exec()
 	if err != nil {
 		return -1, err
 	}
 
-	return leagueID, nil
+	return leagueId, nil
 }
 
 func (d *PgLeaguesDAO) IsNameInUse(name string) (bool, error) {
@@ -53,12 +53,12 @@ func (d *PgLeaguesDAO) IsNameInUse(name string) (bool, error) {
 	return false, nil
 }
 
-func (d *PgLeaguesDAO) IsLeagueViewable(leagueID, userID int) (bool, error) {
+func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 	//check if publicly viewable
 	var publicView bool
 	err := psql.Select("publicview").
 		From("leagues").
-		Where("id = ?", leagueID).
+		Where("id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&publicView)
 	if err != nil {
 		return false, err
@@ -71,9 +71,9 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueID, userID int) (bool, error) {
 	//if not publicly viewable, see if user has permission to view it. This is checked by seeing if there is a
 	//leaguePermissions row with that userId and leagueId, if there is they have at least the base (viewing) privileges
 	var uid int
-	err = psql.Select("userID").
+	err = psql.Select("userId").
 		From("leaguePermissions").
-		Where("userID = ? AND leagueID = ?", userID, leagueID).
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&uid)
 	if err == sql.ErrNoRows {
 		return false, nil
@@ -84,15 +84,15 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueID, userID int) (bool, error) {
 	return true, nil
 }
 
-func (d *PgLeaguesDAO) GetLeagueInformation(leagueID int) (*LeagueInformation, error) {
-	return &LeagueInformation{Id: leagueID}, nil
+func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, error) {
+	return &LeagueInformation{Id: leagueId}, nil
 }
 
-func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueID, userID int) (bool, error) {
+func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueId, userId int) (bool, error) {
 	var canEdit bool
 	err := psql.Select("editPermissions").
 		From("leaguePermissions").
-		Where("userID = ? AND leagueID = ?", userID, leagueID).
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canEdit)
 	if err != nil {
 		return false, err
@@ -101,9 +101,9 @@ func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueID, userID int) (bool, error
 	return canEdit, nil
 }
 
-func (d *PgLeaguesDAO) GetTeamSummary(leagueID int) ([]TeamSummaryInformation, error) {
+func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error) {
 	rows, err := psql.Select("id", "name", "tag", "wins", "losses").From("teams").
-		Where("leagueID = ?", leagueID).
+		Where("leagueId = ?", leagueId).
 		OrderBy("wins DESC").
 		RunWith(db).Query()
 

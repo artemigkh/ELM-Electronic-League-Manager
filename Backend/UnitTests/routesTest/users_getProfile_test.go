@@ -23,7 +23,7 @@ func createUserProfileBody(id int) *bytes.Buffer {
 
 func testGetProfileNotLoggedIn(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(-1, nil)
 
 	routes.ElmSessions = mockSession
@@ -35,7 +35,7 @@ func testGetProfileNotLoggedIn(t *testing.T) {
 
 func testGetProfileSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(-1, errors.New("fake session error"))
 
 	routes.ElmSessions = mockSession
@@ -47,7 +47,7 @@ func testGetProfileSessionError(t *testing.T) {
 
 func testGetProfileCorrectly(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
-	mockSession.On("AuthenticateAndGetUserID", mock.Anything).
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(14, nil)
 
 	routes.ElmSessions = mockSession

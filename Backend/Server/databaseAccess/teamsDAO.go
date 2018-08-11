@@ -33,7 +33,7 @@ func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, er
 
 	//create permissions entry linking current user Id as the league creator
 	_, err = psql.Insert("teamPermissions").
-		Columns("userId", "teamId", "editPermissions", "editTeamInfo", "editUsers", "reportResult").
+		Columns("userId", "teamId", "editPermissions", "editTeamInfo", "editPlayers", "reportResult").
 		Values(userId, teamId, true, true, true, true).
 		RunWith(db).Exec()
 	if err != nil {
@@ -84,7 +84,8 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId, leagueId int) (*TeamInformation,
 
 	//get players of team
 	rows, err := psql.Select("id", "gameIdentifier", "name", "mainRoster").
-		Where("teamId = ?", teamId).Query()
+		From("players").
+		Where("teamId = ?", teamId).RunWith(db).Query()
 	if err != nil {
 		return nil, err
 	}
@@ -123,4 +124,47 @@ func (d *PgTeamsDAO) DoesTeamExist(teamId, leagueId int) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func (d *PgTeamsDAO) HasPlayerEditPermissions(teamId, userId, leagueId int) (bool, error) {
+	//check if league admin
+	var canEdit bool
+	err := psql.Select("editPermissions").
+		From("leaguePermissions").
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
+		RunWith(db).QueryRow().Scan(&canEdit)
+	if err != nil {
+		return false, err
+	}
+
+	if canEdit {
+		return true, nil
+	}
+
+	//check if team admin
+	err = psql.Select("editPlayers").
+		From("teamPermissions").
+		Where("userId = ? AND teamId = ?", userId, teamId).
+		RunWith(db).QueryRow().Scan(&canEdit)
+	if err != nil {
+		return false, err
+	}
+
+	if canEdit {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error) {
+	var playerId int
+	err := psql.Insert("players").Columns("teamId", "gameIdentifier", "name", "mainRoster").
+		Values(teamId, gameIdentifier, name, mainRoster).Suffix("RETURNING \"id\"").
+		RunWith(db).QueryRow().Scan(&playerId)
+	if err != nil {
+		return -1, err
+	}
+
+	return playerId, nil
 }

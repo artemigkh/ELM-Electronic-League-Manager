@@ -9,7 +9,7 @@ import (
 const (
 	MIN_PASSWORD_LENGTH = 8
 	MAX_LEAGUE_LENGTH   = 50
-	MAX_TEAM_LENGTH     = 50
+	MAX_NAME_LENGTH     = 50
 	MAX_TAG_LENGTH      = 5
 )
 
@@ -100,7 +100,7 @@ func failIfLeagueNameInUse(ctx *gin.Context, name string) bool {
 }
 
 func failIfTeamNameTooLong(ctx *gin.Context, name string) bool {
-	if len(name) > MAX_TEAM_LENGTH {
+	if len(name) > MAX_NAME_LENGTH {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "nameTooLong"})
 		return true
 	} else {
@@ -166,6 +166,54 @@ func failIfGameDoesNotExist(ctx *gin.Context) bool {
 	if gameInformation == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameDoesNotExist"})
 		return true
+	}
+
+	return false
+}
+
+func failIfCannotEditPlayersOnTeam(ctx *gin.Context, userId, teamId, leagueId int) bool {
+	canEditPlayers, err := TeamsDAO.HasPlayerEditPermissions(teamId, userId, leagueId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if !canEditPlayers {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "canNotEditPlayers"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func failIfGameIdentifierTooLong(ctx *gin.Context, gameIdentifier string) bool {
+	if len(gameIdentifier) > MAX_NAME_LENGTH {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameIdentifierTooLong"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func failIfNameTooLong(ctx *gin.Context, name string) bool {
+	if len(name) > MAX_NAME_LENGTH {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "nameTooLong"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func failIfGameIdentifierInUse(ctx *gin.Context, gameIdentifier string, teamId, leagueId int) bool {
+	teamInfo, err := TeamsDAO.GetTeamInformation(teamId, leagueId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	}
+
+	for _, player := range teamInfo.Players {
+		if player.GameIdentifier == gameIdentifier {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameIdentifierInUse"})
+			return true
+		}
 	}
 
 	return false

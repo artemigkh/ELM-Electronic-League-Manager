@@ -22,11 +22,11 @@ ALTER SEQUENCE usersIdSeq OWNED BY users.id;
 
 CREATE TABLE players (
   id              INT           PRIMARY KEY DEFAULT nextval('playersIdSeq'),
-  teamId          INT           UNIQUE NOT NULL  ,
+  teamId          INT           NOT NULL         ,
   userId          INT           UNIQUE           ,
-  gameIdentifier  VARCHAR(32)   NOT NULL         ,
-  name            VARCHAR(64)   NOT NULL         ,
-  mainRoster      BOOLEAN       NOT NULL         ,
+  gameIdentifier  VARCHAR(50)   NOT NULL         ,
+  name            VARCHAR(50)   NOT NULL         ,
+  mainRoster      BOOLEAN       NOT NULL
 );
 ALTER SEQUENCE playersIdSeq OWNED BY players.id;
 
@@ -55,7 +55,7 @@ CREATE TABLE teamPermissions (
   teamId          INT           NOT NULL         ,
   editPermissions BOOLEAN       NOT NULL         ,
   editTeamInfo    BOOLEAN       NOT NULL         ,
-  editUsers       BOOLEAN       NOT NULL         ,
+  editPlayers     BOOLEAN       NOT NULL         ,
   reportResult    BOOLEAN       NOT NULL
 );
 

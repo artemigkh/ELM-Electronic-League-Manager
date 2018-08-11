@@ -17,6 +17,7 @@ var Testing_Export_getTeamSummary = getTeamSummary
 
 var Testing_Export_createNewTeam = createNewTeam
 var Testing_Export_getTeamInformation = getTeamInformation
+var Testing_Export_addPlayerToTeam = addPlayerToTeam
 
 var Testing_Export_createNewGame = createNewGame
 var Testing_Export_getGameInformation = getGameInformation

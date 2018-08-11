@@ -14,9 +14,8 @@ type loginRequest struct {
 }
 
 /**
- * @api{POST} /login/ Get authentication cookie
- * @apiName createNewUser
- * @apiGroup login
+ * @api{POST} /login/ Login
+ * @apiGroup Login
  * @apiDescription Provide user email and password to get login authorization
  *
  * @apiParam {string} email
@@ -26,7 +25,6 @@ type loginRequest struct {
  * @apiError emailMalformed The email was not formed correctly
  * @apiError invalidLogin The user does not exist or password was incorrect
  */
-
 func login(ctx *gin.Context) {
 	//get parameters
 	var request loginRequest
@@ -79,6 +77,11 @@ func login(ctx *gin.Context) {
 	}
 }
 
+/**
+ * @api{POST} /logout/ Logout
+ * @apiGroup Login
+ * @apiDescription Set client state to logged out
+ */
 func logout(ctx *gin.Context) {
 	err := ElmSessions.LogOut(ctx)
 	if checkErr(ctx, err) {

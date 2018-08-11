@@ -121,7 +121,7 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 			Losses: 2,
 			Players: []databaseAccess.PlayerInformation{
 				{
-					Id: 1,
+					Id:             1,
 					Name:           "Test Player1",
 					GameIdentifier: "21",
 					MainRoster:     true,
@@ -136,7 +136,7 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 		testParams{ResponseBody: createTeamInfoBody("sampleName", "TAG", 10, 2,
 			[]databaseAccess.PlayerInformation{
 				{
-					Id: 1,
+					Id:             1,
 					Name:           "Test Player1",
 					GameIdentifier: "21",
 					MainRoster:     true,
@@ -161,19 +161,19 @@ func testCorrectGetTeamInformationManyPlayers(t *testing.T) {
 			Losses: 2,
 			Players: []databaseAccess.PlayerInformation{
 				{
-					Id: 1,
+					Id:             1,
 					Name:           "Test Player1",
 					GameIdentifier: "21",
 					MainRoster:     true,
 				},
 				{
-					Id: 2,
+					Id:             2,
 					Name:           "Test Player2",
 					GameIdentifier: "32",
 					MainRoster:     true,
 				},
 				{
-					Id: 3,
+					Id:             3,
 					Name:           "Test Player3",
 					GameIdentifier: "41",
 					MainRoster:     false,
@@ -188,19 +188,19 @@ func testCorrectGetTeamInformationManyPlayers(t *testing.T) {
 		testParams{ResponseBody: createTeamInfoBody("sampleName", "TAG", 10, 2,
 			[]databaseAccess.PlayerInformation{
 				{
-					Id: 1,
+					Id:             1,
 					Name:           "Test Player1",
 					GameIdentifier: "21",
 					MainRoster:     true,
 				},
 				{
-					Id: 2,
+					Id:             2,
 					Name:           "Test Player2",
 					GameIdentifier: "32",
 					MainRoster:     true,
 				},
 				{
-					Id: 3,
+					Id:             3,
 					Name:           "Test Player3",
 					GameIdentifier: "41",
 					MainRoster:     false,

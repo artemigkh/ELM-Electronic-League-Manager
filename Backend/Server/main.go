@@ -16,7 +16,7 @@ type Configuration struct {
 	Port   string `json:"port"`
 }
 
-func newApp(conf config.Config) *gin.Engine {
+func NewApp(conf config.Config) *gin.Engine {
 	app := gin.Default()
 
 	databaseAccess.Init(conf)
@@ -36,9 +36,9 @@ func newApp(conf config.Config) *gin.Engine {
 }
 
 func main() {
-	conf := config.GetConfig()
+	conf := config.GetConfig("Backend/conf.json")
 
 	//start router/webapp
-	app := newApp(conf)
+	app := NewApp(conf)
 	app.Run(conf.GetPortString())
 }

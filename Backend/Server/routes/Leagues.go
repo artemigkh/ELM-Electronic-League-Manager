@@ -12,10 +12,10 @@ type LeagueRequest struct {
 }
 
 /**
- * @api{POST} /api/leagues/ Create a new league
+ * @api{POST} /api/leagues/ Create New League
  * @apiName createNewLeague
- * @apiGroup leagues
- * @apiDescription Register a new league in the database
+ * @apiGroup Leagues
+ * @apiDescription Register a new league
  *
  * @apiParam {string} name the name of the league
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
@@ -23,7 +23,7 @@ type LeagueRequest struct {
  *
  * @apiSuccess {int} id the primary id of the created league
  *
- * @apiError notLoggedIn No user is logged in to create a league
+ * @apiError notLoggedIn No user is logged in
  * @apiError nameTooLong The league name has exceeded 50 characters
  * @apiError nameInUse The league name is currently in use
  */
@@ -50,16 +50,16 @@ func createNewLeague(ctx *gin.Context) {
 }
 
 /**
- * @api{POST} /api/leagues/setActiveLeague/:id Attempt to set the active league with id
+ * @api{POST} /api/leagues/setActiveLeague/:id Set Active League
  * @apiName setActiveLeague
- * @apiGroup leagues
+ * @apiGroup Leagues
  * @apiDescription Attempt to set the active league to :id
  * @apiParam {int} id the primary id of the league
  *
  * @apiError 403 Forbidden
  */
-//TODO: check if league exists
 func setActiveLeague(ctx *gin.Context) {
+	//TODO: check if league exists
 	//get user Id (or -1 if not logged in)
 	userId, err := ElmSessions.AuthenticateAndGetUserId(ctx)
 	if checkErr(ctx, err) {
@@ -81,6 +81,15 @@ func setActiveLeague(ctx *gin.Context) {
 	}
 }
 
+/**
+ * @api{GET} /api/leagues Get Active League Information
+ * @apiGroup Leagues
+ * @apiDescription Get information about the currently selected league
+ *
+ * @apiSuccess {id} The unique numerical identifier of the league
+ *
+ * @apiError noActiveLeague There is no active league selected
+ */
 func getActiveLeagueInformation(ctx *gin.Context) {
 	leagueInfo, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
@@ -90,6 +99,20 @@ func getActiveLeagueInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, leagueInfo)
 }
 
+/**
+ * @api{GET} /api/leagues/teamSummary Get Team Summary
+ * @apiGroup Leagues
+ * @apiDescription Get the team summary of the current league, sorted by standings
+ *
+ * @apiSuccess {jsonArray} _ An array of JSON objects, each representing a team
+ * @apiSuccess {int} _.id The unique numerical identifier of the team
+ * @apiSuccess {int} _.name The name of the team
+ * @apiSuccess {int} _.tag The tag of the team
+ * @apiSuccess {int} _.wins The number of wins of the team
+ * @apiSuccess {int} _.losses The number of losses of the team
+ *
+ * @apiError noActiveLeague There is no active league selected
+ */
 func getTeamSummary(ctx *gin.Context) {
 	teamSummary, err := LeaguesDAO.GetTeamSummary(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {

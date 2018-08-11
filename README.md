@@ -35,6 +35,14 @@ go test -v ./Backend/UnitTests/...
 
 Or in GoLand, right click on the UnitTests folder in project view, and press Run->Go Test
 
+### Generate Endpoint Documentation
+Download and install [http://apidocjs.com/](apiDoc)
+Execute this command in the root directory of this project:
+```
+apidoc
+```
+Open `doc/index.html` on the browser of your choice
+
 ## Development
 
 ### Go Backend

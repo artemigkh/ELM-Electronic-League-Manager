@@ -9,6 +9,27 @@ type TeamsDAO struct {
 	mock.Mock
 }
 
+// AddNewPlayer provides a mock function with given fields: teamId, gameIdentifier, name, mainRoster
+func (_m *TeamsDAO) AddNewPlayer(teamId int, gameIdentifier string, name string, mainRoster bool) (int, error) {
+	ret := _m.Called(teamId, gameIdentifier, name, mainRoster)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(int, string, string, bool) int); ok {
+		r0 = rf(teamId, gameIdentifier, name, mainRoster)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, string, string, bool) error); ok {
+		r1 = rf(teamId, gameIdentifier, name, mainRoster)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateTeam provides a mock function with given fields: leagueId, userId, name, tag
 func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, name string, tag string) (int, error) {
 	ret := _m.Called(leagueId, userId, name, tag)
@@ -67,6 +88,27 @@ func (_m *TeamsDAO) GetTeamInformation(teamId int, leagueId int) (*databaseAcces
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int) error); ok {
 		r1 = rf(teamId, leagueId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// HasPlayerEditPermissions provides a mock function with given fields: teamId, userId, leagueId
+func (_m *TeamsDAO) HasPlayerEditPermissions(teamId int, userId int, leagueId int) (bool, error) {
+	ret := _m.Called(teamId, userId, leagueId)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(int, int, int) bool); ok {
+		r0 = rf(teamId, userId, leagueId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
+		r1 = rf(teamId, userId, leagueId)
 	} else {
 		r1 = ret.Error(1)
 	}

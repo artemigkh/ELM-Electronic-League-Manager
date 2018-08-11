@@ -67,7 +67,7 @@ func getTeamEditPermissions() gin.HandlerFunc {
 			return
 		}
 		if !canEditTeams {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "noEditLeaguePermissions"})
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
 			ctx.Abort()
 			return
 		}

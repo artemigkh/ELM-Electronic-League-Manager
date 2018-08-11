@@ -27,8 +27,8 @@ func (c *Configuration) GetPortString() string {
 	return fmt.Sprintf("0.0.0.0:%v", c.Port)
 }
 
-func GetConfig() Config {
-	file, err := os.Open("Backend/conf.json")
+func GetConfig(location string) Config {
+	file, err := os.Open(location)
 	if err != nil {
 		log.Fatal("error opening config: ", err)
 		return nil

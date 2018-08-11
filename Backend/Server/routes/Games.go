@@ -17,7 +17,24 @@ type GameReportInformation struct {
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
 
+/**
+ * @api{POST} /api/games/ Create New Game
+ * @apiGroup Games
+ * @apiDescription Schedule a new game
+ *
+ * @apiParam {int} team1Id The unique numerical identifier of the team in position 1
+ * @apiParam {int} team2Id The unique numerical identifier of the team in position 2
+ * @apiParam {int} gameTime The unix time of when the game is scheduled for
+ *
+ * @apiSuccess {int} id The primary id of the created game
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError teamDoesNotExist One of the teams specified does not exist
+ * @apiError conflictExists One of the teams already has a game scheduled at this time
+ */
 func createNewGame(ctx *gin.Context) {
+	//TODO: check that the two teams are not the same
 	//get parameters
 	var gameInfo GameInformation
 	err := ctx.ShouldBindJSON(&gameInfo)
@@ -43,6 +60,27 @@ func createNewGame(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"id": gameId})
 }
 
+/**
+ * @api{GET} /api/games/:id Get Game Information
+ * @apiGroup Games
+ * @apiDescription Get the information about the game with specified id
+ *
+ * @apiParam {int} id The unique numerical identifier of the game
+ *
+ * @apiSuccess {int} id The unique numerical identifier of the game
+ * @apiSuccess {int} leagueId The unique numerical identifier of the league the game is in
+ * @apiSuccess {int} team1Id The unique numerical identifier of the team in position 1
+ * @apiSuccess {int} team2Id The unique numerical identifier of the team in position 2
+ * @apiSuccess {int} gameTime The unix time of when the game is scheduled for
+ * @apiSuccess {bool} complete Whether or not the game has been played and recorded
+ * @apiSuccess {int} winnerId The unique numerical identifier of the team that won; -1 if game is not complete
+ * @apiSuccess {int} scoreTeam1 The score of the team in position 1
+ * @apiSuccess {int} scoreTeam2 The score of the team in position 2
+ *
+ * @apiError IdMustBeInteger The id in the url must be an integer value
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError gameDoesNotExist The game with specified id does not exist
+ */
 func getGameInformation(ctx *gin.Context) {
 	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
@@ -57,8 +95,25 @@ func getGameInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gameInformation)
 }
 
-//TODO: check if the winner Id is one of the two team Ids in the game
+/**
+ * @api{POST} /api/games/report/:id Report Game Result
+ * @apiGroup Games
+ * @apiDescription Report the result of a scheduled game
+ *
+ * @apiParam {int} id The unique numerical identifier of the game
+ * @apiParam {int} winnerId The unique numerical identifier of the winning team
+ * @apiParam {int} scoreTeam1 The score of the team in position 1
+ * @apiParam {int} scoreTeam2 The score of the team in position 2
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError IdMustBeInteger The id in the url must be an integer value
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError gameDoesNotExist The game with specified id does not exist
+ * @apiError noReportResultPermissions The currently logged in user does not have permissions to report results for this team
+ */
+
 func reportGameResult(ctx *gin.Context) {
+	//TODO: check if the winner Id is one of the two team Ids in the game
 	//get parameters
 	var gameInfo GameReportInformation
 	err := ctx.ShouldBindJSON(&gameInfo)

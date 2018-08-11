@@ -14,12 +14,11 @@ type userProfile struct {
 
 /**
  * @api{POST} /api/users/ Create a new user
- * @apiName createNewUser
- * @apiGroup users
+ * @apiGroup Users
  * @apiDescription Register a new user in the database
  *
- * @apiParam {string} email
- * @apiParam {string} password
+ * @apiParam {string} email The email of the user to be created
+ * @apiParam {string} password The password of the user to be created
  *
  * @apiError passwordTooShort 400 The password was too short
  * @apiError emailMalformed 400 The email was not formed correctly
@@ -59,12 +58,11 @@ func createNewUser(ctx *gin.Context) {
 }
 
 /**
- * @api{POST} /api/users/profile Get current users profile
- * @apiName getUserProfile
- * @apiGroup users
+ * @api{GET} /api/users/profile Get Profile
+ * @apiGroup Users
  * @apiDescription If a user is logged in, get their profile information
  *
- * @apiSuccess {int} id the userId
+ * @apiSuccess {int} id The unique numerical identifier of the user
  *
  * @apiError notLoggedIn 403 No user is currently logged in
  */

@@ -20,6 +20,8 @@ type TeamsDAO interface {
 	IsInfoInUse(name, tag string, leagueId int) (bool, string, error)
 	GetTeamInformation(teamId, leagueId int) (*TeamInformation, error)
 	DoesTeamExist(teamId, leagueId int) (bool, error)
+	HasPlayerEditPermissions(teamId, userId, leagueId int) (bool, error)
+	AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error)
 }
 
 type GamesDAO interface {

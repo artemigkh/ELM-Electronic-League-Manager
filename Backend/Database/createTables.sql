@@ -1,5 +1,6 @@
 CREATE SEQUENCE leaguesIdSeq;
 CREATE SEQUENCE usersIdSeq;
+CREATE SEQUENCE playersIdSeq;
 CREATE SEQUENCE teamsIdSeq;
 CREATE SEQUENCE gamesIdSeq;
 
@@ -18,6 +19,16 @@ CREATE TABLE users (
   hash            CHAR(128)     NOT NULL
 );
 ALTER SEQUENCE usersIdSeq OWNED BY users.id;
+
+CREATE TABLE players (
+  id              INT           PRIMARY KEY DEFAULT nextval('playersIdSeq'),
+  teamId          INT           UNIQUE NOT NULL  ,
+  userId          INT           UNIQUE           ,
+  gameIdentifier  VARCHAR(32)   NOT NULL         ,
+  name            VARCHAR(64)   NOT NULL         ,
+  mainRoster      BOOLEAN       NOT NULL         ,
+);
+ALTER SEQUENCE playersIdSeq OWNED BY players.id;
 
 CREATE TABLE teams (
   id              INT           PRIMARY KEY DEFAULT nextval('teamsIdSeq'),

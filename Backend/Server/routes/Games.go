@@ -17,7 +17,6 @@ type GameReportInformation struct {
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
 
-//TODO: check if there exists the same player on both teams
 func createNewGame(ctx *gin.Context) {
 	//get parameters
 	var gameInfo GameInformation

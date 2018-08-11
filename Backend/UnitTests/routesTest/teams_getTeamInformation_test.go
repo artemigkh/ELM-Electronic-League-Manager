@@ -12,13 +12,13 @@ import (
 	"testing"
 )
 
-func createTeamInfoBody(name, tag string, wins, losses int, members []databaseAccess.UserInformation) *bytes.Buffer {
+func createTeamInfoBody(name, tag string, wins, losses int, players []databaseAccess.PlayerInformation) *bytes.Buffer {
 	body := databaseAccess.TeamInformation{
 		Name:    name,
 		Tag:     tag,
 		Wins:    wins,
 		Losses:  losses,
-		Members: members,
+		Players: players,
 	}
 	bodyB, _ := json.Marshal(&body)
 	return bytes.NewBuffer(bodyB)
@@ -119,10 +119,12 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 			Tag:    "TAG",
 			Wins:   10,
 			Losses: 2,
-			Members: []databaseAccess.UserInformation{
+			Players: []databaseAccess.PlayerInformation{
 				{
-					Id:    1,
-					Email: "test1@email.com",
+					Id: 1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
 				},
 			},
 		}, nil)
@@ -132,17 +134,19 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 
 	httpTest(t, nil, "GET", "/1", 200,
 		testParams{ResponseBody: createTeamInfoBody("sampleName", "TAG", 10, 2,
-			[]databaseAccess.UserInformation{
+			[]databaseAccess.PlayerInformation{
 				{
-					Id:    1,
-					Email: "test1@email.com",
+					Id: 1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
 				},
 			})})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
 }
 
-func testCorrectGetTeamInformationManyMembers(t *testing.T) {
+func testCorrectGetTeamInformationManyPlayers(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
 		Return(2, nil)
@@ -155,18 +159,24 @@ func testCorrectGetTeamInformationManyMembers(t *testing.T) {
 			Tag:    "TAG",
 			Wins:   10,
 			Losses: 2,
-			Members: []databaseAccess.UserInformation{
+			Players: []databaseAccess.PlayerInformation{
 				{
-					Id:    1,
-					Email: "test1@email.com",
+					Id: 1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
 				},
 				{
-					Id:    5,
-					Email: "test5@email.com",
+					Id: 2,
+					Name:           "Test Player2",
+					GameIdentifier: "32",
+					MainRoster:     true,
 				},
 				{
-					Id:    3,
-					Email: "test3@email.com",
+					Id: 3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
 				},
 			},
 		}, nil)
@@ -176,18 +186,24 @@ func testCorrectGetTeamInformationManyMembers(t *testing.T) {
 
 	httpTest(t, nil, "GET", "/1", 200,
 		testParams{ResponseBody: createTeamInfoBody("sampleName", "TAG", 10, 2,
-			[]databaseAccess.UserInformation{
+			[]databaseAccess.PlayerInformation{
 				{
-					Id:    1,
-					Email: "test1@email.com",
+					Id: 1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
 				},
 				{
-					Id:    5,
-					Email: "test5@email.com",
+					Id: 2,
+					Name:           "Test Player2",
+					GameIdentifier: "32",
+					MainRoster:     true,
 				},
 				{
-					Id:    3,
-					Email: "test3@email.com",
+					Id: 3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
 				},
 			})})
 
@@ -209,5 +225,5 @@ func Test_GetTeamInformation(t *testing.T) {
 	t.Run("teamDoesNotExist", testGetTeamInformationTeamDoesNotExist)
 	t.Run("dbError", testGetTeamInformationDbError)
 	t.Run("getOneMemberTeam", testCorrectGetTeamInformationOneMember)
-	t.Run("getManyMembersTeam", testCorrectGetTeamInformationManyMembers)
+	t.Run("getManyPlayersTeam", testCorrectGetTeamInformationManyPlayers)
 }

@@ -5,23 +5,19 @@ import (
 	"strings"
 )
 
-type UserInformation struct {
-	Id    int    `json:"id"`
-	Email string `json:"email"`
-}
-
 type TeamInformation struct {
-	Name    string            `json:"name"`
-	Tag     string            `json:"tag"`
-	Wins    int               `json:"wins"`
-	Losses  int               `json:"losses"`
-	Members []UserInformation `json:"members"`
+	Name    string              `json:"name"`
+	Tag     string              `json:"tag"`
+	Wins    int                 `json:"wins"`
+	Losses  int                 `json:"losses"`
+	Players []PlayerInformation `json:"players"`
 }
 
 type PlayerInformation struct {
-	Name string `json:"name"`
+	Id             int    `json:"id"`
+	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
-	MainRoster bool `json:"mainRoster"`
+	MainRoster     bool   `json:"mainRoster"`
 }
 
 type PgTeamsDAO struct{}
@@ -86,36 +82,30 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId, leagueId int) (*TeamInformation,
 		return nil, err
 	}
 
-	//get users of team
-	var members []UserInformation
-
-	rows, err := db.Query(`
-		SELECT id, email FROM users
-			WHERE id IN
-				(
-					SELECT userId FROM teamPermissions
-					WHERE teamId = $1
-				)
-	`, teamId)
+	//get players of team
+	rows, err := psql.Select("id", "gameIdentifier", "name", "mainRoster").
+		Where("teamId = ?", teamId).Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var member UserInformation
+	var players []PlayerInformation
+	var player PlayerInformation
+
 	for rows.Next() {
-		err := rows.Scan(&member.Id, &member.Email)
+		err := rows.Scan(&player.Id, &player.GameIdentifier, &player.Name, &player.MainRoster)
 		if err != nil {
 			return nil, err
 		}
-		members = append(members, member)
+		players = append(players, player)
 	}
 	err = rows.Err()
 	if err != nil {
 		return nil, err
 	}
 
-	teamInformation.Members = members
+	teamInformation.Players = players
 	return &teamInformation, nil
 }
 

@@ -83,7 +83,6 @@ func createNewTeam(ctx *gin.Context) {
  * @apiError teamDoesNotExist The specified team does not exist
  */
 func getTeamInformation(ctx *gin.Context) {
-	println("got here 1")
 	if failIfTeamDoesNotExist(ctx, ctx.GetInt("urlId"), ctx.GetInt("leagueId")) {
 		return
 	}

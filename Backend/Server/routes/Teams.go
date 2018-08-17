@@ -83,13 +83,16 @@ func createNewTeam(ctx *gin.Context) {
  * @apiError teamDoesNotExist The specified team does not exist
  */
 func getTeamInformation(ctx *gin.Context) {
+	println("got here 1")
 	if failIfTeamDoesNotExist(ctx, ctx.GetInt("urlId"), ctx.GetInt("leagueId")) {
 		return
 	}
+
 	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
 	}
+
 	ctx.JSON(http.StatusOK, teamInfo)
 }
 

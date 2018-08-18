@@ -43,7 +43,7 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name string, publicView, publicJ
 func (d *PgLeaguesDAO) JoinLeague(userId, leagueId int) error {
 	_, err := psql.Insert("leaguePermissions").
 		Columns("userId", "leagueId", "editPermissions", "createTeams",
-		"editTeams", "editUsers", "editSchedule", "editResults").
+			"editTeams", "editUsers", "editSchedule", "editResults").
 		Values(userId, leagueId, false, true, false, false, false, false).
 		RunWith(db).Exec()
 	if err != nil {

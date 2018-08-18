@@ -5,12 +5,12 @@ import (
 )
 
 func Test_NormalUseCase(t *testing.T) {
-    createRouterAndHttpClient()
+	createRouterAndHttpClient()
 
-    var u *user
-    var l *league
+	var u *user
+	var l *league
 
-    t.Run("create user, login, and check that logged in", func(t *testing.T) {
+	t.Run("create user, login, and check that logged in", func(t *testing.T) {
 		u = createUser(t)
 		loginAs(t, u)
 		checkLoggedIn(t, u)
@@ -21,7 +21,7 @@ func Test_NormalUseCase(t *testing.T) {
 		checkLoggedOut(t)
 	})
 
-    t.Run("ensure can't create leagued logged out, login, then create league", func(t *testing.T) {
+	t.Run("ensure can't create leagued logged out, login, then create league", func(t *testing.T) {
 		checkCantMakeLeagueLoggedOut(t)
 		loginAs(t, u)
 		l = createLeague(t, true, true)

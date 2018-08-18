@@ -1,15 +1,15 @@
 package IntegrationTests
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"net/http/cookiejar"
-	"golang.org/x/net/publicsuffix"
-	"log"
 	"esports-league-manager/Backend/Server/config"
 	"esports-league-manager/Backend/Server/databaseAccess"
 	"esports-league-manager/Backend/Server/routes"
 	"esports-league-manager/Backend/Server/sessionManager"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/net/publicsuffix"
+	"log"
+	"net/http"
+	"net/http/cookiejar"
 )
 
 type errorResponse struct {

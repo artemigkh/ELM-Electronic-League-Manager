@@ -1,8 +1,8 @@
 package IntegrationTests
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func loginAs(t *testing.T, u *user) {

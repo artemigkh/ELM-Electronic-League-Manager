@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"esports-league-manager/Backend/Server/databaseAccess"
 	"esports-league-manager/Backend/Server/routes"
 	"esports-league-manager/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
 	"testing"
-	"esports-league-manager/Backend/Server/databaseAccess"
 )
 
 func createUserProfileBody(email string) *bytes.Buffer {
@@ -87,4 +87,3 @@ func Test_GetProfile(t *testing.T) {
 	t.Run("getProfileDatabaseError", testGetProfileDatabaseError)
 	t.Run("getProfileCorrectly", testGetProfileCorrectly)
 }
-

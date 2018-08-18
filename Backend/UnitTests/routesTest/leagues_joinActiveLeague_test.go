@@ -1,12 +1,12 @@
 package routesTest
 
 import (
-	"testing"
-	"github.com/gin-gonic/gin"
+	"errors"
 	"esports-league-manager/Backend/Server/routes"
 	"esports-league-manager/mocks"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
-	"errors"
+	"testing"
 )
 
 func testJoinActiveLeagueSessionError(t *testing.T) {

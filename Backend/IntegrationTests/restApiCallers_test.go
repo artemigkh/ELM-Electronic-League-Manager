@@ -3,9 +3,9 @@ package IntegrationTests
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"testing"
-	"io/ioutil"
 )
 
 func makeApiCall(t *testing.T, bodyJson map[string]interface{}, reqType, url string, responseCode int) []byte {
@@ -21,8 +21,8 @@ func makeApiCall(t *testing.T, bodyJson map[string]interface{}, reqType, url str
 		body = bytes.NewBuffer(bodyBytes)
 	}
 
-		//set up HTTP request
-	req, _ := http.NewRequest(reqType, baseUrl + url, body)
+	//set up HTTP request
+	req, _ := http.NewRequest(reqType, baseUrl+url, body)
 
 	req.Header.Set("Content-Type", "application/json")
 

@@ -77,3 +77,15 @@ func makeApiCallAndGetMap(t *testing.T, bodyJson map[string]interface{},
 	}
 	return bodyMap
 }
+
+func makeApiCallAndGetMapArray(t *testing.T, bodyJson map[string]interface{},
+	reqType, url string, responseCode int) []map[string]interface{} {
+	body := makeApiCall(t, bodyJson, reqType, url, responseCode)
+
+	var bodyMapArray []map[string]interface{}
+	err := json.Unmarshal(body, &bodyMapArray)
+	if err != nil {
+		t.Error("Could not unmarshall body bytes into map")
+	}
+	return bodyMapArray
+}

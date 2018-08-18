@@ -118,8 +118,8 @@ func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueId, userId int) (bool, error
 
 func (d *PgLeaguesDAO) HasCreateTeamsPermission(leagueId, userId int) (bool, error) {
 	var canEdit bool
-	err := psql.Select("editPermissions").
-		From("createTeams").
+	err := psql.Select("createTeams").
+		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canEdit)
 	if err != nil {

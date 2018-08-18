@@ -103,7 +103,7 @@ func getTeamInformation(ctx *gin.Context) {
  * @apiParam {int} teamId The unique numerical identifier of the team the player is to be added to
  * @apiParam {string} name The name of the player (can be left blank)
  * @apiParam {string} gameIdentifier The in-game name identifier of the player (jersey number, ign, etc.)
- * @apiParam {bool} players.mainRoster If true, this player is on the main roster, otherwise is a substitute
+ * @apiParam {bool} mainRoster If true, this player is on the main roster, otherwise is a substitute
  *
  * @apiSuccess {int} id the unique numerical identifier of the created player
  *

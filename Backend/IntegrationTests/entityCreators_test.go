@@ -40,3 +40,34 @@ func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 		PublicJoin: publicJoin,
 	}
 }
+
+func createTeam(t *testing.T, teams []*team, l *league) *team {
+	teamName := randomdata.SillyName()
+	for i := 0; i < len(teams); i++ {
+		if teamName == teams[i].Name {
+			teamName = randomdata.SillyName()
+			i = 0
+		}
+	}
+
+	tag := randomdata.Letters(4)
+	for i := 0; i < len(teams); i++ {
+		if tag == teams[i].Tag {
+			tag = randomdata.Letters(4)
+			i = 0
+		}
+	}
+
+	body := make(map[string]interface{})
+	body["name"] = teamName
+	body["tag"] = tag
+
+	return &team {
+		Id: makeApiCallAndGetId(t, body, "POST", "api/teams", 200),
+		LeagueId: l.Id,
+		Name: teamName,
+		Tag: tag,
+		Wins: 0,
+		Losses: 0,
+	}
+}

@@ -21,20 +21,12 @@ type idResponse struct {
 }
 
 var router *gin.Engine
-var cookieJar *http.CookieJar
 var client *http.Client
 
 const baseUrl = "http://localhost:8080/"
 
 func createRouterAndHttpClient() {
-	cookieJar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	client = &http.Client{
-		Jar: cookieJar,
-	}
+	newClient()
 
 	conf := config.GetConfig("../conf.json")
 
@@ -54,4 +46,15 @@ func createRouterAndHttpClient() {
 	routes.RegisterGameHandlers(router.Group("/api/games"))
 
 	go router.Run(conf.GetPortString())
+}
+
+func newClient() {
+	cookieJar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client = &http.Client{
+		Jar: cookieJar,
+	}
 }

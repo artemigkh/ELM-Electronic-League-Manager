@@ -5,7 +5,9 @@ type league struct {
 	Name       string
 	PublicView bool
 	PublicJoin bool
-	Teams      []team
+	Teams      []*team
+	Managers   []*user
+	Players    []*player
 }
 
 type team struct {
@@ -15,8 +17,8 @@ type team struct {
 	Tag      string
 	Wins     float64
 	Losses   float64
-	Users    []user
-	Players  []player
+	Users    []*user
+	Players  []*player
 }
 
 type user struct {

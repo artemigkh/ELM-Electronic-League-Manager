@@ -143,6 +143,8 @@ func joinActiveLeague(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
+//TODO: make "get managers of active league endpoint"
+
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)

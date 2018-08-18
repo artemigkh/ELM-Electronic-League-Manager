@@ -29,11 +29,28 @@ If errors with "cannot find find file" happen, set the working directory to the
 root directory of the git repo.
 
 ### Server Tests
+
+#### Unit Tests
 ```
 go test -v ./Backend/UnitTests/...
 ```
 
 Or in GoLand, right click on the UnitTests folder in project view, and press Run->Go Test
+
+#### Integration Tests
+
+Note that running the integration tests requires the following environment:
+
+* Database set up, `createTables.sql` ran against it
+* Database permissions to allow the user in the connection string in `conf.json` to connect to the database
+* Permission for the application to serve on the local loopback on port 8080
+* Permission for the go testing executable to send requests to the local loopback on port 8080 on HTTP
+
+```
+go test -v ./Backend/IntegrationTests/...
+
+```
+Or in GoLand, right click on the IntegrationTests folder in project view, and press Run->Go Test
 
 ### Generate Endpoint Documentation
 Download and install [http://apidocjs.com/](apiDoc)

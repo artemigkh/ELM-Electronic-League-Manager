@@ -62,12 +62,12 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 	body["name"] = teamName
 	body["tag"] = tag
 
-	return &team {
-		Id: makeApiCallAndGetId(t, body, "POST", "api/teams", 200),
+	return &team{
+		Id:       makeApiCallAndGetId(t, body, "POST", "api/teams", 200),
 		LeagueId: l.Id,
-		Name: teamName,
-		Tag: tag,
-		Wins: 0,
-		Losses: 0,
+		Name:     teamName,
+		Tag:      tag,
+		Wins:     0,
+		Losses:   0,
 	}
 }

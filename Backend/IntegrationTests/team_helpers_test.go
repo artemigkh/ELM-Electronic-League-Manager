@@ -1,10 +1,10 @@
 package IntegrationTests
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"fmt"
 	"github.com/Pallinder/go-randomdata"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func checkTeamCreated(t *testing.T, m *team) {
@@ -36,11 +36,11 @@ func addPlayerToTeam(t *testing.T, m *team, l *league, mainRoster bool) {
 	body["mainRoster"] = mainRoster
 
 	p := &player{
-		Id: makeApiCallAndGetId(t, body, "POST", "api/teams/addPlayer", 200),
-		TeamId: m.Id,
+		Id:             makeApiCallAndGetId(t, body, "POST", "api/teams/addPlayer", 200),
+		TeamId:         m.Id,
 		GameIdentifier: gameIdentifier,
-		Name: playerName,
-		mainRoster: mainRoster,
+		Name:           playerName,
+		mainRoster:     mainRoster,
 	}
 
 	m.Players = append(m.Players, p)

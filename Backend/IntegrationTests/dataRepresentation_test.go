@@ -20,7 +20,6 @@ type team struct {
 }
 
 type user struct {
-	Id       int
 	Email    string
 	Password string
 	Leagues  []*league

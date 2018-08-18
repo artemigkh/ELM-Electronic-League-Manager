@@ -16,8 +16,8 @@ func createUser(t *testing.T) *user {
 
 	fmt.Printf("creating user with email: %s and password: %s\n", email, password)
 
+	makeApiCall(t, body, "POST", "api/users", 200)
 	return &user{
-		Id: makeApiCallAndGetId(t, body, "POST", "api/users", 200),
 		Email: email,
 		Password: password,
 	}

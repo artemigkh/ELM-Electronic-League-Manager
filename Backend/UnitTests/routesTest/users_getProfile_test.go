@@ -9,14 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/mock"
 	"testing"
+	"esports-league-manager/Backend/Server/databaseAccess"
 )
 
-type userProfile struct {
-	Id int `json:"id"`
-}
-
-func createUserProfileBody(id int) *bytes.Buffer {
-	body := userProfile{Id: id}
+func createUserProfileBody(email string) *bytes.Buffer {
+	body := databaseAccess.UserInformation{Email: email}
 	reqBodyB, _ := json.Marshal(&body)
 	return bytes.NewBuffer(reqBodyB)
 }
@@ -45,16 +42,39 @@ func testGetProfileSessionError(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
+func testGetProfileDatabaseError(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(14, nil)
+
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("GetUserProfile", 14).
+		Return(&databaseAccess.UserInformation{Email: "test3@test.com"}, errors.New("fake db error"))
+
+	routes.ElmSessions = mockSession
+	routes.UsersDAO = mockUsersDao
+
+	httpTest(t, nil, "GET", "/", 500, testParams{})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockUsersDao)
+}
+
 func testGetProfileCorrectly(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(14, nil)
 
+	mockUsersDao := new(mocks.UsersDAO)
+	mockUsersDao.On("GetUserProfile", 14).
+		Return(&databaseAccess.UserInformation{Email: "test3@test.com"}, nil)
+
 	routes.ElmSessions = mockSession
+	routes.UsersDAO = mockUsersDao
 
-	httpTest(t, nil, "GET", "/", 200, testParams{ResponseBody: createUserProfileBody(14)})
+	httpTest(t, nil, "GET", "/", 200,
+		testParams{ResponseBody: createUserProfileBody("test3@test.com")})
 
-	mock.AssertExpectationsForObjects(t, mockSession)
+	mock.AssertExpectationsForObjects(t, mockSession, mockUsersDao)
 }
 
 func Test_GetProfile(t *testing.T) {
@@ -64,5 +84,7 @@ func Test_GetProfile(t *testing.T) {
 
 	t.Run("getProfileNotLoggedIn", testGetProfileNotLoggedIn)
 	t.Run("getProfileSessionError", testGetProfileSessionError)
+	t.Run("getProfileDatabaseError", testGetProfileDatabaseError)
 	t.Run("getProfileCorrectly", testGetProfileCorrectly)
 }
+

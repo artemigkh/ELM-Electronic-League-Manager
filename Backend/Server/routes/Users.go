@@ -62,14 +62,17 @@ func createNewUser(ctx *gin.Context) {
  * @apiGroup Users
  * @apiDescription If a user is logged in, get their profile information
  *
- * @apiSuccess {int} id The unique numerical identifier of the user
+ * @apiSuccess {string} email The email of the currently logged in user
  *
  * @apiError notLoggedIn 403 No user is currently logged in
  */
 func getProfile(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, userProfile{
-		Id: ctx.GetInt("userId"),
-	})
+	profile, err := UsersDAO.GetUserProfile(ctx.GetInt("userId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, profile)
 }
 
 func RegisterUserHandlers(g *gin.RouterGroup) {

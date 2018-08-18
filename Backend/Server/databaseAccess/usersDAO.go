@@ -6,6 +6,10 @@ import (
 
 type PgUsersDAO struct{}
 
+type UserInformation struct {
+	Email string `json:"email"`
+}
+
 func (d *PgUsersDAO) CreateUser(email, salt, hash string) error {
 	_, err := psql.Insert("users").Columns("email", "salt", "hash").
 		Values(email, salt, hash).RunWith(db).Exec()
@@ -38,4 +42,16 @@ func (d *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, st
 	}
 
 	return id, salt, storedHash, nil
+}
+
+func (d *PgUsersDAO) GetUserProfile(userId int) (*UserInformation, error) {
+	var profile UserInformation
+
+	err := psql.Select("email").From("users").Where("id = ?", userId).
+		RunWith(db).QueryRow().Scan(&profile.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	return &profile, nil
 }

@@ -110,7 +110,7 @@ func testCreateNewTeamNoEditPermissions(t *testing.T) {
 	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createTeamRequestBody("sampleName", "TAG"),
-		"POST", "/", 403, testParams{Error: "noEditLeaguePermissions"})
+		"POST", "/", 403, testParams{Error: "noEditTeamPermissions"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }

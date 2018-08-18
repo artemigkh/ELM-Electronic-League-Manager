@@ -25,8 +25,9 @@ var cookieJar *http.CookieJar
 var client *http.Client
 var doneSetup chan bool
 
+const baseUrl = "http://localhost:8080/"
 
-func createRouterAndHttpclient() {
+func createRouterAndHttpClient() {
 	cookieJar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	if err != nil {
 		log.Fatal(err)
@@ -53,5 +54,5 @@ func createRouterAndHttpclient() {
 	routes.RegisterTeamHandlers(router.Group("/api/teams"))
 	routes.RegisterGameHandlers(router.Group("/api/games"))
 
-	doneSetup <- true
+	go router.Run(conf.GetPortString())
 }

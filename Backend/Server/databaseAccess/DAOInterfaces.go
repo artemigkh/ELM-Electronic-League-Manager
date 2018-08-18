@@ -4,6 +4,7 @@ type UsersDAO interface {
 	CreateUser(email, salt, hash string) error
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (int, string, string, error)
+	GetUserProfile(userId int) (*UserInformation, error)
 }
 
 type LeaguesDAO interface {

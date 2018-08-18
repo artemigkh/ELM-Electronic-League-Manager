@@ -129,7 +129,7 @@ func (d *PgTeamsDAO) DoesTeamExist(teamId, leagueId int) (bool, error) {
 func (d *PgTeamsDAO) HasPlayerEditPermissions(teamId, userId, leagueId int) (bool, error) {
 	//check if league admin
 	var canEdit bool
-	err := psql.Select("editPermissions").
+	err := psql.Select("editTeams").
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canEdit)

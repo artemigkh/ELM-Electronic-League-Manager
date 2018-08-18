@@ -122,9 +122,31 @@ func getTeamSummary(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teamSummary)
 }
 
+/**
+ * @api{POST} /api/leagues/join Join Active League
+ * @apiGroup Leagues
+ * @apiDescription Join the currently selected league as a manager
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError canNotJoin The active league is not accepting new members
+ */
+func joinActiveLeague(ctx *gin.Context) {
+	if failIfCannotJoinLeague(ctx, ctx.GetInt("userId"), ctx.GetInt("leagueId")) {
+		return
+	}
+	err := LeaguesDAO.JoinLeague(ctx.GetInt("userId"), ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
+}
+
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
+	g.POST("/join", authenticate(), getActiveLeague(), joinActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
 }

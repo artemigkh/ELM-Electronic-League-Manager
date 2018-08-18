@@ -218,3 +218,17 @@ func failIfGameIdentifierInUse(ctx *gin.Context, gameIdentifier string, teamId, 
 
 	return false
 }
+
+func failIfCannotJoinLeague(ctx *gin.Context, userId, leagueId int) bool {
+	canJoin, err := LeaguesDAO.CanJoinLeague(userId, leagueId)
+	if err != nil {
+		println(err.Error())
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if !canJoin {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "canNotJoin"})
+		return true
+	} else {
+		return false
+	}
+}

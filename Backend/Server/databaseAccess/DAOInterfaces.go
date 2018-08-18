@@ -13,7 +13,10 @@ type LeaguesDAO interface {
 	IsLeagueViewable(leagueId, userId int) (bool, error)
 	GetLeagueInformation(leagueId int) (*LeagueInformation, error)
 	HasEditTeamsPermission(leagueId, userId int) (bool, error)
+	HasCreateTeamsPermission(leagueId, userId int) (bool, error)
 	GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error)
+	CanJoinLeague(userId, leagueId int) (bool, error)
+	JoinLeague(userId, leagueId int) error
 }
 
 type TeamsDAO interface {

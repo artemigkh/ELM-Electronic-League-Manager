@@ -44,6 +44,7 @@ CREATE TABLE leaguePermissions (
   userId          INT           NOT NULL         ,
   leagueId        INT           NOT NULL         ,
   editPermissions BOOLEAN       NOT NULL         ,
+  createTeams     BOOLEAN       NOT NULL         ,
   editTeams       BOOLEAN       NOT NULL         ,
   editUsers       BOOLEAN       NOT NULL         ,
   editSchedule    BOOLEAN       NOT NULL         ,

@@ -28,14 +28,29 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name string, publicView, publicJ
 	}
 
 	//create permissions entry linking current user Id as the league creator
-	_, err = psql.Insert("leaguePermissions").Columns("userId", "leagueId", "editPermissions", "editTeams",
-		"editUsers", "editSchedule", "editResults").Values(userId, leagueId, true, true, true, true, true).
+	_, err = psql.Insert("leaguePermissions").
+		Columns("userId", "leagueId", "editPermissions", "createTeams",
+			"editTeams", "editUsers", "editSchedule", "editResults").
+		Values(userId, leagueId, true, true, true, true, true, true).
 		RunWith(db).Exec()
 	if err != nil {
 		return -1, err
 	}
 
 	return leagueId, nil
+}
+
+func (d *PgLeaguesDAO) JoinLeague(userId, leagueId int) error {
+	_, err := psql.Insert("leaguePermissions").
+		Columns("userId", "leagueId", "editPermissions", "createTeams",
+		"editTeams", "editUsers", "editSchedule", "editResults").
+		Values(userId, leagueId, false, true, false, false, false, false).
+		RunWith(db).Exec()
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
 }
 
 func (d *PgLeaguesDAO) IsNameInUse(name string) (bool, error) {
@@ -101,6 +116,19 @@ func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueId, userId int) (bool, error
 	return canEdit, nil
 }
 
+func (d *PgLeaguesDAO) HasCreateTeamsPermission(leagueId, userId int) (bool, error) {
+	var canEdit bool
+	err := psql.Select("editPermissions").
+		From("createTeams").
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
+		RunWith(db).QueryRow().Scan(&canEdit)
+	if err != nil {
+		return false, err
+	}
+
+	return canEdit, nil
+}
+
 func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error) {
 	rows, err := psql.Select("id", "name", "tag", "wins", "losses").From("teams").
 		Where("leagueId = ?", leagueId).
@@ -128,4 +156,18 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, e
 	}
 
 	return teams, nil
+}
+
+//TODO: make invite system for private leagues, check if user invited in this function
+func (d *PgLeaguesDAO) CanJoinLeague(userId, leagueId int) (bool, error) {
+	var canJoin bool
+	err := psql.Select("publicJoin").
+		From("leagues").
+		Where("id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&canJoin)
+	if err != nil {
+		return false, err
+	}
+
+	return canJoin, nil
 }

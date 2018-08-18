@@ -151,7 +151,7 @@ func addPlayerToTeam(ctx *gin.Context) {
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 
-	g.POST("/", authenticate(), getTeamEditPermissions(), createNewTeam)
+	g.POST("/", authenticate(), getTeamCreatePermissions(), createNewTeam)
 	g.POST("/addPlayer", authenticate(), addPlayerToTeam)
 	g.GET("/:id", getUrlId(), getTeamInformation)
 }

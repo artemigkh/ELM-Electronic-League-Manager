@@ -86,7 +86,7 @@ func setActiveLeague(ctx *gin.Context) {
  * @apiGroup Leagues
  * @apiDescription Get information about the currently selected league
  *
- * @apiSuccess {id} The unique numerical identifier of the league
+ * @apiSuccess {int} id The unique numerical identifier of the league
  *
  * @apiError noActiveLeague There is no active league selected
  */

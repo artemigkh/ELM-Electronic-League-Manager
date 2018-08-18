@@ -1,6 +1,9 @@
 package IntegrationTests
 
-import "testing"
+import (
+	"testing"
+	"github.com/stretchr/testify/assert"
+)
 
 func loginAs(t *testing.T, u *user) {
 	body := make(map[string]interface{})
@@ -11,5 +14,15 @@ func loginAs(t *testing.T, u *user) {
 }
 
 func checkLoggedIn(t *testing.T, u *user) {
-	println(makeApiCallAndGetId(t, nil, "GET", "api/users/profile", 200))
+	responseMap := makeApiCallAndGetMap(t, nil, "GET", "api/users/profile", 200)
+	assert.Equal(t, responseMap["email"].(string), u.Email)
+}
+
+func logout(t *testing.T) {
+	makeApiCall(t, nil, "POST", "logout", 200)
+}
+
+func checkLoggedOut(t *testing.T) {
+	responseMap := makeApiCallAndGetMap(t, nil, "GET", "api/users/profile", 403)
+	assert.Equal(t, responseMap["error"].(string), "notLoggedIn")
 }

@@ -17,13 +17,12 @@ type errorResponse struct {
 }
 
 type idResponse struct {
-	Id int `json:"id"`
+	Id float64 `json:"id"`
 }
 
 var router *gin.Engine
 var cookieJar *http.CookieJar
 var client *http.Client
-var doneSetup chan bool
 
 const baseUrl = "http://localhost:8080/"
 

@@ -46,7 +46,6 @@ func getActiveLeague() gin.HandlerFunc {
 
 func getUrlId() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		println("id is: ", ctx.Param("id"))
 		urlId, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})

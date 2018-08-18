@@ -54,7 +54,7 @@ func makeApiCall(t *testing.T, bodyJson map[string]interface{}, reqType, url str
 }
 
 func makeApiCallAndGetId(t *testing.T, bodyJson map[string]interface{},
-	reqType, url string, responseCode int) int {
+	reqType, url string, responseCode int) float64 {
 	body := makeApiCall(t, bodyJson, reqType, url, responseCode)
 
 	var id idResponse
@@ -64,4 +64,16 @@ func makeApiCallAndGetId(t *testing.T, bodyJson map[string]interface{},
 	}
 
 	return id.Id
+}
+
+func makeApiCallAndGetMap(t *testing.T, bodyJson map[string]interface{},
+	reqType, url string, responseCode int) map[string]interface{} {
+	body := makeApiCall(t, bodyJson, reqType, url, responseCode)
+
+	bodyMap := make(map[string]interface{})
+	err := json.Unmarshal(body, &bodyMap)
+	if err != nil {
+		t.Error("Could not unmarshall body bytes into map")
+	}
+	return bodyMap
 }

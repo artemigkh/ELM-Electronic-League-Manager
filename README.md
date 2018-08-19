@@ -48,7 +48,6 @@ Note that running the integration tests requires the following environment:
 
 ```
 go test -v ./Backend/IntegrationTests/...
-
 ```
 Or in GoLand, right click on the IntegrationTests folder in project view, and press Run->Go Test
 

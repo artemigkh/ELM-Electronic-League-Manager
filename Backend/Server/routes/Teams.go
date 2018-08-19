@@ -148,6 +148,8 @@ func addPlayerToTeam(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"id": playerId})
 }
 
+//TODO: implement "get teams games list" endpoint
+
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 

@@ -8,6 +8,7 @@ type league struct {
 	Teams      []*team
 	Managers   []*user
 	Players    []*player
+	Games      []*game
 }
 
 type team struct {

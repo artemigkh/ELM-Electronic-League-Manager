@@ -132,7 +132,7 @@ func (d *PgLeaguesDAO) HasCreateTeamsPermission(leagueId, userId int) (bool, err
 func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error) {
 	rows, err := psql.Select("id", "name", "tag", "wins", "losses").From("teams").
 		Where("leagueId = ?", leagueId).
-		OrderBy("wins DESC").
+		OrderBy("wins DESC, losses ASC").
 		RunWith(db).Query()
 
 	if err != nil {

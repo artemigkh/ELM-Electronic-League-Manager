@@ -71,3 +71,22 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 		Losses:   0,
 	}
 }
+
+func createGame(t *testing.T, l *league, gameTime, team1Id, team2Id float64) *game {
+	body := make(map[string]interface{})
+	body["team1Id"] = team1Id
+	body["team2Id"] = team2Id
+	body["gameTime"] = gameTime
+
+	return &game{
+		Id: makeApiCallAndGetId(t, body, "POST", "api/games", 200),
+		LeagueId: l.Id,
+		Team1Id: team1Id,
+		Team2Id: team2Id,
+		GameTime: gameTime,
+		Complete: false,
+		WinnerId: -1,
+		ScoreTeam1: 0,
+		ScoreTeam2: 0,
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"math"
 )
 
 func checkCantMakeLeagueLoggedOut(t *testing.T) {
@@ -49,4 +50,18 @@ func checkTeamsAgainstLeagueSummary(t *testing.T, teams []*team) {
 		}
 	}
 	assert.Equal(t, matchingTeams, len(responseMapArray))
+}
+
+func checkTeamStandingsSortedProperly(t *testing.T) {
+	responseMapArray := makeApiCallAndGetMapArray(t, nil, "GET",
+		"api/leagues/teamSummary", 200)
+
+	previousWins := math.MaxFloat64
+	previousLosses := float64(math.MinInt32)
+	for _, teamSummary := range responseMapArray {
+		assert.True(t, previousWins >= teamSummary["wins"].(float64))
+		assert.True(t, previousLosses <= teamSummary["losses"].(float64))
+		previousWins = teamSummary["wins"].(float64)
+		previousLosses = teamSummary["losses"].(float64)
+	}
 }

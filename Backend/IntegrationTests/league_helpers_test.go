@@ -65,3 +65,32 @@ func checkTeamStandingsSortedProperly(t *testing.T) {
 		previousLosses = teamSummary["losses"].(float64)
 	}
 }
+
+func checkLeagueManagersCorrect(t *testing.T, l *league) {
+	responseMap := makeApiCallAndGetMapArray(t, nil, "GET", "api/leagues/teamManagers", 200)
+	matchingTeams := 0
+	for _, team := range responseMap {
+		for _, teamRep := range l.Teams {
+			if teamRep.Id == team["teamId"] {
+				assert.Equal(t, teamRep.Name, team["teamName"])
+				assert.Equal(t, teamRep.Tag, team["teamTag"])
+
+				matchingManagers := 0
+				for _, manager := range team["managers"].([]interface{}) {
+					for _, managerRep := range teamRep.Managers {
+						if manager.(map[string]interface{})["userEmail"] == managerRep.Email {
+							assert.True(t, manager.(map[string]interface{})["editPermissions"].(bool))
+							assert.True(t, manager.(map[string]interface{})["editTeamInfo"].(bool))
+							assert.True(t, manager.(map[string]interface{})["editPlayers"].(bool))
+							assert.True(t, manager.(map[string]interface{})["reportResult"].(bool))
+							matchingManagers++
+						}
+					}
+				}
+				assert.Equal(t, matchingManagers, len(teamRep.Managers))
+				matchingTeams++
+			}
+		}
+	}
+	assert.Equal(t, matchingTeams, len(l.Teams))
+}

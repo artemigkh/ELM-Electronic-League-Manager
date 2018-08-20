@@ -49,8 +49,6 @@ func Test_NormalUseCase(t *testing.T) {
 		assert.Equal(t, len(l.Managers), 10)
 	})
 
-	//TODO: check that all 10 are registered as Managers in the league
-
 	t.Run("each manager creates a team", func(t *testing.T) {
 		for _, manager := range l.Managers {
 			newClient()
@@ -58,6 +56,7 @@ func Test_NormalUseCase(t *testing.T) {
 			setActiveLeague(t, l)
 
 			manager.Team = createTeam(t, l.Teams, l)
+			manager.Team.Managers = append(manager.Team.Managers, manager)
 			l.Teams = append(l.Teams, manager.Team)
 			checkTeamCreated(t, manager.Team)
 		}
@@ -65,6 +64,13 @@ func Test_NormalUseCase(t *testing.T) {
 		newClient()
 		setActiveLeague(t, l)
 		checkTeamsAgainstLeagueSummary(t, l.Teams)
+	})
+
+	t.Run("check that getting team manager endpoint returns correct information", func(t *testing.T) {
+		newClient()
+		loginAs(t, leagueOwner)
+		setActiveLeague(t, l)
+		checkLeagueManagersCorrect(t, l)
 	})
 
 	t.Run("each manager adds 5 main roster players and 2 subs", func(t *testing.T) {

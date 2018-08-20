@@ -18,7 +18,7 @@ type team struct {
 	Tag      string
 	Wins     float64
 	Losses   float64
-	Users    []*user
+	Managers []*user
 	Players  []*player
 }
 

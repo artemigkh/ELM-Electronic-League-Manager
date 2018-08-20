@@ -51,6 +51,7 @@ CREATE TABLE leaguePermissions (
   editResults     BOOLEAN       NOT NULL
 );
 
+-- TODO: if efficiency a problem, add leagueID for faster filter
 CREATE TABLE teamPermissions (
   userId          INT           NOT NULL         ,
   teamId          INT           NOT NULL         ,

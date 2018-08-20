@@ -74,6 +74,29 @@ func (_m *LeaguesDAO) GetLeagueInformation(leagueId int) (*databaseAccess.League
 	return r0, r1
 }
 
+// GetTeamManagerInformation provides a mock function with given fields: leagueId
+func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.TeamManagerInformation, error) {
+	ret := _m.Called(leagueId)
+
+	var r0 []databaseAccess.TeamManagerInformation
+	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamManagerInformation); ok {
+		r0 = rf(leagueId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]databaseAccess.TeamManagerInformation)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(leagueId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetTeamSummary provides a mock function with given fields: leagueId
 func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamSummaryInformation, error) {
 	ret := _m.Called(leagueId)
@@ -120,6 +143,27 @@ func (_m *LeaguesDAO) HasCreateTeamsPermission(leagueId int, userId int) (bool, 
 
 // HasEditTeamsPermission provides a mock function with given fields: leagueId, userId
 func (_m *LeaguesDAO) HasEditTeamsPermission(leagueId int, userId int) (bool, error) {
+	ret := _m.Called(leagueId, userId)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
+		r0 = rf(leagueId, userId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(leagueId, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// IsLeagueAdmin provides a mock function with given fields: leagueId, userId
+func (_m *LeaguesDAO) IsLeagueAdmin(leagueId int, userId int) (bool, error) {
 	ret := _m.Called(leagueId, userId)
 
 	var r0 bool

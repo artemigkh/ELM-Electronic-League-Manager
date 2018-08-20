@@ -17,8 +17,9 @@ type LeaguesDAO interface {
 	GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error)
 	CanJoinLeague(userId, leagueId int) (bool, error)
 	JoinLeague(userId, leagueId int) error
+	IsLeagueAdmin(leagueId, userId int) (bool, error)
+	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
 }
-
 type TeamsDAO interface {
 	CreateTeam(leagueId, userId int, name, tag string) (int, error)
 	IsInfoInUse(name, tag string, leagueId int) (bool, string, error)

@@ -1,10 +1,10 @@
 package IntegrationTests
 
 import (
-	"testing"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"github.com/Pallinder/go-randomdata"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func checkGameAgainstRepresentation(t *testing.T, g *game) {

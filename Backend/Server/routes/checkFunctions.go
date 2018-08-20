@@ -232,3 +232,17 @@ func failIfCannotJoinLeague(ctx *gin.Context, userId, leagueId int) bool {
 		return false
 	}
 }
+
+func failIfNotLeagueAdmin(ctx *gin.Context, userId, leagueId int) bool {
+	isLeagueAdmin, err := LeaguesDAO.IsLeagueAdmin(leagueId, userId)
+	if err != nil {
+		println(err.Error())
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if !isLeagueAdmin {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
+		return true
+	} else {
+		return false
+	}
+}

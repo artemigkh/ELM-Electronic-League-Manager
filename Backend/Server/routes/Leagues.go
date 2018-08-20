@@ -135,6 +135,7 @@ func joinActiveLeague(ctx *gin.Context) {
 	if failIfCannotJoinLeague(ctx, ctx.GetInt("userId"), ctx.GetInt("leagueId")) {
 		return
 	}
+
 	err := LeaguesDAO.JoinLeague(ctx.GetInt("userId"), ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
@@ -143,7 +144,39 @@ func joinActiveLeague(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
-//TODO: make "get managers of active league endpoint"
+/**
+ * @api{GET} /api/leagues/teamManagers Get Team Managers
+ * @apiGroup Leagues
+ * @apiDescription If logged in as a league administrator, see all users that have permissions to manage teams in this league
+ *
+ * @apiSuccess {jsonArray} _ An array of JSON objects, each representing a team
+ * @apiSuccess {int} _.teamId The unique numerical identifier of the team
+ * @apiSuccess {string} _.teamName The name of the team
+ * @apiSuccess {string} _.teamTag The tag of the team
+ * @apiSuccess {[]Object} _.managers The users on this team that have management permissions
+ * @apiSuccess {int} _.managers.userId The unique numerical identifier of the user/manager
+ * @apiSuccess {string} _.managers.userEmail The email of the user/manager
+ * @apiSuccess {bool} _.managers.editPermissions True if this user can manage permissions of other users on the team
+ * @apiSuccess {bool} _.managers.editTeamInfo True if this user can edit information about the team
+ * @apiSuccess {bool} _.managers.editPlayers True if this user can edit players on this team
+ * @apiSuccess {bool} _.managers.reportResult True if this user can report results for this team
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError notAdmin The currently logged in user is not a league administrator
+ */
+func getTeamManagers(ctx *gin.Context) {
+	if failIfNotLeagueAdmin(ctx, ctx.GetInt("userId"), ctx.GetInt("leagueId")) {
+		return
+	}
+
+	teamManagerInfo, err := LeaguesDAO.GetTeamManagerInformation(ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, teamManagerInfo)
+}
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
@@ -151,4 +184,5 @@ func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/join", authenticate(), getActiveLeague(), joinActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
+	g.GET("/teamManagers", authenticate(), getActiveLeague(), getTeamManagers)
 }

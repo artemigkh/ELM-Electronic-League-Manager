@@ -16,6 +16,22 @@ type TeamSummaryInformation struct {
 	Losses int    `json:"losses"`
 }
 
+type TeamManagerInformation struct {
+	TeamId   int                  `json:"teamId"`
+	TeamName string               `json:"teamName"`
+	TeamTag  string               `json:"teamTag"`
+	Managers []ManagerInformation `json:"managers"`
+}
+
+type ManagerInformation struct {
+	UserId          int    `json:"userId"`
+	UserEmail       string `json:"userEmail"`
+	EditPermissions bool   `json:"editPermissions"`
+	EditTeamInfo    bool   `json:"editTeamInfo"`
+	EditPlayers     bool   `json:"editPlayers"`
+	ReportResult    bool   `json:"reportResult"`
+}
+
 type PgLeaguesDAO struct{}
 
 func (d *PgLeaguesDAO) CreateLeague(userId int, name string, publicView, publicJoin bool) (int, error) {
@@ -159,6 +175,7 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, e
 }
 
 //TODO: make invite system for private leagues, check if user invited in this function
+//TODO: make ordering consistent
 func (d *PgLeaguesDAO) CanJoinLeague(userId, leagueId int) (bool, error) {
 	var canJoin bool
 	err := psql.Select("publicJoin").
@@ -170,4 +187,87 @@ func (d *PgLeaguesDAO) CanJoinLeague(userId, leagueId int) (bool, error) {
 	}
 
 	return canJoin, nil
+}
+
+func (d *PgLeaguesDAO) IsLeagueAdmin(leagueId, userId int) (bool, error) {
+	var isLeagueAdmin bool
+	err := psql.Select("editPermissions").
+		From("leaguePermissions").
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
+		RunWith(db).QueryRow().Scan(&isLeagueAdmin)
+	if err != nil {
+		return false, err
+	} else {
+		return isLeagueAdmin, nil
+	}
+}
+
+func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error) {
+	rows, err := psql.Select("userId", "teamId", "email", "name", "tag", "editPermissions",
+		"editTeamInfo", "editPlayers", "reportResult").
+		From("teamPermissions").
+		Join("users ON teamPermissions.userId = users.id").
+		Join("teams ON teamPermissions.teamId = teams.id").
+		Where("leagueId = ?", leagueId).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	//make a map of team IDs to team information objects
+	var teams = make(map[int]*TeamManagerInformation)
+	var (
+		userId          int
+		teamId          int
+		email           string
+		name            string
+		tag             string
+		editPermissions bool
+		editTeamInfo    bool
+		editPlayers     bool
+		reportResult    bool
+	)
+
+	//iterate through the rows returned from database
+	for rows.Next() {
+		//scan the variables from the sql row into local variables
+		err := rows.Scan(&userId, &teamId, &email, &name,
+			&tag, &editPermissions, &editTeamInfo, &editPlayers, &reportResult)
+		if err != nil {
+			return nil, err
+		}
+
+		//if the map does not have an entry for this team Id, create it
+		if _, hasEntry := teams[teamId]; !hasEntry {
+			teams[teamId] = &TeamManagerInformation{
+				TeamId:   teamId,
+				TeamName: name,
+				TeamTag:  tag,
+				Managers: make([]ManagerInformation, 0),
+			}
+		}
+
+		//add the manager to this team representation
+		teams[teamId].Managers = append(teams[teamId].Managers, ManagerInformation{
+			UserId:          userId,
+			UserEmail:       email,
+			EditPermissions: editPermissions,
+			EditTeamInfo:    editTeamInfo,
+			EditPlayers:     editPlayers,
+			ReportResult:    reportResult,
+		})
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	//create an array of the values of the teams map and return it
+	teamsReps := make([]TeamManagerInformation, 0, len(teams))
+	for _, team := range teams {
+		teamsReps = append(teamsReps, *team)
+	}
+
+	return teamsReps, nil
 }

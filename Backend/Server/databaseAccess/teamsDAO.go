@@ -123,7 +123,6 @@ func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
 	} else {
 		return true, nil
 	}
-	return false, nil
 }
 
 func (d *PgTeamsDAO) HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error) {
@@ -133,7 +132,9 @@ func (d *PgTeamsDAO) HasPlayerEditPermissions(leagueId, teamId, userId int) (boo
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canEdit)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
 		return false, err
 	}
 
@@ -146,7 +147,9 @@ func (d *PgTeamsDAO) HasPlayerEditPermissions(leagueId, teamId, userId int) (boo
 		From("teamPermissions").
 		Where("userId = ? AND teamId = ?", userId, teamId).
 		RunWith(db).QueryRow().Scan(&canEdit)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
 		return false, err
 	}
 
@@ -167,4 +170,26 @@ func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainR
 	}
 
 	return playerId, nil
+}
+
+func (d *PgTeamsDAO) RemovePlayer(teamId, playerId int) error {
+	_, err := psql.Delete("players").
+		Where("id = ? AND teamId = ?", playerId, teamId).
+		RunWith(db).Exec()
+	return err
+}
+
+func (d *PgTeamsDAO) DoesPlayerExist(teamId, playerId int) (bool, error) {
+	var name string
+	err := psql.Select("name").
+		From("players").
+		Where("id = ? AND teamId = ?", playerId, teamId).
+		RunWith(db).QueryRow().Scan(&name)
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
 }

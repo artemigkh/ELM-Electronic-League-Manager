@@ -51,6 +51,27 @@ func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, name string, tag string
 	return r0, r1
 }
 
+// DoesPlayerExist provides a mock function with given fields: teamId, playerId
+func (_m *TeamsDAO) DoesPlayerExist(teamId int, playerId int) (bool, error) {
+	ret := _m.Called(teamId, playerId)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
+		r0 = rf(teamId, playerId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(teamId, playerId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DoesTeamExist provides a mock function with given fields: leagueId, teamId
 func (_m *TeamsDAO) DoesTeamExist(leagueId int, teamId int) (bool, error) {
 	ret := _m.Called(leagueId, teamId)
@@ -142,4 +163,18 @@ func (_m *TeamsDAO) IsInfoInUse(leagueId int, name string, tag string) (bool, st
 	}
 
 	return r0, r1, r2
+}
+
+// RemovePlayer provides a mock function with given fields: teamId, playerId
+func (_m *TeamsDAO) RemovePlayer(teamId int, playerId int) error {
+	ret := _m.Called(teamId, playerId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int) error); ok {
+		r0 = rf(teamId, playerId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }

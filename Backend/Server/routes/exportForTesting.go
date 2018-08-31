@@ -5,7 +5,7 @@ var Testing_Export_authenticate = authenticate
 var Testing_Export_getActiveLeague = getActiveLeague
 var Testing_Export_getUrlId = getUrlId
 var Testing_Export_getTeamEditPermissions = getTeamEditPermissions
-var Testing_Export_getTeamCreatePermissions = getTeamCreatePermissions
+var Testing_Export_failIfNoTeamCreatePermissions = failIfNoTeamCreatePermissions
 var Testing_Export_getReportResultPermissions = getReportResultPermissions
 var Testing_Export_failIfCannotJoinLeague = failIfCannotJoinLeague
 var Testing_Export_failIfNotLeagueAdmin = failIfNotLeagueAdmin
@@ -27,6 +27,7 @@ var Testing_Export_getTeamManagers = getTeamManagers
 var Testing_Export_createNewTeam = createNewTeam
 var Testing_Export_getTeamInformation = getTeamInformation
 var Testing_Export_addPlayerToTeam = addPlayerToTeam
+var Testing_Export_removePlayerFromTeam = removePlayerFromTeam
 
 // Games
 var Testing_Export_createNewGame = createNewGame

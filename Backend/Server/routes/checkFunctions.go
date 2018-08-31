@@ -184,6 +184,7 @@ func failIfGameDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
 func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
 	canEditPlayers, err := TeamsDAO.HasPlayerEditPermissions(leagueId, teamId, userId)
 	if err != nil {
+		println(err.Error())
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
 	} else if !canEditPlayers {
@@ -227,4 +228,18 @@ func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId int, gameIdent
 	}
 
 	return false
+}
+
+func failIfPlayerDoesNotExist(ctx *gin.Context, teamId, playerId int) bool {
+	playerExists, err := TeamsDAO.DoesPlayerExist(teamId, playerId)
+	if err != nil {
+		println(err.Error())
+		ctx.JSON(http.StatusInternalServerError, nil)
+		return true
+	} else if !playerExists {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "playerDoesNotExist"})
+		return true
+	} else {
+		return false
+	}
 }

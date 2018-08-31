@@ -17,6 +17,11 @@ type PlayerInformation struct {
 	MainRoster     bool   `json:"mainRoster"`
 }
 
+type PlayerRemoveInformation struct {
+	TeamId   int `json:"teamId"`
+	PlayerId int `json:"playerId"`
+}
+
 /**
  * @api{POST} /api/teams Create New Team
  * @apiName createNewTeam
@@ -148,12 +153,56 @@ func addPlayerToTeam(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"id": playerId})
 }
 
+/**
+ * @api{DELETE} /api/teams/removePlayer Remove Player From Team
+ * @apiGroup Teams
+ * @apiDescription Remove a player from a teams roster
+ *
+ * @apiParam {int} teamId The unique numerical identifier of the team the player is to be added to
+ * @apiParam {int} playerId The unique numerical identifier of the player to be removed
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError canNotEditPlayers The currently logged in player does not have permission to edit the players on this team
+ * @apiError playerDoesNotExist The specified player does not exist on this team
+ */
+func removePlayerFromTeam(ctx *gin.Context) {
+	//get parameters
+	var playerRemoveInfo PlayerRemoveInformation
+	err := ctx.ShouldBindJSON(&playerRemoveInfo)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+	println("1")
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), playerRemoveInfo.TeamId) {
+		return
+	}
+	println("2")
+	if failIfCannotEditPlayersOnTeam(ctx, ctx.GetInt("leagueId"), playerRemoveInfo.TeamId, ctx.GetInt("userId")) {
+		return
+	}
+	println("3")
+	if failIfPlayerDoesNotExist(ctx, playerRemoveInfo.TeamId, playerRemoveInfo.PlayerId) {
+		return
+	}
+	println("4")
+	err = TeamsDAO.RemovePlayer(playerRemoveInfo.TeamId, playerRemoveInfo.PlayerId)
+	if checkErr(ctx, err) {
+		return
+	}
+	println("5")
+
+	ctx.Status(http.StatusOK)
+}
+
 //TODO: implement "get teams games list" endpoint
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 
-	g.POST("/", authenticate(), getTeamCreatePermissions(), createNewTeam)
+	g.POST("/", authenticate(), failIfNoTeamCreatePermissions(), createNewTeam)
 	g.POST("/addPlayer", authenticate(), addPlayerToTeam)
+	g.DELETE("/removePlayer", authenticate(), removePlayerFromTeam)
 	g.GET("/:id", getUrlId(), getTeamInformation)
 }

@@ -260,7 +260,7 @@ func Test_CreateNewTeam(t *testing.T) {
 	router.Use(routes.Testing_Export_getActiveLeague())
 	router.POST("/",
 		routes.Testing_Export_authenticate(),
-		routes.Testing_Export_getTeamCreatePermissions(),
+		routes.Testing_Export_failIfNoTeamCreatePermissions(),
 		routes.Testing_Export_createNewTeam)
 
 	t.Run("malformedBody", testCreateNewTeamMalformedBody)

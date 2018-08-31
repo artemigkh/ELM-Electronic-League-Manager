@@ -46,7 +46,7 @@ func getUrlId() gin.HandlerFunc {
 	}
 }
 
-func getTeamCreatePermissions() gin.HandlerFunc {
+func failIfNoTeamCreatePermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canEditTeams, err := LeaguesDAO.HasCreateTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 		if checkErr(ctx, err) {

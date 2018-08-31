@@ -170,6 +170,8 @@ func getTeamManagers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teamManagerInfo)
 }
 
+//TODO: create endpoint to get list of all publicly visible leagues
+
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)

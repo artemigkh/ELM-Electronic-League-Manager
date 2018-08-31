@@ -24,6 +24,7 @@ type userProfile struct {
  * @apiError emailMalformed 400 The email was not formed correctly
  * @apiError emailInUse 400 This email is already in use
  */
+//TODO: Add Maximum (64 char) password length
 func createNewUser(ctx *gin.Context) {
 	//get parameters
 	var usrInfo userInfo

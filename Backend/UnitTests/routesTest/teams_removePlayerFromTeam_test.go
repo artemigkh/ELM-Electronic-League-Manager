@@ -135,7 +135,7 @@ func testRemovePlayerFromTeamPlayerDoesNotExist(t *testing.T) {
 	routes.TeamsDAO = mockTeamsDao
 
 	httpTest(t, createRemovePlayerRequestBody(24, 31),
-		"DELETE", "/removePlayer", 403, testParams{Error: "playerDoesNotExist"})
+		"DELETE", "/removePlayer", 400, testParams{Error: "playerDoesNotExist"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
 }

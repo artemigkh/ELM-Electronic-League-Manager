@@ -25,6 +25,7 @@ type loginRequest struct {
  * @apiError emailMalformed The email was not formed correctly
  * @apiError invalidLogin The user does not exist or password was incorrect
  */
+//TODO: Add Maximum (64 char) password length
 func login(ctx *gin.Context) {
 	//get parameters
 	var request loginRequest

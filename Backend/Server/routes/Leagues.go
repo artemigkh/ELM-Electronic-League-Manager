@@ -34,7 +34,7 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
-	if failIfLeagueNameTooLong(ctx, lgRequest.Name) {
+	if failIfNameTooLong(ctx, lgRequest.Name) {
 		return
 	}
 	if failIfLeagueNameInUse(ctx, lgRequest.Name) {

@@ -40,6 +40,7 @@ type PlayerRemoveInformation struct {
  * @apiError nameInUse The team name is currently in use
  * @apiError tagInUse The team tag is currently in use
  */
+//TODO: Add minimum name and tag length (1 char)
 func createNewTeam(ctx *gin.Context) {
 	//get parameters
 	var teamInfo TeamInformation
@@ -48,7 +49,7 @@ func createNewTeam(ctx *gin.Context) {
 		return
 	}
 
-	if failIfTeamNameTooLong(ctx, teamInfo.Name) {
+	if failIfNameTooLong(ctx, teamInfo.Name) {
 		return
 	}
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
@@ -120,6 +121,7 @@ func getTeamInformation(ctx *gin.Context) {
  * @apiError nameTooLong The name exceeds 50 characters
  * @apiError gameIdentifierInUse This game identifier is already in use in this league
  */
+//TODO: Add minimum name lengths (1 char each)
 func addPlayerToTeam(ctx *gin.Context) {
 	//get parameters
 	var playerInfo PlayerInformation

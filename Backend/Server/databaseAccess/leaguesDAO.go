@@ -56,7 +56,7 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name string, publicView, publicJ
 	return leagueId, nil
 }
 
-func (d *PgLeaguesDAO) JoinLeague(userId, leagueId int) error {
+func (d *PgLeaguesDAO) JoinLeague(leagueId, userId int) error {
 	_, err := psql.Insert("leaguePermissions").
 		Columns("userId", "leagueId", "editPermissions", "createTeams",
 			"editTeams", "editUsers", "editSchedule", "editResults").
@@ -176,7 +176,7 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, e
 
 //TODO: make invite system for private leagues, check if user invited in this function
 //TODO: make ordering consistent
-func (d *PgLeaguesDAO) CanJoinLeague(userId, leagueId int) (bool, error) {
+func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
 	var canJoin bool
 	err := psql.Select("publicJoin").
 		From("leagues").

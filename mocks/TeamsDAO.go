@@ -51,20 +51,20 @@ func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, name string, tag string
 	return r0, r1
 }
 
-// DoesTeamExist provides a mock function with given fields: teamId, leagueId
-func (_m *TeamsDAO) DoesTeamExist(teamId int, leagueId int) (bool, error) {
-	ret := _m.Called(teamId, leagueId)
+// DoesTeamExist provides a mock function with given fields: leagueId, teamId
+func (_m *TeamsDAO) DoesTeamExist(leagueId int, teamId int) (bool, error) {
+	ret := _m.Called(leagueId, teamId)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
-		r0 = rf(teamId, leagueId)
+		r0 = rf(leagueId, teamId)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(teamId, leagueId)
+		r1 = rf(leagueId, teamId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,13 +72,13 @@ func (_m *TeamsDAO) DoesTeamExist(teamId int, leagueId int) (bool, error) {
 	return r0, r1
 }
 
-// GetTeamInformation provides a mock function with given fields: teamId, leagueId
-func (_m *TeamsDAO) GetTeamInformation(teamId int, leagueId int) (*databaseAccess.TeamInformation, error) {
-	ret := _m.Called(teamId, leagueId)
+// GetTeamInformation provides a mock function with given fields: leagueId, teamId
+func (_m *TeamsDAO) GetTeamInformation(leagueId int, teamId int) (*databaseAccess.TeamInformation, error) {
+	ret := _m.Called(leagueId, teamId)
 
 	var r0 *databaseAccess.TeamInformation
 	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.TeamInformation); ok {
-		r0 = rf(teamId, leagueId)
+		r0 = rf(leagueId, teamId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*databaseAccess.TeamInformation)
@@ -87,7 +87,7 @@ func (_m *TeamsDAO) GetTeamInformation(teamId int, leagueId int) (*databaseAcces
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(teamId, leagueId)
+		r1 = rf(leagueId, teamId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -95,20 +95,20 @@ func (_m *TeamsDAO) GetTeamInformation(teamId int, leagueId int) (*databaseAcces
 	return r0, r1
 }
 
-// HasPlayerEditPermissions provides a mock function with given fields: teamId, userId, leagueId
-func (_m *TeamsDAO) HasPlayerEditPermissions(teamId int, userId int, leagueId int) (bool, error) {
-	ret := _m.Called(teamId, userId, leagueId)
+// HasPlayerEditPermissions provides a mock function with given fields: leagueId, teamId, userId
+func (_m *TeamsDAO) HasPlayerEditPermissions(leagueId int, teamId int, userId int) (bool, error) {
+	ret := _m.Called(leagueId, teamId, userId)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(int, int, int) bool); ok {
-		r0 = rf(teamId, userId, leagueId)
+		r0 = rf(leagueId, teamId, userId)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int, int) error); ok {
-		r1 = rf(teamId, userId, leagueId)
+		r1 = rf(leagueId, teamId, userId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -116,27 +116,27 @@ func (_m *TeamsDAO) HasPlayerEditPermissions(teamId int, userId int, leagueId in
 	return r0, r1
 }
 
-// IsInfoInUse provides a mock function with given fields: name, tag, leagueId
-func (_m *TeamsDAO) IsInfoInUse(name string, tag string, leagueId int) (bool, string, error) {
-	ret := _m.Called(name, tag, leagueId)
+// IsInfoInUse provides a mock function with given fields: leagueId, name, tag
+func (_m *TeamsDAO) IsInfoInUse(leagueId int, name string, tag string) (bool, string, error) {
+	ret := _m.Called(leagueId, name, tag)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string, string, int) bool); ok {
-		r0 = rf(name, tag, leagueId)
+	if rf, ok := ret.Get(0).(func(int, string, string) bool); ok {
+		r0 = rf(leagueId, name, tag)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 string
-	if rf, ok := ret.Get(1).(func(string, string, int) string); ok {
-		r1 = rf(name, tag, leagueId)
+	if rf, ok := ret.Get(1).(func(int, string, string) string); ok {
+		r1 = rf(leagueId, name, tag)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, string, int) error); ok {
-		r2 = rf(name, tag, leagueId)
+	if rf, ok := ret.Get(2).(func(int, string, string) error); ok {
+		r2 = rf(leagueId, name, tag)
 	} else {
 		r2 = ret.Error(2)
 	}

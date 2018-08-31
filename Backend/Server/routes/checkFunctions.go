@@ -6,6 +6,13 @@ import (
 	"net/http"
 )
 
+/*
+ * For consistency across all function signatures, each function should start with the gin context
+ * Then, the numerical Ids which should be in order of magnitude of entity:
+ * first should be league, then team, then game, then user, then player
+ * Then, the remaining parameters should be included in a logical order
+ */
+
 const (
 	MIN_PASSWORD_LENGTH = 8
 	MAX_LEAGUE_LENGTH   = 50
@@ -117,8 +124,8 @@ func failIfTeamTagTooLong(ctx *gin.Context, name string) bool {
 	}
 }
 
-func failIfTeamInfoInUse(ctx *gin.Context, name, tag string, leagueId int) bool {
-	inUse, errorMsg, err := TeamsDAO.IsInfoInUse(name, tag, leagueId)
+func failIfTeamInfoInUse(ctx *gin.Context, leagueId int, name, tag string) bool {
+	inUse, errorMsg, err := TeamsDAO.IsInfoInUse(leagueId, name, tag)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -130,8 +137,8 @@ func failIfTeamInfoInUse(ctx *gin.Context, name, tag string, leagueId int) bool 
 	}
 }
 
-func failIfTeamDoesNotExist(ctx *gin.Context, teamId, leagueId int) bool {
-	exists, err := TeamsDAO.DoesTeamExist(teamId, leagueId)
+func failIfTeamDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
+	exists, err := TeamsDAO.DoesTeamExist(leagueId, teamId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -156,8 +163,8 @@ func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool
 	}
 }
 
-func failIfGameDoesNotExist(ctx *gin.Context) bool {
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
+func failIfGameDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
+	gameInformation, err := GamesDAO.GetGameInformation(leagueId, teamId)
 	if checkErr(ctx, err) {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -171,8 +178,8 @@ func failIfGameDoesNotExist(ctx *gin.Context) bool {
 	return false
 }
 
-func failIfCannotEditPlayersOnTeam(ctx *gin.Context, userId, teamId, leagueId int) bool {
-	canEditPlayers, err := TeamsDAO.HasPlayerEditPermissions(teamId, userId, leagueId)
+func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
+	canEditPlayers, err := TeamsDAO.HasPlayerEditPermissions(leagueId, teamId, userId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -202,8 +209,8 @@ func failIfNameTooLong(ctx *gin.Context, name string) bool {
 	}
 }
 
-func failIfGameIdentifierInUse(ctx *gin.Context, gameIdentifier string, teamId, leagueId int) bool {
-	teamInfo, err := TeamsDAO.GetTeamInformation(teamId, leagueId)
+func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId int, gameIdentifier string) bool {
+	teamInfo, err := TeamsDAO.GetTeamInformation(leagueId, teamId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true
@@ -219,8 +226,8 @@ func failIfGameIdentifierInUse(ctx *gin.Context, gameIdentifier string, teamId, 
 	return false
 }
 
-func failIfCannotJoinLeague(ctx *gin.Context, userId, leagueId int) bool {
-	canJoin, err := LeaguesDAO.CanJoinLeague(userId, leagueId)
+func failIfCannotJoinLeague(ctx *gin.Context, leagueId, userId int) bool {
+	canJoin, err := LeaguesDAO.CanJoinLeague(leagueId, userId)
 	if err != nil {
 		println(err.Error())
 		ctx.JSON(http.StatusInternalServerError, nil)
@@ -233,7 +240,7 @@ func failIfCannotJoinLeague(ctx *gin.Context, userId, leagueId int) bool {
 	}
 }
 
-func failIfNotLeagueAdmin(ctx *gin.Context, userId, leagueId int) bool {
+func failIfNotLeagueAdmin(ctx *gin.Context, leagueId, userId int) bool {
 	isLeagueAdmin, err := LeaguesDAO.IsLeagueAdmin(leagueId, userId)
 	if err != nil {
 		println(err.Error())

@@ -71,7 +71,7 @@ func testGetGameInformationDbError(t *testing.T) {
 		Return(2, nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
-	mockGamesDao.On("GetGameInformation", 1, 2).
+	mockGamesDao.On("GetGameInformation", 2, 1).
 		Return(nil, errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
@@ -88,7 +88,7 @@ func testGetGameInformationTeamDoesNotExist(t *testing.T) {
 		Return(2, nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
-	mockGamesDao.On("GetGameInformation", 1, 2).
+	mockGamesDao.On("GetGameInformation", 2, 1).
 		Return(nil, nil)
 
 	routes.ElmSessions = mockSession
@@ -117,7 +117,7 @@ func testGetGameInformationCorrectGetInfo(t *testing.T) {
 		Return(2, nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
-	mockGamesDao.On("GetGameInformation", 1, 2).
+	mockGamesDao.On("GetGameInformation", 2, 1).
 		Return(&databaseAccess.GameInformation{
 			Id:         1,
 			LeagueId:   2,

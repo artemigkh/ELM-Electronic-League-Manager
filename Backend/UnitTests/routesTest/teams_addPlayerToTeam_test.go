@@ -97,7 +97,7 @@ func testAddPlayerToTeamTeamDoesNotExist(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
@@ -117,9 +117,9 @@ func testAddPlayerToTeamCannotEditPlayersOnTeam(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 1, 4, 5).
+	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
@@ -139,9 +139,9 @@ func testAddPlayerToTeamGameIdentifierTooLong(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 1, 4, 5).
+	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
 		Return(true, nil)
 
 	routes.ElmSessions = mockSession
@@ -162,9 +162,9 @@ func testAddPlayerToTeamNameTooLong(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 1, 4, 5).
+	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
 		Return(true, nil)
 
 	routes.ElmSessions = mockSession
@@ -185,11 +185,11 @@ func testAddPlayerToTeamGameIdentifierInUse(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 1, 4, 5).
+	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
 		Return(true, nil)
-	mockTeamsDao.On("GetTeamInformation", 1, 5).
+	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
 			Tag:    "TAG",
@@ -234,11 +234,11 @@ func testAddPlayerToTeamDatabaseError(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 1, 4, 5).
+	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
 		Return(true, nil)
-	mockTeamsDao.On("GetTeamInformation", 1, 5).
+	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
 			Tag:    "TAG",
@@ -285,11 +285,11 @@ func testAddPlayerToTeamCorrectAddPlayer(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 5).
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 1, 4, 5).
+	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
 		Return(true, nil)
-	mockTeamsDao.On("GetTeamInformation", 1, 5).
+	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
 			Tag:    "TAG",

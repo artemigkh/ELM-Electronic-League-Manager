@@ -43,7 +43,7 @@ func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, er
 	return teamId, nil
 }
 
-func (d *PgTeamsDAO) IsInfoInUse(name, tag string, leagueId int) (bool, string, error) {
+func (d *PgTeamsDAO) IsInfoInUse(leagueId int, name, tag string) (bool, string, error) {
 	//check if name in use
 	err := psql.Select("name").
 		From("teams").
@@ -71,7 +71,7 @@ func (d *PgTeamsDAO) IsInfoInUse(name, tag string, leagueId int) (bool, string, 
 	}
 }
 
-func (d *PgTeamsDAO) GetTeamInformation(teamId, leagueId int) (*TeamInformation, error) {
+func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamInformation, error) {
 	var teamInformation TeamInformation
 	//get team information
 	err := psql.Select("name", "tag", "wins", "losses").
@@ -110,7 +110,7 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId, leagueId int) (*TeamInformation,
 	return &teamInformation, nil
 }
 
-func (d *PgTeamsDAO) DoesTeamExist(teamId, leagueId int) (bool, error) {
+func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
 	var name string
 	err := psql.Select("name").
 		From("teams").
@@ -126,7 +126,7 @@ func (d *PgTeamsDAO) DoesTeamExist(teamId, leagueId int) (bool, error) {
 	return false, nil
 }
 
-func (d *PgTeamsDAO) HasPlayerEditPermissions(teamId, userId, leagueId int) (bool, error) {
+func (d *PgTeamsDAO) HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error) {
 	//check if league admin
 	var canEdit bool
 	err := psql.Select("editTeams").

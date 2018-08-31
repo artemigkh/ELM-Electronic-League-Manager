@@ -49,7 +49,7 @@ func createNewTeam(ctx *gin.Context) {
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
 		return
 	}
-	if failIfTeamInfoInUse(ctx, teamInfo.Name, teamInfo.Tag, ctx.GetInt("leagueId")) {
+	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), teamInfo.Name, teamInfo.Tag) {
 		return
 	}
 
@@ -83,11 +83,11 @@ func createNewTeam(ctx *gin.Context) {
  * @apiError teamDoesNotExist The specified team does not exist
  */
 func getTeamInformation(ctx *gin.Context) {
-	if failIfTeamDoesNotExist(ctx, ctx.GetInt("urlId"), ctx.GetInt("leagueId")) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
 		return
 	}
 
-	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
+	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -123,10 +123,10 @@ func addPlayerToTeam(ctx *gin.Context) {
 		return
 	}
 
-	if failIfTeamDoesNotExist(ctx, playerInfo.TeamId, ctx.GetInt("leagueId")) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId) {
 		return
 	}
-	if failIfCannotEditPlayersOnTeam(ctx, ctx.GetInt("userId"), playerInfo.TeamId, ctx.GetInt("leagueId")) {
+	if failIfCannotEditPlayersOnTeam(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId, ctx.GetInt("userId")) {
 		return
 	}
 	if failIfGameIdentifierTooLong(ctx, playerInfo.GameIdentifier) {
@@ -135,7 +135,7 @@ func addPlayerToTeam(ctx *gin.Context) {
 	if failIfNameTooLong(ctx, playerInfo.Name) {
 		return
 	}
-	if failIfGameIdentifierInUse(ctx, playerInfo.GameIdentifier, playerInfo.TeamId, ctx.GetInt("leagueId")) {
+	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId, playerInfo.GameIdentifier) {
 		return
 	}
 

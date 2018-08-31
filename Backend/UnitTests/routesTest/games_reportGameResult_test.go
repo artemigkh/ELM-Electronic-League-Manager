@@ -153,7 +153,7 @@ func testReportGameResultGameDoesNotExist(t *testing.T) {
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
-	mockGamesDao.On("GetGameInformation", 16, 14).
+	mockGamesDao.On("GetGameInformation", 14, 16).
 		Return(nil, nil)
 
 	routes.ElmSessions = mockSession
@@ -175,9 +175,9 @@ func testReportGameResultCorrectReportDatabaseError(t *testing.T) {
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
-	mockGamesDao.On("GetGameInformation", 16, 14).
+	mockGamesDao.On("GetGameInformation", 14, 16).
 		Return(&databaseAccess.GameInformation{}, nil)
-	mockGamesDao.On("ReportGame", 16, 14, 5, 2, 1).
+	mockGamesDao.On("ReportGame", 14, 16, 5, 2, 1).
 		Return(errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
@@ -199,9 +199,9 @@ func testReportGameResultCorrectReport(t *testing.T) {
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
-	mockGamesDao.On("GetGameInformation", 16, 14).
+	mockGamesDao.On("GetGameInformation", 14, 16).
 		Return(&databaseAccess.GameInformation{}, nil)
-	mockGamesDao.On("ReportGame", 16, 14, 5, 2, 1).
+	mockGamesDao.On("ReportGame", 14, 16, 5, 2, 1).
 		Return(nil)
 
 	routes.ElmSessions = mockSession

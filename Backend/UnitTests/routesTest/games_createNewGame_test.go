@@ -69,7 +69,7 @@ func testCreateNewGameTeam1DoesNotExist(t *testing.T) {
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(false, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(false, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -88,8 +88,8 @@ func testCreateNewGameTeam2DoesNotExist(t *testing.T) {
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
-	mockTeamsDao.On("DoesTeamExist", 3, 2).Return(false, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 3).Return(false, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -123,8 +123,8 @@ func testCreateNewGameDatabaseError(t *testing.T) {
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
-	mockTeamsDao.On("DoesTeamExist", 3, 2).Return(true, errors.New("Fake database error"))
+	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 3).Return(true, errors.New("Fake database error"))
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -143,8 +143,8 @@ func testCreateNewGameConflictExists(t *testing.T) {
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
-	mockTeamsDao.On("DoesTeamExist", 3, 2).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 3).Return(true, nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("DoesExistConflict", 1, 3, 1532913359).Return(true, nil)
@@ -167,8 +167,8 @@ func testCreateNewGameCorrectDatabaseError(t *testing.T) {
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
-	mockTeamsDao.On("DoesTeamExist", 3, 2).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 3).Return(true, nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("DoesExistConflict", 1, 3, 1532913359).Return(false, nil)
@@ -192,8 +192,8 @@ func testCreateNewGameCorrectCreation(t *testing.T) {
 		Return(1, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 1, 2).Return(true, nil)
-	mockTeamsDao.On("DoesTeamExist", 3, 2).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExist", 2, 3).Return(true, nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("DoesExistConflict", 1, 3, 1532913359).Return(false, nil)

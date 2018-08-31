@@ -134,7 +134,7 @@ func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, er
 	return false, nil
 }
 
-func (d *PgGamesDAO) GetGameInformation(gameId, leagueId int) (*GameInformation, error) {
+func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameInformation, error) {
 	var gameInformation GameInformation
 
 	err := psql.Select("*").
@@ -200,7 +200,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	return false, nil
 }
 
-func (d *PgGamesDAO) ReportGame(gameId, leagueId, winnerId, scoreTeam1, scoreTeam2 int) error {
+func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error {
 	//update game entry
 	_, err := psql.Update("games").
 		Set("complete", true).

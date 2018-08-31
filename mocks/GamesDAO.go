@@ -51,13 +51,13 @@ func (_m *GamesDAO) DoesExistConflict(team1Id int, team2Id int, gameTime int) (b
 	return r0, r1
 }
 
-// GetGameInformation provides a mock function with given fields: gameId, leagueId
-func (_m *GamesDAO) GetGameInformation(gameId int, leagueId int) (*databaseAccess.GameInformation, error) {
-	ret := _m.Called(gameId, leagueId)
+// GetGameInformation provides a mock function with given fields: leagueId, gameId
+func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAccess.GameInformation, error) {
+	ret := _m.Called(leagueId, gameId)
 
 	var r0 *databaseAccess.GameInformation
 	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.GameInformation); ok {
-		r0 = rf(gameId, leagueId)
+		r0 = rf(leagueId, gameId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*databaseAccess.GameInformation)
@@ -66,7 +66,7 @@ func (_m *GamesDAO) GetGameInformation(gameId int, leagueId int) (*databaseAcces
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(gameId, leagueId)
+		r1 = rf(leagueId, gameId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -95,13 +95,13 @@ func (_m *GamesDAO) HasReportResultPermissions(leagueId int, gameId int, userId 
 	return r0, r1
 }
 
-// ReportGame provides a mock function with given fields: gameId, leagueId, winnerId, scoreTeam1, scoreTeam2
-func (_m *GamesDAO) ReportGame(gameId int, leagueId int, winnerId int, scoreTeam1 int, scoreTeam2 int) error {
-	ret := _m.Called(gameId, leagueId, winnerId, scoreTeam1, scoreTeam2)
+// ReportGame provides a mock function with given fields: leagueId, gameId, winnerId, scoreTeam1, scoreTeam2
+func (_m *GamesDAO) ReportGame(leagueId int, gameId int, winnerId int, scoreTeam1 int, scoreTeam2 int) error {
+	ret := _m.Called(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(int, int, int, int, int) error); ok {
-		r0 = rf(gameId, leagueId, winnerId, scoreTeam1, scoreTeam2)
+		r0 = rf(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -42,10 +42,10 @@ func createNewGame(ctx *gin.Context) {
 		return
 	}
 
-	if failIfTeamDoesNotExist(ctx, gameInfo.Team1Id, ctx.GetInt("leagueId")) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Team1Id) {
 		return
 	}
-	if failIfTeamDoesNotExist(ctx, gameInfo.Team2Id, ctx.GetInt("leagueId")) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Team2Id) {
 		return
 	}
 	if failIfConflictExists(ctx, gameInfo.Team1Id, gameInfo.Team2Id, gameInfo.GameTime) {
@@ -82,7 +82,7 @@ func createNewGame(ctx *gin.Context) {
  * @apiError gameDoesNotExist The game with specified id does not exist
  */
 func getGameInformation(ctx *gin.Context) {
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"), ctx.GetInt("leagueId"))
+	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -121,12 +121,12 @@ func reportGameResult(ctx *gin.Context) {
 		return
 	}
 
-	if failIfGameDoesNotExist(ctx) {
+	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
 		return
 	}
 
 	//report the result
-	err = GamesDAO.ReportGame(ctx.GetInt("urlId"), ctx.GetInt("leagueId"),
+	err = GamesDAO.ReportGame(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
 		gameInfo.WinnerId, gameInfo.ScoreTeam1, gameInfo.ScoreTeam2)
 	if checkErr(ctx, err) {
 		return

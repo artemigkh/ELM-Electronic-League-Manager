@@ -132,11 +132,11 @@ func getTeamSummary(ctx *gin.Context) {
  * @apiError canNotJoin The active league is not accepting new members
  */
 func joinActiveLeague(ctx *gin.Context) {
-	if failIfCannotJoinLeague(ctx, ctx.GetInt("userId"), ctx.GetInt("leagueId")) {
+	if failIfCannotJoinLeague(ctx, ctx.GetInt("leagueId"), ctx.GetInt("userId")) {
 		return
 	}
 
-	err := LeaguesDAO.JoinLeague(ctx.GetInt("userId"), ctx.GetInt("leagueId"))
+	err := LeaguesDAO.JoinLeague(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -166,7 +166,7 @@ func joinActiveLeague(ctx *gin.Context) {
  * @apiError notAdmin The currently logged in user is not a league administrator
  */
 func getTeamManagers(ctx *gin.Context) {
-	if failIfNotLeagueAdmin(ctx, ctx.GetInt("userId"), ctx.GetInt("leagueId")) {
+	if failIfNotLeagueAdmin(ctx, ctx.GetInt("leagueId"), ctx.GetInt("userId")) {
 		return
 	}
 

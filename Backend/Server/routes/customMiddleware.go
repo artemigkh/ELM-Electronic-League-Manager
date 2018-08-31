@@ -11,17 +11,12 @@ func authenticate() gin.HandlerFunc {
 		userId, err := ElmSessions.AuthenticateAndGetUserId(ctx)
 		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
+		} else if userId == -1 {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
+		} else {
+			ctx.Set("userId", userId)
+			ctx.Next()
 		}
-
-		if userId == -1 {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "notLoggedIn"})
-			ctx.Abort()
-			return
-		}
-
-		ctx.Set("userId", userId)
-		ctx.Next()
 	}
 }
 
@@ -30,17 +25,12 @@ func getActiveLeague() gin.HandlerFunc {
 		leagueId, err := ElmSessions.GetActiveLeague(ctx)
 		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
+		} else if leagueId == -1 {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
+		} else {
+			ctx.Set("leagueId", leagueId)
+			ctx.Next()
 		}
-
-		if leagueId == -1 {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "noActiveLeague"})
-			ctx.Abort()
-			return
-		}
-
-		ctx.Set("leagueId", leagueId)
-		ctx.Next()
 	}
 }
 
@@ -48,13 +38,11 @@ func getUrlId() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		urlId, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
-			ctx.Abort()
-			return
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
+		} else {
+			ctx.Set("urlId", urlId)
+			ctx.Next()
 		}
-
-		ctx.Set("urlId", urlId)
-		ctx.Next()
 	}
 }
 
@@ -63,14 +51,11 @@ func getTeamCreatePermissions() gin.HandlerFunc {
 		canEditTeams, err := LeaguesDAO.HasCreateTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
+		} else if !canEditTeams {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
+		} else {
+			ctx.Next()
 		}
-		if !canEditTeams {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
-			ctx.Abort()
-			return
-		}
-		ctx.Next()
 	}
 }
 
@@ -79,14 +64,11 @@ func getTeamEditPermissions() gin.HandlerFunc {
 		canEditTeams, err := LeaguesDAO.HasEditTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
+		} else if !canEditTeams {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
+		} else {
+			ctx.Next()
 		}
-		if !canEditTeams {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
-			ctx.Abort()
-			return
-		}
-		ctx.Next()
 	}
 }
 
@@ -99,29 +81,21 @@ func getReportResultPermissions() gin.HandlerFunc {
 		)
 		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
+		} else if !canReportResult {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noReportResultPermissions"})
+		} else {
+			ctx.Next()
 		}
-		if !canReportResult {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "noReportResultPermissions"})
-			ctx.Abort()
-			return
-		}
-		ctx.Next()
 	}
 }
 
 func failIfCannotJoinLeague() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canJoin, err := LeaguesDAO.CanJoinLeague(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
-		if err != nil {
-			println(err.Error())
-			ctx.JSON(http.StatusInternalServerError, nil)
+		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
 		} else if !canJoin {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "canNotJoin"})
-			ctx.Abort()
-			return
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "canNotJoin"})
 		} else {
 			ctx.Next()
 		}
@@ -131,15 +105,10 @@ func failIfCannotJoinLeague() gin.HandlerFunc {
 func failIfNotLeagueAdmin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		isLeagueAdmin, err := LeaguesDAO.IsLeagueAdmin(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
-		if err != nil {
-			println(err.Error())
-			ctx.JSON(http.StatusInternalServerError, nil)
+		if checkErr(ctx, err) {
 			ctx.Abort()
-			return
 		} else if !isLeagueAdmin {
-			ctx.JSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
-			ctx.Abort()
-			return
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
 		} else {
 			ctx.Next()
 		}

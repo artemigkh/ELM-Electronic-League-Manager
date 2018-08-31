@@ -163,6 +163,7 @@ func Test_GetTeamManagers(t *testing.T) {
 	router.POST("/",
 		routes.Testing_Export_authenticate(),
 		routes.Testing_Export_getActiveLeague(),
+		routes.Testing_Export_failIfNotLeagueAdmin(),
 		routes.Testing_Export_getTeamManagers)
 
 	t.Run("SessionsError", testGetTeamManagersSessionError)

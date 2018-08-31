@@ -110,6 +110,7 @@ func Test_JoinActiveLeague(t *testing.T) {
 	router.POST("/",
 		routes.Testing_Export_authenticate(),
 		routes.Testing_Export_getActiveLeague(),
+		routes.Testing_Export_failIfCannotJoinLeague(),
 		routes.Testing_Export_joinActiveLeague)
 
 	t.Run("SessionsError", testJoinActiveLeagueSessionError)

@@ -70,6 +70,7 @@ func getTeamCreatePermissions() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+		ctx.Next()
 	}
 }
 
@@ -85,6 +86,7 @@ func getTeamEditPermissions() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+		ctx.Next()
 	}
 }
 
@@ -103,6 +105,43 @@ func getReportResultPermissions() gin.HandlerFunc {
 			ctx.JSON(http.StatusForbidden, gin.H{"error": "noReportResultPermissions"})
 			ctx.Abort()
 			return
+		}
+		ctx.Next()
+	}
+}
+
+func failIfCannotJoinLeague() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		canJoin, err := LeaguesDAO.CanJoinLeague(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
+		if err != nil {
+			println(err.Error())
+			ctx.JSON(http.StatusInternalServerError, nil)
+			ctx.Abort()
+			return
+		} else if !canJoin {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "canNotJoin"})
+			ctx.Abort()
+			return
+		} else {
+			ctx.Next()
+		}
+	}
+}
+
+func failIfNotLeagueAdmin() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		isLeagueAdmin, err := LeaguesDAO.IsLeagueAdmin(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
+		if err != nil {
+			println(err.Error())
+			ctx.JSON(http.StatusInternalServerError, nil)
+			ctx.Abort()
+			return
+		} else if !isLeagueAdmin {
+			ctx.JSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
+			ctx.Abort()
+			return
+		} else {
+			ctx.Next()
 		}
 	}
 }

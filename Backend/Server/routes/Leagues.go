@@ -132,10 +132,6 @@ func getTeamSummary(ctx *gin.Context) {
  * @apiError canNotJoin The active league is not accepting new members
  */
 func joinActiveLeague(ctx *gin.Context) {
-	if failIfCannotJoinLeague(ctx, ctx.GetInt("leagueId"), ctx.GetInt("userId")) {
-		return
-	}
-
 	err := LeaguesDAO.JoinLeague(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 	if checkErr(ctx, err) {
 		return
@@ -166,10 +162,6 @@ func joinActiveLeague(ctx *gin.Context) {
  * @apiError notAdmin The currently logged in user is not a league administrator
  */
 func getTeamManagers(ctx *gin.Context) {
-	if failIfNotLeagueAdmin(ctx, ctx.GetInt("leagueId"), ctx.GetInt("userId")) {
-		return
-	}
-
 	teamManagerInfo, err := LeaguesDAO.GetTeamManagerInformation(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {
 		return
@@ -181,8 +173,8 @@ func getTeamManagers(ctx *gin.Context) {
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
-	g.POST("/join", authenticate(), getActiveLeague(), joinActiveLeague)
+	g.POST("/join", authenticate(), getActiveLeague(), failIfCannotJoinLeague(), joinActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
-	g.GET("/teamManagers", authenticate(), getActiveLeague(), getTeamManagers)
+	g.GET("/teamManagers", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), getTeamManagers)
 }

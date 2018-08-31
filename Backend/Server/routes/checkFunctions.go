@@ -7,6 +7,9 @@ import (
 )
 
 /*
+ * This file contains functions for checking user json input in endpoint handlers
+ * If a check does not require information from json, it should instead be a middleware handler
+ *
  * For consistency across all function signatures, each function should start with the gin context
  * Then, the numerical Ids which should be in order of magnitude of entity:
  * first should be league, then team, then game, then user, then player
@@ -224,32 +227,4 @@ func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId int, gameIdent
 	}
 
 	return false
-}
-
-func failIfCannotJoinLeague(ctx *gin.Context, leagueId, userId int) bool {
-	canJoin, err := LeaguesDAO.CanJoinLeague(leagueId, userId)
-	if err != nil {
-		println(err.Error())
-		ctx.JSON(http.StatusInternalServerError, nil)
-		return true
-	} else if !canJoin {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "canNotJoin"})
-		return true
-	} else {
-		return false
-	}
-}
-
-func failIfNotLeagueAdmin(ctx *gin.Context, leagueId, userId int) bool {
-	isLeagueAdmin, err := LeaguesDAO.IsLeagueAdmin(leagueId, userId)
-	if err != nil {
-		println(err.Error())
-		ctx.JSON(http.StatusInternalServerError, nil)
-		return true
-	} else if !isLeagueAdmin {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
-		return true
-	} else {
-		return false
-	}
 }

@@ -120,8 +120,8 @@ func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool
 	return failIfBooleanConditionTrue(ctx, conflictExists, err, http.StatusBadRequest, "conflictExists")
 }
 
-func failIfGameDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
-	gameInformation, err := GamesDAO.GetGameInformation(leagueId, teamId)
+func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
+	gameInformation, err := GamesDAO.GetGameInformation(leagueId, gameId)
 	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
 }
 

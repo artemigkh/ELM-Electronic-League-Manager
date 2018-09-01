@@ -59,6 +59,19 @@ func failIfNoTeamCreatePermissions() gin.HandlerFunc {
 	}
 }
 
+func failIfNoEditSchedulePermissions() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		canEditSchedule, err := LeaguesDAO.HasEditSchedulePermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
+		if checkErr(ctx, err) {
+			ctx.Abort()
+		} else if !canEditSchedule {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noEditSchedulePermissions"})
+		} else {
+			ctx.Next()
+		}
+	}
+}
+
 func getTeamEditPermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canEditTeams, err := LeaguesDAO.HasEditTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))

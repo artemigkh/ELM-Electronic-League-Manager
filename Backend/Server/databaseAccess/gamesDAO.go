@@ -241,3 +241,10 @@ func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTea
 
 	return nil
 }
+
+func (d *PgGamesDAO) DeleteGame(leagueId, gameId int) error {
+	_, err := psql.Delete("games").
+		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		RunWith(db).Exec()
+	return err
+}

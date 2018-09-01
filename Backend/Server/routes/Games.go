@@ -35,6 +35,7 @@ type GameReportInformation struct {
  */
 func createNewGame(ctx *gin.Context) {
 	//TODO: check that the two teams are not the same
+	//TODO: check that has league game scheduling permissions (editSchedule in leaguePermissions table)
 	//get parameters
 	var gameInfo GameInformation
 	err := ctx.ShouldBindJSON(&gameInfo)
@@ -111,7 +112,6 @@ func getGameInformation(ctx *gin.Context) {
  * @apiError gameDoesNotExist The game with specified id does not exist
  * @apiError noReportResultPermissions The currently logged in user does not have permissions to report results for this team
  */
-
 func reportGameResult(ctx *gin.Context) {
 	//TODO: check if the winner Id is one of the two team Ids in the game
 	//get parameters
@@ -135,10 +135,35 @@ func reportGameResult(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
+/**
+ * @api{DELETE} /api/games/:id Remove Game
+ * @apiGroup Games
+ * @apiDescription Unschedule a game
+ *
+ * @apiParam {int} id The unique numerical identifier of game
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError IdMustBeInteger The specified Id in the URL must be an integer
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError noEditSchedulePermissions The currently logged in user does not have permissions to edit the schedule
+ * @apiError gameDoesNotExist The game with specified id does not exist in this league
+ */
+func deleteGame(ctx *gin.Context) {
+	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+		return
+	}
+
+	err := GamesDAO.DeleteGame(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	if checkErr(ctx, err) {
+		return
+	}
+}
+
 func RegisterGameHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 
 	g.POST("/", authenticate(), createNewGame)
 	g.POST("/report/:id", authenticate(), getUrlId(), getReportResultPermissions(), reportGameResult)
 	g.GET("/:id", getUrlId(), getGameInformation)
+	g.DELETE("/:id", authenticate(), getUrlId(), failIfNoEditSchedulePermissions(), deleteGame)
 }

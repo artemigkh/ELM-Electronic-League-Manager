@@ -30,6 +30,20 @@ func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime 
 	return r0, r1
 }
 
+// DeleteGame provides a mock function with given fields: leagueId, gameId
+func (_m *GamesDAO) DeleteGame(leagueId int, gameId int) error {
+	ret := _m.Called(leagueId, gameId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int) error); ok {
+		r0 = rf(leagueId, gameId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DoesExistConflict provides a mock function with given fields: team1Id, team2Id, gameTime
 func (_m *GamesDAO) DoesExistConflict(team1Id int, team2Id int, gameTime int) (bool, error) {
 	ret := _m.Called(team1Id, team2Id, gameTime)

@@ -4,8 +4,8 @@ package routes
 var Testing_Export_authenticate = authenticate
 var Testing_Export_getActiveLeague = getActiveLeague
 var Testing_Export_getUrlId = getUrlId
-var Testing_Export_getTeamEditPermissions = getTeamEditPermissions
 var Testing_Export_failIfNoTeamCreatePermissions = failIfNoTeamCreatePermissions
+var Testing_Export_failIfNoEditSchedulePermissions = failIfNoEditSchedulePermissions
 var Testing_Export_getReportResultPermissions = getReportResultPermissions
 var Testing_Export_failIfCannotJoinLeague = failIfCannotJoinLeague
 var Testing_Export_failIfNotLeagueAdmin = failIfNotLeagueAdmin
@@ -33,3 +33,4 @@ var Testing_Export_removePlayerFromTeam = removePlayerFromTeam
 var Testing_Export_createNewGame = createNewGame
 var Testing_Export_getGameInformation = getGameInformation
 var Testing_Export_reportGameResult = reportGameResult
+var Testing_Export_deleteGame = deleteGame

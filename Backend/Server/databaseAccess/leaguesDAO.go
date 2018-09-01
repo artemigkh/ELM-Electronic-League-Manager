@@ -125,7 +125,9 @@ func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueId, userId int) (bool, error
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canEdit)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
 		return false, err
 	}
 
@@ -270,4 +272,19 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 	}
 
 	return teamsReps, nil
+}
+
+func (d *PgLeaguesDAO) HasEditSchedulePermission(leagueId, userId int) (bool, error) {
+	var canEdit bool
+	err := psql.Select("editSchedule").
+		From("leaguePermissions").
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
+		RunWith(db).QueryRow().Scan(&canEdit)
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return canEdit, nil
 }

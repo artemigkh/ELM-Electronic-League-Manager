@@ -26,6 +26,7 @@ type LeaguesDAO interface {
 	IsNameInUse(name string) (bool, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)
 	HasEditTeamsPermission(leagueId, userId int) (bool, error)
+	HasEditSchedulePermission(leagueId, userId int) (bool, error)
 	HasCreateTeamsPermission(leagueId, userId int) (bool, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)
 	IsLeagueAdmin(leagueId, userId int) (bool, error)
@@ -52,6 +53,7 @@ type GamesDAO interface {
 	CreateGame(leagueId, team1Id, team2Id, gameTime int) (int, error)
 	GetGameInformation(leagueId, gameId int) (*GameInformation, error)
 	ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error
+	DeleteGame(leagueId, gameId int) error
 
 	// Get Information
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)

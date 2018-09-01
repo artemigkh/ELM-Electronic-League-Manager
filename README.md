@@ -53,8 +53,9 @@ Or in GoLand, right click on the IntegrationTests folder in project view, and pr
 
 ### Generate Endpoint Documentation
 Download and install [http://apidocjs.com/](apiDoc)
-Execute this command in the root directory of this project:
+Execute this command in the Backend directory of this project:
 ```
+cd Backend/
 apidoc
 ```
 Open `doc/index.html` on the browser of your choice

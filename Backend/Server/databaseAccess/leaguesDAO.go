@@ -16,6 +16,17 @@ type TeamSummaryInformation struct {
 	Losses int    `json:"losses"`
 }
 
+type GameSummaryInformation struct {
+	Id         int  `json:"id"`
+	Team1Id    int  `json:"team1Id"`
+	Team2Id    int  `json:"team2Id"`
+	GameTime   int  `json:"gameTime"`
+	Complete   bool `json:"complete"`
+	WinnerId   int  `json:"winnerId"`
+	ScoreTeam1 int  `json:"scoreTeam1"`
+	ScoreTeam2 int  `json:"scoreTeam2"`
+}
+
 type TeamManagerInformation struct {
 	TeamId   int                  `json:"teamId"`
 	TeamName string               `json:"teamName"`
@@ -174,6 +185,37 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, e
 	}
 
 	return teams, nil
+}
+
+func (d *PgLeaguesDAO) GetGameSummary(leagueId int) ([]GameSummaryInformation, error) {
+	rows, err := psql.Select("id", "team1Id", "team2Id", "gametime", "complete", "winnerId",
+		"scoreteam1", "scoreteam2").From("games").
+		Where("leagueId = ?", leagueId).
+		OrderBy("gametime DESC").
+		RunWith(db).Query()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var games []GameSummaryInformation
+	var game GameSummaryInformation
+
+	for rows.Next() {
+		err := rows.Scan(&game.Id, &game.Team1Id, &game.Team2Id, &game.GameTime, &game.Complete, &game.WinnerId,
+			&game.ScoreTeam1, &game.ScoreTeam2)
+		if err != nil {
+			return nil, err
+		}
+		games = append(games, game)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return games, nil
 }
 
 //TODO: make invite system for private leagues, check if user invited in this function

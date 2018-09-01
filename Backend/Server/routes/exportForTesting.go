@@ -21,6 +21,7 @@ var Testing_Export_joinActiveLeague = joinActiveLeague
 var Testing_Export_setActiveLeague = setActiveLeague
 var Testing_Export_getActiveLeagueInformation = getActiveLeagueInformation
 var Testing_Export_getTeamSummary = getTeamSummary
+var Testing_Export_getGameSummary = getGameSummary
 var Testing_Export_getTeamManagers = getTeamManagers
 
 // Teams

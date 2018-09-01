@@ -170,6 +170,32 @@ func getTeamManagers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, teamManagerInfo)
 }
 
+/**
+ * @api{GET} /api/leagues/gameSummary Get Game Summary
+ * @apiGroup Leagues
+ * @apiDescription Get the game summary of the current league, in chronological order
+ *
+ * @apiSuccess {jsonArray} _ An array of JSON objects, each representing a game
+ * @apiSuccess {int} _.id The unique numerical identifier of the game
+ * @apiSuccess {int} _.team1Id The unique numerical identifier of the team in position 1
+ * @apiSuccess {int} _.team2Id The unique numerical identifier of the team in position 2
+ * @apiSuccess {int} _.gameTime The unix epoch time in seconds when the game is played
+ * @apiSuccess {bool} _.complete A boolean indicating if the game is finished or not
+ * @apiSuccess {int} _.winnerId The Id of the winning team, or -1 if the game is not complete
+ * @apiSuccess {int} _.scoreTeam1 The score of the team in position 1
+ * @apiSuccess {int} _.scoreTeam2 The score of the team in position 2
+ *
+ * @apiError noActiveLeague There is no active league selected
+ */
+func getGameSummary(ctx *gin.Context) {
+	gameSummary, err := LeaguesDAO.GetGameSummary(ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gameSummary)
+}
+
 //TODO: create endpoint to get list of all publicly visible leagues
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
@@ -178,5 +204,6 @@ func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/join", authenticate(), getActiveLeague(), failIfCannotJoinLeague(), joinActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
+	g.GET("/gameSummary", getActiveLeague(), getGameSummary)
 	g.GET("/teamManagers", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), getTeamManagers)
 }

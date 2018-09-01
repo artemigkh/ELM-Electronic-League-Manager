@@ -51,6 +51,29 @@ func (_m *LeaguesDAO) CreateLeague(userId int, name string, publicView bool, pub
 	return r0, r1
 }
 
+// GetGameSummary provides a mock function with given fields: leagueId
+func (_m *LeaguesDAO) GetGameSummary(leagueId int) ([]databaseAccess.GameSummaryInformation, error) {
+	ret := _m.Called(leagueId)
+
+	var r0 []databaseAccess.GameSummaryInformation
+	if rf, ok := ret.Get(0).(func(int) []databaseAccess.GameSummaryInformation); ok {
+		r0 = rf(leagueId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]databaseAccess.GameSummaryInformation)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(leagueId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLeagueInformation provides a mock function with given fields: leagueId
 func (_m *LeaguesDAO) GetLeagueInformation(leagueId int) (*databaseAccess.LeagueInformation, error) {
 	ret := _m.Called(leagueId)

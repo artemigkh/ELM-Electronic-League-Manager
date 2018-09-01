@@ -99,13 +99,13 @@ func Test_NormalUseCase(t *testing.T) {
 		loginAs(t, leagueOwner)
 		setActiveLeague(t, l)
 
-		gameTime := float64(time.Now().Unix())
+		gameTime := float64(time.Now().Unix()) + 1000000
 
 		for _, m1 := range l.Teams {
 			for _, m2 := range l.Teams {
 				if m1.Id != m2.Id {
 					l.Games = append(l.Games, createGame(t, l, gameTime, m1.Id, m2.Id))
-					gameTime += 240
+					gameTime -= 240
 				}
 			}
 		}
@@ -113,9 +113,14 @@ func Test_NormalUseCase(t *testing.T) {
 		for _, g := range l.Games {
 			checkGameAgainstRepresentation(t, g)
 		}
+
+		checkGamesAgainstLeagueSummary(t, l.Games)
 	})
 
-	//TODO: check that all the games can be seen in each games team list
+	t.Run("Randomly unschedule 10 games", func(t *testing.T) {
+		randomlyUnscheduleGames(t, l, 10)
+		checkGamesAgainstLeagueSummary(t, l.Games)
+	})
 
 	t.Run("Randomize result for each game and report it", func(t *testing.T) {
 		for _, g := range l.Games {
@@ -125,6 +130,8 @@ func Test_NormalUseCase(t *testing.T) {
 		for _, g := range l.Games {
 			checkGameAgainstRepresentation(t, g)
 		}
+
+		checkGamesAgainstLeagueSummary(t, l.Games)
 	})
 
 	t.Run("Check that standings are sorted correctly", checkTeamStandingsSortedProperly)

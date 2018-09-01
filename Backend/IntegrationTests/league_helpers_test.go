@@ -2,6 +2,7 @@ package IntegrationTests
 
 import (
 	"fmt"
+	"github.com/Pallinder/go-randomdata"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
@@ -52,6 +53,31 @@ func checkTeamsAgainstLeagueSummary(t *testing.T, teams []*team) {
 	assert.Equal(t, matchingTeams, len(responseMapArray))
 }
 
+func checkGamesAgainstLeagueSummary(t *testing.T, games []*game) {
+	responseMapArray := makeApiCallAndGetMapArray(t, nil, "GET",
+		"api/leagues/gameSummary", 200)
+
+	for i := range responseMapArray {
+		assert.Equal(t, games[i].Id, responseMapArray[i]["id"])
+		assert.Equal(t, games[i].Team1Id, responseMapArray[i]["team1Id"])
+		assert.Equal(t, games[i].Team2Id, responseMapArray[i]["team2Id"])
+		assert.Equal(t, games[i].GameTime, responseMapArray[i]["gameTime"])
+		assert.Equal(t, games[i].Complete, responseMapArray[i]["complete"])
+		assert.Equal(t, games[i].WinnerId, responseMapArray[i]["winnerId"])
+		assert.Equal(t, games[i].ScoreTeam1, responseMapArray[i]["scoreTeam1"])
+		assert.Equal(t, games[i].ScoreTeam2, responseMapArray[i]["scoreTeam2"])
+	}
+}
+
+func randomlyUnscheduleGames(t *testing.T, l *league, n int) {
+	for i := 0; i < n; i++ {
+		removedIndex := randomdata.Number(0, len(l.Games)-1)
+		makeApiCall(t, nil, "DELETE",
+			fmt.Sprintf("api/games/%v", l.Games[removedIndex].Id), 200)
+		l.Games = append(l.Games[:removedIndex], l.Games[removedIndex+1:]...)
+	}
+}
+
 func checkTeamStandingsSortedProperly(t *testing.T) {
 	responseMapArray := makeApiCallAndGetMapArray(t, nil, "GET",
 		"api/leagues/teamSummary", 200)
@@ -60,7 +86,9 @@ func checkTeamStandingsSortedProperly(t *testing.T) {
 	previousLosses := float64(math.MinInt32)
 	for _, teamSummary := range responseMapArray {
 		assert.True(t, previousWins >= teamSummary["wins"].(float64))
-		assert.True(t, previousLosses <= teamSummary["losses"].(float64))
+		if previousWins == teamSummary["wins"].(float64) {
+			assert.True(t, previousLosses <= teamSummary["losses"].(float64))
+		}
 		previousWins = teamSummary["wins"].(float64)
 		previousLosses = teamSummary["losses"].(float64)
 	}

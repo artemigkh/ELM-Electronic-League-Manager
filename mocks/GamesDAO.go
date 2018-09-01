@@ -122,3 +122,17 @@ func (_m *GamesDAO) ReportGame(leagueId int, gameId int, winnerId int, scoreTeam
 
 	return r0
 }
+
+// RescheduleGame provides a mock function with given fields: leagueId, gameId, gameTime
+func (_m *GamesDAO) RescheduleGame(leagueId int, gameId int, gameTime int) error {
+	ret := _m.Called(leagueId, gameId, gameTime)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, int) error); ok {
+		r0 = rf(leagueId, gameId, gameTime)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

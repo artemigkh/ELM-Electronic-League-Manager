@@ -248,3 +248,10 @@ func (d *PgGamesDAO) DeleteGame(leagueId, gameId int) error {
 		RunWith(db).Exec()
 	return err
 }
+
+func (d *PgGamesDAO) RescheduleGame(leagueId, gameId, gameTime int) error {
+	_, err := psql.Update("games").
+		Set("gametime", gameTime).
+		Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
+	return err
+}

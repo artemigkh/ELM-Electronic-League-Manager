@@ -17,6 +17,11 @@ type GameReportInformation struct {
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
 
+type GameRescheduleInformation struct {
+	Id       int `json:"id"`
+	GameTime int `json:"gameTime"`
+}
+
 /**
  * @api{POST} /api/games/ Create New Game
  * @apiGroup Games
@@ -35,7 +40,7 @@ type GameReportInformation struct {
  */
 func createNewGame(ctx *gin.Context) {
 	//TODO: check that the two teams are not the same
-	//TODO: check that has league game scheduling permissions (editSchedule in leaguePermissions table)
+	//TODO: check that has league game scheduling permissions
 	//get parameters
 	var gameInfo GameInformation
 	err := ctx.ShouldBindJSON(&gameInfo)
@@ -159,10 +164,61 @@ func deleteGame(ctx *gin.Context) {
 	}
 }
 
+/**
+ * @api{PUT} /api/games/ Reschedule Game
+ * @apiGroup Games
+ * @apiDescription Reschedule a game
+ *
+ * @apiParam {int} id The unique numerical identifier of game
+ * @apiParam {int} gameTime The unix time of when the game is scheduled for
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError noEditSchedulePermissions The currently logged in user does not have permissions to edit the schedule
+ * @apiError gameDoesNotExist The game with specified id does not exist in this league
+ * @apiError gameIsComplete The game with specified id is already complete
+ * @apiError conflictExists One of the teams already has a game scheduled at this time
+ */
+func rescheduleGame(ctx *gin.Context) {
+	//get parameters
+	var gameInfo GameRescheduleInformation
+	err := ctx.ShouldBindJSON(&gameInfo)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Id) {
+		return
+	}
+
+	// get the game information to get the two team Ids to check for conflicts
+	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("leagueId"), gameInfo.Id)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	if gameInformation.Complete {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameIsComplete"})
+		return
+	}
+
+	if failIfConflictExists(ctx, gameInformation.Team1Id, gameInformation.Team2Id, gameInfo.GameTime) {
+		return
+	}
+
+	err = GamesDAO.RescheduleGame(ctx.GetInt("leagueId"), gameInfo.Id, gameInfo.GameTime)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
 func RegisterGameHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 
 	g.POST("/", authenticate(), createNewGame)
+	g.PUT("/", authenticate(), failIfNoEditSchedulePermissions(), rescheduleGame)
 	g.POST("/report/:id", authenticate(), getUrlId(), getReportResultPermissions(), reportGameResult)
 	g.GET("/:id", getUrlId(), getGameInformation)
 	g.DELETE("/:id", authenticate(), getUrlId(), failIfNoEditSchedulePermissions(), deleteGame)

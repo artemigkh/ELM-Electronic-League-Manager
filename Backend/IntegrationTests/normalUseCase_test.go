@@ -135,5 +135,4 @@ func Test_NormalUseCase(t *testing.T) {
 	})
 
 	t.Run("Check that standings are sorted correctly", checkTeamStandingsSortedProperly)
-
 }

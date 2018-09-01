@@ -55,6 +55,7 @@ type GamesDAO interface {
 	GetGameInformation(leagueId, gameId int) (*GameInformation, error)
 	ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error
 	DeleteGame(leagueId, gameId int) error
+	RescheduleGame(leagueId, gameId, gameTime int) error
 
 	// Get Information
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)

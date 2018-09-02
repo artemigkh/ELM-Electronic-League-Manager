@@ -25,12 +25,12 @@ npm install
 ## How To Run
 
 ### Server
-``` 
+```
 go build Backend/Server/main.go
 ./main
 ```
 
-Or in GoLand, open main.go, right click, and 'run go build main.go'. 
+Or in GoLand, open main.go, right click, and 'run go build main.go'.
 If errors with "cannot find find file" happen, set the working directory to the
 root directory of the git repo.
 
@@ -68,7 +68,7 @@ Open `doc/index.html` on the browser of your choice
 
 ### Frontend
 
-``` 
+```
 cd Frontend/
 ng serve
 ```
@@ -79,7 +79,7 @@ Then, navigate to `http://localhost:4200/` in your browser
 
 ### Go Backend
 
-This repository strives to maintain readable, reusable, stable, and easily augmentable code. 
+This repository strives to maintain readable, reusable, stable, and easily augmentable code.
 
 As such, the style guide at https://golang.org/doc/effective_go.html is strictly enforced (GoLand automatically highlights
 problems with these guidelines).

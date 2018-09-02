@@ -16,6 +16,12 @@ Download and install GoLang. Very highly recommend using JetBrains GoLand IDE.
 go get ./...
 ```
 
+### Frontend
+```
+cd Frontend/
+npm install
+```
+
 ## How To Run
 
 ### Server
@@ -28,16 +34,16 @@ Or in GoLand, open main.go, right click, and 'run go build main.go'.
 If errors with "cannot find find file" happen, set the working directory to the
 root directory of the git repo.
 
-### Server Tests
+#### Server Tests
 
-#### Unit Tests
+##### Unit Tests
 ```
 go test -v ./Backend/UnitTests/...
 ```
 
 Or in GoLand, right click on the UnitTests folder in project view, and press Run->Go Test
 
-#### Integration Tests
+##### Integration Tests
 
 Note that running the integration tests requires the following environment:
 
@@ -60,6 +66,15 @@ apidoc
 ```
 Open `doc/index.html` on the browser of your choice
 
+### Frontend
+
+``` 
+cd Frontend/
+ng serve
+```
+
+Then, navigate to `http://localhost:4200/` in your browser
+
 ## Development
 
 ### Go Backend
@@ -81,4 +96,4 @@ mockery -all
 
 #
 
-This project is licensed under the terms of the MIT license
+This project is licensed under the terms of the GPL-3.0 license

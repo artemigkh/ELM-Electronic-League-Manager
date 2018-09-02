@@ -130,14 +130,31 @@ func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, e
 	return &LeagueInformation{Id: leagueId}, nil
 }
 
-func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueId, userId int) (bool, error) {
+func (d *PgLeaguesDAO) HasEditTeamPermission(leagueId, teamId, userId int) (bool, error) {
 	var canEdit bool
-	err := psql.Select("editPermissions").
+
+	// check league wide team edit permissions
+	err := psql.Select("editTeams").
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canEdit)
+
 	if err == sql.ErrNoRows {
-		return false, nil
+		canEdit = false
+	} else if err != nil {
+		return false, err
+	} else if canEdit {
+		return true, nil
+	}
+
+	// check team permissions - editPermissions true means is team manager
+	err = psql.Select("editPermissions").
+		From("teamPermissions").
+		Where("userId = ? AND teamId = ?", userId, teamId).
+		RunWith(db).QueryRow().Scan(&canEdit)
+
+	if err == sql.ErrNoRows {
+		canEdit = false
 	} else if err != nil {
 		return false, err
 	}
@@ -146,16 +163,18 @@ func (d *PgLeaguesDAO) HasEditTeamsPermission(leagueId, userId int) (bool, error
 }
 
 func (d *PgLeaguesDAO) HasCreateTeamsPermission(leagueId, userId int) (bool, error) {
-	var canEdit bool
+	var canCreate bool
 	err := psql.Select("createTeams").
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&canEdit)
-	if err != nil {
+		RunWith(db).QueryRow().Scan(&canCreate)
+	if err == sql.ErrNoRows {
+		canCreate = false
+	} else if err != nil {
 		return false, err
 	}
 
-	return canEdit, nil
+	return canCreate, nil
 }
 
 func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error) {
@@ -239,7 +258,9 @@ func (d *PgLeaguesDAO) IsLeagueAdmin(leagueId, userId int) (bool, error) {
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&isLeagueAdmin)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
 		return false, err
 	} else {
 		return isLeagueAdmin, nil

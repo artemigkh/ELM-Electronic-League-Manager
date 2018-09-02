@@ -68,6 +68,34 @@ func createNewTeam(ctx *gin.Context) {
 }
 
 /**
+ * @api{DELETE} /api/teams/removeTeam/:id Delete Team
+ * @apiName deleteTeam
+ * @apiGroup Teams
+ * @apiDescription Delete a team from the current league and its players
+ *
+ * @apiParam {int} id The unique numerical identifier of the team
+ *
+ * @apiError IdMustBeInteger The id in the url must be an integer value
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError teamIsActive This team cannot be deleted because it has played games in this league
+ * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
+ */
+func deleteTeam(ctx *gin.Context) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+		return
+	}
+
+	err := TeamsDAO.DeleteTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
+/**
  * @api{GET} /api/teams/:id Get Team Information
  * @apiGroup Teams
  * @apiDescription Get information about the team with specified id
@@ -176,24 +204,19 @@ func removePlayerFromTeam(ctx *gin.Context) {
 	if checkJsonErr(ctx, err) {
 		return
 	}
-	println("1")
 	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), playerRemoveInfo.TeamId) {
 		return
 	}
-	println("2")
 	if failIfCannotEditPlayersOnTeam(ctx, ctx.GetInt("leagueId"), playerRemoveInfo.TeamId, ctx.GetInt("userId")) {
 		return
 	}
-	println("3")
 	if failIfPlayerDoesNotExist(ctx, playerRemoveInfo.TeamId, playerRemoveInfo.PlayerId) {
 		return
 	}
-	println("4")
 	err = TeamsDAO.RemovePlayer(playerRemoveInfo.TeamId, playerRemoveInfo.PlayerId)
 	if checkErr(ctx, err) {
 		return
 	}
-	println("5")
 
 	ctx.Status(http.StatusOK)
 }
@@ -207,4 +230,5 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.POST("/addPlayer", authenticate(), addPlayerToTeam)
 	g.DELETE("/removePlayer", authenticate(), removePlayerFromTeam)
 	g.GET("/:id", getUrlId(), getTeamInformation)
+	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfCannotEditTeam(), deleteTeam)
 }

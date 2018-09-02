@@ -9,6 +9,8 @@ var Testing_Export_failIfNoEditSchedulePermissions = failIfNoEditSchedulePermiss
 var Testing_Export_getReportResultPermissions = getReportResultPermissions
 var Testing_Export_failIfCannotJoinLeague = failIfCannotJoinLeague
 var Testing_Export_failIfNotLeagueAdmin = failIfNotLeagueAdmin
+var Testing_Export_failIfTeamActive = failIfTeamActive
+var Testing_Export_failIfCannotEditTeam = failIfCannotEditTeam
 
 // Users
 var Testing_Export_createNewUser = createNewUser
@@ -26,6 +28,7 @@ var Testing_Export_getTeamManagers = getTeamManagers
 
 // Teams
 var Testing_Export_createNewTeam = createNewTeam
+var Testing_Export_deleteTeam = deleteTeam
 var Testing_Export_getTeamInformation = getTeamInformation
 var Testing_Export_addPlayerToTeam = addPlayerToTeam
 var Testing_Export_removePlayerFromTeam = removePlayerFromTeam

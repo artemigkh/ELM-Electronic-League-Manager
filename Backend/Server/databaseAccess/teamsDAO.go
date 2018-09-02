@@ -193,3 +193,37 @@ func (d *PgTeamsDAO) DoesPlayerExist(teamId, playerId int) (bool, error) {
 		return true, nil
 	}
 }
+
+func (d *PgTeamsDAO) IsTeamActive(leagueId, teamId int) (bool, error) {
+	var gameId int
+	err := psql.Select("id").
+		From("games").
+		Where("leagueId = ? AND ( team1Id = ? OR team2Id = ?)", leagueId, teamId, teamId).
+		RunWith(db).QueryRow().Scan(&gameId)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		} else {
+			return false, err
+		}
+	} else {
+		return true, nil
+	}
+}
+
+func (d *PgTeamsDAO) DeleteTeam(leagueId, teamId int) error {
+	//remove players from team
+	_, err := psql.Delete("players").
+		Where("teamId = ?", teamId).
+		RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
+	//remove team
+	_, err = psql.Delete("teams").
+		Where("id = ? AND leagueId = ?", teamId, leagueId).
+		RunWith(db).Exec()
+	return err
+}

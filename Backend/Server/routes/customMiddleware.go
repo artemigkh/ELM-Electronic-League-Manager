@@ -72,19 +72,6 @@ func failIfNoEditSchedulePermissions() gin.HandlerFunc {
 	}
 }
 
-func getTeamEditPermissions() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		canEditTeams, err := LeaguesDAO.HasEditTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
-		if checkErr(ctx, err) {
-			ctx.Abort()
-		} else if !canEditTeams {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
-		} else {
-			ctx.Next()
-		}
-	}
-}
-
 func getReportResultPermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canReportResult, err := GamesDAO.HasReportResultPermissions(
@@ -122,6 +109,35 @@ func failIfNotLeagueAdmin() gin.HandlerFunc {
 			ctx.Abort()
 		} else if !isLeagueAdmin {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
+		} else {
+			ctx.Next()
+		}
+	}
+}
+
+func failIfCannotEditTeam() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		canEdit, err := LeaguesDAO.HasEditTeamPermission(
+			ctx.GetInt("leagueId"),
+			ctx.GetInt("urlId"),
+			ctx.GetInt("userId"))
+		if checkErr(ctx, err) {
+			ctx.Abort()
+		} else if !canEdit {
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
+		} else {
+			ctx.Next()
+		}
+	}
+}
+
+func failIfTeamActive() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		isActive, err := TeamsDAO.IsTeamActive(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+		if checkErr(ctx, err) {
+			ctx.Abort()
+		} else if isActive {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "teamIsActive"})
 		} else {
 			ctx.Next()
 		}

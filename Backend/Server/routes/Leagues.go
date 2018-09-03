@@ -6,9 +6,10 @@ import (
 )
 
 type LeagueRequest struct {
-	Name       string `json:"name"`
-	PublicView bool   `json:"publicView"`
-	PublicJoin bool   `json:"publicJoin"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	PublicView  bool   `json:"publicView"`
+	PublicJoin  bool   `json:"publicJoin"`
 }
 
 /**
@@ -18,6 +19,7 @@ type LeagueRequest struct {
  * @apiDescription Register a new league
  *
  * @apiParam {string} name the name of the league
+ * @apiParam {string} description A brief (<500) char description of the league
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
  * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
  *
@@ -25,6 +27,7 @@ type LeagueRequest struct {
  *
  * @apiError notLoggedIn No user is logged in
  * @apiError nameTooLong The league name has exceeded 50 characters
+ * @apiError descriptionTooLong The description has exceeded 500 characters
  * @apiError nameInUse The league name is currently in use
  */
 func createNewLeague(ctx *gin.Context) {
@@ -34,6 +37,9 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
+	if failIfDescriptionTooLong(ctx, lgRequest.Description) {
+		return
+	}
 	if failIfNameTooLong(ctx, lgRequest.Name) {
 		return
 	}
@@ -41,7 +47,12 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
-	leagueId, err := LeaguesDAO.CreateLeague(ctx.GetInt("userId"), lgRequest.Name, lgRequest.PublicView, lgRequest.PublicJoin)
+	leagueId, err := LeaguesDAO.CreateLeague(
+		ctx.GetInt("userId"),
+		lgRequest.Name,
+		lgRequest.Description,
+		lgRequest.PublicView,
+		lgRequest.PublicJoin)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -87,6 +98,8 @@ func setActiveLeague(ctx *gin.Context) {
  * @apiDescription Get information about the currently selected league
  *
  * @apiSuccess {int} id The unique numerical identifier of the league
+ * @apiSuccess {string} name The name of the currently selected league
+ * @apiSuccess {string} description The description of the currently selected league
  *
  * @apiError noActiveLeague There is no active league selected
  */

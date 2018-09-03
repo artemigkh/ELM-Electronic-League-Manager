@@ -5,7 +5,9 @@ import (
 )
 
 type LeagueInformation struct {
-	Id int `json:"id"`
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 type TeamSummaryInformation struct {
@@ -45,10 +47,10 @@ type ManagerInformation struct {
 
 type PgLeaguesDAO struct{}
 
-func (d *PgLeaguesDAO) CreateLeague(userId int, name string, publicView, publicJoin bool) (int, error) {
+func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, publicView, publicJoin bool) (int, error) {
 	var leagueId int
-	err := psql.Insert("leagues").Columns("name", "publicView", "publicJoin").
-		Values(name, publicView, publicJoin).Suffix("RETURNING \"id\"").
+	err := psql.Insert("leagues").Columns("name", "description", "publicView", "publicJoin").
+		Values(name, description, publicView, publicJoin).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&leagueId)
 	if err != nil {
 		return -1, err
@@ -127,7 +129,16 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 }
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, error) {
-	return &LeagueInformation{Id: leagueId}, nil
+	var leagueInfo LeagueInformation
+	err := psql.Select("id", "name", "description").
+		From("leagues").
+		Where("id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description)
+	if err != nil {
+		return nil, err
+	}
+
+	return &leagueInfo, nil
 }
 
 func (d *PgLeaguesDAO) HasEditTeamPermission(leagueId, teamId, userId int) (bool, error) {

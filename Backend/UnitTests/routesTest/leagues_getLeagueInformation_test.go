@@ -12,9 +12,11 @@ import (
 	"testing"
 )
 
-func createLeagueInfoBody(id int) *bytes.Buffer {
+func createLeagueInfoBody(id int, name, description string) *bytes.Buffer {
 	body := databaseAccess.LeagueInformation{
-		Id: id,
+		Id:          id,
+		Name:        name,
+		Description: description,
 	}
 	bodyB, _ := json.Marshal(&body)
 	return bytes.NewBuffer(bodyB)
@@ -69,13 +71,16 @@ func testCorrectGetLeagueData(t *testing.T) {
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("GetLeagueInformation", 2).Return(&databaseAccess.LeagueInformation{
-		Id: 2,
+		Id:          2,
+		Name:        "testName",
+		Description: "testDescription",
 	}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, nil, "GET", "/", 200, testParams{ResponseBody: createLeagueInfoBody(2)})
+	httpTest(t, nil, "GET", "/", 200,
+		testParams{ResponseBody: createLeagueInfoBody(2, "testName", "testDescription")})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }

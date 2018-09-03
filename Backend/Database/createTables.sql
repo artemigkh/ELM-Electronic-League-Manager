@@ -7,6 +7,7 @@ CREATE SEQUENCE gamesIdSeq;
 CREATE TABLE leagues (
   id              INT           PRIMARY KEY DEFAULT nextval('leaguesIdSeq'),
   name            VARCHAR(50)   UNIQUE NOT NULL         ,
+  description     VARCHAR(500)                          ,
   publicView      BOOLEAN       NOT NULL                ,
   publicJoin      BOOLEAN       NOT NULL
 );

@@ -30,20 +30,20 @@ func (_m *LeaguesDAO) CanJoinLeague(leagueId int, userId int) (bool, error) {
 	return r0, r1
 }
 
-// CreateLeague provides a mock function with given fields: userId, name, publicView, publicJoin
-func (_m *LeaguesDAO) CreateLeague(userId int, name string, publicView bool, publicJoin bool) (int, error) {
-	ret := _m.Called(userId, name, publicView, publicJoin)
+// CreateLeague provides a mock function with given fields: userId, name, description, publicView, publicJoin
+func (_m *LeaguesDAO) CreateLeague(userId int, name string, description string, publicView bool, publicJoin bool) (int, error) {
+	ret := _m.Called(userId, name, description, publicView, publicJoin)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, string, bool, bool) int); ok {
-		r0 = rf(userId, name, publicView, publicJoin)
+	if rf, ok := ret.Get(0).(func(int, string, string, bool, bool) int); ok {
+		r0 = rf(userId, name, description, publicView, publicJoin)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, string, bool, bool) error); ok {
-		r1 = rf(userId, name, publicView, publicJoin)
+	if rf, ok := ret.Get(1).(func(int, string, string, bool, bool) error); ok {
+		r1 = rf(userId, name, description, publicView, publicJoin)
 	} else {
 		r1 = ret.Error(1)
 	}

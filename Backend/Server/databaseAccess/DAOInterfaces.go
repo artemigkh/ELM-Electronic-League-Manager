@@ -16,7 +16,7 @@ type UsersDAO interface {
 
 type LeaguesDAO interface {
 	// Leagues
-	CreateLeague(userId int, name string, publicView, publicJoin bool) (int, error)
+	CreateLeague(userId int, name, description string, publicView, publicJoin bool) (int, error)
 	GetLeagueInformation(leagueId int) (*LeagueInformation, error)
 	GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error)
 	GetGameSummary(leagueId int) ([]GameSummaryInformation, error)

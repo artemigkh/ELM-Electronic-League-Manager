@@ -19,9 +19,10 @@ import (
  */
 
 const (
-	MinPasswordLength = 8
-	MaxNameLength     = 50
-	MaxTagLength      = 5
+	MinPasswordLength    = 8
+	MaxNameLength        = 50
+	MaxTagLength         = 5
+	MaxDescriptionLength = 500
 )
 
 // operator wrappers
@@ -87,6 +88,10 @@ func failIfGameIdentifierTooLong(ctx *gin.Context, gameIdentifier string) bool {
 
 func failIfNameTooLong(ctx *gin.Context, name string) bool {
 	return failIfImproperLength(ctx, name, MaxNameLength, ge, "nameTooLong")
+}
+
+func failIfDescriptionTooLong(ctx *gin.Context, description string) bool {
+	return failIfImproperLength(ctx, description, MaxDescriptionLength, ge, "descriptionTooLong")
 }
 
 // Boolean Checks

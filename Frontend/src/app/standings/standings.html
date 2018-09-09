@@ -1,4 +1,8 @@
-<div class="basic-container">
+<div class="docs-primary-header">
+  <h1 class="docs-primary-header">Teams and Standings</h1>
+</div>
+
+<!--<div class="basic-container">-->
   <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <!-- Position Column -->
     <ng-container matColumnDef="Name">
@@ -27,4 +31,4 @@
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
   </mat-table>
-</div>
+<!--</div>-->

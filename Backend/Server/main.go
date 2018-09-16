@@ -5,6 +5,7 @@ import (
 	"esports-league-manager/Backend/Server/databaseAccess"
 	"esports-league-manager/Backend/Server/routes"
 	"esports-league-manager/Backend/Server/sessionManager"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
 )
@@ -19,6 +20,11 @@ type Configuration struct {
 func NewApp(conf config.Config) *gin.Engine {
 	app := gin.Default()
 
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:4200"}
+	corsConfig.AllowCredentials = true
+
+	app.Use(cors.New(corsConfig))
 	databaseAccess.Init(conf)
 	routes.UsersDAO = databaseAccess.CreateUsersDao()
 	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()

@@ -45,6 +45,13 @@ type ManagerInformation struct {
 	ReportResult    bool   `json:"reportResult"`
 }
 
+type PublicLeagueInformation struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	PublicJoin  bool   `json:"publicJoin"`
+}
+
 type PgLeaguesDAO struct{}
 
 func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, publicView, publicJoin bool) (int, error) {
@@ -361,4 +368,33 @@ func (d *PgLeaguesDAO) HasEditSchedulePermission(leagueId, userId int) (bool, er
 	}
 
 	return canEdit, nil
+}
+
+func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) {
+	rows, err := psql.Select("id", "name", "description", "publicJoin").
+		From("leagues").
+		Where("publicView = true").
+		RunWith(db).Query()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var leagues []PublicLeagueInformation
+	var league PublicLeagueInformation
+
+	for rows.Next() {
+		err := rows.Scan(&league.Id, &league.Name, &league.Description, &league.PublicJoin)
+		if err != nil {
+			return nil, err
+		}
+		leagues = append(leagues, league)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return leagues, nil
 }

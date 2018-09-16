@@ -209,13 +209,33 @@ func getGameSummary(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gameSummary)
 }
 
-//TODO: create endpoint to get list of all publicly visible leagues
+/**
+ * @api{GET} /api/leagues/publicLeagues Get List of Publicly Viewable Leagues
+ * @apiGroup Leagues
+ * @apiDescription Get a list of all publicly viewable leagues
+ *
+ * @apiSuccess {jsonArray} _ An array of JSON objects, each representing a league
+ * @apiSuccess {int} _.id The unique numerical identifier of the league
+ * @apiSuccess {int} _.name The name of the league
+ * @apiSuccess {int} _.description The description of the league
+ * @apiSuccess {int} _.publicJoin A boolean that signifies if the league can be joined by the general public
+ *
+ */
+func getPublicLeagues(ctx *gin.Context) {
+	leagueList, err := LeaguesDAO.GetPublicLeagueList()
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, leagueList)
+}
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
 	g.POST("/join", authenticate(), getActiveLeague(), failIfCannotJoinLeague(), joinActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
+	g.GET("/publicLeagues", getPublicLeagues)
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
 	g.GET("/gameSummary", getActiveLeague(), getGameSummary)
 	g.GET("/teamManagers", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), getTeamManagers)

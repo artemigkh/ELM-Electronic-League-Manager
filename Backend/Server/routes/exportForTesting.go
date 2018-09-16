@@ -25,6 +25,7 @@ var Testing_Export_getActiveLeagueInformation = getActiveLeagueInformation
 var Testing_Export_getTeamSummary = getTeamSummary
 var Testing_Export_getGameSummary = getGameSummary
 var Testing_Export_getTeamManagers = getTeamManagers
+var Testing_Export_getPublicLeagues = getPublicLeagues
 
 // Teams
 var Testing_Export_createNewTeam = createNewTeam

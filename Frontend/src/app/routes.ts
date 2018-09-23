@@ -5,6 +5,7 @@ import {MatchHistoryComponent} from './matchHistory/match-history'
 import {UpcomingGamesComponent} from './upcomingGames/upcoming-games'
 
 import {Routes} from "@angular/router";
+import {ManageComponent} from "./manage/manage";
 
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
@@ -12,5 +13,6 @@ export const ELM_ROUTES: Routes = [
     {path: 'teams', component: TeamsComponent, data: {}},
     {path: 'matchHistory', component: MatchHistoryComponent, data: {}},
     {path: 'upcomingGames', component: UpcomingGamesComponent, data: {}},
+    {path: 'manage', component: ManageComponent, data: {}},
     {path: '**', redirectTo: ''},
 ];

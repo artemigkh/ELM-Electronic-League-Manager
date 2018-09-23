@@ -1,0 +1,38 @@
+:host(app-standings) {
+    height: 100%;
+}
+
+.league-management {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+mat-button-toggle-group {
+    box-shadow: none;
+}
+
+mat-button-toggle {
+    color: black;
+    font-weight: 300;
+}
+
+//button {
+//    text-align: left;
+//    color: #3f51b5;
+//}
+
+.menu-area {
+    width: 10%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-area {
+    padding-left: 50px;
+    flex-grow: 1;
+    height: 100%;
+}

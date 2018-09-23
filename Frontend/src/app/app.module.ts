@@ -3,7 +3,10 @@ import {RouterModule} from '@angular/router';
 import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatButtonModule, MatCardModule, MatDividerModule, MatTabsModule} from '@angular/material';
+import {
+    MatButtonModule, MatButtonToggleModule, MatCardModule, MatDividerModule,
+    MatTabsModule
+} from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
 
 import {NavBar} from "./shared/navbar/navbar";
@@ -17,6 +20,7 @@ import {UpcomingGamesComponent} from "./upcomingGames/upcoming-games";
 import {LeagueService} from './httpServices/leagues.service';
 
 import {ELM_ROUTES} from './routes'
+import {ManageComponent} from "./manage/manage";
 
 @NgModule({
     declarations: [
@@ -27,6 +31,7 @@ import {ELM_ROUTES} from './routes'
         TeamsComponent,
         MatchHistoryComponent,
         UpcomingGamesComponent,
+        ManageComponent,
         NavBar
     ],
     imports: [
@@ -38,6 +43,7 @@ import {ELM_ROUTES} from './routes'
         MatButtonModule,
         MatCardModule,
         MatDividerModule,
+        MatButtonToggleModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
     providers: [LeagueService],

@@ -26,12 +26,14 @@ app-navbar {
   z-index: 2;
 }
 
-app-standings {
-  display: flex;
-  flex: 1;
+app-manage {
+    height: 100%;
 }
 
 
+.mat-button-toggle-button {
+    width: 100%;
+}
 //app-root > app-standings {
 //  overflow-y: auto;
 //}

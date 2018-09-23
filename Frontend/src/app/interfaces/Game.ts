@@ -7,6 +7,8 @@ export interface Game {
     winnerId: number;
     scoreTeam1: number;
     scoreTeam2: number;
+    team1Id: number;
+    team2Id: number;
     team1: Team;
     team2: Team;
 }

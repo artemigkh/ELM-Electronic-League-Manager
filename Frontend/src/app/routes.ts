@@ -6,6 +6,11 @@ import {UpcomingGamesComponent} from './upcomingGames/upcoming-games'
 
 import {Routes} from "@angular/router";
 import {ManageComponent} from "./manage/manage";
+import {ManageLeagueComponent} from "./manage/league/manage-league";
+import {ManageTeamsComponent} from "./manage/teams/manage-teams";
+import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
+import {ManageDatesComponent} from "./manage/dates/manage-dates";
+import {ManagePlayersComponent} from "./manage/players/manage-players";
 
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
@@ -13,6 +18,17 @@ export const ELM_ROUTES: Routes = [
     {path: 'teams', component: TeamsComponent, data: {}},
     {path: 'matchHistory', component: MatchHistoryComponent, data: {}},
     {path: 'upcomingGames', component: UpcomingGamesComponent, data: {}},
-    {path: 'manage', component: ManageComponent, data: {}},
+    {
+        path: 'manage',
+        component: ManageComponent,
+        data: {},
+        children: [
+            {path: 'league', component: ManageLeagueComponent},
+            {path: 'permissions', component: ManagePermissionsComponent},
+            {path: 'teams', component: ManageTeamsComponent},
+            {path: 'dates', component: ManageDatesComponent},
+            {path: 'players', component: ManagePlayersComponent}
+        ]
+    },
     {path: '**', redirectTo: ''},
 ];

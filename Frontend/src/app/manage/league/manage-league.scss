@@ -1,0 +1,45 @@
+.example-container {
+    //margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+mat-divider {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+.example-container > * {
+    width: 100%;
+}
+
+h1 {
+    font-weight: 300;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+h4 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+mat-form-field {
+    margin-bottom: 10px;
+
+    textarea {
+        height: 45px;
+    }
+}
+
+button {
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #495be4;
+}

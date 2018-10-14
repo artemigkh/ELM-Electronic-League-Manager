@@ -1,6 +1,6 @@
-:host(app-standings) {
-    height: 100%;
-}
+//:host(app-standings) {
+//    height: 100%;
+//}
 
 .league-management {
     position: fixed;
@@ -19,20 +19,147 @@ mat-button-toggle {
     font-weight: 300;
 }
 
+mat-panel-title {
+    font-weight: 500;
+}
+
 //button {
 //    text-align: left;
 //    color: #3f51b5;
 //}
 
 .menu-area {
-    width: 10%;
-    height: 100%;
+    //width: 15%;
+    //height: 100%;
     display: flex;
     flex-direction: column;
+
+    ul {
+         list-style-type: none;
+         margin: 0 0 5px 0;
+         padding: 0;
+         overflow: hidden;
+         width: 100%;
+     }
+
+    li {
+        width: 100%;
+    }
+
+    a {
+        text-align: left;
+        width: 100%;
+        font-weight: 400;
+    }
+
+    .option {
+        height: 48px;
+        cursor: pointer;
+        padding-left: 24px;
+        display: flex;
+
+
+        .label {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 64px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .desc {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-weight: 400;
+            font-size: 15px;
+            color: rgba(0, 0, 0, 0.54);
+        }
+    }
+
+    .option:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    .option:focus {
+        outline: none;
+    }
 }
 
 .edit-area {
     padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
     flex-grow: 1;
-    height: 100%;
+    overflow-y: scroll;
+    height: calc(100% - 182px);
+}
+
+mat-accordion {
+    margin-top: 25px;
+}
+
+mat-expansion-panel {
+    background-color: #fafafa;
+    box-shadow: none !important;
+}
+
+mat-expansion-panel-header {
+    //height: 32px !important;
+}
+
+app-manage-league {
+    height: 300px;
+    overflow: visible;
+}
+
+
+
+.example-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.example-container > * {
+    width: 100%;
+}
+
+h1 {
+    font-weight: 300;
+}
+
+h2 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+h4 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+mat-form-field {
+    margin-bottom: 10px;
+
+    textarea {
+        height: 100px;
+    }
+}
+
+mat-divider {
+    margin-top: 30px;
+}
+
+.visibility-section {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-content: left;
+    align-items: left;
+    height: 60px;
+
+    mat-checkbox {
+        margin-bottom: 20px;
+    }
 }

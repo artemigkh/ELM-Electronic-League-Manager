@@ -1,0 +1,106 @@
+mat-divider {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-weight: 300;
+    margin-bottom: 0;
+}
+
+mat-table {
+    margin-top: 20px;
+    background-color: #fafafa;
+    //border-style: solid;
+    //border-color: lightgray;
+    //border-width: 0 1px 0 1px;
+}
+
+mat-cell {
+    padding-right: 0!important;
+}
+
+span.team-entry {
+    flex-grow: 1;
+    height: 100%;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: row;
+
+    .name {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 25%;
+    }
+
+    .tag {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+
+    .mat-raised-button {
+        min-width: 27.5%;
+        margin-right: 5px;
+    }
+
+}
+
+.users-button {
+    //color: #495057;
+    color: white;
+    background-color: #3abc4d;
+}
+
+.deleteButton {
+    color: white;
+    background-color: #d9534f;
+}
+
+mat-icon:before {
+    height: 100%;
+    font-size: 20px;
+}
+
+.new-team-container {
+    //background-color: #5c657a;
+    margin-top: 15px;
+    display: flex;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+
+    .teams-title {
+        //margin-left: 10px;
+        color: black;
+        font-weight: 300;
+        font-size: 26px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .new-team {
+        margin-left: auto;
+        margin-right: 0;
+        width: 120px;
+
+        mat-icon {
+            margin-right: 5px;
+        }
+    }
+}
+.mat-header-row {
+    min-height: 0;
+}
+
+div .mat-header-row {
+    min-height: 5px;
+}
+

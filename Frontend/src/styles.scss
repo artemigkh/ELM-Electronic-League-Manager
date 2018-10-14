@@ -5,7 +5,8 @@
 @import './styles/markdown';
 @import './styles/tables';
 @import './styles/general';
-
+@import 'variables';
+@import '../node_modules/font-awesome/scss/font-awesome'; //path to font awesome SCSS
 
 // Include material core styles.
 @include mat-core();

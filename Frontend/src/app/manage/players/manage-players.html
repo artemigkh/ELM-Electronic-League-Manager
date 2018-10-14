@@ -1,0 +1,110 @@
+<h1>
+    Manage Players
+</h1>
+
+<mat-divider class="layout-spacer"></mat-divider>
+
+<mat-accordion displayMode="flat" multi="true" *ngFor="let team of teams">
+    <mat-expansion-panel>
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                <span class="team-entry">
+                    <span class="name">
+                        {{team.name}}
+                    </span>
+                    <span class="tag">
+                        {{team.tag}}
+                    </span>
+                </span>
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="team-content">
+            <div class="players">
+                <div class="new-player-container">
+                    <span class="players-title">Players</span>
+                    <button mat-raised-button class="new-player" color="primary">
+                        <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
+                        Add Player
+                    </button>
+                </div>
+                <ul>
+                    <li *ngFor="let player of team.players">
+                        <span class="player-entry">
+                            <span class="name">
+                                {{player.name}}
+                            </span>
+
+                            <span class="game-name">
+                                {{player.gameIdentifier}}
+                            </span>
+
+                            <span class="spacer"></span>
+
+                            <span class="control-button">
+                                <button mat-icon-button color="primary">
+                                    <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
+                                </button>
+                            </span>
+
+                            <span class="control-button delete">
+                                <button mat-icon-button>
+                                    <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
+                                </button>
+                            </span>
+
+                            <span class="control-button move">
+                                <button mat-icon-button>
+                                    <mat-icon inline="true" fontSet="fa" fontIcon="fa-caret-down"></mat-icon>
+                                </button>
+                            </span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="players" *ngIf="team.substitutes.length > 0">
+                <div class="new-player-container">
+                    <span class="players-title">Substitutes</span>
+                    <button mat-raised-button class="new-player" color="primary">
+                        <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
+                        Add Substitute
+                    </button>
+                </div>
+                <ul>
+                    <li *ngFor="let player of team.substitutes">
+                        <span class="player-entry">
+                            <span class="name">
+                                {{player.name}}
+                            </span>
+
+                            <span class="game-name">
+                                {{player.gameIdentifier}}
+                            </span>
+                            <span class="spacer"></span>
+
+                            <span class="control-button">
+                                <button mat-icon-button color="primary">
+                                    <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
+                                </button>
+                            </span>
+
+                            <span class="control-button delete">
+                                <button mat-icon-button>
+                                    <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
+                                </button>
+                            </span>
+
+                            <span class="control-button move">
+                                <button mat-icon-button>
+                                    <mat-icon inline="true" fontSet="fa" fontIcon="fa-caret-up"></mat-icon>
+                                </button>
+                            </span>
+
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </mat-expansion-panel>
+</mat-accordion>

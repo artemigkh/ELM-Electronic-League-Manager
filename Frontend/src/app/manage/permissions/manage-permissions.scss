@@ -1,0 +1,38 @@
+
+h1 {
+    font-weight: 300;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+mat-divider {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+
+.visibility-section {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-content: left;
+    align-items: left;
+    height: 60px;
+
+    mat-checkbox {
+        margin-bottom: 20px;
+    }
+}
+
+button {
+    margin-top: 40px;
+}
+
+button:hover {
+    background-color: #495be4;
+}
+

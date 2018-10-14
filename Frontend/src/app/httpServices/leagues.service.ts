@@ -5,6 +5,8 @@ import {Observable} from "rxjs/index";
 import { of } from 'rxjs';
 import {Game} from "../interfaces/Game";
 import {getTeamName} from "../shared/elm-data-utils";
+import {GtiTeam} from "./api-return-schemas/get-team-information";
+import {Player} from "../interfaces/Player";
 
 
 const httpOptions = {
@@ -40,7 +42,11 @@ export class LeagueService {
                 this.http.get('http://localhost:8080/api/leagues/teamSummary', httpOptions).subscribe(
                     (next: Team[]) => {
                         this.teams = next;
-                        observer.next(next)
+                        this.teams.forEach(team => {
+                            team.players = [];
+                            team.substitutes = [];
+                        });
+                        observer.next(this.teams)
                     }, error => {
                         observer.error(error);
                         console.log(error);
@@ -48,6 +54,33 @@ export class LeagueService {
                 );
             });
         }
+    }
+
+    public addPlayerInformationToTeam(team: Team): Observable<Team> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/teams/' + team.id, httpOptions).subscribe(
+                (next: GtiTeam) => {
+                    next.players.forEach(player=> {
+                        let tempPlayer: Player = {
+                            id: player.id,
+                            name: player.name,
+                            gameIdentifier: player.gameIdentifier
+                        };
+
+                        if(player.mainRoster) {
+                            team.players.push(tempPlayer);
+                        } else {
+                            team.substitutes.push(tempPlayer);
+                        }
+                    });
+
+                    observer.next(team)
+                }, error => {
+                    observer.error(error);
+                    console.log(error);
+                }
+            );
+        });
     }
 
     private addTeamInformation(games: Game[], teams: Team[]) {

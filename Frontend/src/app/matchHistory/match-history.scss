@@ -60,7 +60,7 @@ span.info {
         padding-left: 40px;
         padding-right: 40px;
 
-        font-size: 22px;
+        font-size: 30px;
         font-weight: 300;
         color: #646464;
     }
@@ -98,6 +98,7 @@ span.info {
 
     .vs {
         width: 2%;
+        min-width: 25px;
         justify-content: center;
         flex-direction: column;
         display: flex;

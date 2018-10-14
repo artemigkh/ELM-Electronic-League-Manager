@@ -1,0 +1,47 @@
+<h1>
+    Dates and Duration
+</h1>
+
+<mat-divider></mat-divider>
+
+
+<h4>
+    Registration Period
+</h4>
+<mat-form-field>
+    <input matInput [matDatepicker]="picker1" placeholder="Start Date">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+</mat-form-field>
+
+<span>
+    to
+</span>
+
+<mat-form-field>
+    <input matInput [matDatepicker]="picker2" placeholder="End Date">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker2></mat-datepicker>
+</mat-form-field>
+
+<h4>
+    Competition Period
+</h4>
+
+<mat-form-field>
+    <input matInput [matDatepicker]="picker3" placeholder="Start Date">
+    <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+    <mat-datepicker #picker3></mat-datepicker>
+</mat-form-field>
+
+<span>
+    to
+</span>
+
+<mat-form-field>
+    <input matInput [matDatepicker]="picker4" placeholder="End Date">
+    <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+    <mat-datepicker #picker4></mat-datepicker>
+</mat-form-field>
+
+<button mat-flat-button color="primary">Update Information</button>

@@ -2,21 +2,80 @@
     <h1 class="docs-primary-header">League Management</h1>
 </div>
 <div class="league-management">
-    <span class="menu-area">
-        <mat-button-toggle-group [vertical]="true">
-            <mat-button-toggle checked>
-                League Information
-            </mat-button-toggle>
-            <mat-button-toggle>
-                Games
-            </mat-button-toggle>
-            <mat-button-toggle>
-                Teams
-            </mat-button-toggle>
-        </mat-button-toggle-group>
-    </span>
+    <div class="menu-area">
+        <mat-accordion displayMode="flat" multi="true">
+            <mat-expansion-panel expanded="true" hideToggle="true">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        League
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Change League Properties
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <ul>
+                    <li [routerLink]="['/manage', 'league']">
+                        <a mat-button >
+                            League Information
+                        </a>
+                    </li>
+
+                    <li [routerLink]="['/manage', 'dates']">
+                        <a mat-button>
+                            Dates and Duration
+                        </a>
+                    </li>
+
+                    <li [routerLink]="['/manage', 'permissions']">
+                        <a mat-button>
+                            Permissions
+                        </a>
+                    </li>
+                </ul>
+            </mat-expansion-panel>
+
+            <!--<mat-expansion-panel expanded="false" hideToggle="true">-->
+                <!--<mat-expansion-panel-header [routerLink]="['/manage', 'dates']" expandedHeight="48px">-->
+                    <!--<mat-panel-title>-->
+                        <!--Games-->
+                    <!--</mat-panel-title>-->
+                    <!--<mat-panel-description>-->
+                        <!--Schedule and Report Games-->
+                    <!--</mat-panel-description>-->
+                <!--</mat-expansion-panel-header>-->
+            <!--</mat-expansion-panel>-->
+
+            <!--<mat-expansion-panel expanded="false" hideToggle="true">-->
+                <!--<mat-expansion-panel-header [routerLink]="['/manage', 'players']" expandedHeight="48px">-->
+                    <!--<mat-panel-title>-->
+                        <!--Players-->
+                    <!--</mat-panel-title>-->
+                    <!--<mat-panel-description>-->
+                        <!--Manage Players in Teams-->
+                    <!--</mat-panel-description>-->
+                <!--</mat-expansion-panel-header>-->
+            <!--</mat-expansion-panel>-->
+        </mat-accordion>
+
+        <div [routerLink]="['/manage', 'teams']" class="option">
+            <span class="label">Teams</span>
+            <span class="desc">Add, Remove, Edit Teams</span>
+        </div>
+
+        <div [routerLink]="['/manage', 'players']" class="option">
+            <span class="label">Players</span>
+            <span class="desc">Manage Players in Teams</span>
+        </div>
+
+        <div [routerLink]="['/manage', 'teams']" class="option">
+            <span class="label">Games</span>
+            <span class="desc">Schedule, Report, Edit Games</span>
+        </div>
+    </div>
+
+
     <mat-divider [vertical]="true"></mat-divider>
     <span class="edit-area">
-        edit
+        <router-outlet></router-outlet>
     </span>
 </div>

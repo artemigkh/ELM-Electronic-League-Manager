@@ -17,6 +17,14 @@ type PlayerInformation struct {
 	MainRoster     bool   `json:"mainRoster"`
 }
 
+type PlayerInformationChange struct {
+	TeamId         int    `json:"teamId"`
+	PlayerId       int    `json:"playerId"`
+	Name           string `json:"name"`
+	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
+	MainRoster     bool   `json:"mainRoster"`
+}
+
 type PlayerRemoveInformation struct {
 	TeamId   int `json:"teamId"`
 	PlayerId int `json:"playerId"`
@@ -221,7 +229,57 @@ func removePlayerFromTeam(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-//TODO: implement "get teams games list" endpoint
+/**
+ * @api{put} /api/teams/updatePlayer Update Player Information
+ * @apiGroup Teams
+ * @apiDescription Change a players information
+ *
+ * @apiParam {int} teamId The unique numerical identifier of the team the player is to be added to
+ * @apiParam {int} playerId The unique numerical identifier of the player
+ * @apiParam {string} name The updated name of the player (can be left blank)
+ * @apiParam {string} gameIdentifier The updated in-game name identifier of the player (jersey number, ign, etc.)
+ * @apiParam {bool} mainRoster If true, this player is on the main roster, otherwise is a substitute
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError canNotEditPlayers The currently logged in player does not have permission to edit the players on this team
+ * @apiError gameIdentifierTooLong The game identifier exceeds 50 characters
+ * @apiError nameTooLong The name exceeds 50 characters
+ * @apiError gameIdentifierInUse This game identifier is already in use in this league
+ */
+func updatePlayer(ctx *gin.Context) {
+	//get parameters
+	var playerInfoChange PlayerInformationChange
+	err := ctx.ShouldBindJSON(&playerInfoChange)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId) {
+		return
+	}
+	if failIfCannotEditPlayersOnTeam(ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId, ctx.GetInt("userId")) {
+		return
+	}
+	if failIfGameIdentifierTooLong(ctx, playerInfoChange.GameIdentifier) {
+		return
+	}
+	if failIfNameTooLong(ctx, playerInfoChange.Name) {
+		return
+	}
+	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId, playerInfoChange.GameIdentifier) {
+		return
+	}
+
+	 err = TeamsDAO.UpdatePlayer(playerInfoChange.TeamId, playerInfoChange.PlayerId, playerInfoChange.GameIdentifier,
+		playerInfoChange.Name, playerInfoChange.MainRoster)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
+}
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
@@ -229,6 +287,7 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), failIfNoTeamCreatePermissions(), createNewTeam)
 	g.POST("/addPlayer", authenticate(), addPlayerToTeam)
 	g.DELETE("/removePlayer", authenticate(), removePlayerFromTeam)
+	g.PUT("/updatePlayer", authenticate(), updatePlayer)
 	g.GET("/:id", getUrlId(), getTeamInformation)
 	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfCannotEditTeam(), deleteTeam)
 }

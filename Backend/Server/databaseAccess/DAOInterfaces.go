@@ -50,6 +50,7 @@ type TeamsDAO interface {
 	// Players
 	AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error)
 	RemovePlayer(teamId, playerId int) error
+	UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) error
 }
 
 type GamesDAO interface {

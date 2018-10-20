@@ -230,6 +230,8 @@ func getPublicLeagues(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, leagueList)
 }
 
+//TODO: make endpoint "get editable teams"
+
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
 	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)

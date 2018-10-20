@@ -15,7 +15,7 @@ import (
 func createUpdatePlayerRequestBody(teamId, playerId int, name, gameIdentifier string, mainRoster bool) *bytes.Buffer {
 	body := routes.PlayerInformationChange{
 		TeamId:         teamId,
-		PlayerId: playerId,
+		PlayerId:       playerId,
 		Name:           name,
 		GameIdentifier: gameIdentifier,
 		MainRoster:     mainRoster,
@@ -92,7 +92,7 @@ func testUpdatePlayerTeamDoesNotExist(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"test name", "inGameTestName", true),
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "test name", "inGameTestName", true),
 		"POST", "/updatePlayer", 400, testParams{Error: "teamDoesNotExist"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
@@ -114,7 +114,7 @@ func testUpdatePlayerCannotEditPlayersOnTeam(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"test name", "inGameTestName", true),
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "test name", "inGameTestName", true),
 		"POST", "/updatePlayer", 403, testParams{Error: "canNotEditPlayers"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
@@ -136,7 +136,7 @@ func testUpdatePlayerGameIdentifierTooLong(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"12345678901234567890123456789012345678901234567890",
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "12345678901234567890123456789012345678901234567890",
 		"123456789012345678901234567890123456789012345678901", true),
 		"POST", "/updatePlayer", 400, testParams{Error: "gameIdentifierTooLong"})
 
@@ -159,7 +159,7 @@ func testUpdatePlayerNameTooLong(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"123456789012345678901234567890123456789012345678901",
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "123456789012345678901234567890123456789012345678901",
 		"12345678901234567890123456789012345678901234567890", true),
 		"POST", "/updatePlayer", 400, testParams{Error: "nameTooLong"})
 
@@ -180,36 +180,36 @@ func testUpdatePlayerGameIdentifierInUse(t *testing.T) {
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
-		Name:   "sampleName",
-		Tag:    "TAG",
-		Wins:   10,
-		Losses: 2,
-		Players: []databaseAccess.PlayerInformation{
-			{
-				Id:             1,
-				Name:           "Test Player1",
-				GameIdentifier: "21",
-				MainRoster:     true,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Players: []databaseAccess.PlayerInformation{
+				{
+					Id:             1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
+				},
+				{
+					Id:             2,
+					Name:           "Test Player2",
+					GameIdentifier: "inGameTestName",
+					MainRoster:     true,
+				},
+				{
+					Id:             3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
+				},
 			},
-			{
-				Id:             2,
-				Name:           "Test Player2",
-				GameIdentifier: "inGameTestName",
-				MainRoster:     true,
-			},
-			{
-				Id:             3,
-				Name:           "Test Player3",
-				GameIdentifier: "41",
-				MainRoster:     false,
-			},
-		},
-	}, nil)
+		}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"Test Player1", "inGameTestName", true),
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "Test Player1", "inGameTestName", true),
 		"POST", "/updatePlayer", 400, testParams{Error: "gameIdentifierInUse"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
@@ -229,38 +229,38 @@ func testUpdatePlayerDatabaseError(t *testing.T) {
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
-		Name:   "sampleName",
-		Tag:    "TAG",
-		Wins:   10,
-		Losses: 2,
-		Players: []databaseAccess.PlayerInformation{
-			{
-				Id:             1,
-				Name:           "Test Player1",
-				GameIdentifier: "21",
-				MainRoster:     true,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Players: []databaseAccess.PlayerInformation{
+				{
+					Id:             1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
+				},
+				{
+					Id:             2,
+					Name:           "Test Player2",
+					GameIdentifier: "37",
+					MainRoster:     true,
+				},
+				{
+					Id:             3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
+				},
 			},
-			{
-				Id:             2,
-				Name:           "Test Player2",
-				GameIdentifier: "37",
-				MainRoster:     true,
-			},
-			{
-				Id:             3,
-				Name:           "Test Player3",
-				GameIdentifier: "41",
-				MainRoster:     false,
-			},
-		},
-	}, nil)
+		}, nil)
 	mockTeamsDao.On("UpdatePlayer", 1, 2, "inGameTestName", "Test Player1", true).
 		Return(errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"Test Player1", "inGameTestName", true),
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "Test Player1", "inGameTestName", true),
 		"POST", "/updatePlayer", 500, testParams{})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
@@ -280,38 +280,38 @@ func testUpdatePlayerCorrectUpdatePlayer(t *testing.T) {
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
-		Name:   "sampleName",
-		Tag:    "TAG",
-		Wins:   10,
-		Losses: 2,
-		Players: []databaseAccess.PlayerInformation{
-			{
-				Id:             1,
-				Name:           "Test Player1",
-				GameIdentifier: "21",
-				MainRoster:     true,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Players: []databaseAccess.PlayerInformation{
+				{
+					Id:             1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
+				},
+				{
+					Id:             2,
+					Name:           "Test Player2",
+					GameIdentifier: "37",
+					MainRoster:     true,
+				},
+				{
+					Id:             3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
+				},
 			},
-			{
-				Id:             2,
-				Name:           "Test Player2",
-				GameIdentifier: "37",
-				MainRoster:     true,
-			},
-			{
-				Id:             3,
-				Name:           "Test Player3",
-				GameIdentifier: "41",
-				MainRoster:     false,
-			},
-		},
-	}, nil)
+		}, nil)
 	mockTeamsDao.On("UpdatePlayer", 1, 2, "inGameTestName", "Test Player1", true).
 		Return(nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, createUpdatePlayerRequestBody(1, 2,"Test Player1", "inGameTestName", true),
+	httpTest(t, createUpdatePlayerRequestBody(1, 2, "Test Player1", "inGameTestName", true),
 		"POST", "/updatePlayer", 200, testParams{})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)

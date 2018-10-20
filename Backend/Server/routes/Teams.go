@@ -272,7 +272,7 @@ func updatePlayer(ctx *gin.Context) {
 		return
 	}
 
-	 err = TeamsDAO.UpdatePlayer(playerInfoChange.TeamId, playerInfoChange.PlayerId, playerInfoChange.GameIdentifier,
+	err = TeamsDAO.UpdatePlayer(playerInfoChange.TeamId, playerInfoChange.PlayerId, playerInfoChange.GameIdentifier,
 		playerInfoChange.Name, playerInfoChange.MainRoster)
 	if checkErr(ctx, err) {
 		return

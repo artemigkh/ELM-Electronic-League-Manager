@@ -179,7 +179,7 @@ func (d *PgTeamsDAO) RemovePlayer(teamId, playerId int) error {
 	return err
 }
 
-func (d *PgTeamsDAO) UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) (error) {
+func (d *PgTeamsDAO) UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) error {
 	_, err := db.Exec(
 		`
 		UPDATE players SET gameIdentifier = $1, name = $2, mainRoster = $3

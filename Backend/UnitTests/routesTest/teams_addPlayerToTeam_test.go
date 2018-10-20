@@ -191,31 +191,31 @@ func testAddPlayerToTeamGameIdentifierInUse(t *testing.T) {
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
-		Name:   "sampleName",
-		Tag:    "TAG",
-		Wins:   10,
-		Losses: 2,
-		Players: []databaseAccess.PlayerInformation{
-			{
-				Id:             1,
-				Name:           "Test Player1",
-				GameIdentifier: "21",
-				MainRoster:     true,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Players: []databaseAccess.PlayerInformation{
+				{
+					Id:             1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
+				},
+				{
+					Id:             2,
+					Name:           "Test Player2",
+					GameIdentifier: "inGameTestName",
+					MainRoster:     true,
+				},
+				{
+					Id:             3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
+				},
 			},
-			{
-				Id:             2,
-				Name:           "Test Player2",
-				GameIdentifier: "inGameTestName",
-				MainRoster:     true,
-			},
-			{
-				Id:             3,
-				Name:           "Test Player3",
-				GameIdentifier: "41",
-				MainRoster:     false,
-			},
-		},
-	}, nil)
+		}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -240,31 +240,31 @@ func testAddPlayerToTeamDatabaseError(t *testing.T) {
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
-		Name:   "sampleName",
-		Tag:    "TAG",
-		Wins:   10,
-		Losses: 2,
-		Players: []databaseAccess.PlayerInformation{
-			{
-				Id:             1,
-				Name:           "Test Player1",
-				GameIdentifier: "21",
-				MainRoster:     true,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Players: []databaseAccess.PlayerInformation{
+				{
+					Id:             1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
+				},
+				{
+					Id:             2,
+					Name:           "Test Player2",
+					GameIdentifier: "37",
+					MainRoster:     true,
+				},
+				{
+					Id:             3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
+				},
 			},
-			{
-				Id:             2,
-				Name:           "Test Player2",
-				GameIdentifier: "37",
-				MainRoster:     true,
-			},
-			{
-				Id:             3,
-				Name:           "Test Player3",
-				GameIdentifier: "41",
-				MainRoster:     false,
-			},
-		},
-	}, nil)
+		}, nil)
 	mockTeamsDao.On("AddNewPlayer", 1, "inGameTestName", "Test Player1", true).
 		Return(7, errors.New("fake db error"))
 
@@ -291,31 +291,31 @@ func testAddPlayerToTeamCorrectAddPlayer(t *testing.T) {
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
-		Name:   "sampleName",
-		Tag:    "TAG",
-		Wins:   10,
-		Losses: 2,
-		Players: []databaseAccess.PlayerInformation{
-			{
-				Id:             1,
-				Name:           "Test Player1",
-				GameIdentifier: "21",
-				MainRoster:     true,
+			Name:   "sampleName",
+			Tag:    "TAG",
+			Wins:   10,
+			Losses: 2,
+			Players: []databaseAccess.PlayerInformation{
+				{
+					Id:             1,
+					Name:           "Test Player1",
+					GameIdentifier: "21",
+					MainRoster:     true,
+				},
+				{
+					Id:             2,
+					Name:           "Test Player2",
+					GameIdentifier: "37",
+					MainRoster:     true,
+				},
+				{
+					Id:             3,
+					Name:           "Test Player3",
+					GameIdentifier: "41",
+					MainRoster:     false,
+				},
 			},
-			{
-				Id:             2,
-				Name:           "Test Player2",
-				GameIdentifier: "37",
-				MainRoster:     true,
-			},
-			{
-				Id:             3,
-				Name:           "Test Player3",
-				GameIdentifier: "41",
-				MainRoster:     false,
-			},
-		},
-	}, nil)
+		}, nil)
 	mockTeamsDao.On("AddNewPlayer", 1, "inGameTestName", "Test Player1", true).
 		Return(7, nil)
 

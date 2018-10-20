@@ -67,6 +67,7 @@ func createNewLeague(ctx *gin.Context) {
  * @apiDescription Attempt to set the active league to :id
  * @apiParam {int} id the primary id of the league
  *
+ * @apiError leagueDoesNotExist The league with specified id does not exist
  * @apiError 403 Forbidden
  */
 func setActiveLeague(ctx *gin.Context) {
@@ -234,7 +235,7 @@ func getPublicLeagues(ctx *gin.Context) {
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
-	g.POST("/setActiveLeague/:id", getUrlId(), setActiveLeague)
+	g.POST("/setActiveLeague/:id", getUrlId(), failIfLeagueDoesNotExist(), setActiveLeague)
 	g.POST("/join", authenticate(), getActiveLeague(), failIfCannotJoinLeague(), joinActiveLeague)
 	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
 	g.GET("/publicLeagues", getPublicLeagues)

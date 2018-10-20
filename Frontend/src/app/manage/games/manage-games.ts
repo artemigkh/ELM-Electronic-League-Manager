@@ -1,7 +1,8 @@
-import {Component} from "@angular/core";
+import {Component, Inject} from "@angular/core";
 import {LeagueService} from "../../httpServices/leagues.service";
 import {Team} from "../../interfaces/Team";
 import {Game, GameCollection} from "../../interfaces/Game";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
 
 @Component({
     selector: 'app-manage-games',
@@ -14,7 +15,7 @@ export class ManageGamesComponent {
     upcomingGames: Game[];
     completeGames: Game[];
 
-    constructor(private leagueService: LeagueService) {
+    constructor(private leagueService: LeagueService, public dialog: MatDialog) {
         this.leagueService.getTeamSummary().subscribe(
             teamSummary => {
                 teamSummary.forEach(team => {
@@ -54,4 +55,28 @@ export class ManageGamesComponent {
         });
     }
 
+    reportGamePopup(game: Game): void {
+        const dialogRef = this.dialog.open(ReportGamePopup, {
+            width: '500px',
+            data: game
+        });
+    }
+
+}
+
+
+@Component({
+    selector: 'report-game-popup',
+    templateUrl: 'report-game-popup.html',
+    styleUrls: ['./report-game-popup.scss'],
+})
+export class ReportGamePopup {
+
+    constructor(
+        public dialogRef: MatDialogRef<ReportGamePopup>,
+        @Inject(MAT_DIALOG_DATA) public data: Game) {}
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
 }

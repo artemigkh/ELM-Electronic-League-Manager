@@ -5,6 +5,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
     MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDatepickerModule,
+    MatDialogModule,
     MatDividerModule,
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
@@ -31,7 +32,7 @@ import {ManageTeamsComponent} from "./manage/teams/manage-teams";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
 import {ManageDatesComponent} from "./manage/dates/manage-dates";
 import {ManagePlayersComponent} from "./manage/players/manage-players";
-import {ManageGamesComponent} from "./manage/games/manage-games";
+import {ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
 
 @NgModule({
     declarations: [
@@ -49,6 +50,7 @@ import {ManageGamesComponent} from "./manage/games/manage-games";
         ManageDatesComponent,
         ManagePlayersComponent,
         ManageGamesComponent,
+        ReportGamePopup,
         NavBar
     ],
     imports: [
@@ -70,10 +72,12 @@ import {ManageGamesComponent} from "./manage/games/manage-games";
         MatNativeDateModule,
         MatIconModule,
         MatChipsModule,
+        MatDialogModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
     providers: [LeagueService, MatIconRegistry],
-    bootstrap: [AppComponent]
+    bootstrap: [AppComponent],
+    entryComponents: [ReportGamePopup]
 })
 export class AppModule {
     constructor(public matIconRegistry: MatIconRegistry) {

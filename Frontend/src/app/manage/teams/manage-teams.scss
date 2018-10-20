@@ -49,18 +49,12 @@ span.team-entry {
         margin-right: 5px;
     }
 
+    .delete {
+        color: #d9534f!important;
+    }
 }
 
-.users-button {
-    //color: #495057;
-    color: white;
-    background-color: #3abc4d;
-}
 
-.deleteButton {
-    color: white;
-    background-color: #d9534f;
-}
 
 mat-icon:before {
     height: 100%;
@@ -104,3 +98,6 @@ div .mat-header-row {
     min-height: 5px;
 }
 
+.mat-raised-button {
+    border-radius: 99999px!important;
+}

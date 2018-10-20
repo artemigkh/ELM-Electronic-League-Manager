@@ -1,0 +1,165 @@
+mat-divider {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+div.vertical-divider {
+    margin-top: 15px;
+}
+
+h1 {
+    font-weight: 300;
+    margin-bottom: 0;
+    //color: grey
+}
+
+h4 {
+    margin-top: 0;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+mat-panel-title {
+    font-size: 30px;
+    font-weight: 300;
+    //margin-bottom: 10px;
+}
+
+mat-expansion-panel {
+    //margin-top: 15px;
+    background-color: #fafafa;
+    box-shadow: none!important;
+}
+
+mat-expansion-panel-header {
+    padding-left: 0;
+}
+
+
+
+.new-game-container {
+    //background-color: #5c657a;
+    margin-top: 15px;
+    display: flex;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+
+    .game-type-title {
+        //margin-left: 10px;
+        color: black;
+        font-weight: 400;
+        font-size: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .new-team{
+        margin-left: auto;
+        margin-right: 0;
+        //font-size: 10px;
+        //width: 120px;
+
+        mat-icon {
+            margin-right: 5px;
+        }
+
+    }
+
+    .mat-raised-button {
+        border-radius: 99999px!important;
+    }
+}
+
+
+
+.game-content {
+    //padding-left: 5px;
+
+    ul {
+        list-style-type: none;
+        margin: 0 0 5px 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100%;
+
+    }
+
+    li {
+        height: 48px;
+        width: 100%;
+
+        border-style: solid;
+        border-width: 1px 0 0 0;
+        border-color: lightgray;
+    }
+}
+
+span.game-entry {
+    flex-grow: 1;
+    height: 100%;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+
+    .time {
+        background-color: #efefef;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 17.5%;
+    }
+
+    .name {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 15%;
+        font-weight: 400;
+        font-size: 18px;
+    }
+
+    .vs {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 6%;
+    }
+
+
+    .spacer {
+        flex-grow: 1;
+    }
+
+    .report-result {
+        background-color: #fafafa;
+        margin-right: 10px;
+    }
+
+    .control-button {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        mat-icon:before {
+            height: 100%;
+            font-size: 24px;
+        }
+
+    }
+
+    .delete {
+        color: #d9534f!important;
+    }
+}
+
+.button-row {
+    button {
+        margin-right: 10px;
+        color: white;
+    }
+}

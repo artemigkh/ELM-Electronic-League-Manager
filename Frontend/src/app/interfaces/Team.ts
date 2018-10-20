@@ -8,4 +8,5 @@ export interface Team {
     losses: number;
     players: Player[];
     substitutes: Player[];
+    visible: boolean;
 }

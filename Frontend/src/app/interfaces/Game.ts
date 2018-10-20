@@ -12,3 +12,8 @@ export interface Game {
     team1: Team;
     team2: Team;
 }
+
+export interface GameCollection {
+    upcomingGames: Game[];
+    completeGames: Game[];
+}

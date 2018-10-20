@@ -4,7 +4,8 @@ import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
-    MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule, MatDatepickerModule, MatDividerModule,
+    MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDatepickerModule,
+    MatDividerModule,
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
     MatInputModule, MatNativeDateModule,
@@ -30,6 +31,7 @@ import {ManageTeamsComponent} from "./manage/teams/manage-teams";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
 import {ManageDatesComponent} from "./manage/dates/manage-dates";
 import {ManagePlayersComponent} from "./manage/players/manage-players";
+import {ManageGamesComponent} from "./manage/games/manage-games";
 
 @NgModule({
     declarations: [
@@ -46,6 +48,7 @@ import {ManagePlayersComponent} from "./manage/players/manage-players";
         ManagePermissionsComponent,
         ManageDatesComponent,
         ManagePlayersComponent,
+        ManageGamesComponent,
         NavBar
     ],
     imports: [
@@ -66,6 +69,7 @@ import {ManagePlayersComponent} from "./manage/players/manage-players";
         MatDatepickerModule,
         MatNativeDateModule,
         MatIconModule,
+        MatChipsModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
     providers: [LeagueService, MatIconRegistry],

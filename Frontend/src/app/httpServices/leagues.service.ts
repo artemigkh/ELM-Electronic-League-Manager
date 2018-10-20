@@ -3,7 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Team} from "../interfaces/Team";
 import {Observable} from "rxjs/index";
 import { of } from 'rxjs';
-import {Game} from "../interfaces/Game";
+import {Game, GameCollection} from "../interfaces/Game";
 import {getTeamName} from "../shared/elm-data-utils";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
@@ -143,6 +143,28 @@ export class LeagueService {
                 this.loadGameSummary().subscribe(
                     next => {
                         observer.next(this.completeGames);
+                    }, error => {
+                        observer.error(error);
+                    }
+                );
+            });
+        }
+    }
+
+    public getAllGames(): Observable<GameCollection> {
+        if(this.gameSummaryLoaded) {
+            return of({
+                upcomingGames: this.upcomingGames,
+                completeGames: this.completeGames
+            });
+        } else {
+            return new Observable(observer => {
+                this.loadGameSummary().subscribe(
+                    next => {
+                        observer.next({
+                            upcomingGames: this.upcomingGames,
+                            completeGames: this.completeGames
+                        });
                     }, error => {
                         observer.error(error);
                     }

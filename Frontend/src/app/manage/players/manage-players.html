@@ -4,9 +4,9 @@
 
 <mat-divider class="layout-spacer"></mat-divider>
 
-<mat-accordion displayMode="flat" multi="true" *ngFor="let team of teams">
+<mat-accordion displayMode="flat" multi="true" *ngFor="let team of teams; let i = index">
     <mat-expansion-panel>
-        <mat-expansion-panel-header>
+        <mat-expansion-panel-header [style.border-width]="i==0?'1px 0 1px 0':'0 0 1px 0'">
             <mat-panel-title>
                 <span class="team-entry">
                     <span class="name">

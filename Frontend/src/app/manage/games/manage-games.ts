@@ -58,10 +58,20 @@ export class ManageGamesComponent {
     reportGamePopup(game: Game): void {
         const dialogRef = this.dialog.open(ReportGamePopup, {
             width: '500px',
-            data: game
+            data: game,
+            autoFocus: false
         });
     }
 
+    newGamePopup(): void {
+        const dialogRef = this.dialog.open(ManageGamePopup, {
+            width: '500px',
+            data: {
+                title: "Schedule New Game"
+            },
+            autoFocus: false
+        });
+    }
 }
 
 
@@ -80,3 +90,29 @@ export class ReportGamePopup {
         this.dialogRef.close();
     }
 }
+
+
+@Component({
+    selector: 'manage-game-popup',
+    templateUrl: 'manage-game-popup.html',
+    styleUrls: ['./manage-game-popup.scss'],
+})
+export class ManageGamePopup {
+    teams: Team[];
+    constructor(
+        public dialogRef: MatDialogRef<ManageGamePopup>,
+        @Inject(MAT_DIALOG_DATA) public data: Team,
+        private leagueService: LeagueService) {
+        this.leagueService.getTeamSummary().subscribe(
+            teamSummary => {
+                this.teams = teamSummary;
+            }, error => {
+                console.log(error);
+            });
+    }
+
+    onNoClick(): void {
+        this.dialogRef.close();
+    }
+}
+

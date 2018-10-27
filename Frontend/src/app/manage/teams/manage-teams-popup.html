@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+    <div class="content-wrapper">
+        <mat-form-field hintLabel="Between 3 and 25 characters">
+            <input matInput #input maxlength="10" placeholder="Team Name" value="{{data.team.name}}">
+            <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field hintLabel="Between 3 and 5 characters">
+            <input matInput #input maxlength="5" placeholder="Tag" value="{{data.team.tag}}">
+            <mat-hint align="end">{{input.value?.length || 0}}/5</mat-hint>
+        </mat-form-field>
+    </div>
+
+</div>
+<div mat-dialog-actions>
+    <div class="action-bar-wrapper">
+        <span class="spacer"></span>
+        <span class="button-wrapper">
+        <button mat-raised-button (click)="onNoClick()">Cancel</button>
+    </span>
+        <span class="button-wrapper">
+         <button mat-raised-button [mat-dialog-close]="true">Confirm</button>
+    </span>
+        <span class="spacer"></span>
+    </div>
+</div>

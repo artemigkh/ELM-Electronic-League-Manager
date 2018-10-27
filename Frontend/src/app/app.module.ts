@@ -28,11 +28,13 @@ import {LeagueService} from './httpServices/leagues.service';
 import {ELM_ROUTES} from './routes'
 import {ManageComponent} from "./manage/manage";
 import {ManageLeagueComponent} from "./manage/league/manage-league";
-import {ManageTeamsComponent} from "./manage/teams/manage-teams";
+import {ManageTeamPopup, ManageTeamsComponent} from "./manage/teams/manage-teams";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
 import {ManageDatesComponent} from "./manage/dates/manage-dates";
 import {ManagePlayersComponent} from "./manage/players/manage-players";
-import {ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
+import {ManageGamePopup, ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
+import {AmazingTimePickerModule} from "amazing-time-picker";
+import {WarningPopup} from "./manage/warningPopup/warning-popup";
 
 @NgModule({
     declarations: [
@@ -51,6 +53,9 @@ import {ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games
         ManagePlayersComponent,
         ManageGamesComponent,
         ReportGamePopup,
+        ManageGamePopup,
+        ManageTeamPopup,
+        WarningPopup,
         NavBar
     ],
     imports: [
@@ -73,11 +78,12 @@ import {ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games
         MatIconModule,
         MatChipsModule,
         MatDialogModule,
+        AmazingTimePickerModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
     providers: [LeagueService, MatIconRegistry],
     bootstrap: [AppComponent],
-    entryComponents: [ReportGamePopup]
+    entryComponents: [ReportGamePopup, ManageGamePopup, ManageTeamPopup, WarningPopup]
 })
 export class AppModule {
     constructor(public matIconRegistry: MatIconRegistry) {

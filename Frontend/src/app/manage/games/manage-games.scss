@@ -123,6 +123,32 @@ span.game-entry {
         font-size: 18px;
     }
 
+    .result {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 10%;
+        font-weight: 400;
+        font-size: 18px;
+    }
+
+    .score {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 2.5%;
+        font-weight: 400;
+        font-size: 18px;
+    }
+
+    .victory {
+        color: darkgreen;
+    }
+
+    .defeat {
+        color: darkred;
+    }
+
     .vs {
         display: flex;
         flex-direction: column;

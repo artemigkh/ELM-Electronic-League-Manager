@@ -118,13 +118,13 @@
                     </button>
                 </span>
                 <span *ngIf="group.value=='upcoming'" class="control-button">
-                    <button mat-icon-button color="primary">
+                    <button mat-icon-button color="primary" (click)="editGamePopup(game)">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                     </button>
                 </span>
 
                 <span class="control-button delete">
-                    <button mat-icon-button>
+                    <button mat-icon-button (click)="deletePopup(game)">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                     </button>
                 </span>

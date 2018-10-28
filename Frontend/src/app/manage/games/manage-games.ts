@@ -3,6 +3,7 @@ import {LeagueService} from "../../httpServices/leagues.service";
 import {Team} from "../../interfaces/Team";
 import {Game, GameCollection} from "../../interfaces/Game";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
+import {WarningPopup} from "../warningPopup/warning-popup";
 
 @Component({
     selector: 'app-manage-games',
@@ -67,7 +68,30 @@ export class ManageGamesComponent {
         const dialogRef = this.dialog.open(ManageGamePopup, {
             width: '500px',
             data: {
-                title: "Schedule New Game"
+                title: "Schedule New Game",
+                game: null
+            },
+            autoFocus: false
+        });
+    }
+
+    editGamePopup(game: Game): void {
+        const dialogRef = this.dialog.open(ManageGamePopup, {
+            width: '500px',
+            data: {
+                title: "Edit Game",
+                game: game
+            },
+            autoFocus: false
+        });
+    }
+
+    deletePopup(game: Game): void {
+        const dialogRef = this.dialog.open(WarningPopup, {
+            width: '500px',
+            data: {
+                entity: "game",
+                name: game.team1.name + " vs " + game.team2.name
             },
             autoFocus: false
         });
@@ -99,9 +123,10 @@ export class ReportGamePopup {
 })
 export class ManageGamePopup {
     teams: Team[];
+
     constructor(
         public dialogRef: MatDialogRef<ManageGamePopup>,
-        @Inject(MAT_DIALOG_DATA) public data: Team,
+        @Inject(MAT_DIALOG_DATA) public data: Object,
         private leagueService: LeagueService) {
         this.leagueService.getTeamSummary().subscribe(
             teamSummary => {

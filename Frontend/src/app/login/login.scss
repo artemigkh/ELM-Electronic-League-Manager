@@ -1,0 +1,46 @@
+mat-card-title {
+    font-size: 24px !important;
+    font-weight: 300 !important;
+}
+
+mat-card-header {
+    display: flex !important;
+    align-content: center!important;
+}
+
+mat-card {
+    height: 225px;
+    width: 400px;
+}
+
+.all-area {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+}
+
+.wrapper {
+    height: calc(100% - 182px);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.action-bar-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    .button-wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 125px;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+}

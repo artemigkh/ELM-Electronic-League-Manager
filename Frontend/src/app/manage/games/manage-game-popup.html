@@ -3,7 +3,7 @@
     <h4>Teams</h4>
     <div class="teams">
         <mat-form-field>
-            <mat-select placeholder="Team 1">
+            <mat-select placeholder="Team 1" [(value)]="data.game==None?None:data.game.team1Id">
                 <mat-option *ngFor="let team of teams" [value]="team.id">
                     {{team.name}}
                 </mat-option>
@@ -13,7 +13,7 @@
             vs
         </span>
         <mat-form-field>
-            <mat-select placeholder="Team 2">
+            <mat-select placeholder="Team 2" [(value)]="data.game==None?None:data.game.team2Id">
                 <mat-option *ngFor="let team of teams" [value]="team.id">
                     {{team.name}}
                 </mat-option>

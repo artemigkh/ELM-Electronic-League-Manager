@@ -2,7 +2,8 @@
     Manage Players
 </h1>
 
-<mat-divider class="layout-spacer"></mat-divider>
+<!--<mat-divider class="layout-spacer"></mat-divider>-->
+<div class="layout-spacer"></div>
 
 <mat-accordion displayMode="flat" multi="true" *ngFor="let team of teams; let i = index">
     <mat-expansion-panel>
@@ -23,7 +24,7 @@
             <div class="players">
                 <div class="new-player-container">
                     <span class="players-title">Players</span>
-                    <button mat-raised-button class="new-player" color="primary">
+                    <button mat-raised-button class="new-player" color="primary" (click)="newPlayerPopup()">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                         Add Player
                     </button>
@@ -42,13 +43,13 @@
                             <span class="spacer"></span>
 
                             <span class="control-button">
-                                <button mat-icon-button color="primary">
+                                <button mat-icon-button color="primary" (click)="editPlayerPopup(player)">
                                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                                 </button>
                             </span>
 
                             <span class="control-button delete">
-                                <button mat-icon-button>
+                                <button mat-icon-button (click)="deletePopup(player)">
                                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                                 </button>
                             </span>
@@ -83,13 +84,13 @@
                             <span class="spacer"></span>
 
                             <span class="control-button">
-                                <button mat-icon-button color="primary">
+                                <button mat-icon-button color="primary" (click)="editPlayerPopup(player)">
                                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                                 </button>
                             </span>
 
                             <span class="control-button delete">
-                                <button mat-icon-button>
+                                <button mat-icon-button (click)="deletePopup(player)">
                                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                                 </button>
                             </span>

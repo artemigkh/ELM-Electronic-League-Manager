@@ -11,6 +11,7 @@ var Testing_Export_failIfCannotJoinLeague = failIfCannotJoinLeague
 var Testing_Export_failIfNotLeagueAdmin = failIfNotLeagueAdmin
 var Testing_Export_failIfTeamActive = failIfTeamActive
 var Testing_Export_failIfCannotEditTeam = failIfCannotEditTeam
+var Testing_Export_failIfLeagueDoesNotExist = failIfLeagueDoesNotExist
 
 // Users
 var Testing_Export_createNewUser = createNewUser
@@ -33,6 +34,7 @@ var Testing_Export_deleteTeam = deleteTeam
 var Testing_Export_getTeamInformation = getTeamInformation
 var Testing_Export_addPlayerToTeam = addPlayerToTeam
 var Testing_Export_removePlayerFromTeam = removePlayerFromTeam
+var Testing_Export_updatePlayer = updatePlayer
 
 // Games
 var Testing_Export_createNewGame = createNewGame

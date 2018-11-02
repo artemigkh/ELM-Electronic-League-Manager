@@ -179,6 +179,15 @@ func (d *PgTeamsDAO) RemovePlayer(teamId, playerId int) error {
 	return err
 }
 
+func (d *PgTeamsDAO) UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) error {
+	_, err := db.Exec(
+		`
+		UPDATE players SET gameIdentifier = $1, name = $2, mainRoster = $3
+		WHERE id = $4 AND teamId = $5
+		`, gameIdentifier, name, mainRoster, playerId, teamId)
+	return err
+}
+
 func (d *PgTeamsDAO) DoesPlayerExist(teamId, playerId int) (bool, error) {
 	var name string
 	err := psql.Select("name").

@@ -72,6 +72,17 @@ func failIfNoEditSchedulePermissions() gin.HandlerFunc {
 	}
 }
 
+func failIfLeagueDoesNotExist() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		_, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("urlId"))
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "leagueDoesNotExist"})
+		} else {
+			ctx.Next()
+		}
+	}
+}
+
 func getReportResultPermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canReportResult, err := GamesDAO.HasReportResultPermissions(

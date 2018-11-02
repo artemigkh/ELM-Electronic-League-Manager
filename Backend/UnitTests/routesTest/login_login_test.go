@@ -12,6 +12,18 @@ import (
 	"testing"
 )
 
+type loginRes struct {
+	Id int `json:"id"`
+}
+
+func createLoginResponseBody(id int) *bytes.Buffer {
+	resBody := loginRes{
+		Id: id,
+	}
+	resBodyB, _ := json.Marshal(&resBody)
+	return bytes.NewBuffer(resBodyB)
+}
+
 func createLoginRequestBody(email, pass string) *bytes.Buffer {
 	reqBody := userCreateRequest{
 		Email:    email,
@@ -123,7 +135,7 @@ func testCorrectLogin(t *testing.T) {
 	routes.ElmSessions = mockSession
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
-		"POST", "/", 200, testParams{})
+		"POST", "/", 200, testParams{ResponseBody: createLoginResponseBody(1)})
 
 	mock.AssertExpectationsForObjects(t, mockUsersDao, mockSession)
 }

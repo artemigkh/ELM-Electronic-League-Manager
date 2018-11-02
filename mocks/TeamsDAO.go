@@ -213,3 +213,17 @@ func (_m *TeamsDAO) RemovePlayer(teamId int, playerId int) error {
 
 	return r0
 }
+
+// UpdatePlayer provides a mock function with given fields: teamId, playerId, gameIdentifier, name, mainRoster
+func (_m *TeamsDAO) UpdatePlayer(teamId int, playerId int, gameIdentifier string, name string, mainRoster bool) error {
+	ret := _m.Called(teamId, playerId, gameIdentifier, name, mainRoster)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, string, string, bool) error); ok {
+		r0 = rf(teamId, playerId, gameIdentifier, name, mainRoster)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

@@ -21,6 +21,8 @@ type loginRequest struct {
  * @apiParam {string} email
  * @apiParam {string} password
  *
+ * @apiSuccess {int} id The unique numerical identifier of the user that successfully logged in
+ *
  * @apiError passwordTooShort The password was too short
  * @apiError emailMalformed The email was not formed correctly
  * @apiError invalidLogin The user does not exist or password was incorrect
@@ -76,6 +78,8 @@ func login(ctx *gin.Context) {
 	if checkErr(ctx, err) {
 		return
 	}
+
+	ctx.JSON(http.StatusOK, gin.H{"id": id})
 }
 
 /**

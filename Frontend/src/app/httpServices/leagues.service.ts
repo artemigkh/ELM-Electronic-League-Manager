@@ -7,7 +7,11 @@ import {Game, GameCollection} from "../interfaces/Game";
 import {getTeamName} from "../shared/elm-data-utils";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
+import {User} from "../interfaces/User";
 
+interface Id {
+    id: number;
+}
 
 const httpOptions = {
     withCredentials: true,
@@ -22,12 +26,40 @@ export class LeagueService {
     gameSummaryLoaded: boolean;
     completeGames: Game[];
     upcomingGames: Game[];
+    user: User;
 
     constructor(private http: HttpClient) {
         this.teams = null;
         this.gameSummaryLoaded = false;
         this.completeGames = null;
         this.upcomingGames = null;
+    }
+
+    public login(email: string, password: string): Observable<User> {
+        if(this.user != null) {
+            return of(this.user);
+        } else {
+            return new Observable(observer => {
+                this.http.post('http://localhost:8080/login', {
+                    email: email,
+                    password: password
+                }, httpOptions).subscribe(
+                    (next: Id) => {
+                        this.user = {
+                            id: next.id,
+                            email: email
+                        };
+                        observer.next(this.user)
+                    }, error => {
+                        observer.error(error);
+                    }
+                )
+            })
+        }
+    }
+
+    public getCurrentUser() {
+        return this.user;
     }
 
     public setActiveLeague(leagueId: number): Observable<any> {

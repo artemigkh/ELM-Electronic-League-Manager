@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material'
+import {LeagueService} from "../httpServices/leagues.service";
+import {User} from "../interfaces/User";
 
 @Component({
     selector: 'app-login',
@@ -8,17 +10,21 @@ import {MatDialog} from '@angular/material'
     styleUrls: ['./login.scss']
 })
 export class LoginComponent implements OnInit {
-    constructor(private router: Router) { }
-    username: string;
+    constructor(private router: Router, private leagueService: LeagueService) { }
+    email: string;
     password: string;
     ngOnInit() {
     }
     login() : void {
-        if(this.username == 'admin' && this.password == 'admin'){
-            this.router.navigate(["user"]);
-        }else {
-            alert("Invalid credentials");
-        }
+        this.leagueService.login(this.email, this.password).subscribe(
+            (next: User) => {
+                console.log("logged in with user with id ", next.id)
+                this.router.navigate([""]);
+            }, error => {
+                console.log("error");
+                alert("Incorrect email or password");
+            }
+        );
     }
 }
 

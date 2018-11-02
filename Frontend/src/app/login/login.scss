@@ -4,8 +4,7 @@ mat-card-title {
 }
 
 mat-card-header {
-    display: flex !important;
-    align-content: center!important;
+    text-align: center!important;
 }
 
 mat-card {
@@ -43,4 +42,8 @@ mat-card {
     .spacer {
         flex-grow: 1;
     }
+}
+
+.example-full-width {
+    width: 100%;
 }

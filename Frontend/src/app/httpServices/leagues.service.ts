@@ -85,19 +85,25 @@ export class LeagueService {
         return new Observable(observer => {
             this.http.get('http://localhost:8080/api/teams/' + team.id, httpOptions).subscribe(
                 (next: GtiTeam) => {
-                    next.players.forEach(player=> {
-                        let tempPlayer: Player = {
-                            id: player.id,
-                            name: player.name,
-                            gameIdentifier: player.gameIdentifier
-                        };
+                    if(next.players) {
+                        next.players.forEach(player=> {
+                            let tempPlayer: Player = {
+                                id: player.id,
+                                name: player.name,
+                                gameIdentifier: player.gameIdentifier
+                            };
 
-                        if(player.mainRoster) {
-                            team.players.push(tempPlayer);
-                        } else {
-                            team.substitutes.push(tempPlayer);
-                        }
-                    });
+                            if(player.mainRoster) {
+                                team.players.push(tempPlayer);
+                            } else {
+                                team.substitutes.push(tempPlayer);
+                            }
+                        });
+                    } else {
+                        team.players = [];
+                        team.substitutes = [];
+                    }
+
 
                     observer.next(team)
                 }, error => {

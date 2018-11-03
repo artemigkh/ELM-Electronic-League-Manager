@@ -37,6 +37,8 @@ import {AmazingTimePickerModule} from "amazing-time-picker";
 import {WarningPopup} from "./manage/warningPopup/warning-popup";
 import {LoginComponent} from "./login/login";
 import {FormsModule} from "@angular/forms";
+import {TeamsService} from "./httpServices/teams.service";
+import {PlayersService} from "./httpServices/players.service";
 
 @NgModule({
     declarations: [
@@ -87,7 +89,7 @@ import {FormsModule} from "@angular/forms";
         MatProgressSpinnerModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
-    providers: [LeagueService, MatIconRegistry],
+    providers: [LeagueService, TeamsService, PlayersService, MatIconRegistry],
     bootstrap: [AppComponent],
     entryComponents: [
         ReportGamePopup,

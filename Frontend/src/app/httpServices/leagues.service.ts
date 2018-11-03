@@ -8,17 +8,10 @@ import {getTeamName} from "../shared/elm-data-utils";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
 import {User} from "../interfaces/User";
+import {httpOptions} from "./http-options";
+import {Id} from "./api-return-schemas/id";
 
-interface Id {
-    id: number;
-}
 
-const httpOptions = {
-    withCredentials: true,
-    headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-    })
-};
 
 @Injectable()
 export class LeagueService {
@@ -66,8 +59,8 @@ export class LeagueService {
         return this.http.post('http://localhost:8080/api/leagues/setActiveLeague/' + leagueId, null, httpOptions);
     }
 
-    public getTeamSummary(): Observable<Team[]> {
-        if(this.teams != null) {
+    public getTeamSummary(useCache = true): Observable<Team[]> {
+        if(this.teams != null && useCache) {
             return of(this.teams);
         } else {
             return new Observable(observer => {
@@ -80,8 +73,8 @@ export class LeagueService {
                         });
                         observer.next(this.teams)
                     }, error => {
-                        observer.error(error);
                         console.log(error);
+                        observer.error(error);
                     }
                 );
             });

@@ -151,7 +151,7 @@ func failIfEmailMalformed(ctx *gin.Context, email string) bool {
 	}
 }
 
-func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId int, gameIdentifier string) bool {
+func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId, playerId int, gameIdentifier string) bool {
 	teamInfo, err := TeamsDAO.GetTeamInformation(leagueId, teamId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
@@ -159,7 +159,7 @@ func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId int, gameIdent
 	}
 
 	for _, player := range teamInfo.Players {
-		if player.GameIdentifier == gameIdentifier {
+		if player.GameIdentifier == gameIdentifier && player.Id != playerId {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameIdentifierInUse"})
 			return true
 		}

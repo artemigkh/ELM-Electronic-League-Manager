@@ -3,6 +3,7 @@ package IntegrationTests
 import (
 	"fmt"
 	"github.com/Pallinder/go-randomdata"
+	"strings"
 	"testing"
 )
 
@@ -50,13 +51,21 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 		}
 	}
 
-	tag := randomdata.Letters(4)
-	for i := 0; i < len(teams); i++ {
-		if tag == teams[i].Tag {
-			tag = randomdata.Letters(4)
-			i = 0
-		}
+	//tag := randomdata.Letters(4)
+	//for i := 0; i < len(teams); i++ {
+	//	if tag == teams[i].Tag {
+	//		tag = randomdata.Letters(4)
+	//		i = 0
+	//	}
+	//}
+	var tag string
+	if randomdata.Boolean() {
+		tag = teamName[0:4]
+	} else {
+		tag = teamName[0:3]
 	}
+
+	tag = strings.ToUpper(tag)
 
 	body := make(map[string]interface{})
 	body["name"] = teamName
@@ -72,7 +81,9 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 	}
 }
 
-func createGame(t *testing.T, l *league, gameTime, team1Id, team2Id float64) *game {
+func createGame(t *testing.T, l *league, gameTimeInt int, team1Id, team2Id float64) *game {
+	gameTime := float64(gameTimeInt)
+
 	body := make(map[string]interface{})
 	body["team1Id"] = team1Id
 	body["team2Id"] = team2Id

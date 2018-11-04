@@ -1,6 +1,7 @@
 package IntegrationTests
 
 import (
+	"github.com/Pallinder/go-randomdata"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -99,13 +100,13 @@ func Test_NormalUseCase(t *testing.T) {
 		loginAs(t, leagueOwner)
 		setActiveLeague(t, l)
 
-		gameTime := float64(time.Now().Unix()) + 1000000
+		gameTime := randomdata.Number(int(time.Now().Unix())-5184000, int(time.Now().Unix()))
 
 		for _, m1 := range l.Teams {
 			for _, m2 := range l.Teams {
 				if m1.Id != m2.Id {
 					l.Games = append(l.Games, createGame(t, l, gameTime, m1.Id, m2.Id))
-					gameTime -= 240
+					gameTime = randomdata.Number(int(time.Now().Unix())-5184000, int(time.Now().Unix()))
 				}
 			}
 		}
@@ -122,9 +123,23 @@ func Test_NormalUseCase(t *testing.T) {
 		checkGamesAgainstLeagueSummary(t, l.Games)
 	})
 
+	//t.Run("Randomize result for each game and report it", func(t *testing.T) {
+	//	for _, g := range l.Games {
+	//		randomlyDecideAndReportGame(t, g)
+	//	}
+	//
+	//	for _, g := range l.Games {
+	//		checkGameAgainstRepresentation(t, g)
+	//	}
+	//
+	//	checkGamesAgainstLeagueSummary(t, l.Games)
+	//})
+
 	t.Run("Randomize result for each game and report it", func(t *testing.T) {
 		for _, g := range l.Games {
-			randomlyDecideAndReportGame(t, g)
+			if randomdata.Boolean() {
+				randomlyDecideAndReportGame(t, g)
+			}
 		}
 
 		for _, g := range l.Games {

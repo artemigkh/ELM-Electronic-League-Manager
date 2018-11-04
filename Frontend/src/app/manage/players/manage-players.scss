@@ -13,11 +13,34 @@ h4 {
     margin-bottom: 10px;
 }
 
-mat-expansion-panel-header {
-    background-color: #efefef;
+mat-expansion-panel {
+    box-shadow: none !important;
+
 }
 
-mat-divider.layout-spacer {
+.mat-expansion-panel {
+    background-color: #fafafa!important;
+}
+
+mat-expansion-panel-header {
+    background-color: #fafafa;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: lightgray;
+}
+
+.mat-expanded {
+    border-width: 0 0 0 0!important;
+}
+
+//.top {
+//    border-style: solid;
+//    border-width: 1px 0 1px 0;
+//    border-color: lightgray;
+//}
+
+
+.layout-spacer {
     margin-top: 15px;
     margin-bottom: 25px;
 }

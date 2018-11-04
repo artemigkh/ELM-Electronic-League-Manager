@@ -10,6 +10,7 @@ import {Player} from "../interfaces/Player";
 import {User} from "../interfaces/User";
 import {httpOptions} from "./http-options";
 import {Id} from "./api-return-schemas/id";
+import {NavBar} from "../shared/navbar/navbar";
 
 
 
@@ -20,6 +21,7 @@ export class LeagueService {
     completeGames: Game[];
     upcomingGames: Game[];
     user: User;
+    navBar: NavBar;
 
     constructor(private http: HttpClient) {
         this.teams = null;
@@ -29,30 +31,57 @@ export class LeagueService {
     }
 
     public login(email: string, password: string): Observable<User> {
-        if(this.user != null) {
-            return of(this.user);
-        } else {
-            return new Observable(observer => {
-                this.http.post('http://localhost:8080/login', {
-                    email: email,
-                    password: password
-                }, httpOptions).subscribe(
-                    (next: Id) => {
-                        this.user = {
-                            id: next.id,
-                            email: email
-                        };
-                        observer.next(this.user)
-                    }, error => {
-                        observer.error(error);
-                    }
-                )
-            })
-        }
+        return new Observable(observer => {
+            this.http.post('http://localhost:8080/login', {
+                email: email,
+                password: password
+            }, httpOptions).subscribe(
+                (next: Id) => {
+                    console.log(this.navBar);
+                    this.navBar.notifyLogin();
+                    this.user = {
+                        id: next.id,
+                        email: email
+                    };
+                    observer.next(this.user)
+                }, error => {
+                    observer.error(error);
+                }
+            )
+        })
+    }
+
+    public signup(email: string, password: string): Observable<boolean> {
+        return new Observable(observer => {
+            this.http.post('http://localhost:8080/api/users/', {
+                email: email,
+                password: password
+            }, httpOptions).subscribe(
+                next => {observer.next(true);},
+                error => {observer.next(false);}
+            )
+        })
+    }
+
+    public logout(): Observable<Object> {
+        return this.http.post('http://localhost:8080/logout', httpOptions);
+    }
+
+    public checkIfLoggedIn(): Observable<boolean> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/users/profile', httpOptions).subscribe(
+                next => {observer.next(true);},
+                error => {observer.next(false);}
+            )
+        });
     }
 
     public getCurrentUser() {
         return this.user;
+    }
+
+    public registerNavBar(navBar: NavBar) {
+        this.navBar = navBar;
     }
 
     public setActiveLeague(leagueId: number): Observable<any> {
@@ -85,19 +114,25 @@ export class LeagueService {
         return new Observable(observer => {
             this.http.get('http://localhost:8080/api/teams/' + team.id, httpOptions).subscribe(
                 (next: GtiTeam) => {
-                    next.players.forEach(player=> {
-                        let tempPlayer: Player = {
-                            id: player.id,
-                            name: player.name,
-                            gameIdentifier: player.gameIdentifier
-                        };
+                    if(next.players) {
+                        next.players.forEach(player=> {
+                            let tempPlayer: Player = {
+                                id: player.id,
+                                name: player.name,
+                                gameIdentifier: player.gameIdentifier
+                            };
 
-                        if(player.mainRoster) {
-                            team.players.push(tempPlayer);
-                        } else {
-                            team.substitutes.push(tempPlayer);
-                        }
-                    });
+                            if(player.mainRoster) {
+                                team.players.push(tempPlayer);
+                            } else {
+                                team.substitutes.push(tempPlayer);
+                            }
+                        });
+                    } else {
+                        team.players = [];
+                        team.substitutes = [];
+                    }
+
 
                     observer.next(team)
                 }, error => {

@@ -39,6 +39,7 @@ import {LoginComponent} from "./login/login";
 import {FormsModule} from "@angular/forms";
 import {TeamsService} from "./httpServices/teams.service";
 import {PlayersService} from "./httpServices/players.service";
+import {SignupComponent} from "./signup/signup";
 
 @NgModule({
     declarations: [
@@ -62,6 +63,7 @@ import {PlayersService} from "./httpServices/players.service";
         WarningPopup,
         ManagePlayersPopup,
         LoginComponent,
+        SignupComponent,
         NavBar
     ],
     imports: [

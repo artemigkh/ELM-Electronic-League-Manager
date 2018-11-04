@@ -7,6 +7,10 @@ div.vertical-divider {
     margin-top: 15px;
 }
 
+div.vertical-divider-2 {
+    margin-top: 40px;
+}
+
 h1 {
     font-weight: 300;
     margin-bottom: 0;
@@ -188,4 +192,8 @@ span.game-entry {
         margin-right: 10px;
         color: white;
     }
+}
+
+mat-button-toggle {
+    color: black;
 }

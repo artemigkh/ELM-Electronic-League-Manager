@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
     login() : void {
         this.leagueService.login(this.email, this.password).subscribe(
             (next: User) => {
-                console.log("logged in with user with id ", next.id)
+                console.log("logged in with user with id ", next.id);
                 this.router.navigate([""]);
             }, error => {
                 console.log("error");

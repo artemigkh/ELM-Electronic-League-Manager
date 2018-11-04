@@ -30,6 +30,7 @@ type PlayerRemoveInformation struct {
 	PlayerId int `json:"playerId"`
 }
 
+//TODO: investigate case with no player id only team id on player update
 /**
  * @api{POST} /api/teams Create New Team
  * @apiName createNewTeam
@@ -178,7 +179,7 @@ func addPlayerToTeam(ctx *gin.Context) {
 	if failIfNameTooLong(ctx, playerInfo.Name) {
 		return
 	}
-	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId, playerInfo.GameIdentifier) {
+	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId, -1, playerInfo.GameIdentifier) {
 		return
 	}
 
@@ -268,7 +269,9 @@ func updatePlayer(ctx *gin.Context) {
 	if failIfNameTooLong(ctx, playerInfoChange.Name) {
 		return
 	}
-	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId, playerInfoChange.GameIdentifier) {
+	if failIfGameIdentifierInUse(
+		ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId,
+		playerInfoChange.PlayerId, playerInfoChange.GameIdentifier) {
 		return
 	}
 

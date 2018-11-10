@@ -12,6 +12,17 @@ Install node/NPM, then angular CLI:
 npm install -g @angular/cli
 ```
 
+Set local gopath to project root
+```
+export $GOPATH=<path to git repo>
+```
+
+create src folder and symlink it to Backend so that go compiler can find packages
+```
+mkdir src
+ln -s <path to git repo>Backend <path to git repo>src
+```
+
 ### Database
 1. Download postgres
 2. Run `Backend/Database/createTables.sql` against postgres

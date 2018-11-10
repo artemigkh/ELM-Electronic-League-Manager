@@ -4,6 +4,49 @@
 
 <mat-divider></mat-divider>
 
+<ng-container *ngFor="let team of teams">
+    <h3>{{team.teamName}}</h3>
+    <mat-table [dataSource]="team.managers" class="mat-elevation-z8">
+        <!-- Position Column -->
+        <ng-container matColumnDef="userEmail">
+            <mat-header-cell *matHeaderCellDef> Email </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.userEmail}}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="editPermissions">
+            <mat-header-cell *matHeaderCellDef> Edit Permissions </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <mat-checkbox [(ngModel)]=element.editPermissions></mat-checkbox>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="editTeamInfo">
+            <mat-header-cell *matHeaderCellDef> Edit Team Info </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <mat-checkbox [(ngModel)]=element.editTeamInfo></mat-checkbox>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="editPlayers">
+            <mat-header-cell *matHeaderCellDef> Edit Players </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <mat-checkbox [(ngModel)]=element.editPlayers></mat-checkbox>
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="reportResult">
+            <mat-header-cell *matHeaderCellDef> Report Result </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+                <mat-checkbox [(ngModel)]=element.reportResult></mat-checkbox>
+            </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+</ng-container>
+
+<mat-divider></mat-divider>
 <h2>
 Visibility
 </h2>

@@ -9,6 +9,11 @@ h2 {
     margin-bottom: 0;
 }
 
+h3 {
+    font-size: 22px;
+    font-weight: 300;
+}
+
 mat-divider {
     margin-top: 15px;
     margin-bottom: 25px;
@@ -36,3 +41,15 @@ button:hover {
     background-color: #495be4;
 }
 
+.mat-column-userEmail {
+    flex: 0 0 50%;
+    justify-content: left;
+}
+
+mat-cell {
+    justify-content: center;
+}
+
+mat-header-cell {
+    justify-content: center;
+}

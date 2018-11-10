@@ -59,7 +59,8 @@ export class ManageTeamsComponent implements ManageComponentInterface {
             data: {
                 title: "Edit Team Information",
                 action: Action.Edit,
-                team: team
+                team: team,
+                caller: this
             },
             autoFocus: false
         });
@@ -118,6 +119,7 @@ export class ManageTeamPopup {
     action: Action;
     name: string;
     tag: string;
+    id: number;
     constructor(
         public dialogRef: MatDialogRef<ManageTeamPopup>,
         @Inject(MAT_DIALOG_DATA) public data: TeamData,
@@ -126,6 +128,7 @@ export class ManageTeamPopup {
         this.action = data.action;
         this.name = data.team.name;
         this.tag = data.team.tag;
+        this.id = data.team.id;
         this.leagueService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
@@ -154,7 +157,17 @@ export class ManageTeamPopup {
                 }
             )
         } else if(this.action = Action.Edit) {
-
+            this.teamsService.updateTeam(this.id, this.name, this.tag).subscribe(
+                next => {
+                    console.log("successfully updated team");
+                    this.data.caller.notifyUpdateSuccess(this.id);
+                    this.dialogRef.close();
+                }, error => {
+                    console.log("error during team update");
+                    console.log(error);
+                    this.dialogRef.close();
+                }
+            )
         }
     }
 }

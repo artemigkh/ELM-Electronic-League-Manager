@@ -38,10 +38,11 @@ type TeamsDAO interface {
 	// Teams
 	CreateTeam(leagueId, userId int, name, tag string) (int, error)
 	DeleteTeam(leagueId, teamId int) error
+	UpdateTeam(leagueId, teamId int, name, tag string) error
 	GetTeamInformation(leagueId, teamId int) (*TeamInformation, error)
 
 	// Get Information
-	IsInfoInUse(leagueId int, name, tag string) (bool, string, error)
+	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
 	HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error)
 	DoesTeamExist(leagueId, teamId int) (bool, error)
 	DoesPlayerExist(teamId, playerId int) (bool, error)

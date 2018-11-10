@@ -43,6 +43,7 @@ type PlayerRemoveInformation struct {
  * @apiSuccess {int} id the unique numerical identifier of the created team
  *
  * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
  * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
  * @apiError nameTooLong The team name has exceeded 50 characters
  * @apiError tagTooLong The team tag has exceeded 5 characters
@@ -64,7 +65,7 @@ func createNewTeam(ctx *gin.Context) {
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
 		return
 	}
-	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), teamInfo.Name, teamInfo.Tag) {
+	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), -1, teamInfo.Name, teamInfo.Tag) {
 		return
 	}
 
@@ -74,6 +75,55 @@ func createNewTeam(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"id": teamId})
+}
+
+/**
+ * @api{PUT} /api/teams/updateTeam/:id Update Team Information
+ * @apiName updateTeam
+ * @apiGroup Teams
+ * @apiDescription Change Team Information
+ *
+ * @apiParam {int} id The unique numerical identifier of the team
+ * @apiParam {string} name The updated name of the team
+ * @apiParam {string} tag The updated tag of the team
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError IdMustBeInteger The id in the url must be an integer value
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
+ * @apiError nameTooLong The team name has exceeded 50 characters
+ * @apiError tagTooLong The team tag has exceeded 5 characters
+ * @apiError nameInUse The team name is currently in use
+ * @apiError tagInUse The team tag is currently in use
+ */
+func updateTeam(ctx *gin.Context) {
+	//get parameters
+	var teamInfo TeamInformation
+	err := ctx.ShouldBindJSON(&teamInfo)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+		return
+	}
+	if failIfNameTooLong(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId"), teamInfo.Name, teamInfo.Tag) {
+		return
+	}
+
+	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"), teamInfo.Name, teamInfo.Tag)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 /**
@@ -293,4 +343,5 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.PUT("/updatePlayer", authenticate(), updatePlayer)
 	g.GET("/:id", getUrlId(), getTeamInformation)
 	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfCannotEditTeam(), deleteTeam)
+	g.PUT("/updateTeam/:id", getUrlId(), authenticate(), failIfCannotEditTeam(), updateTeam)
 }

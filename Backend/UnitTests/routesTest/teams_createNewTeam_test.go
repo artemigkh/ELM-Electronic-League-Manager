@@ -187,7 +187,7 @@ func testCreateNewTeamNameInUse(t *testing.T) {
 		Return(true, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("IsInfoInUse", 5, "sampleName", "TAG").
+	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").
 		Return(true, "nameInUse", nil)
 
 	routes.ElmSessions = mockSession
@@ -212,7 +212,7 @@ func testCreateNewTeamTagInUse(t *testing.T) {
 		Return(true, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("IsInfoInUse", 5, "sampleName", "TAG").
+	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").
 		Return(true, "tagInUse", nil)
 
 	routes.ElmSessions = mockSession
@@ -237,7 +237,7 @@ func testCorrectTeamCreation(t *testing.T) {
 		Return(true, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("IsInfoInUse", 5, "sampleName", "TAG").
+	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").
 		Return(false, "", nil)
 	mockTeamsDao.On("CreateTeam", 5, 4, "sampleName", "TAG").
 		Return(6, nil)

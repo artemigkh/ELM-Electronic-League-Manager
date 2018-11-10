@@ -1,4 +1,5 @@
 import {Component} from "@angular/core";
+import {LeagueService} from "../httpServices/leagues.service";
 
 @Component({
     selector: 'app-manage',

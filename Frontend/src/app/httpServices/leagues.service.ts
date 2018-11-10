@@ -3,18 +3,16 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Team} from "../interfaces/Team";
 import {Observable} from "rxjs/index";
 import { of } from 'rxjs';
-import {Game} from "../interfaces/Game";
+import {Game, GameCollection} from "../interfaces/Game";
 import {getTeamName} from "../shared/elm-data-utils";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
+import {User} from "../interfaces/User";
+import {httpOptions} from "./http-options";
+import {Id} from "./api-return-schemas/id";
+import {NavBar} from "../shared/navbar/navbar";
 
 
-const httpOptions = {
-    withCredentials: true,
-    headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-    })
-};
 
 @Injectable()
 export class LeagueService {
@@ -22,6 +20,8 @@ export class LeagueService {
     gameSummaryLoaded: boolean;
     completeGames: Game[];
     upcomingGames: Game[];
+    user: User;
+    navBar: NavBar;
 
     constructor(private http: HttpClient) {
         this.teams = null;
@@ -30,12 +30,66 @@ export class LeagueService {
         this.upcomingGames = null;
     }
 
+    public login(email: string, password: string): Observable<User> {
+        return new Observable(observer => {
+            this.http.post('http://localhost:8080/login', {
+                email: email,
+                password: password
+            }, httpOptions).subscribe(
+                (next: Id) => {
+                    console.log(this.navBar);
+                    this.navBar.notifyLogin();
+                    this.user = {
+                        id: next.id,
+                        email: email
+                    };
+                    observer.next(this.user)
+                }, error => {
+                    observer.error(error);
+                }
+            )
+        })
+    }
+
+    public signup(email: string, password: string): Observable<boolean> {
+        return new Observable(observer => {
+            this.http.post('http://localhost:8080/api/users/', {
+                email: email,
+                password: password
+            }, httpOptions).subscribe(
+                next => {observer.next(true);},
+                error => {observer.next(false);}
+            )
+        })
+    }
+
+    public logout(): Observable<Object> {
+        return this.http.post('http://localhost:8080/logout', httpOptions);
+    }
+
+    public checkIfLoggedIn(): Observable<boolean> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/users/profile', httpOptions).subscribe(
+                next => {observer.next(true);},
+                error => {observer.next(false);}
+            )
+        });
+    }
+
+    public getCurrentUser() {
+        return this.user;
+    }
+
+    public registerNavBar(navBar: NavBar) {
+        this.navBar = navBar;
+    }
+
     public setActiveLeague(leagueId: number): Observable<any> {
         return this.http.post('http://localhost:8080/api/leagues/setActiveLeague/' + leagueId, null, httpOptions);
     }
 
-    public getTeamSummary(): Observable<Team[]> {
-        if(this.teams != null) {
+    public getTeamSummary(useCache = true): Observable<Team[]> {
+        if(this.teams != null && useCache) {
             return of(this.teams);
         } else {
             return new Observable(observer => {
@@ -48,8 +102,8 @@ export class LeagueService {
                         });
                         observer.next(this.teams)
                     }, error => {
-                        observer.error(error);
                         console.log(error);
+                        observer.error(error);
                     }
                 );
             });
@@ -60,19 +114,25 @@ export class LeagueService {
         return new Observable(observer => {
             this.http.get('http://localhost:8080/api/teams/' + team.id, httpOptions).subscribe(
                 (next: GtiTeam) => {
-                    next.players.forEach(player=> {
-                        let tempPlayer: Player = {
-                            id: player.id,
-                            name: player.name,
-                            gameIdentifier: player.gameIdentifier
-                        };
+                    if(next.players) {
+                        next.players.forEach(player=> {
+                            let tempPlayer: Player = {
+                                id: player.id,
+                                name: player.name,
+                                gameIdentifier: player.gameIdentifier
+                            };
 
-                        if(player.mainRoster) {
-                            team.players.push(tempPlayer);
-                        } else {
-                            team.substitutes.push(tempPlayer);
-                        }
-                    });
+                            if(player.mainRoster) {
+                                team.players.push(tempPlayer);
+                            } else {
+                                team.substitutes.push(tempPlayer);
+                            }
+                        });
+                    } else {
+                        team.players = [];
+                        team.substitutes = [];
+                    }
+
 
                     observer.next(team)
                 }, error => {
@@ -143,6 +203,28 @@ export class LeagueService {
                 this.loadGameSummary().subscribe(
                     next => {
                         observer.next(this.completeGames);
+                    }, error => {
+                        observer.error(error);
+                    }
+                );
+            });
+        }
+    }
+
+    public getAllGames(): Observable<GameCollection> {
+        if(this.gameSummaryLoaded) {
+            return of({
+                upcomingGames: this.upcomingGames,
+                completeGames: this.completeGames
+            });
+        } else {
+            return new Observable(observer => {
+                this.loadGameSummary().subscribe(
+                    next => {
+                        observer.next({
+                            upcomingGames: this.upcomingGames,
+                            completeGames: this.completeGames
+                        });
                     }, error => {
                         observer.error(error);
                     }

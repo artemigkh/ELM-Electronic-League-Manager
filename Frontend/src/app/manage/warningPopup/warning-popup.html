@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>Deletion Confirmation</h1>
+<div mat-dialog-content>
+    <div class="content-wrapper">
+        This action cannot be undone. This will permanantly delete the
+        {{data.entity}} {{data.name}}. Are you sure you wish to proceed?
+    </div>
+</div>
+<div mat-dialog-actions>
+    <div class="action-bar-wrapper">
+        <span class="spacer"></span>
+        <span class="button-wrapper">
+        <button mat-raised-button (click)="onCancel()">Cancel</button>
+    </span>
+        <span class="button-wrapper">
+         <button mat-raised-button (click)="onConfirm()">Confirm</button>
+    </span>
+        <span class="spacer"></span>
+    </div>
+</div>

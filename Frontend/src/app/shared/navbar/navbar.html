@@ -15,10 +15,14 @@
     <a mat-button class="docs-button" routerLink="/manage" aria-label="Angular Material">
         <span>Manage</span>
     </a>
-    <a mat-button class="docs-button" routerLink="/" aria-label="Angular Material">
+    <a *ngIf="!loggedIn" mat-button class="docs-button" routerLink="/signup" aria-label="Angular Material">
         <span>Sign Up</span>
     </a>
-    <a mat-button class="docs-button" routerLink="/" aria-label="Angular Material">
+    <a *ngIf="!loggedIn"mat-button class="docs-button" routerLink="/login" aria-label="Angular Material">
         <span>Login</span>
+    </a>
+    <a *ngIf="loggedIn"mat-button class="docs-button" routerLink="/" aria-label="Angular Material"
+        (click)="logout()">
+        <span>Logout</span>
     </a>
 </nav>

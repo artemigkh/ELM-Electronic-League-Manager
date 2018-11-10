@@ -6,6 +6,12 @@ Easily create, manage, and view leagues of any sport
 ## Setup
 Download and install GoLang. Very highly recommend using JetBrains GoLand IDE.
 
+Install node/NPM, then angular CLI:
+
+```
+npm install -g @angular/cli
+```
+
 ### Database
 1. Download postgres
 2. Run `Backend/Database/createTables.sql` against postgres

@@ -1,0 +1,29 @@
+h1 {
+    text-align: center!important;
+}
+
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    //height: 300px;
+    margin-bottom: 20px;
+}
+
+.action-bar-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    .button-wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 125px;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+}

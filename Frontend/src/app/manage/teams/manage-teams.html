@@ -18,18 +18,12 @@
                 </span>
                 <span class="spacer"></span>
                 <span class="edit">
-                    <button mat-raised-button color="primary">
+                    <button mat-icon-button color="primary" (click)="editTeamPopup(element)">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                     </button>
-
                 </span>
-                <!--<span class="edit-users">-->
-                    <!--<button mat-raised-button class="users-button">-->
-                        <!--<mat-icon inline="true" fontSet="fa" fontIcon="fa-users"></mat-icon>-->
-                    <!--</button>-->
-                <!--</span>-->
                 <span class="delete">
-                    <button mat-raised-button class="deleteButton">
+                    <button mat-icon-button (click)="warningPopup(element)">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                     </button>
                 </span>
@@ -41,7 +35,7 @@
         <div class="mat-header-row header-group-row">
             <div class="new-team-container">
                 <span class="teams-title">Manage Teams</span>
-                <button mat-raised-button class="new-team" color="primary">
+                <button mat-raised-button class="new-team" color="primary" (click)="newTeamPopup()">
                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                     New Team
                 </button>

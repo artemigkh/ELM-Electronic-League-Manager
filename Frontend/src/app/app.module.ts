@@ -4,11 +4,13 @@ import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
-    MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule, MatDatepickerModule, MatDividerModule,
+    MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
-    MatInputModule, MatNativeDateModule,
-    MatSelectModule,
+    MatInputModule, MatNativeDateModule, MatProgressSpinnerModule,
+    MatSelectModule, MatSpinner,
     MatTabsModule
 } from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
@@ -26,10 +28,18 @@ import {LeagueService} from './httpServices/leagues.service';
 import {ELM_ROUTES} from './routes'
 import {ManageComponent} from "./manage/manage";
 import {ManageLeagueComponent} from "./manage/league/manage-league";
-import {ManageTeamsComponent} from "./manage/teams/manage-teams";
+import {ManageTeamPopup, ManageTeamsComponent} from "./manage/teams/manage-teams";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
 import {ManageDatesComponent} from "./manage/dates/manage-dates";
-import {ManagePlayersComponent} from "./manage/players/manage-players";
+import {ManagePlayersComponent, ManagePlayersPopup} from "./manage/players/manage-players";
+import {ManageGamePopup, ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
+import {AmazingTimePickerModule} from "amazing-time-picker";
+import {WarningPopup} from "./manage/warningPopup/warning-popup";
+import {LoginComponent} from "./login/login";
+import {FormsModule} from "@angular/forms";
+import {TeamsService} from "./httpServices/teams.service";
+import {PlayersService} from "./httpServices/players.service";
+import {SignupComponent} from "./signup/signup";
 
 @NgModule({
     declarations: [
@@ -46,6 +56,14 @@ import {ManagePlayersComponent} from "./manage/players/manage-players";
         ManagePermissionsComponent,
         ManageDatesComponent,
         ManagePlayersComponent,
+        ManageGamesComponent,
+        ReportGamePopup,
+        ManageGamePopup,
+        ManageTeamPopup,
+        WarningPopup,
+        ManagePlayersPopup,
+        LoginComponent,
+        SignupComponent,
         NavBar
     ],
     imports: [
@@ -66,10 +84,22 @@ import {ManagePlayersComponent} from "./manage/players/manage-players";
         MatDatepickerModule,
         MatNativeDateModule,
         MatIconModule,
+        MatChipsModule,
+        MatDialogModule,
+        AmazingTimePickerModule,
+        FormsModule,
+        MatProgressSpinnerModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
-    providers: [LeagueService, MatIconRegistry],
-    bootstrap: [AppComponent]
+    providers: [LeagueService, TeamsService, PlayersService, MatIconRegistry],
+    bootstrap: [AppComponent],
+    entryComponents: [
+        ReportGamePopup,
+        ManageGamePopup,
+        ManageTeamPopup,
+        WarningPopup,
+        ManagePlayersPopup
+    ]
 })
 export class AppModule {
     constructor(public matIconRegistry: MatIconRegistry) {

@@ -43,31 +43,34 @@ func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, er
 	return teamId, nil
 }
 
-func (d *PgTeamsDAO) IsInfoInUse(leagueId int, name, tag string) (bool, string, error) {
+func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error) {
 	//check if name in use
-	err := psql.Select("name").
+	var teamIdOfMatch int
+	err := psql.Select("name, id").
 		From("teams").
 		Where("name = ?", name).
-		RunWith(db).QueryRow().Scan(&name)
+		RunWith(db).QueryRow().Scan(&name, &teamIdOfMatch)
 	if err == sql.ErrNoRows {
 		//check for tag
 	} else if err != nil {
 		return false, "", err
-	} else {
+	} else if teamId != teamIdOfMatch {
 		return true, "nameInUse", nil
 	}
 
 	//check if name in use
-	err = psql.Select("tag").
+	err = psql.Select("tag, id").
 		From("teams").
 		Where("tag = ?", strings.ToUpper(tag)).
-		RunWith(db).QueryRow().Scan(&tag)
+		RunWith(db).QueryRow().Scan(&tag, &teamIdOfMatch)
 	if err == sql.ErrNoRows {
 		return false, "", nil
 	} else if err != nil {
 		return false, "", err
-	} else {
+	} else if teamId != teamIdOfMatch {
 		return true, "tagInUse", nil
+	} else {
+		return false, "", nil
 	}
 }
 
@@ -170,6 +173,15 @@ func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainR
 	}
 
 	return playerId, nil
+}
+
+func (d *PgTeamsDAO) UpdateTeam(leagueId, teamId int, name, tag string) error {
+	_, err := db.Exec(
+		`
+		UPDATE teams SET name = $1, tag = $2
+		WHERE id = $3 AND leagueId = $4
+		`, name, tag, teamId, leagueId)
+	return err
 }
 
 func (d *PgTeamsDAO) RemovePlayer(teamId, playerId int) error {

@@ -151,27 +151,27 @@ func (_m *TeamsDAO) HasPlayerEditPermissions(leagueId int, teamId int, userId in
 	return r0, r1
 }
 
-// IsInfoInUse provides a mock function with given fields: leagueId, name, tag
-func (_m *TeamsDAO) IsInfoInUse(leagueId int, name string, tag string) (bool, string, error) {
-	ret := _m.Called(leagueId, name, tag)
+// IsInfoInUse provides a mock function with given fields: leagueId, teamId, name, tag
+func (_m *TeamsDAO) IsInfoInUse(leagueId int, teamId int, name string, tag string) (bool, string, error) {
+	ret := _m.Called(leagueId, teamId, name, tag)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(int, string, string) bool); ok {
-		r0 = rf(leagueId, name, tag)
+	if rf, ok := ret.Get(0).(func(int, int, string, string) bool); ok {
+		r0 = rf(leagueId, teamId, name, tag)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 string
-	if rf, ok := ret.Get(1).(func(int, string, string) string); ok {
-		r1 = rf(leagueId, name, tag)
+	if rf, ok := ret.Get(1).(func(int, int, string, string) string); ok {
+		r1 = rf(leagueId, teamId, name, tag)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(int, string, string) error); ok {
-		r2 = rf(leagueId, name, tag)
+	if rf, ok := ret.Get(2).(func(int, int, string, string) error); ok {
+		r2 = rf(leagueId, teamId, name, tag)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -221,6 +221,20 @@ func (_m *TeamsDAO) UpdatePlayer(teamId int, playerId int, gameIdentifier string
 	var r0 error
 	if rf, ok := ret.Get(0).(func(int, int, string, string, bool) error); ok {
 		r0 = rf(teamId, playerId, gameIdentifier, name, mainRoster)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateTeam provides a mock function with given fields: leagueId, teamId, name, tag
+func (_m *TeamsDAO) UpdateTeam(leagueId int, teamId int, name string, tag string) error {
+	ret := _m.Called(leagueId, teamId, name, tag)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, string, string) error); ok {
+		r0 = rf(leagueId, teamId, name, tag)
 	} else {
 		r0 = ret.Error(0)
 	}

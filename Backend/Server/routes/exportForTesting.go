@@ -31,6 +31,7 @@ var Testing_Export_getPublicLeagues = getPublicLeagues
 // Teams
 var Testing_Export_createNewTeam = createNewTeam
 var Testing_Export_deleteTeam = deleteTeam
+var Testing_Export_updateTeam = updateTeam
 var Testing_Export_getTeamInformation = getTeamInformation
 var Testing_Export_addPlayerToTeam = addPlayerToTeam
 var Testing_Export_removePlayerFromTeam = removePlayerFromTeam

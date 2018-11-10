@@ -110,8 +110,8 @@ func failIfLeagueNameInUse(ctx *gin.Context, name string) bool {
 	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, "nameInUse")
 }
 
-func failIfTeamInfoInUse(ctx *gin.Context, leagueId int, name, tag string) bool {
-	inUse, errorMsg, err := TeamsDAO.IsInfoInUse(leagueId, name, tag)
+func failIfTeamInfoInUse(ctx *gin.Context, leagueId, teamId int, name, tag string) bool {
+	inUse, errorMsg, err := TeamsDAO.IsInfoInUse(leagueId, teamId, name, tag)
 	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, errorMsg)
 }
 

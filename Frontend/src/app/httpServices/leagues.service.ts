@@ -11,6 +11,7 @@ import {User} from "../interfaces/User";
 import {httpOptions} from "./http-options";
 import {Id} from "./api-return-schemas/id";
 import {NavBar} from "../shared/navbar/navbar";
+import {TeamManagers} from "../interfaces/Manager";
 
 
 
@@ -74,6 +75,10 @@ export class LeagueService {
                 error => {observer.next(false);}
             )
         });
+    }
+
+    public getTeamManagers(): Observable<any> {
+        return this.http.get('http://localhost:8080/api/leagues/teamManagers', httpOptions);
     }
 
     public getCurrentUser() {

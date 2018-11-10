@@ -97,6 +97,29 @@ func (_m *LeaguesDAO) GetLeagueInformation(leagueId int) (*databaseAccess.League
 	return r0, r1
 }
 
+// GetLeaguePermissions provides a mock function with given fields: leagueId, userId
+func (_m *LeaguesDAO) GetLeaguePermissions(leagueId int, userId int) (*databaseAccess.LeaguePermissions, error) {
+	ret := _m.Called(leagueId, userId)
+
+	var r0 *databaseAccess.LeaguePermissions
+	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.LeaguePermissions); ok {
+		r0 = rf(leagueId, userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*databaseAccess.LeaguePermissions)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(leagueId, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetPublicLeagueList provides a mock function with given fields:
 func (_m *LeaguesDAO) GetPublicLeagueList() ([]databaseAccess.PublicLeagueInformation, error) {
 	ret := _m.Called()

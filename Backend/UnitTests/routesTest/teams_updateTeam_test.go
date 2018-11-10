@@ -64,15 +64,21 @@ func testUpdateTeamNoEditPermissions(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(2, nil)
 
+	mockTeamsDao := new(mocks.TeamsDAO)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, true, true), nil)
+
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(false, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, false, true), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
+	routes.TeamsDAO = mockTeamsDao
 
-	httpTest(t, nil, "PUT", "/7", 403, testParams{Error: "noEditTeamPermissions"})
+	httpTest(t, nil, "PUT", "/7", 403, testParams{Error: "noEditTeamInformationPermissions"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao, mockTeamsDao)
 }
 
 func testUpdateTeamInformationTeamDoesNotExist(t *testing.T) {
@@ -84,9 +90,12 @@ func testUpdateTeamInformationTeamDoesNotExist(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(false, nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -105,15 +114,21 @@ func testUpdateTeamMalformedBody(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(2, nil)
 
+	mockTeamsDao := new(mocks.TeamsDAO)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
+
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
+	routes.TeamsDAO = mockTeamsDao
 
 	httpTest(t, nil, "PUT", "/7", 400, testParams{Error: "malformedInput"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao, mockTeamsDao)
 }
 
 func testUpdateTeamNameTooLong(t *testing.T) {
@@ -125,9 +140,12 @@ func testUpdateTeamNameTooLong(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -148,9 +166,12 @@ func testUpdateTeamTagTooLong(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -186,9 +207,12 @@ func testUpdateTeamDbError(t *testing.T) {
 	mockTeamsDao.On("IsInfoInUse", 5, 7, "sampleName", "TAG").
 		Return(false, "", nil)
 	mockTeamsDao.On("UpdateTeam", 5, 7, "sampleName", "TAG").Return(errors.New("fake db error"))
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -211,9 +235,12 @@ func testUpdateTeamNameInUse(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
 	mockTeamsDao.On("IsInfoInUse", 5, 7, "sampleName", "TAG").
 		Return(true, "nameInUse", nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -235,9 +262,12 @@ func testUpdateTeamTagInUse(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
 	mockTeamsDao.On("IsInfoInUse", 5, 7, "sampleName", "TAG").
 		Return(true, "tagInUse", nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -261,9 +291,12 @@ func testUpdateTeam(t *testing.T) {
 	mockTeamsDao.On("IsInfoInUse", 5, 7, "sampleName", "TAG").
 		Return(false, "", nil)
 	mockTeamsDao.On("UpdateTeam", 5, 7, "sampleName", "TAG").Return(nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -284,7 +317,7 @@ func Test_UpdateTeam(t *testing.T) {
 	router.PUT("/:id",
 		routes.Testing_Export_getUrlId(),
 		routes.Testing_Export_authenticate(),
-		routes.Testing_Export_failIfCannotEditTeam(),
+		routes.Testing_Export_failIfCanNotEditTeamInformation(),
 		routes.Testing_Export_updateTeam)
 
 	t.Run("NoId", testUpdateTeamInformationNoId)

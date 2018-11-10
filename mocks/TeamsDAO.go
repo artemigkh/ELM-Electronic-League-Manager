@@ -130,6 +130,29 @@ func (_m *TeamsDAO) GetTeamInformation(leagueId int, teamId int) (*databaseAcces
 	return r0, r1
 }
 
+// GetTeamPermissions provides a mock function with given fields: teamId, userId
+func (_m *TeamsDAO) GetTeamPermissions(teamId int, userId int) (*databaseAccess.TeamPermissions, error) {
+	ret := _m.Called(teamId, userId)
+
+	var r0 *databaseAccess.TeamPermissions
+	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.TeamPermissions); ok {
+		r0 = rf(teamId, userId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*databaseAccess.TeamPermissions)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(teamId, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // HasPlayerEditPermissions provides a mock function with given fields: leagueId, teamId, userId
 func (_m *TeamsDAO) HasPlayerEditPermissions(leagueId int, teamId int, userId int) (bool, error) {
 	ret := _m.Called(leagueId, teamId, userId)

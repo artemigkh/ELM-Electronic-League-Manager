@@ -64,3 +64,14 @@ type GamesDAO interface {
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)
 	HasReportResultPermissions(leagueId, gameId, userId int) (bool, error)
 }
+
+type InviteCodesDAO interface {
+	//leagues
+
+	//teams
+	CreateTeamManagerInviteCode(teamId int, editPermissions, editTeamInfo, editPlayers, reportResult bool) (string, error)
+	UseTeamManagerInviteCode(userId int, code string) error
+
+	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)
+	IsTeamManagerInviteCodeValid(code string) (bool, string, error)
+}

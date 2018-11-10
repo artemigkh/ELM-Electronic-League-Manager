@@ -120,7 +120,7 @@ func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamInformation,
 	return &teamInformation, nil
 }
 
-func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
+func doesTeamExist(leagueId, teamId int) (bool, error) {
 	var name string
 	err := psql.Select("name").
 		From("teams").
@@ -133,6 +133,10 @@ func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
 	} else {
 		return true, nil
 	}
+}
+
+func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
+	return doesTeamExist(leagueId, teamId)
 }
 
 func (d *PgTeamsDAO) HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error) {

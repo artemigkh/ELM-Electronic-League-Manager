@@ -118,10 +118,10 @@ func failIfCannotJoinLeague() gin.HandlerFunc {
 
 func failIfNotLeagueAdmin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		isLeagueAdmin, err := LeaguesDAO.IsLeagueAdmin(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
+		lp, err := LeaguesDAO.GetLeaguePermissions(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 		if checkErr(ctx, err) {
 			ctx.Abort()
-		} else if !isLeagueAdmin {
+		} else if !lp.Administrator {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "notAdmin"})
 		} else {
 			ctx.Next()

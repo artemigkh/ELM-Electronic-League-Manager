@@ -29,7 +29,6 @@ type LeaguesDAO interface {
 	IsLeagueViewable(leagueId, userId int) (bool, error)
 	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)
-	IsLeagueAdmin(leagueId, userId int) (bool, error)
 }
 
 type TeamsDAO interface {

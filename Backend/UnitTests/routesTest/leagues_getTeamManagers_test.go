@@ -63,9 +63,8 @@ func testGetTeamManagersNotAdmin(t *testing.T) {
 		Return(2, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("IsLeagueAdmin", 2, 1).
-		Return(false, nil)
-
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 1).
+		Return(LeaguePermissions(false, true, true, true), nil)
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
@@ -82,8 +81,8 @@ func testGetTeamManagersDatabaseError(t *testing.T) {
 		Return(2, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("IsLeagueAdmin", 2, 1).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 1).
+		Return(LeaguePermissions(true, true, true, true), nil)
 	mockLeaguesDao.On("GetTeamManagerInformation", 2).
 		Return(nil, errors.New("fake db error"))
 
@@ -142,8 +141,8 @@ func testCorrectGetManagers(t *testing.T) {
 		Return(2, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("IsLeagueAdmin", 2, 1).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 1).
+		Return(LeaguePermissions(true, true, true, true), nil)
 	mockLeaguesDao.On("GetTeamManagerInformation", 2).
 		Return(teamManagerSummary, nil)
 

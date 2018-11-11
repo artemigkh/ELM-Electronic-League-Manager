@@ -44,22 +44,20 @@ ALTER SEQUENCE teamsIdSeq OWNED BY teams.id;
 CREATE TABLE leaguePermissions (
   userId          INT           NOT NULL         ,
   leagueId        INT           NOT NULL         ,
-  editPermissions BOOLEAN       NOT NULL         ,
+  administrator   BOOLEAN       NOT NULL         ,
   createTeams     BOOLEAN       NOT NULL         ,
   editTeams       BOOLEAN       NOT NULL         ,
-  editUsers       BOOLEAN       NOT NULL         ,
-  editSchedule    BOOLEAN       NOT NULL         ,
-  editResults     BOOLEAN       NOT NULL
+  editGames       BOOLEAN       NOT NULL         ,
 );
 
 -- TODO: if efficiency a problem, add leagueID for faster filter
 CREATE TABLE teamPermissions (
   userId          INT           NOT NULL         ,
   teamId          INT           NOT NULL         ,
-  editPermissions BOOLEAN       NOT NULL         ,
-  editTeamInfo    BOOLEAN       NOT NULL         ,
-  editPlayers     BOOLEAN       NOT NULL         ,
-  reportResult    BOOLEAN       NOT NULL
+  administrator   BOOLEAN       NOT NULL         ,
+  information     BOOLEAN       NOT NULL         ,
+  players         BOOLEAN       NOT NULL         ,
+  reportResults   BOOLEAN       NOT NULL
 );
 
 CREATE TABLE games (

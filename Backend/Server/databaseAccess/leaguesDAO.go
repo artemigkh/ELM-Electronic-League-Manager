@@ -10,6 +10,13 @@ type LeagueInformation struct {
 	Description string `json:"description"`
 }
 
+type LeaguePermissions struct {
+	Administrator bool
+	CreateTeams   bool
+	EditTeams     bool
+	EditGames     bool
+}
+
 type TeamSummaryInformation struct {
 	Id     int    `json:"id"`
 	Name   string `json:"name"`
@@ -397,4 +404,16 @@ func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) 
 	}
 
 	return leagues, nil
+}
+
+func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
+	var lp LeaguePermissions
+	err := psql.Select("administrator", "createTeams", "editTeams", "editGames").
+		From("leaguePermissions").
+		Where("userId = ? AND leagueId = ?", userId, leagueId).
+		RunWith(db).QueryRow().Scan(&lp.Administrator, &lp.CreateTeams, &lp.EditTeams, &lp.EditGames)
+	if err != nil {
+		return nil, err
+	}
+	return &lp, nil
 }

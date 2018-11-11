@@ -82,7 +82,8 @@ func testDeleteGameNoEditSchedulePermissions(t *testing.T) {
 		Return(5, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditSchedulePermission", 2, 5).Return(false, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 5).
+		Return(LeaguePermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -100,7 +101,8 @@ func testDeleteGameGameDoesNotExist(t *testing.T) {
 		Return(5, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditSchedulePermission", 2, 5).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 5).
+		Return(LeaguePermissions(false, false, false, true), nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
@@ -123,7 +125,8 @@ func testDeleteGameDbError(t *testing.T) {
 		Return(5, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditSchedulePermission", 2, 5).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 5).
+		Return(LeaguePermissions(false, false, false, true), nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
@@ -148,7 +151,8 @@ func testDeleteGameCorrectDeleteGame(t *testing.T) {
 		Return(5, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditSchedulePermission", 2, 5).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 5).
+		Return(LeaguePermissions(false, false, false, true), nil)
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).

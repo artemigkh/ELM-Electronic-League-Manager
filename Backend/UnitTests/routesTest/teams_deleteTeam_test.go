@@ -98,15 +98,18 @@ func testDeleteTeamInformationNoTeamEditPermissions(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(false, true, true, true), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(false, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, nil, "DELETE", "/7", 403, testParams{Error: "noEditTeamPermissions"})
+	httpTest(t, nil, "DELETE", "/7", 403, testParams{Error: "notTeamAdmin"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
@@ -121,9 +124,12 @@ func testDeleteTeamInformationTeamDoesNotExist(t *testing.T) {
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(false, nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(true, true, true, true), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -145,9 +151,12 @@ func testDeleteTeamInformationDbError(t *testing.T) {
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
 	mockTeamsDao.On("DeleteTeam", 5, 7).Return(errors.New("fake db error"))
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(true, true, true, true), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -169,9 +178,12 @@ func testDeleteTeamInformationCorrectDeleteTeam(t *testing.T) {
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
 	mockTeamsDao.On("DeleteTeam", 5, 7).Return(nil)
+	mockTeamsDao.On("GetTeamPermissions", 7, 2).
+		Return(TeamPermissions(true, true, true, true), nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasEditTeamPermission", 5, 7, 2).Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 2).
+		Return(LeaguePermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -192,7 +204,7 @@ func Test_DeleteTeam(t *testing.T) {
 		routes.Testing_Export_getUrlId(),
 		routes.Testing_Export_authenticate(),
 		routes.Testing_Export_failIfTeamActive(),
-		routes.Testing_Export_failIfCannotEditTeam(),
+		routes.Testing_Export_failIfNotTeamAdministrator(),
 		routes.Testing_Export_deleteTeam)
 
 	t.Run("NoId", testDeleteTeamInformationNoId)

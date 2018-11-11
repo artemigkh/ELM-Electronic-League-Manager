@@ -41,7 +41,6 @@ type TeamsDAO interface {
 	// Get Information
 	GetTeamPermissions(teamId, userId int) (*TeamPermissions, error)
 	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
-	HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error)
 	DoesTeamExist(leagueId, teamId int) (bool, error)
 	DoesPlayerExist(teamId, playerId int) (bool, error)
 	IsTeamActive(leagueId, teamId int) (bool, error)

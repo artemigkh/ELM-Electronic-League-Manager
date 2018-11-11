@@ -15,3 +15,7 @@ func CreateTeamsDAO() TeamsDAO {
 func CreateGamesDAO() GamesDAO {
 	return &PgGamesDAO{}
 }
+
+func CreateInviteCodesDAO() InviteCodesDAO {
+	return &PgInviteCodesDAO{}
+}

@@ -30,6 +30,7 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()
 	routes.TeamsDAO = databaseAccess.CreateTeamsDAO()
 	routes.GamesDAO = databaseAccess.CreateGamesDAO()
+	routes.InviteCodesDAO = databaseAccess.CreateInviteCodesDAO()
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager()
 
 	routes.RegisterLoginHandlers(app.Group("/"))

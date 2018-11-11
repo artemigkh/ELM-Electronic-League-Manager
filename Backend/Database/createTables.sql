@@ -47,7 +47,7 @@ CREATE TABLE leaguePermissions (
   administrator   BOOLEAN       NOT NULL         ,
   createTeams     BOOLEAN       NOT NULL         ,
   editTeams       BOOLEAN       NOT NULL         ,
-  editGames       BOOLEAN       NOT NULL         ,
+  editGames       BOOLEAN       NOT NULL
 );
 
 -- TODO: if efficiency a problem, add leagueID for faster filter

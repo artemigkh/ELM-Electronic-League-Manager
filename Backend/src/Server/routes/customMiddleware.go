@@ -86,7 +86,7 @@ func failIfLeagueDoesNotExist() gin.HandlerFunc {
 	}
 }
 
-func getReportResultPermissions() gin.HandlerFunc {
+func failIfNoReportResultPermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		canReportResult, err := GamesDAO.HasReportResultPermissions(
 			ctx.GetInt("leagueId"),

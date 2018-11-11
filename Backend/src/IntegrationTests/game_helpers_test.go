@@ -2,6 +2,7 @@ package IntegrationTests
 
 import (
 	"fmt"
+	"github.com/Pallinder/go-randomdata"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

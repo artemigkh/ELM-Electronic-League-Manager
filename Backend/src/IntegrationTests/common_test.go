@@ -28,7 +28,7 @@ const baseUrl = "http://localhost:8080/"
 func createRouterAndHttpClient() {
 	newClient()
 
-	conf := config.GetConfig("../conf.json")
+	conf := config.GetConfig("../../conf.json")
 
 	//start router/webapp
 	router = gin.Default()

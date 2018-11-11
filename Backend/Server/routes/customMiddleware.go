@@ -46,12 +46,15 @@ func getUrlId() gin.HandlerFunc {
 	}
 }
 
+//TODO: make general case on failing of lack of league permissions
+//TODO: change inserting logic so administrator always has to have true on all perm fields
+
 func failIfNoTeamCreatePermissions() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		canEditTeams, err := LeaguesDAO.HasCreateTeamsPermission(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
+		lp, err := LeaguesDAO.GetLeaguePermissions(ctx.GetInt("leagueId"), ctx.GetInt("userId"))
 		if checkErr(ctx, err) {
 			ctx.Abort()
-		} else if !canEditTeams {
+		} else if !(lp.Administrator || lp.CreateTeams) {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "noEditTeamPermissions"})
 		} else {
 			ctx.Next()

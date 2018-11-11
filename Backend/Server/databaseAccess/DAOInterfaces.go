@@ -28,7 +28,6 @@ type LeaguesDAO interface {
 	IsNameInUse(name string) (bool, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)
 	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error)
-	HasCreateTeamsPermission(leagueId, userId int) (bool, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)
 	IsLeagueAdmin(leagueId, userId int) (bool, error)
 }

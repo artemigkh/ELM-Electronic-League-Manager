@@ -189,27 +189,6 @@ func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamSummary
 	return r0, r1
 }
 
-// HasCreateTeamsPermission provides a mock function with given fields: leagueId, userId
-func (_m *LeaguesDAO) HasCreateTeamsPermission(leagueId int, userId int) (bool, error) {
-	ret := _m.Called(leagueId, userId)
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
-		r0 = rf(leagueId, userId)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(leagueId, userId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // IsLeagueAdmin provides a mock function with given fields: leagueId, userId
 func (_m *LeaguesDAO) IsLeagueAdmin(leagueId int, userId int) (bool, error) {
 	ret := _m.Called(leagueId, userId)

@@ -40,8 +40,8 @@ func testCreateNewTeamMalformedBody(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -103,8 +103,8 @@ func testCreateNewTeamNoEditPermissions(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(false, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, true), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -123,8 +123,8 @@ func testCreateNewTeamDbError(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(false, errors.New("fake db error"))
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(nil, errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -143,8 +143,8 @@ func testCreateNewTeamNameTooLong(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -163,8 +163,8 @@ func testCreateNewTeamTagTooLong(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -183,8 +183,8 @@ func testCreateNewTeamNameInUse(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").
@@ -208,8 +208,8 @@ func testCreateNewTeamTagInUse(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").
@@ -233,8 +233,8 @@ func testCorrectTeamCreation(t *testing.T) {
 		Return(4, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("HasCreateTeamsPermission", 5, 4).
-		Return(true, nil)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").

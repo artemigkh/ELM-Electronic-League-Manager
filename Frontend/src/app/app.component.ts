@@ -1,5 +1,6 @@
 import {Component, ViewEncapsulation} from '@angular/core';
 import {LeagueService} from './httpServices/leagues.service';
+import {TestingConfig} from "../../testingConfig";
 
 @Component({
     selector: 'elm-app',
@@ -10,12 +11,12 @@ import {LeagueService} from './httpServices/leagues.service';
 // and password:
 export class AppComponent {
     constructor(private leagueService: LeagueService) {
-        this.leagueService.setActiveLeague(15).subscribe(
+        this.leagueService.setActiveLeague(TestingConfig.leagueId).subscribe(
             success => {
                 console.log('successful set league');
                 console.log(success);
-                this.leagueService.login("madisonthompson174@example.net",
-                    "p0rQfzIwoz").subscribe(
+                this.leagueService.login(TestingConfig.email,
+                    TestingConfig.password).subscribe(
                     success => {
                         console.log('successful login');
                         console.log(success);

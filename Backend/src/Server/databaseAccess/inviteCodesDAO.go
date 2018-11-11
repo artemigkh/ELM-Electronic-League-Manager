@@ -10,45 +10,84 @@ import (
 type PgInviteCodesDAO struct{}
 
 type TeamManagerInviteCode struct {
-	Code            string
-	CreationTime    int
-	LeagueId        int
-	TeamId          int
-	editPermissions bool
-	editTeamInfo    bool
-	editPlayers     bool
-	reportResults   bool
+	Code          string
+	CreationTime  int
+	LeagueId      int
+	TeamId        int
+	Administrator bool
+	Information   bool
+	Players       bool
+	ReportResults bool
 }
 
-func (d *PgInviteCodesDAO) CreateTeamManagerInviteCode(teamId int,
-	editPermissions, editTeamInfo, editPlayers, reportResult bool) (string, error) {
+func (d *PgInviteCodesDAO) CreateTeamManagerInviteCode(leagueId, teamId int,
+	administrator, information, players, reportResults bool) (string, error) {
 	code := hex.EncodeToString(securecookie.GenerateRandomKey(32))
 	_, err := psql.Insert("teamManagerInviteCodes").
-		Columns("code", "creationTime", "teamId", "editPermissions", "editTeamInfo",
-			"editPlayers", "reportResult").
-		Values(code, int32(time.Now().Unix()), teamId, editPermissions, editTeamInfo,
-			editPlayers, reportResult).
+		Columns("code", "creationTime", "leagueId", "teamId",
+			"administrator", "information", "players", "reportResults").
+		Values(code, int32(time.Now().Unix()), teamId, leagueId,
+			administrator, information, players, reportResults).
 		RunWith(db).Exec()
 
 	return code, err
 }
 
 func (d *PgInviteCodesDAO) GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error) {
-	return nil, nil
+	var codeInfo TeamManagerInviteCode
+	err := psql.Select("code", "creationTime", "leagueId", "teamId",
+		"administrator", "information", "players", "reportResults").
+		From("teamManagerInviteCodes").
+		Where("code = ?", code).
+		RunWith(db).QueryRow().Scan(&codeInfo.Code, &codeInfo.CreationTime, &codeInfo.LeagueId, &codeInfo.TeamId,
+		&codeInfo.Administrator, &codeInfo.Information, &codeInfo.Players, &codeInfo.ReportResults)
+	if err != nil {
+		return nil, err
+	}
+	return &codeInfo, nil
 }
 
 func (d *PgInviteCodesDAO) UseTeamManagerInviteCode(userId int, code string) error {
+	// get code information and delete it
+	var codeInfo TeamManagerInviteCode
+	err := psql.Select("code", "creationTime", "leagueId", "teamId",
+		"administrator", "information", "players", "reportResults").
+		From("teamManagerInviteCodes").
+		Where("code = ?", code).
+		RunWith(db).QueryRow().Scan(&codeInfo.Code, &codeInfo.CreationTime, &codeInfo.LeagueId, &codeInfo.TeamId,
+		&codeInfo.Administrator, &codeInfo.Information, &codeInfo.Players, &codeInfo.ReportResults)
+	if err != nil {
+		return err
+	}
+
+	_, err = psql.Delete("teamManagerInviteCodes").
+		Where("code = ?", code).
+		RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
+	//create permissions entry
+	_, err = psql.Insert("teamPermissions").
+		Columns("userId", "teamId", "administrator", "information", "players", "reportResults").
+		Values(userId, codeInfo.TeamId, codeInfo.Administrator,
+			codeInfo.Information, codeInfo.Players, codeInfo.ReportResults).
+		RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (d *PgInviteCodesDAO) IsTeamManagerInviteCodeValid(code string) (bool, string, error) {
 	var codeInfo TeamManagerInviteCode
 	err := psql.Select("code", "creationTime", "leagueId", "teamId",
-		"editPermissions", "editTeamInfo", "editPlayers", "reportResult").
+		"administrator", "information", "players", "reportResults").
 		From("teamManagerInviteCodes").
 		Where("code = ?", code).
 		RunWith(db).QueryRow().Scan(&codeInfo.Code, &codeInfo.CreationTime, &codeInfo.LeagueId, &codeInfo.TeamId,
-		&codeInfo.editPermissions, &codeInfo.editTeamInfo, &codeInfo.editPlayers, &codeInfo.reportResults)
+		&codeInfo.Administrator, &codeInfo.Information, &codeInfo.Players, &codeInfo.ReportResults)
 	if err == sql.ErrNoRows {
 		return false, "", nil
 	} else if err != nil {

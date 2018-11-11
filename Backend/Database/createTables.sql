@@ -78,10 +78,10 @@ CREATE TABLE teamManagerInviteCodes (
   creationTime    INT           NOT NULL          ,
   leagueId        INT           NOT NULL          ,
   teamId          INT           NOT NULL          ,
-  editPermissions BOOLEAN       NOT NULL          ,
-  editTeamInfo    BOOLEAN       NOT NULL          ,
-  editPlayers     BOOLEAN       NOT NULL          ,
-  reportResult    BOOLEAN       NOT NULL
+  administrator   BOOLEAN       NOT NULL          ,
+  information     BOOLEAN       NOT NULL          ,
+  players         BOOLEAN       NOT NULL          ,
+  reportResults   BOOLEAN       NOT NULL
 );
 
 CREATE TABLE leagueManagerInviteCodes (

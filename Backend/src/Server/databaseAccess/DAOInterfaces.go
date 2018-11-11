@@ -69,7 +69,7 @@ type InviteCodesDAO interface {
 	//leagues
 
 	//teams
-	CreateTeamManagerInviteCode(teamId int, editPermissions, editTeamInfo, editPlayers, reportResult bool) (string, error)
+	CreateTeamManagerInviteCode(leagueId, teamId int, administrator, information, players, reportResults bool) (string, error)
 	UseTeamManagerInviteCode(userId int, code string) error
 
 	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)

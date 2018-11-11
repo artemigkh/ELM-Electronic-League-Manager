@@ -91,7 +91,7 @@ func createNewTeam(ctx *gin.Context) {
  * @apiError noActiveLeague There is no active league selected
  * @apiError IdMustBeInteger The id in the url must be an integer value
  * @apiError teamDoesNotExist The specified team does not exist
- * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
+ * @apiError noEditTeamInformationPermissions The currently logged in user does not have permissions to edit this team information
  * @apiError nameTooLong The team name has exceeded 50 characters
  * @apiError tagTooLong The team tag has exceeded 5 characters
  * @apiError nameInUse The team name is currently in use
@@ -139,7 +139,7 @@ func updateTeam(ctx *gin.Context) {
  * @apiError noActiveLeague There is no active league selected
  * @apiError teamDoesNotExist The specified team does not exist
  * @apiError teamIsActive This team cannot be deleted because it has played games in this league
- * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
+ * @apiError notTeamAdmin The currently logged in user does not have permissions to edit teams in this league
  */
 func deleteTeam(ctx *gin.Context) {
 	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
@@ -342,6 +342,6 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.DELETE("/removePlayer", authenticate(), removePlayerFromTeam)
 	g.PUT("/updatePlayer", authenticate(), updatePlayer)
 	g.GET("/:id", getUrlId(), getTeamInformation)
-	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfCannotEditTeam(), deleteTeam)
-	g.PUT("/updateTeam/:id", getUrlId(), authenticate(), failIfCannotEditTeam(), updateTeam)
+	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfNotTeamAdministrator(), deleteTeam)
+	g.PUT("/updateTeam/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeam)
 }

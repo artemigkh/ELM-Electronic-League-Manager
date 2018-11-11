@@ -186,19 +186,19 @@ func testUpdatePlayerGameIdentifierInUse(t *testing.T) {
 			Losses: 2,
 			Players: []databaseAccess.PlayerInformation{
 				{
-					Id:             1,
+					Id:             11,
 					Name:           "Test Player1",
 					GameIdentifier: "21",
 					MainRoster:     true,
 				},
 				{
-					Id:             2,
+					Id:             12,
 					Name:           "Test Player2",
 					GameIdentifier: "inGameTestName",
 					MainRoster:     true,
 				},
 				{
-					Id:             3,
+					Id:             13,
 					Name:           "Test Player3",
 					GameIdentifier: "41",
 					MainRoster:     false,

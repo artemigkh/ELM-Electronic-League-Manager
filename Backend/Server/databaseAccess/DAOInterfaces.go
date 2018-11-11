@@ -27,11 +27,8 @@ type LeaguesDAO interface {
 	// Get Information
 	IsNameInUse(name string) (bool, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)
-	HasEditTeamPermission(leagueId, teamId, userId int) (bool, error)
-	HasEditSchedulePermission(leagueId, userId int) (bool, error)
-	HasCreateTeamsPermission(leagueId, userId int) (bool, error)
+	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)
-	IsLeagueAdmin(leagueId, userId int) (bool, error)
 }
 
 type TeamsDAO interface {
@@ -42,6 +39,7 @@ type TeamsDAO interface {
 	GetTeamInformation(leagueId, teamId int) (*TeamInformation, error)
 
 	// Get Information
+	GetTeamPermissions(teamId, userId int) (*TeamPermissions, error)
 	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
 	HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error)
 	DoesTeamExist(leagueId, teamId int) (bool, error)
@@ -65,4 +63,15 @@ type GamesDAO interface {
 	// Get Information
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)
 	HasReportResultPermissions(leagueId, gameId, userId int) (bool, error)
+}
+
+type InviteCodesDAO interface {
+	//leagues
+
+	//teams
+	CreateTeamManagerInviteCode(teamId int, editPermissions, editTeamInfo, editPlayers, reportResult bool) (string, error)
+	UseTeamManagerInviteCode(userId int, code string) error
+
+	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)
+	IsTeamManagerInviteCodeValid(code string) (bool, string, error)
 }

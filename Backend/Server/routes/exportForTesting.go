@@ -10,7 +10,8 @@ var Testing_Export_getReportResultPermissions = getReportResultPermissions
 var Testing_Export_failIfCannotJoinLeague = failIfCannotJoinLeague
 var Testing_Export_failIfNotLeagueAdmin = failIfNotLeagueAdmin
 var Testing_Export_failIfTeamActive = failIfTeamActive
-var Testing_Export_failIfCannotEditTeam = failIfCannotEditTeam
+var Testing_Export_failIfNotTeamAdministrator = failIfNotTeamAdministrator
+var Testing_Export_failIfCanNotEditTeamInformation = failIfCanNotEditTeamInformation
 var Testing_Export_failIfLeagueDoesNotExist = failIfLeagueDoesNotExist
 
 // Users

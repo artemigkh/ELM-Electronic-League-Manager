@@ -219,7 +219,7 @@ func RegisterGameHandlers(g *gin.RouterGroup) {
 
 	g.POST("/", authenticate(), createNewGame)
 	g.PUT("/", authenticate(), failIfNoEditSchedulePermissions(), rescheduleGame)
-	g.POST("/report/:id", authenticate(), getUrlId(), getReportResultPermissions(), reportGameResult)
+	g.POST("/report/:id", authenticate(), getUrlId(), failIfNoReportResultPermissions(), reportGameResult)
 	g.GET("/:id", getUrlId(), getGameInformation)
 	g.DELETE("/:id", authenticate(), getUrlId(), failIfNoEditSchedulePermissions(), deleteGame)
 }

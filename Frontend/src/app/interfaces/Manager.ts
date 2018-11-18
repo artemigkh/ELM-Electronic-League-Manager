@@ -1,10 +1,10 @@
 export interface Manager {
-   userId: number;
-   userEmail: string;
-   editPermissions: boolean;
-   editTeamInfo: boolean;
-   editPlayers: boolean;
-   reportResult: boolean;
+    userId: number;
+    userEmail: string;
+    administrator: boolean;
+    information: boolean;
+    players: boolean;
+    reportResults: boolean;
 }
 
 export interface TeamManagers {

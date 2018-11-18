@@ -101,19 +101,24 @@ func testRemovePlayerFromTeamCannotEditPlayersOnTeam(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 24).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 24, 4).
-		Return(false, nil)
+	mockTeamsDao.On("GetTeamPermissions", 24, 4).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createRemovePlayerRequestBody(24, 31),
 		"DELETE", "/removePlayer", 403, testParams{Error: "canNotEditPlayers"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testRemovePlayerFromTeamPlayerDoesNotExist(t *testing.T) {
@@ -123,21 +128,26 @@ func testRemovePlayerFromTeamPlayerDoesNotExist(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 24).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 24, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 24, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 	mockTeamsDao.On("DoesPlayerExist", 24, 31).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createRemovePlayerRequestBody(24, 31),
 		"DELETE", "/removePlayer", 400, testParams{Error: "playerDoesNotExist"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testRemovePlayerFromTeamDatabaseError(t *testing.T) {
@@ -147,11 +157,15 @@ func testRemovePlayerFromTeamDatabaseError(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 24).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 24, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 24, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 	mockTeamsDao.On("DoesPlayerExist", 24, 31).
 		Return(true, nil)
 	mockTeamsDao.On("RemovePlayer", 24, 31).
@@ -159,11 +173,12 @@ func testRemovePlayerFromTeamDatabaseError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createRemovePlayerRequestBody(24, 31),
 		"DELETE", "/removePlayer", 500, testParams{})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testRemovePlayerFromTeamCorrectRemovePlayer(t *testing.T) {
@@ -173,11 +188,15 @@ func testRemovePlayerFromTeamCorrectRemovePlayer(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 24).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 24, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 24, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 	mockTeamsDao.On("DoesPlayerExist", 24, 31).
 		Return(true, nil)
 	mockTeamsDao.On("RemovePlayer", 24, 31).
@@ -185,11 +204,12 @@ func testRemovePlayerFromTeamCorrectRemovePlayer(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createRemovePlayerRequestBody(24, 31),
 		"DELETE", "/removePlayer", 200, testParams{})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func Test_RemovePlayerFromTeam(t *testing.T) {

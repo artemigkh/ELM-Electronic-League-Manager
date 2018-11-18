@@ -44,12 +44,12 @@ type TeamManagerInformation struct {
 }
 
 type ManagerInformation struct {
-	UserId          int    `json:"userId"`
-	UserEmail       string `json:"userEmail"`
-	EditPermissions bool   `json:"editPermissions"`
-	EditTeamInfo    bool   `json:"editTeamInfo"`
-	EditPlayers     bool   `json:"editPlayers"`
-	ReportResult    bool   `json:"reportResult"`
+	UserId        int    `json:"userId"`
+	UserEmail     string `json:"userEmail"`
+	Administrator bool   `json:"administrator"`
+	Information   bool   `json:"information"`
+	Players       bool   `json:"players"`
+	ReportResults bool   `json:"reportResults"`
 }
 
 type PublicLeagueInformation struct {
@@ -72,9 +72,9 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, public
 
 	//create permissions entry linking current user Id as the league creator
 	_, err = psql.Insert("leaguePermissions").
-		Columns("userId", "leagueId", "editPermissions", "createTeams",
-			"editTeams", "editUsers", "editSchedule", "editResults").
-		Values(userId, leagueId, true, true, true, true, true, true).
+		Columns("userId", "leagueId",
+			"administrator", "createTeams", "editTeams", "editGames").
+		Values(userId, leagueId, true, true, true, true).
 		RunWith(db).Exec()
 	if err != nil {
 		return -1, err
@@ -85,9 +85,9 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, public
 
 func (d *PgLeaguesDAO) JoinLeague(leagueId, userId int) error {
 	_, err := psql.Insert("leaguePermissions").
-		Columns("userId", "leagueId", "editPermissions", "createTeams",
-			"editTeams", "editUsers", "editSchedule", "editResults").
-		Values(userId, leagueId, false, true, false, false, false, false).
+		Columns("userId", "leagueId",
+			"administrator", "createTeams", "editTeams", "editGames").
+		Values(userId, leagueId, false, true, false, false).
 		RunWith(db).Exec()
 	if err != nil {
 		return err
@@ -153,53 +153,6 @@ func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, e
 	}
 
 	return &leagueInfo, nil
-}
-
-func (d *PgLeaguesDAO) HasEditTeamPermission(leagueId, teamId, userId int) (bool, error) {
-	var canEdit bool
-
-	// check league wide team edit permissions
-	err := psql.Select("editTeams").
-		From("leaguePermissions").
-		Where("userId = ? AND leagueId = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&canEdit)
-
-	if err == sql.ErrNoRows {
-		canEdit = false
-	} else if err != nil {
-		return false, err
-	} else if canEdit {
-		return true, nil
-	}
-
-	// check team permissions - editPermissions true means is team manager
-	err = psql.Select("editPermissions").
-		From("teamPermissions").
-		Where("userId = ? AND teamId = ?", userId, teamId).
-		RunWith(db).QueryRow().Scan(&canEdit)
-
-	if err == sql.ErrNoRows {
-		canEdit = false
-	} else if err != nil {
-		return false, err
-	}
-
-	return canEdit, nil
-}
-
-func (d *PgLeaguesDAO) HasCreateTeamsPermission(leagueId, userId int) (bool, error) {
-	var canCreate bool
-	err := psql.Select("createTeams").
-		From("leaguePermissions").
-		Where("userId = ? AND leagueId = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&canCreate)
-	if err == sql.ErrNoRows {
-		canCreate = false
-	} else if err != nil {
-		return false, err
-	}
-
-	return canCreate, nil
 }
 
 func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error) {
@@ -277,24 +230,9 @@ func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
 	return canJoin, nil
 }
 
-func (d *PgLeaguesDAO) IsLeagueAdmin(leagueId, userId int) (bool, error) {
-	var isLeagueAdmin bool
-	err := psql.Select("editPermissions").
-		From("leaguePermissions").
-		Where("userId = ? AND leagueId = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&isLeagueAdmin)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	} else {
-		return isLeagueAdmin, nil
-	}
-}
-
 func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error) {
-	rows, err := psql.Select("userId", "teamId", "email", "name", "tag", "editPermissions",
-		"editTeamInfo", "editPlayers", "reportResult").
+	rows, err := psql.Select("userId", "teamId", "email", "name", "tag",
+		"administrator", "information", "players", "reportResults").
 		From("teamPermissions").
 		Join("users ON teamPermissions.userId = users.id").
 		Join("teams ON teamPermissions.teamId = teams.id").
@@ -308,22 +246,22 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 	//make a map of team IDs to team information objects
 	var teams = make(map[int]*TeamManagerInformation)
 	var (
-		userId          int
-		teamId          int
-		email           string
-		name            string
-		tag             string
-		editPermissions bool
-		editTeamInfo    bool
-		editPlayers     bool
-		reportResult    bool
+		userId        int
+		teamId        int
+		email         string
+		name          string
+		tag           string
+		administrator bool
+		information   bool
+		players       bool
+		reportResults bool
 	)
 
 	//iterate through the rows returned from database
 	for rows.Next() {
 		//scan the variables from the sql row into local variables
 		err := rows.Scan(&userId, &teamId, &email, &name,
-			&tag, &editPermissions, &editTeamInfo, &editPlayers, &reportResult)
+			&tag, &administrator, &information, &players, &reportResults)
 		if err != nil {
 			return nil, err
 		}
@@ -340,12 +278,12 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 
 		//add the manager to this team representation
 		teams[teamId].Managers = append(teams[teamId].Managers, ManagerInformation{
-			UserId:          userId,
-			UserEmail:       email,
-			EditPermissions: editPermissions,
-			EditTeamInfo:    editTeamInfo,
-			EditPlayers:     editPlayers,
-			ReportResult:    reportResult,
+			UserId:        userId,
+			UserEmail:     email,
+			Administrator: administrator,
+			Information:   information,
+			Players:       players,
+			ReportResults: reportResults,
 		})
 	}
 	err = rows.Err()
@@ -360,21 +298,6 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 	}
 
 	return teamsReps, nil
-}
-
-func (d *PgLeaguesDAO) HasEditSchedulePermission(leagueId, userId int) (bool, error) {
-	var canEdit bool
-	err := psql.Select("editSchedule").
-		From("leaguePermissions").
-		Where("userId = ? AND leagueId = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&canEdit)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	return canEdit, nil
 }
 
 func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) {
@@ -412,7 +335,14 @@ func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermis
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&lp.Administrator, &lp.CreateTeams, &lp.EditTeams, &lp.EditGames)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return &LeaguePermissions{
+			Administrator: false,
+			CreateTeams:   false,
+			EditTeams:     false,
+			EditGames:     false,
+		}, nil
+	} else if err != nil {
 		return nil, err
 	}
 	return &lp, nil

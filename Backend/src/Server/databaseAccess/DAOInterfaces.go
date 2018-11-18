@@ -41,7 +41,6 @@ type TeamsDAO interface {
 	// Get Information
 	GetTeamPermissions(teamId, userId int) (*TeamPermissions, error)
 	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
-	HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error)
 	DoesTeamExist(leagueId, teamId int) (bool, error)
 	DoesPlayerExist(teamId, playerId int) (bool, error)
 	IsTeamActive(leagueId, teamId int) (bool, error)
@@ -50,6 +49,9 @@ type TeamsDAO interface {
 	AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error)
 	RemovePlayer(teamId, playerId int) error
 	UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) error
+
+	// Managers
+	ChangeManagerPermissions(teamId, userId int, administrator, information, players, reportResults bool) error
 }
 
 type GamesDAO interface {
@@ -69,7 +71,7 @@ type InviteCodesDAO interface {
 	//leagues
 
 	//teams
-	CreateTeamManagerInviteCode(teamId int, editPermissions, editTeamInfo, editPlayers, reportResult bool) (string, error)
+	CreateTeamManagerInviteCode(leagueId, teamId int, administrator, information, players, reportResults bool) (string, error)
 	UseTeamManagerInviteCode(userId int, code string) error
 
 	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)

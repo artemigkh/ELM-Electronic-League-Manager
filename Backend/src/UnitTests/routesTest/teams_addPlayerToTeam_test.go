@@ -116,19 +116,24 @@ func testAddPlayerToTeamCannotEditPlayersOnTeam(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
-		Return(false, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, false, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createAddPlayerRequestBody(1, "test name", "inGameTestName", true),
 		"POST", "/addPlayer", 403, testParams{Error: "canNotEditPlayers"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testAddPlayerToTeamGameIdentifierTooLong(t *testing.T) {
@@ -138,20 +143,25 @@ func testAddPlayerToTeamGameIdentifierTooLong(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createAddPlayerRequestBody(1, "12345678901234567890123456789012345678901234567890",
 		"123456789012345678901234567890123456789012345678901", true),
 		"POST", "/addPlayer", 400, testParams{Error: "gameIdentifierTooLong"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testAddPlayerToTeamNameTooLong(t *testing.T) {
@@ -161,20 +171,25 @@ func testAddPlayerToTeamNameTooLong(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createAddPlayerRequestBody(1, "123456789012345678901234567890123456789012345678901",
 		"12345678901234567890123456789012345678901234567890", true),
 		"POST", "/addPlayer", 400, testParams{Error: "nameTooLong"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testAddPlayerToTeamGameIdentifierInUse(t *testing.T) {
@@ -184,11 +199,15 @@ func testAddPlayerToTeamGameIdentifierInUse(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
@@ -219,11 +238,12 @@ func testAddPlayerToTeamGameIdentifierInUse(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createAddPlayerRequestBody(1, "Test Player1", "inGameTestName", true),
 		"POST", "/addPlayer", 400, testParams{Error: "gameIdentifierInUse"})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testAddPlayerToTeamDatabaseError(t *testing.T) {
@@ -233,11 +253,15 @@ func testAddPlayerToTeamDatabaseError(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
@@ -270,11 +294,12 @@ func testAddPlayerToTeamDatabaseError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createAddPlayerRequestBody(1, "Test Player1", "inGameTestName", true),
 		"POST", "/addPlayer", 500, testParams{})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func testAddPlayerToTeamCorrectAddPlayer(t *testing.T) {
@@ -284,11 +309,15 @@ func testAddPlayerToTeamCorrectAddPlayer(t *testing.T) {
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(4, nil)
 
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("DoesTeamExist", 5, 1).
 		Return(true, nil)
-	mockTeamsDao.On("HasPlayerEditPermissions", 5, 1, 4).
-		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
 	mockTeamsDao.On("GetTeamInformation", 5, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
@@ -321,11 +350,12 @@ func testAddPlayerToTeamCorrectAddPlayer(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createAddPlayerRequestBody(1, "Test Player1", "inGameTestName", true),
 		"POST", "/addPlayer", 200, testParams{ResponseBody: createAddPlayerResponseBody(7)})
 
-	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao)
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
 func Test_AddPlayerToTeam(t *testing.T) {

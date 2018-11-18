@@ -13,37 +13,39 @@
             <mat-cell *matCellDef="let element">{{element.userEmail}}</mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="editPermissions">
-            <mat-header-cell *matHeaderCellDef> Edit Permissions </mat-header-cell>
+        <ng-container matColumnDef="administrator">
+            <mat-header-cell *matHeaderCellDef> Administrator </mat-header-cell>
             <mat-cell *matCellDef="let element">
-                <mat-checkbox [(ngModel)]=element.editPermissions></mat-checkbox>
+                <mat-checkbox [(ngModel)]=element.administrator></mat-checkbox>
             </mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="editTeamInfo">
+        <ng-container matColumnDef="information">
             <mat-header-cell *matHeaderCellDef> Edit Team Info </mat-header-cell>
             <mat-cell *matCellDef="let element">
-                <mat-checkbox [(ngModel)]=element.editTeamInfo></mat-checkbox>
+                <mat-checkbox [(ngModel)]=element.information></mat-checkbox>
             </mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="editPlayers">
+        <ng-container matColumnDef="players">
             <mat-header-cell *matHeaderCellDef> Edit Players </mat-header-cell>
             <mat-cell *matCellDef="let element">
-                <mat-checkbox [(ngModel)]=element.editPlayers></mat-checkbox>
+                <mat-checkbox [(ngModel)]=element.players></mat-checkbox>
             </mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="reportResult">
+        <ng-container matColumnDef="reportResults">
             <mat-header-cell *matHeaderCellDef> Report Result </mat-header-cell>
             <mat-cell *matCellDef="let element">
-                <mat-checkbox [(ngModel)]=element.reportResult></mat-checkbox>
+                <mat-checkbox [(ngModel)]=element.reportResults></mat-checkbox>
             </mat-cell>
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
     </mat-table>
+    <button mat-raised-button color="primary" class="team-button" (click)="updateTeamPermissions(team)">
+        Update Team Permissions</button>
 </ng-container>
 
 <mat-divider></mat-divider>
@@ -59,4 +61,4 @@ Visibility
 </section>
 
 
-<button mat-flat-button color="primary">Update Information</button>
+<button mat-raised-button color="primary">Update Information</button>

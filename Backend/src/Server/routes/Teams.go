@@ -30,6 +30,15 @@ type PlayerRemoveInformation struct {
 	PlayerId int `json:"playerId"`
 }
 
+type TeamManagerPermissionChange struct {
+	TeamId        int  `json:"teamId"`
+	UserId        int  `json:"userId"`
+	Administrator bool `json:"administrator"`
+	Information   bool `json:"information"`
+	Players       bool `json:"players"`
+	ReportResults bool `json:"reportResults"`
+}
+
 //TODO: investigate case with no player id only team id on player update
 /**
  * @api{POST} /api/teams Create New Team
@@ -331,7 +340,52 @@ func updatePlayer(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, nil)
+	ctx.Status(http.StatusOK)
+}
+
+/**
+ * @api{PUT} /api/teams/updatePermissions Update ManagerPermissions
+ * @apiGroup Teams
+ * @apiDescription Change a managers permissions. Must be either team or league admin.
+ *
+ * @apiParam {int} teamId The unique numerical identifier of the team
+ * @apiParam {int} userId The unique numerical identifier of the manager
+ * @apiParam {boolean} administrator Whether the manager can edit permissions of other managers on the team (admin)
+ * @apiParam {boolean} information Whether the manager can edit team information
+ * @apiParam {boolean} players Whether the manager can edit players on the team
+ * @apiParam {boolean} reportResults Whether the manager can report game results of this team
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError managerDoesNotExist The specified manager does not exist on this team
+ * @apiError notAdmin The currently logged in player does not have permission to edit the permissions on this team
+ */
+func updateManagerPermissions(ctx *gin.Context) {
+	//get parameters
+	var permissionChange TeamManagerPermissionChange
+	err := ctx.ShouldBindJSON(&permissionChange)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), permissionChange.TeamId) {
+		return
+	}
+	if failIfManagerDoesNotExist(ctx, permissionChange.TeamId, permissionChange.UserId) {
+		return
+	}
+	if failIfNotTeamAdmin(ctx, ctx.GetInt("leagueId"), permissionChange.TeamId, ctx.GetInt("userId")) {
+		return
+	}
+
+	err = TeamsDAO.ChangeManagerPermissions(permissionChange.TeamId, permissionChange.UserId,
+		permissionChange.Administrator, permissionChange.Information, permissionChange.Players, permissionChange.ReportResults)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
@@ -344,4 +398,5 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.GET("/:id", getUrlId(), getTeamInformation)
 	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfNotTeamAdministrator(), deleteTeam)
 	g.PUT("/updateTeam/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeam)
+	g.PUT("/updatePermissions", authenticate(), updateManagerPermissions)
 }

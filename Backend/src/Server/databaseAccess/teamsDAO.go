@@ -40,7 +40,7 @@ func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, er
 
 	//create permissions entry linking current user Id as the league creator
 	_, err = psql.Insert("teamPermissions").
-		Columns("userId", "teamId", "editPermissions", "editTeamInfo", "editPlayers", "reportResult").
+		Columns("userId", "teamId", "administrator", "information", "players", "reportResults").
 		Values(userId, teamId, true, true, true, true).
 		RunWith(db).Exec()
 	if err != nil {
@@ -139,41 +139,6 @@ func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
 	return doesTeamExist(leagueId, teamId)
 }
 
-func (d *PgTeamsDAO) HasPlayerEditPermissions(leagueId, teamId, userId int) (bool, error) {
-	//check if league admin
-	var canEdit bool
-	err := psql.Select("editTeams").
-		From("leaguePermissions").
-		Where("userId = ? AND leagueId = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&canEdit)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	if canEdit {
-		return true, nil
-	}
-
-	//check if team admin
-	err = psql.Select("editPlayers").
-		From("teamPermissions").
-		Where("userId = ? AND teamId = ?", userId, teamId).
-		RunWith(db).QueryRow().Scan(&canEdit)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	if canEdit {
-		return true, nil
-	}
-
-	return false, nil
-}
-
 func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error) {
 	var playerId int
 	err := psql.Insert("players").Columns("teamId", "gameIdentifier", "name", "mainRoster").
@@ -266,8 +231,25 @@ func (d *PgTeamsDAO) GetTeamPermissions(teamId, userId int) (*TeamPermissions, e
 		From("teamPermissions").
 		Where("userId = ? AND teamId = ?", userId, teamId).
 		RunWith(db).QueryRow().Scan(&tp.Administrator, &tp.Information, &tp.Players, &tp.ReportResults)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return &TeamPermissions{
+			Administrator: false,
+			Information:   false,
+			Players:       false,
+			ReportResults: false,
+		}, nil
+	} else if err != nil {
 		return nil, err
 	}
+
 	return &tp, nil
+}
+
+func (d *PgTeamsDAO) ChangeManagerPermissions(teamId, userId int, administrator, information, players, reportResults bool) error {
+	_, err := db.Exec(
+		`
+		UPDATE teamPermissions SET administrator = $1, information = $2, players = $3, reportResults = $4
+		WHERE teamId = $5 AND userId = $6
+		`, administrator, information, players, reportResults, teamId, userId)
+	return err
 }

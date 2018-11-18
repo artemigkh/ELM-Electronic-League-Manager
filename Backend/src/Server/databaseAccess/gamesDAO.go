@@ -156,7 +156,7 @@ func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameInformation,
 func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (bool, error) {
 	//check if user has league editResults permission
 	var canReport bool
-	err := psql.Select("editResults").
+	err := psql.Select("editGames").
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canReport)
@@ -172,7 +172,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	team1Id, team2Id, err := getTeamsInGame(gameId, leagueId)
 
 	//check for team 1
-	err = psql.Select("reportResult").
+	err = psql.Select("reportResults").
 		From("teamPermissions").
 		Where("userId = ? AND teamId = ?", userId, team1Id).
 		RunWith(db).QueryRow().Scan(&canReport)
@@ -185,7 +185,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	}
 
 	//check for team 2
-	err = psql.Select("reportResult").
+	err = psql.Select("reportResults").
 		From("teamPermissions").
 		Where("userId = ? AND teamId = ?", userId, team2Id).
 		RunWith(db).QueryRow().Scan(&canReport)

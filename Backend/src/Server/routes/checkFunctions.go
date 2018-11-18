@@ -120,6 +120,12 @@ func failIfTeamDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
 	return failIfBooleanConditionTrue(ctx, !exists, err, http.StatusBadRequest, "teamDoesNotExist")
 }
 
+func failIfManagerDoesNotExist(ctx *gin.Context, teamId, userId int) bool {
+	tp, err := TeamsDAO.GetTeamPermissions(teamId, userId)
+	return failIfBooleanConditionTrue(ctx, !(tp.Administrator || tp.ReportResults || tp.Players || tp.Information),
+		err, http.StatusBadRequest, "managerDoesNotExist")
+}
+
 func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool {
 	conflictExists, err := GamesDAO.DoesExistConflict(team1Id, team2Id, gameTime)
 	return failIfBooleanConditionTrue(ctx, conflictExists, err, http.StatusBadRequest, "conflictExists")
@@ -131,8 +137,15 @@ func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
 }
 
 func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
-	canEditPlayers, err := TeamsDAO.HasPlayerEditPermissions(leagueId, teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !canEditPlayers, err, http.StatusForbidden, "canNotEditPlayers")
+	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
+	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || lp.EditTeams || tp.Administrator || tp.Players),
+		err, http.StatusForbidden, "canNotEditPlayers")
+}
+
+func failIfNotTeamAdmin(ctx *gin.Context, leagueId, teamId, userId int) bool {
+	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
+	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || tp.Administrator),
+		err, http.StatusForbidden, "notAdmin")
 }
 
 func failIfPlayerDoesNotExist(ctx *gin.Context, teamId, playerId int) bool {

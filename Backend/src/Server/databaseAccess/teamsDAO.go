@@ -231,8 +231,16 @@ func (d *PgTeamsDAO) GetTeamPermissions(teamId, userId int) (*TeamPermissions, e
 		From("teamPermissions").
 		Where("userId = ? AND teamId = ?", userId, teamId).
 		RunWith(db).QueryRow().Scan(&tp.Administrator, &tp.Information, &tp.Players, &tp.ReportResults)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return &TeamPermissions{
+			Administrator: false,
+			Information:   false,
+			Players:       false,
+			ReportResults: false,
+		}, nil
+	} else if err != nil {
 		return nil, err
 	}
+
 	return &tp, nil
 }

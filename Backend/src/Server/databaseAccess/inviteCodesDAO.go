@@ -10,14 +10,14 @@ import (
 type PgInviteCodesDAO struct{}
 
 type TeamManagerInviteCode struct {
-	Code          string
-	CreationTime  int
-	LeagueId      int
-	TeamId        int
-	Administrator bool
-	Information   bool
-	Players       bool
-	ReportResults bool
+	Code          string `json:"code"`
+	CreationTime  int    `json:"creationTime"`
+	LeagueId      int    `json:"leagueId"`
+	TeamId        int    `json:"teamId"`
+	Administrator bool   `json:"administrator"`
+	Information   bool   `json:"information"`
+	Players       bool   `json:"players"`
+	ReportResults bool   `json:"reportResults"`
 }
 
 func (d *PgInviteCodesDAO) CreateTeamManagerInviteCode(leagueId, teamId int,
@@ -41,7 +41,9 @@ func (d *PgInviteCodesDAO) GetTeamManagerInviteCodeInformation(code string) (*Te
 		Where("code = ?", code).
 		RunWith(db).QueryRow().Scan(&codeInfo.Code, &codeInfo.CreationTime, &codeInfo.LeagueId, &codeInfo.TeamId,
 		&codeInfo.Administrator, &codeInfo.Information, &codeInfo.Players, &codeInfo.ReportResults)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 	return &codeInfo, nil

@@ -55,8 +55,39 @@ func createTeamManagerInviteCode(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"code": code})
 }
 
-func RegisterInviteCodeHandlers(g *gin.RouterGroup) {
-	g.Use(getActiveLeague())
+/**
+ * @api{GET} /api/inviteCodes/team/:code Get Information about Team Manager Invite Code
+ * @apiGroup InviteCodes
+ * @apiDescription Get Information about a team manager invite code
+ *
+ * @apiParam {code} teamId The 16 character invite code
+ *
+ * @apiSuccess {string} code A 16 character string that is the invite code
+ * @apiSuccess {int} creationTime The time the invite code was created
+ * @apiSuccess {int} leagueId The id of the league to which the invite code applies
+ * @apiSuccess {int} teamId The id of the team to which the invite code applies
+ * @apiSuccess {bool} administrator Whether or not the invite gives admin privileges
+ * @apiSuccess {bool} information Whether or not the invite gives edit information privileges
+ * @apiSuccess {bool} players Whether or not the invite gives edit players privileges
+ * @apiSuccess {bool} reportResults Whether or not the invite gives report game result privileges
+ *
+ * @apiError inviteCodeDoesNotExist The specified invite code does not exist
+ */
+func getTeamManagerInviteCodeInformation(ctx *gin.Context) {
+	code := ctx.Param("code")
+	codeInfo, err := InviteCodesDAO.GetTeamManagerInviteCodeInformation(code)
+	if checkErr(ctx, err) {
+		return
+	}
+	if codeInfo == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "inviteCodeDoesNotExist"})
+		return
+	}
 
-	g.POST("/team/create", authenticate(), createTeamManagerInviteCode)
+	ctx.JSON(http.StatusOK, codeInfo)
+}
+
+func RegisterInviteCodeHandlers(g *gin.RouterGroup) {
+	g.POST("/team/create", getActiveLeague(), authenticate(), createTeamManagerInviteCode)
+	g.GET("/team/:code", getTeamManagerInviteCodeInformation)
 }

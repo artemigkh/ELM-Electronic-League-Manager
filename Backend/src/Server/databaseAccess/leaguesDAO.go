@@ -44,12 +44,12 @@ type TeamManagerInformation struct {
 }
 
 type ManagerInformation struct {
-	UserId          int    `json:"userId"`
-	UserEmail       string `json:"userEmail"`
-	EditPermissions bool   `json:"editPermissions"`
-	EditTeamInfo    bool   `json:"editTeamInfo"`
-	EditPlayers     bool   `json:"editPlayers"`
-	ReportResult    bool   `json:"reportResult"`
+	UserId        int    `json:"userId"`
+	UserEmail     string `json:"userEmail"`
+	Administrator bool   `json:"administrator"`
+	Information   bool   `json:"information"`
+	Players       bool   `json:"players"`
+	ReportResults bool   `json:"reportResults"`
 }
 
 type PublicLeagueInformation struct {
@@ -246,22 +246,22 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 	//make a map of team IDs to team information objects
 	var teams = make(map[int]*TeamManagerInformation)
 	var (
-		userId          int
-		teamId          int
-		email           string
-		name            string
-		tag             string
-		editPermissions bool
-		editTeamInfo    bool
-		editPlayers     bool
-		reportResult    bool
+		userId        int
+		teamId        int
+		email         string
+		name          string
+		tag           string
+		administrator bool
+		information   bool
+		players       bool
+		reportResults bool
 	)
 
 	//iterate through the rows returned from database
 	for rows.Next() {
 		//scan the variables from the sql row into local variables
 		err := rows.Scan(&userId, &teamId, &email, &name,
-			&tag, &editPermissions, &editTeamInfo, &editPlayers, &reportResult)
+			&tag, &administrator, &information, &players, &reportResults)
 		if err != nil {
 			return nil, err
 		}
@@ -278,12 +278,12 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 
 		//add the manager to this team representation
 		teams[teamId].Managers = append(teams[teamId].Managers, ManagerInformation{
-			UserId:          userId,
-			UserEmail:       email,
-			EditPermissions: editPermissions,
-			EditTeamInfo:    editTeamInfo,
-			EditPlayers:     editPlayers,
-			ReportResult:    reportResult,
+			UserId:        userId,
+			UserEmail:     email,
+			Administrator: administrator,
+			Information:   information,
+			Players:       players,
+			ReportResults: reportResults,
 		})
 	}
 	err = rows.Err()

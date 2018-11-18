@@ -24,4 +24,16 @@ export class TeamsService {
     public deleteTeam(id: number): Observable<Object> {
         return this.http.delete('http://localhost:8080/api/teams/removeTeam/' + id, httpOptions)
     }
+
+    public updateManagerPermissions(teamId: number, userId: number, administrator: boolean, information: boolean,
+                                    players: boolean, reportResults: boolean) {
+        return this.http.put('http://localhost:8080/api/teams/updatePermissions', {
+            teamId: teamId,
+            userId : userId,
+            administrator: administrator,
+            information: information,
+            players: players,
+            reportResults: reportResults
+        }, httpOptions)
+    }
 }

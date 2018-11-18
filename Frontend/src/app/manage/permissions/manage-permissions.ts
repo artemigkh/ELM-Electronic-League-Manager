@@ -1,6 +1,8 @@
 import {Component} from "@angular/core";
 import {LeagueService} from "../../httpServices/leagues.service";
-import {TeamManagers} from "../../interfaces/Manager";
+import {Manager, TeamManagers} from "../../interfaces/Manager";
+import {forkJoin} from "rxjs/index";
+import {TeamsService} from "../../httpServices/teams.service";
 
 @Component({
     selector: 'app-manage-permissions',
@@ -10,7 +12,7 @@ import {TeamManagers} from "../../interfaces/Manager";
 export class ManagePermissionsComponent {
     teams: TeamManagers[];
     displayedColumns: string[] = ['userEmail', 'administrator', 'information', 'players', 'reportResults'];
-    constructor(private leagueService: LeagueService){
+    constructor(private leagueService: LeagueService, private teamsService: TeamsService){
         this.leagueService.getTeamManagers().subscribe(
             (next: TeamManagers[]) => {
                 this.teams = next;
@@ -19,5 +21,12 @@ export class ManagePermissionsComponent {
                 console.log("error getting manager permissions: ", error);
             }
         )
+    }
+
+    updateTeamPermissions(team: TeamManagers): void {
+        forkJoin(team.managers.map((manager: Manager) => {
+            return this.teamsService.updateManagerPermissions(team.teamId, manager.userId, manager.administrator,
+                manager.information, manager.players, manager.reportResults);
+        })).subscribe(_ => {console.log("successfully updated permissions")}, error=>{console.log(error)});
     }
 }

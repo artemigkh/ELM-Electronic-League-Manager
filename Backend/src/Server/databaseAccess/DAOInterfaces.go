@@ -49,6 +49,9 @@ type TeamsDAO interface {
 	AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error)
 	RemovePlayer(teamId, playerId int) error
 	UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) error
+
+	// Managers
+	ChangeManagerPermissions(teamId, userId int, administrator, information, players, reportResults bool) error
 }
 
 type GamesDAO interface {

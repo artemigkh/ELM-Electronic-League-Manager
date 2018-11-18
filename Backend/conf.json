@@ -2,5 +2,6 @@
   "dbUser": "postgres",
   "dbPass": "123",
   "dbName": "elmdb",
-  "port": "8080"
+  "port": "8080",
+  "iconsDir": "icons"
 }

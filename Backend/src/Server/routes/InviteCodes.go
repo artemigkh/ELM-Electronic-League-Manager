@@ -56,7 +56,7 @@ func createTeamManagerInviteCode(ctx *gin.Context) {
 }
 
 /**
- * @api{GET} /api/inviteCodes/team/:code Get Information about Team Manager Invite Code
+ * @api{GET} /api/inviteCodes/team/getInformation/:code Get Information about Team Manager Invite Code
  * @apiGroup InviteCodes
  * @apiDescription Get Information about a team manager invite code
  *
@@ -87,7 +87,27 @@ func getTeamManagerInviteCodeInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, codeInfo)
 }
 
+/**
+ * @api{POST} /api/inviteCodes/team/useCode/:code Use a Team Manager Invite Code
+ * @apiGroup InviteCodes
+ * @apiDescription Use a team manager invite code
+ *
+ * @apiParam {code} teamId The 16 character invite code
+ *
+ * @apiError notLoggedIn No user is logged in
+ */
+func useTeamManagerInviteCode(ctx *gin.Context) {
+	//TODO: do not allow use of code if user is already manager of the team
+	//TODO: join league as well if user is not part of current league
+	err := InviteCodesDAO.UseTeamManagerInviteCode(ctx.GetInt("userId"), ctx.Param("code"))
+	if checkErr(ctx, err) {
+		return
+	}
+	ctx.Status(http.StatusOK)
+}
+
 func RegisterInviteCodeHandlers(g *gin.RouterGroup) {
 	g.POST("/team/create", getActiveLeague(), authenticate(), createTeamManagerInviteCode)
-	g.GET("/team/:code", getTeamManagerInviteCodeInformation)
+	g.GET("/team/getInformation/:code", getTeamManagerInviteCodeInformation)
+	g.POST("/team/useCode/:code", authenticate(), useTeamManagerInviteCode)
 }

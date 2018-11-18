@@ -335,7 +335,14 @@ func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermis
 		From("leaguePermissions").
 		Where("userId = ? AND leagueId = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&lp.Administrator, &lp.CreateTeams, &lp.EditTeams, &lp.EditGames)
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return &LeaguePermissions{
+			Administrator: false,
+			CreateTeams:   false,
+			EditTeams:     false,
+			EditGames:     false,
+		}, nil
+	} else if err != nil {
 		return nil, err
 	}
 	return &lp, nil

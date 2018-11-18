@@ -22,11 +22,11 @@ type TeamManagerInviteCode struct {
 
 func (d *PgInviteCodesDAO) CreateTeamManagerInviteCode(leagueId, teamId int,
 	administrator, information, players, reportResults bool) (string, error) {
-	code := hex.EncodeToString(securecookie.GenerateRandomKey(32))
+	code := hex.EncodeToString(securecookie.GenerateRandomKey(8))
 	_, err := psql.Insert("teamManagerInviteCodes").
 		Columns("code", "creationTime", "leagueId", "teamId",
 			"administrator", "information", "players", "reportResults").
-		Values(code, int32(time.Now().Unix()), teamId, leagueId,
+		Values(code, int32(time.Now().Unix()), leagueId, teamId,
 			administrator, information, players, reportResults).
 		RunWith(db).Exec()
 

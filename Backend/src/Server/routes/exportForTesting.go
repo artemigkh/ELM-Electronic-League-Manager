@@ -48,3 +48,4 @@ var Testing_Export_rescheduleGame = rescheduleGame
 // InviteCodes
 var Testing_Export_createTeamManagerInviteCode = createTeamManagerInviteCode
 var Testing_Export_getTeamManagerInviteCodeInformation = getTeamManagerInviteCodeInformation
+var Testing_Export_useTeamManagerInviteCode = useTeamManagerInviteCode

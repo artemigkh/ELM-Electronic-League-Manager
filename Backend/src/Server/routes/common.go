@@ -10,6 +10,7 @@ var UsersDAO databaseAccess.UsersDAO
 var LeaguesDAO databaseAccess.LeaguesDAO
 var TeamsDAO databaseAccess.TeamsDAO
 var GamesDAO databaseAccess.GamesDAO
+var InviteCodesDAO databaseAccess.InviteCodesDAO
 
 var ElmSessions sessionManager.SessionManager
 

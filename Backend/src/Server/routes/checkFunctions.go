@@ -131,8 +131,15 @@ func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
 }
 
 func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
-	canEditPlayers, err := TeamsDAO.HasPlayerEditPermissions(leagueId, teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !canEditPlayers, err, http.StatusForbidden, "canNotEditPlayers")
+	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
+	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || lp.EditTeams || tp.Administrator || tp.Players),
+		err, http.StatusForbidden, "canNotEditPlayers")
+}
+
+func failIfNotTeamAdmin(ctx *gin.Context, leagueId, teamId, userId int) bool {
+	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
+	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || tp.Administrator),
+		err, http.StatusForbidden, "notAdmin")
 }
 
 func failIfPlayerDoesNotExist(ctx *gin.Context, teamId, playerId int) bool {

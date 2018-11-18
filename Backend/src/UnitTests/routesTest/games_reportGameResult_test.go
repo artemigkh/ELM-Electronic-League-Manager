@@ -222,7 +222,7 @@ func Test_ReportGameResult(t *testing.T) {
 	router.POST("/report/:id",
 		routes.Testing_Export_authenticate(),
 		routes.Testing_Export_getUrlId(),
-		routes.Testing_Export_getReportResultPermissions(),
+		routes.Testing_Export_failIfNoReportResultPermissions(),
 		routes.Testing_Export_reportGameResult)
 
 	t.Run("NoActiveLeague", testReportGameResultNoActiveLeague)

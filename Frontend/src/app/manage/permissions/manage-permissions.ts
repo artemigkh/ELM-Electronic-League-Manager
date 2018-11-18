@@ -9,7 +9,7 @@ import {TeamManagers} from "../../interfaces/Manager";
 })
 export class ManagePermissionsComponent {
     teams: TeamManagers[];
-    displayedColumns: string[] = ['userEmail', 'editPermissions', 'editTeamInfo', 'editPlayers', 'reportResult'];
+    displayedColumns: string[] = ['userEmail', 'administrator', 'information', 'players', 'reportResults'];
     constructor(private leagueService: LeagueService){
         this.leagueService.getTeamManagers().subscribe(
             (next: TeamManagers[]) => {

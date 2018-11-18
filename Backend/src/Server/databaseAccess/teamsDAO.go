@@ -244,3 +244,12 @@ func (d *PgTeamsDAO) GetTeamPermissions(teamId, userId int) (*TeamPermissions, e
 
 	return &tp, nil
 }
+
+func (d *PgTeamsDAO) ChangeManagerPermissions(teamId, userId int, administrator, information, players, reportResults bool) error {
+	_, err := db.Exec(
+		`
+		UPDATE teamPermissions SET administrator = $1, information = $2, players = $3, reportResults = $4
+		WHERE teamId = $5 AND userId = $6
+		`, administrator, information, players, reportResults, teamId, userId)
+	return err
+}

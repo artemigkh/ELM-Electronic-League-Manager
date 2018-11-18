@@ -120,6 +120,12 @@ func failIfTeamDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
 	return failIfBooleanConditionTrue(ctx, !exists, err, http.StatusBadRequest, "teamDoesNotExist")
 }
 
+func failIfManagerDoesNotExist(ctx *gin.Context, teamId, userId int) bool {
+	tp, err := TeamsDAO.GetTeamPermissions(teamId, userId)
+	return failIfBooleanConditionTrue(ctx, !(tp.Administrator || tp.ReportResults || tp.Players || tp.Information),
+		err, http.StatusBadRequest, "managerDoesNotExist")
+}
+
 func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool {
 	conflictExists, err := GamesDAO.DoesExistConflict(team1Id, team2Id, gameTime)
 	return failIfBooleanConditionTrue(ctx, conflictExists, err, http.StatusBadRequest, "conflictExists")

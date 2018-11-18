@@ -37,6 +37,7 @@ var Testing_Export_getTeamInformation = getTeamInformation
 var Testing_Export_addPlayerToTeam = addPlayerToTeam
 var Testing_Export_removePlayerFromTeam = removePlayerFromTeam
 var Testing_Export_updatePlayer = updatePlayer
+var Testing_Export_updateManagerPermissions = updateManagerPermissions
 
 // Games
 var Testing_Export_createNewGame = createNewGame

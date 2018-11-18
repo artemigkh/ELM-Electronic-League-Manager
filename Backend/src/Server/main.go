@@ -40,6 +40,8 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.RegisterGameHandlers(app.Group("/api/games"))
 	routes.RegisterInviteCodeHandlers(app.Group("/api/inviteCodes"))
 
+	// should probably be replaced with apache or nginx in production
+	app.Static("/icons", conf.GetIconsDir())
 	return app
 }
 

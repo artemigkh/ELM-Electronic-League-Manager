@@ -10,13 +10,15 @@ import (
 type Config interface {
 	GetDbConnString() string
 	GetPortString() string
+	GetIconsDir() string
 }
 
 type Configuration struct {
-	DbUser string `json:"dbUser"`
-	DbPass string `json:"dbPass"`
-	DbName string `json:"dbName"`
-	Port   string `json:"port"`
+	DbUser   string `json:"dbUser"`
+	DbPass   string `json:"dbPass"`
+	DbName   string `json:"dbName"`
+	Port     string `json:"port"`
+	IconsDir string `json:"iconsDir"`
 }
 
 func (c *Configuration) GetDbConnString() string {
@@ -25,6 +27,10 @@ func (c *Configuration) GetDbConnString() string {
 
 func (c *Configuration) GetPortString() string {
 	return fmt.Sprintf("0.0.0.0:%v", c.Port)
+}
+
+func (c *Configuration) GetIconsDir() string {
+	return c.IconsDir
 }
 
 func GetConfig(location string) Config {

@@ -38,8 +38,8 @@ CREATE TABLE teams (
   tag             VARCHAR(5)    NOT NULL         ,
   wins            INT           NOT NULL         ,
   losses          INT           NOT NULL         ,
-  iconSmall       VARCHAR(32)                    ,
-  iconLarge       VARCHAR(32)
+  iconSmall       VARCHAR(20)   NOT NULL         ,
+  iconLarge       VARCHAR(20)   NOT NULL
 );
 ALTER SEQUENCE teamsIdSeq OWNED BY teams.id;
 

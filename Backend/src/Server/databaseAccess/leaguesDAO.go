@@ -18,11 +18,13 @@ type LeaguePermissions struct {
 }
 
 type TeamSummaryInformation struct {
-	Id     int    `json:"id"`
-	Name   string `json:"name"`
-	Tag    string `json:"tag"`
-	Wins   int    `json:"wins"`
-	Losses int    `json:"losses"`
+	Id        int    `json:"id"`
+	Name      string `json:"name"`
+	Tag       string `json:"tag"`
+	Wins      int    `json:"wins"`
+	Losses    int    `json:"losses"`
+	IconSmall string `json:"iconSmall"`
+	IconLarge string `json:"iconLarge"`
 }
 
 type GameSummaryInformation struct {
@@ -156,7 +158,7 @@ func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, e
 }
 
 func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error) {
-	rows, err := psql.Select("id", "name", "tag", "wins", "losses").From("teams").
+	rows, err := psql.Select("id", "name", "tag", "wins", "losses", "iconSmall", "iconLarge").From("teams").
 		Where("leagueId = ?", leagueId).
 		OrderBy("wins DESC, losses ASC").
 		RunWith(db).Query()
@@ -170,7 +172,7 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]TeamSummaryInformation, e
 	var team TeamSummaryInformation
 
 	for rows.Next() {
-		err := rows.Scan(&team.Id, &team.Name, &team.Tag, &team.Wins, &team.Losses)
+		err := rows.Scan(&team.Id, &team.Name, &team.Tag, &team.Wins, &team.Losses, &team.IconSmall, &team.IconLarge)
 		if err != nil {
 			return nil, err
 		}

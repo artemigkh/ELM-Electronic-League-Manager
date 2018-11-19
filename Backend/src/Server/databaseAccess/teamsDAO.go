@@ -2,6 +2,8 @@ package databaseAccess
 
 import (
 	"database/sql"
+	"github.com/Pallinder/go-randomdata"
+	"strconv"
 	"strings"
 )
 
@@ -29,10 +31,66 @@ type PlayerInformation struct {
 
 type PgTeamsDAO struct{}
 
+func tryGetUniqueIcon(leagueId int, d *PgTeamsDAO) (string, string, error) {
+
+	// generate list of available icon numbers
+	rows, err := psql.Select("iconSmall").
+		From("teams").
+		Where("id = ?", leagueId).
+		RunWith(db).Query()
+
+	if err != nil {
+		return "", "", err
+	}
+	defer rows.Close()
+
+	var icon string
+	var availableIcons []bool
+	for i := 0; i < 10; i++ {
+		availableIcons = append(availableIcons, true)
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&icon)
+		if err != nil {
+			return "", "", err
+		}
+		for i := 0; i < 10; i++ {
+			if icon == "generic-"+string(i)+"-small.png" {
+				availableIcons[i] = false
+			}
+		}
+	}
+	if rows.Err() != nil {
+		return "", "", err
+	}
+
+	var availableNumbers []int
+	for i := 0; i < 10; i++ {
+		if availableIcons[i] {
+			availableNumbers = append(availableNumbers, i+1)
+		}
+	}
+
+	var newIconNumber int
+	if len(availableNumbers) == 0 {
+		newIconNumber = randomdata.Number(1, 9)
+	} else {
+		newIconNumber = availableNumbers[randomdata.Number(0, len(availableNumbers)-1)]
+	}
+
+	return "generic-" + strconv.Itoa(newIconNumber) + "-small.png", "generic-" + strconv.Itoa(newIconNumber) + "-large.png", nil
+}
+
 func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, error) {
+	smallIcon, largeIcon, err := tryGetUniqueIcon(leagueId, d)
+	if err != nil {
+		return -1, err
+	}
+
 	var teamId int
-	err := psql.Insert("teams").Columns("leagueId", "name", "tag", "wins", "losses").
-		Values(leagueId, name, strings.ToUpper(tag), 0, 0).Suffix("RETURNING \"id\"").
+	err = psql.Insert("teams").Columns("leagueId", "name", "tag", "wins", "losses", "iconSmall", "iconLarge").
+		Values(leagueId, name, strings.ToUpper(tag), 0, 0, smallIcon, largeIcon).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&teamId)
 	if err != nil {
 		return -1, err

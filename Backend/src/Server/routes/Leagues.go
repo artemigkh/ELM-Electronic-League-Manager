@@ -124,6 +124,8 @@ func getActiveLeagueInformation(ctx *gin.Context) {
  * @apiSuccess {int} _.tag The tag of the team
  * @apiSuccess {int} _.wins The number of wins of the team
  * @apiSuccess {int} _.losses The number of losses of the team
+ * @apiSuccess {int} _.iconSmall The small icon filename
+ * @apiSuccess {int} _.iconLarge The large icon filename
  *
  * @apiError noActiveLeague There is no active league selected
  */

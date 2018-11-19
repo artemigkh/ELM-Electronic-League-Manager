@@ -3,5 +3,5 @@
   "dbPass": "123",
   "dbName": "elmdb",
   "port": "8080",
-  "iconsDir": "icons"
+  "iconsDir": "icons/"
 }

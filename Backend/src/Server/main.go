@@ -8,6 +8,10 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
+	"net/http"
+	"fmt"
+	"Server/icons"
+	"github.com/Pallinder/go-randomdata"
 )
 
 type Configuration struct {
@@ -42,6 +46,38 @@ func NewApp(conf config.Config) *gin.Engine {
 
 	// should probably be replaced with apache or nginx in production
 	app.Static("/icons", conf.GetIconsDir())
+
+	// only for testing, will be used by routes later
+	app.POST("/uploadIcon", func(c *gin.Context) {
+		iconManager := icons.GoIconManager{
+			OutPath: conf.GetIconsDir(),
+		}
+		tmpFileLoc := randomdata.RandStringRunes(10)
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+			return
+		}
+
+		if err := c.SaveUploadedFile(file, "tmp/" + tmpFileLoc); err != nil {
+			c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
+			return
+		}
+
+		smallLoc, largeLoc, err := iconManager.StoreNewIcon("tmp/" + tmpFileLoc)
+
+
+		if err != nil {
+			print(err.Error())
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		println(smallLoc)
+		println(largeLoc)
+
+		c.Status(http.StatusOK)
+	})
 	return app
 }
 

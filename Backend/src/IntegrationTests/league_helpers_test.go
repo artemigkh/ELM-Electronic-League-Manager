@@ -57,15 +57,18 @@ func checkGamesAgainstLeagueSummary(t *testing.T, games []*game) {
 	responseMapArray := makeApiCallAndGetMapArray(t, nil, "GET",
 		"api/leagues/gameSummary", 200)
 
-	for i := range responseMapArray {
-		assert.Equal(t, games[i].Id, responseMapArray[i]["id"])
-		assert.Equal(t, games[i].Team1Id, responseMapArray[i]["team1Id"])
-		assert.Equal(t, games[i].Team2Id, responseMapArray[i]["team2Id"])
-		assert.Equal(t, games[i].GameTime, responseMapArray[i]["gameTime"])
-		assert.Equal(t, games[i].Complete, responseMapArray[i]["complete"])
-		assert.Equal(t, games[i].WinnerId, responseMapArray[i]["winnerId"])
-		assert.Equal(t, games[i].ScoreTeam1, responseMapArray[i]["scoreTeam1"])
-		assert.Equal(t, games[i].ScoreTeam2, responseMapArray[i]["scoreTeam2"])
+	for _, element := range responseMapArray {
+		for _, game := range games {
+			if game.Team1Id == element["id"] {
+				assert.Equal(t, game.Team1Id, element["team1Id"])
+				assert.Equal(t, game.Team2Id, element["team2Id"])
+				assert.Equal(t, game.GameTime, element["gameTime"])
+				assert.Equal(t, game.Complete, element["complete"])
+				assert.Equal(t, game.WinnerId, element["winnerId"])
+				assert.Equal(t, game.ScoreTeam1, element["scoreTeam1"])
+				assert.Equal(t, game.ScoreTeam2, element["scoreTeam2"])
+			}
+		}
 	}
 }
 
@@ -107,10 +110,10 @@ func checkLeagueManagersCorrect(t *testing.T, l *league) {
 				for _, manager := range team["managers"].([]interface{}) {
 					for _, managerRep := range teamRep.Managers {
 						if manager.(map[string]interface{})["userEmail"] == managerRep.Email {
-							assert.True(t, manager.(map[string]interface{})["editPermissions"].(bool))
-							assert.True(t, manager.(map[string]interface{})["editTeamInfo"].(bool))
-							assert.True(t, manager.(map[string]interface{})["editPlayers"].(bool))
-							assert.True(t, manager.(map[string]interface{})["reportResult"].(bool))
+							assert.True(t, manager.(map[string]interface{})["administrator"].(bool))
+							assert.True(t, manager.(map[string]interface{})["information"].(bool))
+							assert.True(t, manager.(map[string]interface{})["players"].(bool))
+							assert.True(t, manager.(map[string]interface{})["reportResults"].(bool))
 							matchingManagers++
 						}
 					}

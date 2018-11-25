@@ -3,12 +3,14 @@ package IntegrationTests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
 )
 
 func makeApiCall(t *testing.T, bodyJson map[string]interface{}, reqType, url string, responseCode int) []byte {
+	println("calling url " + url)
 	var body *bytes.Buffer
 	//enable shorthand of omitting a body by passing nil
 	if bodyJson == nil {
@@ -47,6 +49,7 @@ func makeApiCall(t *testing.T, bodyJson map[string]interface{}, reqType, url str
 		} else {
 			errorMsg = errorJson.Error
 		}
+		fmt.Printf("Response code should be %v, was: %v. Error was: %v\n", responseCode, res.StatusCode, errorMsg)
 		t.Errorf("Response code should be %v, was: %v. Error was: %v", responseCode, res.StatusCode, errorMsg)
 	}
 

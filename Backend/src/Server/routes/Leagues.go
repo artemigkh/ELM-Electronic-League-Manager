@@ -168,10 +168,10 @@ func joinActiveLeague(ctx *gin.Context) {
  * @apiSuccess {[]Object} _.managers The users on this team that have management permissions
  * @apiSuccess {int} _.managers.userId The unique numerical identifier of the user/manager
  * @apiSuccess {string} _.managers.userEmail The email of the user/manager
- * @apiSuccess {bool} _.managers.editPermissions True if this user can manage permissions of other users on the team
- * @apiSuccess {bool} _.managers.editTeamInfo True if this user can edit information about the team
- * @apiSuccess {bool} _.managers.editPlayers True if this user can edit players on this team
- * @apiSuccess {bool} _.managers.reportResult True if this user can report results for this team
+ * @apiSuccess {bool} _.managers.administrator True if this user can manage permissions of other users on the team
+ * @apiSuccess {bool} _.managers.information True if this user can edit information about the team
+ * @apiSuccess {bool} _.managers.players True if this user can edit players on this team
+ * @apiSuccess {bool} _.managers.reportResults True if this user can report results for this team
  *
  * @apiError notLoggedIn No user is logged in
  * @apiError noActiveLeague There is no active league selected

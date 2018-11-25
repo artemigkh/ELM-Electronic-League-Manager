@@ -3,15 +3,15 @@ package main
 import (
 	"Server/config"
 	"Server/databaseAccess"
+	"Server/icons"
 	"Server/routes"
 	"Server/sessionManager"
+	"fmt"
+	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
 	"net/http"
-	"fmt"
-	"Server/icons"
-	"github.com/Pallinder/go-randomdata"
 )
 
 type Configuration struct {
@@ -59,13 +59,12 @@ func NewApp(conf config.Config) *gin.Engine {
 			return
 		}
 
-		if err := c.SaveUploadedFile(file, "tmp/" + tmpFileLoc); err != nil {
+		if err := c.SaveUploadedFile(file, "tmp/"+tmpFileLoc); err != nil {
 			c.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
 			return
 		}
 
 		smallLoc, largeLoc, err := iconManager.StoreNewIcon("tmp/" + tmpFileLoc)
-
 
 		if err != nil {
 			print(err.Error())

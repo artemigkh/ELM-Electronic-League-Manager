@@ -20,8 +20,4 @@ export class StandingsComponent {
                 console.log(error);
             });
     }
-
-    getRandomIconNum(): number {
-        return Math.floor(Math.random()*10)
-    }
 }

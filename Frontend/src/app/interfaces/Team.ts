@@ -6,6 +6,8 @@ export interface Team {
     tag: string;
     wins: number;
     losses: number;
+    iconSmall: string;
+    iconLarge: string;
     players: Player[];
     substitutes: Player[];
     visible: boolean;

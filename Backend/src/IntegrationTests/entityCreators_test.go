@@ -51,18 +51,27 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 		}
 	}
 
-	//tag := randomdata.Letters(4)
-	//for i := 0; i < len(teams); i++ {
-	//	if tag == teams[i].Tag {
-	//		tag = randomdata.Letters(4)
-	//		i = 0
-	//	}
-	//}
 	var tag string
 	if randomdata.Boolean() {
 		tag = teamName[0:4]
 	} else {
 		tag = teamName[0:3]
+	}
+
+	endNum := 1
+	for true {
+		unique := true
+		for i := 0; i < len(teams); i++ {
+			if strings.ToUpper(tag) == teams[i].Tag {
+				unique = false
+			}
+		}
+		if unique {
+			break
+		} else {
+			tag = fmt.Sprintf("%v%v", teamName[0:3], endNum)
+			endNum++
+		}
 	}
 
 	tag = strings.ToUpper(tag)
@@ -72,7 +81,7 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 	body["tag"] = tag
 
 	return &team{
-		Id:       makeApiCallAndGetId(t, body, "POST", "api/teams", 200),
+		Id:       makeApiCallAndGetId(t, body, "POST", "api/teams/", 200),
 		LeagueId: l.Id,
 		Name:     teamName,
 		Tag:      tag,

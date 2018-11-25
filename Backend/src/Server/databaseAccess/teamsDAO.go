@@ -113,7 +113,7 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 	var teamIdOfMatch int
 	err := psql.Select("name, id").
 		From("teams").
-		Where("name = ?", name).
+		Where("name = ? AND leagueId = ?", name, leagueId).
 		RunWith(db).QueryRow().Scan(&name, &teamIdOfMatch)
 	if err == sql.ErrNoRows {
 		//check for tag
@@ -123,10 +123,10 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 		return true, "nameInUse", nil
 	}
 
-	//check if name in use
+	//check if tag in use
 	err = psql.Select("tag, id").
 		From("teams").
-		Where("tag = ?", strings.ToUpper(tag)).
+		Where("tag = ? AND leagueId = ?", strings.ToUpper(tag), leagueId).
 		RunWith(db).QueryRow().Scan(&tag, &teamIdOfMatch)
 	if err == sql.ErrNoRows {
 		return false, "", nil

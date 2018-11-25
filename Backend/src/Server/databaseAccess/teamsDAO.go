@@ -2,8 +2,8 @@ package databaseAccess
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Pallinder/go-randomdata"
-	"strconv"
 	"strings"
 )
 
@@ -31,12 +31,11 @@ type PlayerInformation struct {
 
 type PgTeamsDAO struct{}
 
-func tryGetUniqueIcon(leagueId int, d *PgTeamsDAO) (string, string, error) {
-
-	// generate list of available icon numbers
+func tryGetUniqueIcon(leagueId int) (string, string, error) {
+	// get list of icons used
 	rows, err := psql.Select("iconSmall").
 		From("teams").
-		Where("id = ?", leagueId).
+		Where("leagueId = ?", leagueId).
 		RunWith(db).Query()
 
 	if err != nil {
@@ -44,19 +43,21 @@ func tryGetUniqueIcon(leagueId int, d *PgTeamsDAO) (string, string, error) {
 	}
 	defer rows.Close()
 
-	var icon string
+	// generate bool who's indices indicate if that number is available
 	var availableIcons []bool
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 9; i++ {
 		availableIcons = append(availableIcons, true)
 	}
 
+	// mark numbers as taken if the filename associated with it is present
+	var icon string
 	for rows.Next() {
 		err := rows.Scan(&icon)
 		if err != nil {
 			return "", "", err
 		}
-		for i := 0; i < 10; i++ {
-			if icon == "generic-"+string(i)+"-small.png" {
+		for i := 0; i < 9; i++ {
+			if icon == fmt.Sprintf("generic-%v-small.png", i+1) {
 				availableIcons[i] = false
 			}
 		}
@@ -65,25 +66,31 @@ func tryGetUniqueIcon(leagueId int, d *PgTeamsDAO) (string, string, error) {
 		return "", "", err
 	}
 
+	// create list of available generic icons
 	var availableNumbers []int
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 9; i++ {
 		if availableIcons[i] {
 			availableNumbers = append(availableNumbers, i+1)
 		}
 	}
 
+	// select one either from available or if all taken a random one
 	var newIconNumber int
+	println(fmt.Sprintf("Available numbers: %v", len(availableNumbers)))
 	if len(availableNumbers) == 0 {
 		newIconNumber = randomdata.Number(1, 9)
+	} else if len(availableNumbers) == 1 {
+		newIconNumber = availableNumbers[0]
 	} else {
 		newIconNumber = availableNumbers[randomdata.Number(0, len(availableNumbers)-1)]
 	}
 
-	return "generic-" + strconv.Itoa(newIconNumber) + "-small.png", "generic-" + strconv.Itoa(newIconNumber) + "-large.png", nil
+	return fmt.Sprintf("generic-%v-small.png", newIconNumber),
+		fmt.Sprintf("generic-%v-large.png", newIconNumber), nil
 }
 
 func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, error) {
-	smallIcon, largeIcon, err := tryGetUniqueIcon(leagueId, d)
+	smallIcon, largeIcon, err := tryGetUniqueIcon(leagueId)
 	if err != nil {
 		return -1, err
 	}

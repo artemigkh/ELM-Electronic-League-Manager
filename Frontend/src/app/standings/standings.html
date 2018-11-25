@@ -21,9 +21,8 @@
 
     <ng-container matColumnDef="Icon">
         <mat-header-cell *matHeaderCellDef> Icon </mat-header-cell>
-        <mat-cell *matCellDef="let element; let i = index">
-            <img [src]="'http://localhost:8080/icons/generic-'+(i%9+1)+'-small.png'">
-            <!--<img src={{i+1}}>-->
+        <mat-cell *matCellDef="let element;">
+            <img [src]="'http://localhost:8080/icons/' + element.iconSmall">
         </mat-cell>
     </ng-container>
 

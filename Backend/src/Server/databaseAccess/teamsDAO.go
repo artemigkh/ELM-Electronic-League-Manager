@@ -8,11 +8,14 @@ import (
 )
 
 type TeamInformation struct {
-	Name    string              `json:"name"`
-	Tag     string              `json:"tag"`
-	Wins    int                 `json:"wins"`
-	Losses  int                 `json:"losses"`
-	Players []PlayerInformation `json:"players"`
+	Name        string              `json:"name"`
+	Tag         string              `json:"tag"`
+	Description string              `json:"description"`
+	Wins        int                 `json:"wins"`
+	Losses      int                 `json:"losses"`
+	IconSmall   string              `json:"iconSmall"`
+	IconLarge   string              `json:"iconLarge"`
+	Players     []PlayerInformation `json:"players"`
 }
 
 type TeamPermissions struct {
@@ -89,15 +92,16 @@ func tryGetUniqueIcon(leagueId int) (string, string, error) {
 		fmt.Sprintf("generic-%v-large.png", newIconNumber), nil
 }
 
-func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, error) {
+func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag, description string) (int, error) {
 	smallIcon, largeIcon, err := tryGetUniqueIcon(leagueId)
 	if err != nil {
 		return -1, err
 	}
 
 	var teamId int
-	err = psql.Insert("teams").Columns("leagueId", "name", "tag", "wins", "losses", "iconSmall", "iconLarge").
-		Values(leagueId, name, strings.ToUpper(tag), 0, 0, smallIcon, largeIcon).Suffix("RETURNING \"id\"").
+	err = psql.Insert("teams").
+		Columns("leagueId", "name", "tag", "description", "wins", "losses", "iconSmall", "iconLarge").
+		Values(leagueId, name, strings.ToUpper(tag), description, 0, 0, smallIcon, largeIcon).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&teamId)
 	if err != nil {
 		return -1, err
@@ -149,10 +153,11 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamInformation, error) {
 	var teamInformation TeamInformation
 	//get team information
-	err := psql.Select("name", "tag", "wins", "losses").
+	err := psql.Select("name", "tag", "description", "wins", "losses", "iconSmall", "iconLarge").
 		From("teams").
 		Where("id = ? AND leagueId = ?", teamId, leagueId).
-		RunWith(db).QueryRow().Scan(&teamInformation.Name, &teamInformation.Tag, &teamInformation.Wins, &teamInformation.Losses)
+		RunWith(db).QueryRow().Scan(&teamInformation.Name, &teamInformation.Tag, &teamInformation.Description,
+		&teamInformation.Wins, &teamInformation.Losses, &teamInformation.IconSmall, &teamInformation.IconLarge)
 	if err != nil {
 		return nil, err
 	}
@@ -216,12 +221,12 @@ func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainR
 	return playerId, nil
 }
 
-func (d *PgTeamsDAO) UpdateTeam(leagueId, teamId int, name, tag string) error {
+func (d *PgTeamsDAO) UpdateTeam(leagueId, teamId int, name, tag, description string) error {
 	_, err := db.Exec(
 		`
-		UPDATE teams SET name = $1, tag = $2
-		WHERE id = $3 AND leagueId = $4
-		`, name, tag, teamId, leagueId)
+		UPDATE teams SET name = $1, tag = $2, description = $3
+		WHERE id = $4 AND leagueId = $5
+		`, name, tag, description, teamId, leagueId)
 	return err
 }
 

@@ -206,7 +206,7 @@ func testUpdateTeamDbError(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
 	mockTeamsDao.On("IsInfoInUse", 5, 7, "sampleName", "TAG").
 		Return(false, "", nil)
-	mockTeamsDao.On("UpdateTeam", 5, 7, "sampleName", "TAG").Return(errors.New("fake db error"))
+	mockTeamsDao.On("UpdateTeam", 5, 7, "sampleName", "TAG", "").Return(errors.New("fake db error"))
 	mockTeamsDao.On("GetTeamPermissions", 7, 2).
 		Return(TeamPermissions(false, false, false, false), nil)
 
@@ -290,7 +290,7 @@ func testUpdateTeam(t *testing.T) {
 	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
 	mockTeamsDao.On("IsInfoInUse", 5, 7, "sampleName", "TAG").
 		Return(false, "", nil)
-	mockTeamsDao.On("UpdateTeam", 5, 7, "sampleName", "TAG").Return(nil)
+	mockTeamsDao.On("UpdateTeam", 5, 7, "sampleName", "TAG", "").Return(nil)
 	mockTeamsDao.On("GetTeamPermissions", 7, 2).
 		Return(TeamPermissions(false, false, false, false), nil)
 

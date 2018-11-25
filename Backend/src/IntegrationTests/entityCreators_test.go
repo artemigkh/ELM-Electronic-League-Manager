@@ -24,6 +24,13 @@ func createUser(t *testing.T) *user {
 	}
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 	leagueName := randomdata.SillyName()
 
@@ -76,9 +83,14 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 
 	tag = strings.ToUpper(tag)
 
+	threeParagraphs := randomdata.Paragraph() + "\n\n" +
+		randomdata.Paragraph() + "\n\n" +
+		randomdata.Paragraph() + "\n\n"
+
 	body := make(map[string]interface{})
 	body["name"] = teamName
 	body["tag"] = tag
+	body["description"] = threeParagraphs[0:min(499, len(threeParagraphs)-1)]
 
 	return &team{
 		Id:       makeApiCallAndGetId(t, body, "POST", "api/teams/", 200),

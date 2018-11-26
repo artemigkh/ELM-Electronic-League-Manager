@@ -239,7 +239,7 @@ func testCorrectTeamCreation(t *testing.T) {
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsInfoInUse", 5, -1, "sampleName", "TAG").
 		Return(false, "", nil)
-	mockTeamsDao.On("CreateTeam", 5, 4, "sampleName", "TAG").
+	mockTeamsDao.On("CreateTeam", 5, 4, "sampleName", "TAG", "").
 		Return(6, nil)
 
 	routes.ElmSessions = mockSession

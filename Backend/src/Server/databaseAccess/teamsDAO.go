@@ -2,15 +2,20 @@ package databaseAccess
 
 import (
 	"database/sql"
+	"fmt"
+	"github.com/Pallinder/go-randomdata"
 	"strings"
 )
 
 type TeamInformation struct {
-	Name    string              `json:"name"`
-	Tag     string              `json:"tag"`
-	Wins    int                 `json:"wins"`
-	Losses  int                 `json:"losses"`
-	Players []PlayerInformation `json:"players"`
+	Name        string              `json:"name"`
+	Tag         string              `json:"tag"`
+	Description string              `json:"description"`
+	Wins        int                 `json:"wins"`
+	Losses      int                 `json:"losses"`
+	IconSmall   string              `json:"iconSmall"`
+	IconLarge   string              `json:"iconLarge"`
+	Players     []PlayerInformation `json:"players"`
 }
 
 type TeamPermissions struct {
@@ -29,10 +34,74 @@ type PlayerInformation struct {
 
 type PgTeamsDAO struct{}
 
-func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag string) (int, error) {
+func tryGetUniqueIcon(leagueId int) (string, string, error) {
+	// get list of icons used
+	rows, err := psql.Select("iconSmall").
+		From("teams").
+		Where("leagueId = ?", leagueId).
+		RunWith(db).Query()
+
+	if err != nil {
+		return "", "", err
+	}
+	defer rows.Close()
+
+	// generate bool who's indices indicate if that number is available
+	var availableIcons []bool
+	for i := 0; i < 9; i++ {
+		availableIcons = append(availableIcons, true)
+	}
+
+	// mark numbers as taken if the filename associated with it is present
+	var icon string
+	for rows.Next() {
+		err := rows.Scan(&icon)
+		if err != nil {
+			return "", "", err
+		}
+		for i := 0; i < 9; i++ {
+			if icon == fmt.Sprintf("generic-%v-small.png", i+1) {
+				availableIcons[i] = false
+			}
+		}
+	}
+	if rows.Err() != nil {
+		return "", "", err
+	}
+
+	// create list of available generic icons
+	var availableNumbers []int
+	for i := 0; i < 9; i++ {
+		if availableIcons[i] {
+			availableNumbers = append(availableNumbers, i+1)
+		}
+	}
+
+	// select one either from available or if all taken a random one
+	var newIconNumber int
+	println(fmt.Sprintf("Available numbers: %v", len(availableNumbers)))
+	if len(availableNumbers) == 0 {
+		newIconNumber = randomdata.Number(1, 9)
+	} else if len(availableNumbers) == 1 {
+		newIconNumber = availableNumbers[0]
+	} else {
+		newIconNumber = availableNumbers[randomdata.Number(0, len(availableNumbers)-1)]
+	}
+
+	return fmt.Sprintf("generic-%v-small.png", newIconNumber),
+		fmt.Sprintf("generic-%v-large.png", newIconNumber), nil
+}
+
+func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag, description string) (int, error) {
+	smallIcon, largeIcon, err := tryGetUniqueIcon(leagueId)
+	if err != nil {
+		return -1, err
+	}
+
 	var teamId int
-	err := psql.Insert("teams").Columns("leagueId", "name", "tag", "wins", "losses").
-		Values(leagueId, name, strings.ToUpper(tag), 0, 0).Suffix("RETURNING \"id\"").
+	err = psql.Insert("teams").
+		Columns("leagueId", "name", "tag", "description", "wins", "losses", "iconSmall", "iconLarge").
+		Values(leagueId, name, strings.ToUpper(tag), description, 0, 0, smallIcon, largeIcon).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&teamId)
 	if err != nil {
 		return -1, err
@@ -55,7 +124,7 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 	var teamIdOfMatch int
 	err := psql.Select("name, id").
 		From("teams").
-		Where("name = ?", name).
+		Where("name = ? AND leagueId = ?", name, leagueId).
 		RunWith(db).QueryRow().Scan(&name, &teamIdOfMatch)
 	if err == sql.ErrNoRows {
 		//check for tag
@@ -65,10 +134,10 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 		return true, "nameInUse", nil
 	}
 
-	//check if name in use
+	//check if tag in use
 	err = psql.Select("tag, id").
 		From("teams").
-		Where("tag = ?", strings.ToUpper(tag)).
+		Where("tag = ? AND leagueId = ?", strings.ToUpper(tag), leagueId).
 		RunWith(db).QueryRow().Scan(&tag, &teamIdOfMatch)
 	if err == sql.ErrNoRows {
 		return false, "", nil
@@ -84,10 +153,11 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamInformation, error) {
 	var teamInformation TeamInformation
 	//get team information
-	err := psql.Select("name", "tag", "wins", "losses").
+	err := psql.Select("name", "tag", "description", "wins", "losses", "iconSmall", "iconLarge").
 		From("teams").
 		Where("id = ? AND leagueId = ?", teamId, leagueId).
-		RunWith(db).QueryRow().Scan(&teamInformation.Name, &teamInformation.Tag, &teamInformation.Wins, &teamInformation.Losses)
+		RunWith(db).QueryRow().Scan(&teamInformation.Name, &teamInformation.Tag, &teamInformation.Description,
+		&teamInformation.Wins, &teamInformation.Losses, &teamInformation.IconSmall, &teamInformation.IconLarge)
 	if err != nil {
 		return nil, err
 	}
@@ -151,12 +221,12 @@ func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainR
 	return playerId, nil
 }
 
-func (d *PgTeamsDAO) UpdateTeam(leagueId, teamId int, name, tag string) error {
+func (d *PgTeamsDAO) UpdateTeam(leagueId, teamId int, name, tag, description string) error {
 	_, err := db.Exec(
 		`
-		UPDATE teams SET name = $1, tag = $2
-		WHERE id = $3 AND leagueId = $4
-		`, name, tag, teamId, leagueId)
+		UPDATE teams SET name = $1, tag = $2, description = $3
+		WHERE id = $4 AND leagueId = $5
+		`, name, tag, description, teamId, leagueId)
 	return err
 }
 

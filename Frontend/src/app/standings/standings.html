@@ -19,6 +19,13 @@
       <mat-cell *matCellDef="let element; let i = index"> {{i+1}} </mat-cell>
   </ng-container>
 
+    <ng-container matColumnDef="Icon">
+        <mat-header-cell *matHeaderCellDef> Icon </mat-header-cell>
+        <mat-cell *matCellDef="let element;">
+            <img [src]="'http://localhost:8080/icons/' + element.iconSmall">
+        </mat-cell>
+    </ng-container>
+
     <ng-container matColumnDef="Name">
       <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
       <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
@@ -37,6 +44,6 @@
     </ng-container>
 
     <mat-header-row style="display: none;" *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/teams', row.id]"></mat-row>
 </mat-table>
 

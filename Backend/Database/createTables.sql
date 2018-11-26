@@ -36,8 +36,11 @@ CREATE TABLE teams (
   leagueId        INT           NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
   tag             VARCHAR(5)    NOT NULL         ,
+  description     VARCHAR(500)                   ,
   wins            INT           NOT NULL         ,
-  losses          INT           NOT NULL
+  losses          INT           NOT NULL         ,
+  iconSmall       VARCHAR(20)   NOT NULL         ,
+  iconLarge       VARCHAR(20)   NOT NULL
 );
 ALTER SEQUENCE teamsIdSeq OWNED BY teams.id;
 

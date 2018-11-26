@@ -6,8 +6,9 @@ import (
 )
 
 type TeamInformation struct {
-	Name string `json:"name"`
-	Tag  string `json:"tag"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Tag         string `json:"tag"`
 }
 
 type PlayerInformation struct {
@@ -48,6 +49,7 @@ type TeamManagerPermissionChange struct {
  *
  * @apiParam {string} name The name of the team to be created
  * @apiParam {string} tag The tag of the team to be created
+ * @apiParam {string} description The description of the team to be created
  *
  * @apiSuccess {int} id the unique numerical identifier of the created team
  *
@@ -74,11 +76,15 @@ func createNewTeam(ctx *gin.Context) {
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
 		return
 	}
+	if failIfDescriptionTooLong(ctx, teamInfo.Description) {
+		return
+	}
 	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), -1, teamInfo.Name, teamInfo.Tag) {
 		return
 	}
 
-	teamId, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueId"), ctx.GetInt("userId"), teamInfo.Name, teamInfo.Tag)
+	teamId, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
+		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -123,11 +129,15 @@ func updateTeam(ctx *gin.Context) {
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
 		return
 	}
+	if failIfDescriptionTooLong(ctx, teamInfo.Description) {
+		return
+	}
 	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId"), teamInfo.Name, teamInfo.Tag) {
 		return
 	}
 
-	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"), teamInfo.Name, teamInfo.Tag)
+	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
+		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -172,8 +182,11 @@ func deleteTeam(ctx *gin.Context) {
  *
  * @apiSuccess {string} name The name of the team
  * @apiSuccess {string} tag The tag of the team
+ * @apiSuccess {string} description The team description
  * @apiSuccess {int} wins The number of wins this team has
  * @apiSuccess {int} losses The number of losses this team has
+ * @apiSuccess {string} iconSmall The small icon filename
+ * @apiSuccess {string} iconLarge The large icon filename
  * @apiSuccess {[]Object} players An array of json objects representing the players on the team
  * @apiSuccess {int} players.id The unique numerical identifier of the player
  * @apiSuccess {string} players.name The name of the player

@@ -9,7 +9,7 @@ import {Team} from "../interfaces/Team";
     encapsulation: ViewEncapsulation.None,
 })
 export class StandingsComponent {
-    displayedColumns: string[] = ['Position', 'Name', 'Score'];
+    displayedColumns: string[] = ['Position', 'Icon', 'Name', 'Score'];
     dataSource: Team[];
 
     constructor(private leagueService: LeagueService) {

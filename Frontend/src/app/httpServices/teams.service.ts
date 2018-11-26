@@ -2,6 +2,9 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {httpOptions} from "./http-options";
 import {Observable} from "rxjs/Rx";
+import {GtiTeam} from "./api-return-schemas/get-team-information";
+import {Player} from "../interfaces/Player";
+import {Team} from "../interfaces/Team";
 
 @Injectable()
 export class TeamsService {
@@ -35,5 +38,37 @@ export class TeamsService {
             players: players,
             reportResults: reportResults
         }, httpOptions)
+    }
+
+    public getTeamInformation(teamId: number): Observable<Object> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/teams/' + teamId, httpOptions).subscribe(
+                (next: Team) => {
+                    let players = next.players;
+                    let team = next;
+                    team.substitutes = [];
+                    team.players = [];
+                    if(players) {
+                        players.forEach(player=> {
+                            let tempPlayer: Player = {
+                                id: player.id,
+                                name: player.name,
+                                gameIdentifier: player.gameIdentifier
+                            };
+
+                            if(player.mainRoster) {
+                                team.players.push(tempPlayer);
+                            } else {
+                                team.substitutes.push(tempPlayer);
+                            }
+                        });
+                    }
+                    observer.next(team);
+                }, error => {
+                    observer.error(error);
+                    console.log(error);
+                }
+            );
+        });
     }
 }

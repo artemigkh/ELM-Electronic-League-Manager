@@ -18,7 +18,7 @@ import {SignupComponent} from "./signup/signup";
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
     {path: 'standings', component: StandingsComponent, data: {}},
-    {path: 'teams', component: TeamsComponent, data: {}},
+    {path: 'teams/:id', component: TeamsComponent, data: {}},
     {path: 'matchHistory', component: MatchHistoryComponent, data: {}},
     {path: 'upcomingGames', component: UpcomingGamesComponent, data: {}},
     {path: 'login', component: LoginComponent, data: {}},

@@ -1,0 +1,145 @@
+.basic-container {
+  width: 80%;
+  margin-left: 10%;
+  margin-top: 2%;
+}
+
+h1 {
+  outline: none;
+}
+
+.title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 220px;
+
+    .logo {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img {
+            align-items: center;
+            justify-content: center;
+            max-height:85%;
+            max-width:85%;
+            height:auto;
+            width:auto;
+        }
+    }
+
+
+
+    .name {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 64px;
+        font-weight: 300;
+    }
+}
+
+.limiter {
+    margin-left: 10%;
+    width: 80%;
+    height: 100%;
+}
+
+mat-tab-group {}
+
+
+mat-tab-body {
+}
+
+.mat-tab-body-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    overflow: visible !important;
+
+    .description {
+        margin-top:30px;
+        width: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .heading {
+        font-size: 24px;
+        font-weight: 400;
+        margin-bottom: 15px;
+    }
+
+    .members {
+        width: 60%;
+        margin-top:20px;
+
+        .player-type {
+            color: black;
+            font-weight: 400;
+            font-size: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0 0 5px 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        li {
+            height: 48px;
+            width: 100%;
+
+            border-style: solid;
+            border-width: 1px 0 0 0;
+            border-color: lightgray;
+        }
+    }
+}
+
+span.player-entry {
+    flex-grow: 1;
+    height: 100%;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: row;
+
+    .name {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 60%;
+    }
+
+    .game-name {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-weight: 500;
+        width: 25%;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+
+    .delete {
+        color: #d9534f!important;
+    }
+
+    .move {
+        color: gray;
+    }
+}
+
+.mat-tab-labels {
+    justify-content: center;
+}

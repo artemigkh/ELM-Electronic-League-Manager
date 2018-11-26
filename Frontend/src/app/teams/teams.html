@@ -2,3 +2,71 @@
   <h1 class="docs-primary-header">Teams</h1>
 </div>
 
+<ng-container *ngIf="team">
+
+<div class="title">
+    <span class="logo">
+        <img [src]="'http://localhost:8080/icons/' + team.iconLarge">
+    </span>
+
+    <span class="name">
+        {{team.name}}
+    </span>
+</div>
+
+<div class="limiter">
+    <!--<mat-divider></mat-divider>-->
+    <mat-tab-group>
+        <mat-tab label="Members">
+            <span class="members">
+                <ul>
+                    <div class="player-type">
+                        Players
+                    </div>
+                    <li *ngFor="let player of team.players">
+                        <span class="player-entry">
+                            <span class="spacer"></span>
+                            <span class="name">
+                                {{player.name}}
+                            </span>
+                            <span class="game-name">
+                                {{player.gameIdentifier}}
+                            </span>
+                        </span>
+                    </li>
+                </ul>
+                <ul>
+                    <div class="player-type">
+                        Substitutes
+                    </div>
+                    <li *ngFor="let player of team.substitutes">
+                        <span class="player-entry">
+                            <span class="spacer"></span>
+                            <span class="name">
+                                {{player.name}}
+                            </span>
+
+                            <span class="game-name">
+                                {{player.gameIdentifier}}
+                            </span>
+                        </span>
+                    </li>
+                </ul>
+            </span>
+        </mat-tab>
+
+        <mat-tab label="About">
+            <span class="description">
+                {{team.description}}
+            </span>
+        </mat-tab>
+
+        <mat-tab label="Match History"> Content 3 </mat-tab>
+        <mat-tab label="Upcoming Games"> Content 3 </mat-tab>
+    </mat-tab-group>
+</div>
+
+
+
+
+</ng-container>

@@ -49,7 +49,7 @@ export class TeamsService {
                     team.substitutes = [];
                     team.players = [];
                     if(players) {
-                        players.forEach(player=> {
+                        players.forEach((player: any)=> {
                             let tempPlayer: Player = {
                                 id: player.id,
                                 name: player.name,

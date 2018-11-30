@@ -9,80 +9,83 @@
 <!--</div>-->
 
 <mat-divider></mat-divider>
-<mat-table [dataSource]="games" class="mat-elevation-z8">
-    <ng-container matColumnDef="game">
-        <mat-header-cell *matHeaderCellDef></mat-header-cell>
-        <mat-cell *matCellDef="let game">
+
+<app-game-entry *ngFor="let game of games" [game]="game"></app-game-entry>
+
+<!--<mat-table [dataSource]="games" class="mat-elevation-z8">-->
+    <!--<ng-container matColumnDef="game">-->
+        <!--<mat-header-cell *matHeaderCellDef></mat-header-cell>-->
+        <!--<mat-cell *matCellDef="let game">-->
 
 
-            <span class="time">
-                <div class="dayofweek">
-                    {{game.gameTime * 1000 | date:'EEEE'}}
-                </div>
-                <div class="day">
-                    {{game.gameTime * 1000 | date:'MMMM d'}}
-                </div>
-                <div class="time">
-                    {{game.gameTime * 1000 | date:'h:mm a'}}
-                </div>
-            </span>
-            <span class="info">
-            <!--<span class="spacer"></span>-->
-                <span *ngIf="game.winnerId==game.team1.id" class="team-name victory">
-                    {{game.team1.name}}
-                </span>
+            <!--<span class="time">-->
+                <!--<div class="dayofweek">-->
+                    <!--{{game.gameTime * 1000 | date:'EEEE'}}-->
+                <!--</div>-->
+                <!--<div class="day">-->
+                    <!--{{game.gameTime * 1000 | date:'MMMM d'}}-->
+                <!--</div>-->
+                <!--<div class="time">-->
+                    <!--{{game.gameTime * 1000 | date:'h:mm a'}}-->
+                <!--</div>-->
+            <!--</span>-->
+            <!--<span class="info">-->
+            <!--&lt;!&ndash;<span class="spacer"></span>&ndash;&gt;-->
+                <!--<span *ngIf="game.winnerId==game.team1.id" class="team-name victory">-->
+                    <!--{{game.team1.name}}-->
+                <!--</span>-->
 
-                <span *ngIf="game.winnerId!=game.team1.id" class="team-name defeat">
-                    {{game.team1.name}}
-                </span>
+                <!--<span *ngIf="game.winnerId!=game.team1.id" class="team-name defeat">-->
+                    <!--{{game.team1.name}}-->
+                <!--</span>-->
 
-                <span class="team-block">
-                    <div class="tag">
-                        {{game.team1.tag}}
-                    </div>
+                <!--<span class="team-block">-->
+                    <!--<div class="tag">-->
+                        <!--{{game.team1.tag}}-->
+                    <!--</div>-->
 
-                    <div *ngIf="game.winnerId==game.team1.id" class="victory">
-                        VICTORY
-                    </div>
-                    <div *ngIf="game.winnerId!=game.team1.id" class="defeat">
-                        DEFEAT
-                    </div>
+                    <!--<div *ngIf="game.winnerId==game.team1.id" class="victory">-->
+                        <!--VICTORY-->
+                    <!--</div>-->
+                    <!--<div *ngIf="game.winnerId!=game.team1.id" class="defeat">-->
+                        <!--DEFEAT-->
+                    <!--</div>-->
 
-                    <div class="record">
-                        {{game.team1.wins}}W -  {{game.team1.losses}}L
-                    </div>
-                </span>
-                <span class="vs">
-                    vs
-                </span>
-                <span class="team-block">
-                    <div class="tag">
-                        {{game.team2.tag}}
-                    </div>
-                    <div *ngIf="game.winnerId==game.team2.id" class="victory">
-                        VICTORY
-                    </div>
-                    <div *ngIf="game.winnerId!=game.team2.id" class="defeat">
-                        DEFEAT
-                    </div>
-                    <div class="record">
-                        {{game.team2.wins}}W -  {{game.team2.losses}}L
-                    </div>
-                </span>
+                    <!--<div class="record">-->
+                        <!--{{game.team1.wins}}W -  {{game.team1.losses}}L-->
+                    <!--</div>-->
+                <!--</span>-->
+                <!--<span class="vs">-->
+                    <!--vs-->
+                <!--</span>-->
+                <!--<span class="team-block">-->
+                    <!--<div class="tag">-->
+                        <!--{{game.team2.tag}}-->
+                    <!--</div>-->
+                    <!--<div *ngIf="game.winnerId==game.team2.id" class="victory">-->
+                        <!--VICTORY-->
+                    <!--</div>-->
+                    <!--<div *ngIf="game.winnerId!=game.team2.id" class="defeat">-->
+                        <!--DEFEAT-->
+                    <!--</div>-->
+                    <!--<div class="record">-->
+                        <!--{{game.team2.wins}}W -  {{game.team2.losses}}L-->
+                    <!--</div>-->
+                <!--</span>-->
 
-                <span *ngIf="game.winnerId!=game.team2.id" class="team-name defeat">
-                    {{game.team2.name}}
-                </span>
+                <!--<span *ngIf="game.winnerId!=game.team2.id" class="team-name defeat">-->
+                    <!--{{game.team2.name}}-->
+                <!--</span>-->
 
-                <span *ngIf="game.winnerId==game.team2.id" class="team-name victory">
-                    {{game.team2.name}}
-                </span>
-                <!--<span class="spacer"></span>-->
+                <!--<span *ngIf="game.winnerId==game.team2.id" class="team-name victory">-->
+                    <!--{{game.team2.name}}-->
+                <!--</span>-->
+                <!--&lt;!&ndash;<span class="spacer"></span>&ndash;&gt;-->
 
-            </span>
-        </mat-cell>
-    </ng-container>
-    <mat-header-row style="display: none;" *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-</mat-table>
+            <!--</span>-->
+        <!--</mat-cell>-->
+    <!--</ng-container>-->
+    <!--<mat-header-row style="display: none;" *matHeaderRowDef="displayedColumns"></mat-header-row>-->
+    <!--<mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>-->
+<!--</mat-table>-->
 

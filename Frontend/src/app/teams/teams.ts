@@ -11,21 +11,18 @@ import { ViewEncapsulation } from '@angular/core';
 })
 export class TeamsComponent {
     team: Team;
+
     constructor(private route: ActivatedRoute, private teamsService: TeamsService) {
-        this.sub = this.route.params.subscribe(params => {
-            this.id = +params['id'];
-            this.teamsService.getTeamInformation(this.id).subscribe(
+        this.route.params.subscribe(params => {
+            this.teamsService.getTeamInformation(+params['id']).subscribe(
                 (next: Team) => {
                     this.team = next;
+                    console.log('test new');
                     console.log(next);
                 }, error => {
                     console.log(error);
                 }
             )
         });
-    }
-
-    ngOnDestroy() {
-        this.sub.unsubscribe();
     }
 }

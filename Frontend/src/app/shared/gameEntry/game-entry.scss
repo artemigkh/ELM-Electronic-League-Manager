@@ -1,0 +1,123 @@
+.game-entry {
+    height: 150px;
+    padding-left: 0!important;
+    padding-right: 0!important;
+    display: flex;
+    flex-direction: row;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: lightgray;
+}
+
+span.time {
+    height: 100%;
+    width: 15%;
+    background-color: #f5f5f5;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    .dayofweek {
+        font-size: 24px;
+        font-weight: 300;
+    }
+
+    .day {
+        font-size: 24px;
+        font-weight: 300;
+    }
+
+    .time {
+        font-size: 26px;
+        font-weight: 500;
+    }
+}
+
+
+span.info {
+    flex-grow: 1;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+
+    .team-name {
+        width:20%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        padding-left: 40px;
+        padding-right: 40px;
+
+        font-size: 30px;
+        font-weight: 300;
+        color: #000000;
+    }
+
+    .team-block {
+        width: 12.5%;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        font-size: 28px;
+
+        .tag {
+            color: black;
+            font-size: 30px;
+            font-weight: 500;
+        }
+
+        .record {
+            font-size: 16px;
+            font-weight: 400;
+            color: #646464;
+        }
+
+    }
+
+    .victory {
+        font-weight: 300;
+        color: darkgreen;
+    }
+
+    .defeat {
+        font-weight: 300;
+        color: darkred;
+    }
+
+    .ignore {
+        display: none;
+    }
+
+    .vs {
+        width: 2%;
+        min-width: 25px;
+        justify-content: center;
+        flex-direction: column;
+        display: flex;
+        padding-left: 40px;
+        padding-right: 40px;
+        font-size: 24px;
+        font-weight: 300;
+    }
+
+    .logo {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img {
+            align-items: center;
+            justify-content: center;
+            max-height:85%;
+            max-width:85%;
+            height:auto;
+            width:auto;
+        }
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+}

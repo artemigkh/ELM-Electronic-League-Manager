@@ -4,6 +4,7 @@ export interface Team {
     id: number;
     name: string;
     tag: string;
+    description: string;
     wins: number;
     losses: number;
     iconSmall: string;

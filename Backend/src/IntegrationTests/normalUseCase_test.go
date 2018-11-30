@@ -100,13 +100,14 @@ func Test_NormalUseCase(t *testing.T) {
 		loginAs(t, leagueOwner)
 		setActiveLeague(t, l)
 
-		gameTime := randomdata.Number(int(time.Now().Unix())-5184000, int(time.Now().Unix()))
+		currTime := int(time.Now().Unix())
+		gameTime := randomdata.Number(currTime-5184000, currTime+5184000)
 
 		for _, m1 := range l.Teams {
 			for _, m2 := range l.Teams {
 				if m1.Id != m2.Id {
 					l.Games = append(l.Games, createGame(t, l, gameTime, m1.Id, m2.Id))
-					gameTime = randomdata.Number(int(time.Now().Unix())-5184000, int(time.Now().Unix()))
+					gameTime = randomdata.Number(currTime-5184000, currTime+5184000)
 				}
 			}
 		}
@@ -118,26 +119,16 @@ func Test_NormalUseCase(t *testing.T) {
 		checkGamesAgainstLeagueSummary(t, l.Games)
 	})
 
-	t.Run("Randomly unschedule 10 games", func(t *testing.T) {
-		randomlyUnscheduleGames(t, l, 10)
+	t.Run("Randomly unschedule 2 games", func(t *testing.T) {
+		randomlyUnscheduleGames(t, l, 2)
 		checkGamesAgainstLeagueSummary(t, l.Games)
 	})
 
-	//t.Run("Randomize result for each game and report it", func(t *testing.T) {
-	//	for _, g := range l.Games {
-	//		randomlyDecideAndReportGame(t, g)
-	//	}
-	//
-	//	for _, g := range l.Games {
-	//		checkGameAgainstRepresentation(t, g)
-	//	}
-	//
-	//	checkGamesAgainstLeagueSummary(t, l.Games)
-	//})
 
-	t.Run("Randomize result for each game and report it", func(t *testing.T) {
+	t.Run("Randomize result for past games and report them", func(t *testing.T) {
+		currTime := float64(time.Now().Unix())
 		for _, g := range l.Games {
-			if randomdata.Boolean() {
+			if g.GameTime < currTime {
 				randomlyDecideAndReportGame(t, g)
 			}
 		}

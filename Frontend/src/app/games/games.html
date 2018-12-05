@@ -5,7 +5,8 @@
 <mat-tab-group mat-stretch-tabs [selectedIndex]="currentWeek">
     <mat-tab disabled label="Week" class="week-label"> </mat-tab>
     <mat-tab *ngFor="let week of weeks; let i=index"
-        [label]="i+1+' - '+week.start.format('MMMM Do')">
+        [label]="i+1+': '+ week.start.format('MMMM').substring(0, 3) + ' ' + week.start.format('Do') +
+                ' - ' + week.end.format('MMMM').substring(0, 3) + ' ' + week.end.format('Do')">
         <app-game-entry *ngFor="let game of week.games" [game]="game"></app-game-entry>
     </mat-tab>
 </mat-tab-group>

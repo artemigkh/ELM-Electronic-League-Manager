@@ -41,6 +41,7 @@ import {TeamsService} from "./httpServices/teams.service";
 import {PlayersService} from "./httpServices/players.service";
 import {SignupComponent} from "./signup/signup";
 import {GameEntry} from "./shared/gameEntry/game-entry";
+import {GamesComponent} from "./games/games";
 
 @NgModule({
     declarations: [
@@ -51,6 +52,7 @@ import {GameEntry} from "./shared/gameEntry/game-entry";
         TeamsComponent,
         MatchHistoryComponent,
         UpcomingGamesComponent,
+        GamesComponent,
         ManageComponent,
         ManageLeagueComponent,
         ManageTeamsComponent,

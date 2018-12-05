@@ -202,6 +202,10 @@ export class LeagueService {
         }
     }
 
+    public getGames(): Observable<any> {
+        return this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions)
+    }
+
     public getCompleteGames(): Observable<Game[]> {
         if(this.gameSummaryLoaded) {
             return of(this.completeGames);

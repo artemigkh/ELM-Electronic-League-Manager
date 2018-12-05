@@ -14,6 +14,7 @@ import {ManagePlayersComponent} from "./manage/players/manage-players";
 import {ManageGamesComponent} from "./manage/games/manage-games";
 import {LoginComponent} from "./login/login";
 import {SignupComponent} from "./signup/signup";
+import {GamesComponent} from "./games/games";
 
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
@@ -21,6 +22,7 @@ export const ELM_ROUTES: Routes = [
     {path: 'teams/:id', component: TeamsComponent, data: {}},
     {path: 'matchHistory', component: MatchHistoryComponent, data: {}},
     {path: 'upcomingGames', component: UpcomingGamesComponent, data: {}},
+    {path: 'games', component: GamesComponent, data: {}},
     {path: 'login', component: LoginComponent, data: {}},
     {path: 'signup', component: SignupComponent, data: {}},
     {

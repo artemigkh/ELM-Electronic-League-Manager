@@ -1,7 +1,7 @@
 package IntegrationTests
 
 import (
-	"github.com/Pallinder/go-randomdata"
+	"Server/scheduler"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -51,12 +51,12 @@ func Test_NormalUseCase(t *testing.T) {
 	})
 
 	t.Run("each manager creates a team", func(t *testing.T) {
-		for _, manager := range l.Managers {
+		for i, manager := range l.Managers {
 			newClient()
 			loginAs(t, manager)
 			setActiveLeague(t, l)
 
-			manager.Team = createTeam(t, l.Teams, l)
+			manager.Team = createTeam(t, l.Teams, l, i+1)
 			manager.Team.Managers = append(manager.Team.Managers, manager)
 			l.Teams = append(l.Teams, manager.Team)
 			checkTeamCreated(t, manager.Team)
@@ -100,17 +100,38 @@ func Test_NormalUseCase(t *testing.T) {
 		loginAs(t, leagueOwner)
 		setActiveLeague(t, l)
 
-		currTime := int(time.Now().Unix())
-		gameTime := randomdata.Number(currTime-5184000, currTime+5184000)
-
-		for _, m1 := range l.Teams {
-			for _, m2 := range l.Teams {
-				if m1.Id != m2.Id {
-					l.Games = append(l.Games, createGame(t, l, gameTime, m1.Id, m2.Id))
-					gameTime = randomdata.Number(currTime-5184000, currTime+5184000)
-				}
-			}
+		var teamIds []int
+		for _, team := range l.Teams {
+			teamIds = append(teamIds, int(team.Id))
 		}
+
+		s := scheduler.Scheduler{}
+		est, _ := time.LoadLocation("America/New_York")
+		s.InitScheduler(scheduler.DoubleRoundRobin, true, time.Hour,
+			time.Date(2018, time.November, 1, 0, 0, 0, 0, est),
+			time.Date(2018, time.December, 23, 0, 0, 0, 0, est),
+			teamIds)
+		s.AddWeeklyAvailability(time.Friday, 12+6, 0, time.Hour*2)
+		s.AddWeeklyAvailability(time.Saturday, 12+4, 0, time.Hour*6)
+		s.AddWeeklyAvailability(time.Sunday, 12+5, 0, time.Hour*5)
+		games := s.GetSchedule()
+		for _, game := range games {
+			l.Games = append(l.Games, createGame(t, l, int(game.GameTime), float64(game.Team1Id), float64(game.Team2Id)))
+		}
+
+		//gameTime := moment.New()
+		//gameTime.AddD
+		//currTime := int(time.Now().Unix())
+		//gameTime := randomdata.Number(currTime-2592000, currTime+2592000)
+		//
+		//for i:=0; i < 10; i++ {
+		//	for j := i+1; j < 9; j++ {
+		//		print(i)
+		//		print(j)
+		//		l.Games = append(l.Games, createGame(t, l, gameTime, l.Teams[i].Id, l.Teams[j].Id))
+		//		//gameTime = randomdata.Number(currTime-2592000, currTime+2592000)
+		//	}
+		//}
 
 		for _, g := range l.Games {
 			checkGameAgainstRepresentation(t, g)
@@ -124,12 +145,11 @@ func Test_NormalUseCase(t *testing.T) {
 		checkGamesAgainstLeagueSummary(t, l.Games)
 	})
 
-
 	t.Run("Randomize result for past games and report them", func(t *testing.T) {
 		currTime := float64(time.Now().Unix())
 		for _, g := range l.Games {
 			if g.GameTime < currTime {
-				randomlyDecideAndReportGame(t, g)
+				randomlyDecideAndReportGame(t, g, l.Teams)
 			}
 		}
 

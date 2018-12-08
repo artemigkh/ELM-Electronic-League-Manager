@@ -7,7 +7,7 @@
     <div class="teams">
         <mat-form-field>
             <mat-select placeholder="Team 1" [(value)]="data.game==None?None:data.game.team1Id">
-                <mat-option *ngFor="let team of teams" [value]="team.id">
+                <mat-option *ngFor="let team of teams" [value]="team.id" (click)="setTeam1(team)">
                     {{team.name}}
                 </mat-option>
             </mat-select>
@@ -17,7 +17,7 @@
         </span>
         <mat-form-field>
             <mat-select placeholder="Team 2" [(value)]="data.game==None?None:data.game.team2Id">
-                <mat-option *ngFor="let team of teams" [value]="team.id">
+                <mat-option *ngFor="let team of teams" [value]="team.id" (click)="setTeam2(team)">
                     {{team.name}}
                 </mat-option>
             </mat-select>
@@ -54,7 +54,7 @@
         <span class="button-wrapper">
         <button mat-raised-button (click)="onCancel()">Cancel</button>
     </span>
-        <span class="button-wrapper">
+    <span class="button-wrapper">
          <button mat-raised-button (click)="onConfirm()">Confirm</button>
     </span>
         <span class="spacer"></span>

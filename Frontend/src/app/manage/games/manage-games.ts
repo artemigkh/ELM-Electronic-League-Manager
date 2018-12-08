@@ -1,4 +1,4 @@
-import {Component, Inject} from "@angular/core";
+import {Component, Inject, ViewEncapsulation} from "@angular/core";
 import {LeagueService} from "../../httpServices/leagues.service";
 import {Team} from "../../interfaces/Team";
 import {Game, GameCollection} from "../../interfaces/Game";
@@ -7,8 +7,16 @@ import {WarningPopup} from "../warningPopup/warning-popup";
 import {GamesService} from "../../httpServices/games.service";
 import {ManageComponentInterface} from "../manage-component-interface";
 import {gameSort, gameSortReverse} from "../../shared/elm-data-utils";
+import * as moment from "moment";
+import {Moment} from "moment";
+// import * as _moment from 'moment';
+// tslint:disable-next-line:no-duplicate-imports
+// import {default as _rollupMoment} from 'moment';
+import {MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
+import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
+import {FormControl} from "@angular/forms";
 
-class GameReportData {
+class GameData {
     caller: ManageGamesComponent;
     game: Game;
 }
@@ -17,6 +25,7 @@ class GameReportData {
     selector: 'app-manage-games',
     templateUrl: './manage-games.html',
     styleUrls: ['./manage-games.scss'],
+    // encapsulation: ViewEncapsulation.None
 })
 export class ManageGamesComponent implements ManageComponentInterface{
     teams: Team[];
@@ -80,7 +89,9 @@ export class ManageGamesComponent implements ManageComponentInterface{
             width: '500px',
             data: {
                 title: "Schedule New Game",
-                game: null
+                game: {
+                    gameTime: null
+                }
             },
             autoFocus: false
         });
@@ -91,7 +102,8 @@ export class ManageGamesComponent implements ManageComponentInterface{
             width: '500px',
             data: {
                 title: "Edit Game",
-                game: game
+                game: game,
+                caller: this
             },
             autoFocus: false
         });
@@ -132,7 +144,7 @@ export class ReportGamePopup {
     constructor(
         public dialogRef: MatDialogRef<ReportGamePopup>,
         private gamesService: GamesService,
-        @Inject(MAT_DIALOG_DATA) public data: GameReportData) {
+        @Inject(MAT_DIALOG_DATA) public data: GameData) {
         this.game = data.game;
     }
 
@@ -173,14 +185,28 @@ export class ReportGamePopup {
     selector: 'manage-game-popup',
     templateUrl: 'manage-game-popup.html',
     styleUrls: ['./manage-game-popup.scss'],
+    providers: [
+        {provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE]},
+        {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+    ],
 })
 export class ManageGamePopup {
     teams: Team[];
-
+    time: Moment;
+    date: FormControl;
     constructor(
         public dialogRef: MatDialogRef<ManageGamePopup>,
-        @Inject(MAT_DIALOG_DATA) public data: Object,
+        @Inject(MAT_DIALOG_DATA) public data: GameData,
         private leagueService: LeagueService) {
+
+        if (data.game.gameTime == null) {
+            this.time = null;
+            this.date = new FormControl()
+        } else {
+            this.time = moment.unix(data.game.gameTime);
+            this.date = new FormControl(this.time);
+        }
+
         this.leagueService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
@@ -189,7 +215,12 @@ export class ManageGamePopup {
             });
     }
 
-    onNoClick(): void {
+    onCancel(): void {
+        this.dialogRef.close();
+    }
+
+    onConfirm(): void {
+        console.log(this.time.format("dddd, MMMM Do YYYY, h:mm:ss a"));
         this.dialogRef.close();
     }
 }

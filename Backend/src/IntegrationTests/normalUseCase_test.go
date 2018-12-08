@@ -108,8 +108,8 @@ func Test_NormalUseCase(t *testing.T) {
 		s := scheduler.Scheduler{}
 		est, _ := time.LoadLocation("America/New_York")
 		s.InitScheduler(scheduler.DoubleRoundRobin, true, time.Hour,
-			time.Date(2018, time.November, 1, 0, 0, 0, 0, est),
-			time.Date(2018, time.December, 23, 0, 0, 0, 0, est),
+			time.Date(2018, time.November, 8, 0, 0, 0, 0, est),
+			time.Date(2018, time.December, 30, 0, 0, 0, 0, est),
 			teamIds)
 		s.AddWeeklyAvailability(time.Friday, 12+6, 0, time.Hour*2)
 		s.AddWeeklyAvailability(time.Saturday, 12+4, 0, time.Hour*6)

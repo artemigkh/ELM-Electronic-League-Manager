@@ -1,42 +1,116 @@
-h1 {
-    text-align: center!important;
-}
+.manage-game-popup-container {
 
-.teams {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    .vs {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: center;
-        width: 50px;
+    h1 {
+        text-align: center!important;
     }
-}
 
-.time {
-    padding-left: 20px;
-
-    .time-select {
-
-    }
-}
-
-.action-bar-wrapper {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-
-    .button-wrapper {
+    .teams {
         display: flex;
         flex-direction: row;
         justify-content: center;
-        width: 125px;
+
+        .vs {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            width: 50px;
+        }
     }
 
-    .spacer {
-        flex-grow: 1;
+    .time {
+        display: flex;
+        flex-direction: row;
+        padding-left: 20px;
+
+        .time-select {
+
+        }
     }
+
+    .action-bar-wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+
+        .button-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            width: 125px;
+        }
+
+        .spacer {
+            flex-grow: 1;
+        }
+    }
+
+    .ngx-material-timepicker-example {
+        height: 100%;
+        border-radius: 2px;
+        box-shadow: rgba(0, 0, 0, 0.12) 0 1px 6px, rgba(0, 0, 0, 0.12) 0 1px 4px;
+        overflow: hidden;
+        &__body {
+            padding-left: 10px;
+            padding-bottom: 20px;
+        }
+        &__form-group {
+            position: relative;
+            max-width: 300px;
+            height: 100%;
+            width: 100%;
+            border-bottom: 1px solid rgb(148, 148, 148);
+
+            &:not(:last-child) {
+                margin-bottom: 20px;
+            }
+            &--toggled {
+                display: flex;
+            }
+            &--disabled {
+                border-bottom-style: dashed;
+            }
+            .input-position {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                padding: 0.4375em 0;
+                line-height: 1.125 !important;
+            }
+            .clock-position {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                padding: 0;
+                line-height: 1.125 !important;
+            }
+            input {
+                line-height: inherit;
+                background-color: rgba(0, 0, 0, 0);
+                padding: 0;
+                width: 100%;
+                border: 0;
+                font-family: Roboto, "Helvetica Neue", sans-serif;
+                font-size: 16px;
+                //color: rgba(0, 0, 0, 0.54);
+                outline: 0;
+                &:disabled {
+                    background-color: transparent;
+                    cursor: not-allowed;
+                }
+                &:focus {
+                    outline: none;
+                }
+                &::placeholder {
+                    font-size: 16px;
+                    color: currentColor;
+                }
+            }
+
+            ngx-material-timepicker-toggle {
+                fill: grey !important;
+            }
+        }
+    }
+
 }

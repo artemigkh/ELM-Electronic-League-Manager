@@ -4,6 +4,7 @@ import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
+    DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE,
     MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDatepickerModule,
     MatDialogModule,
     MatDividerModule,
@@ -36,13 +37,15 @@ import {ManageGamePopup, ManageGamesComponent, ReportGamePopup} from "./manage/g
 import {AmazingTimePickerModule} from "amazing-time-picker";
 import {WarningPopup} from "./manage/warningPopup/warning-popup";
 import {LoginComponent} from "./login/login";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TeamsService} from "./httpServices/teams.service";
 import {PlayersService} from "./httpServices/players.service";
 import {SignupComponent} from "./signup/signup";
 import {GameEntry} from "./shared/gameEntry/game-entry";
 import {GamesComponent} from "./games/games";
 import {GamesService} from "./httpServices/games.service";
+import {NgxMaterialTimepickerModule} from "ngx-material-timepicker";
+import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@angular/material-moment-adapter";
 
 @NgModule({
     declarations: [
@@ -91,9 +94,11 @@ import {GamesService} from "./httpServices/games.service";
         MatIconModule,
         MatChipsModule,
         MatDialogModule,
-        AmazingTimePickerModule,
         FormsModule,
+        ReactiveFormsModule,
         MatProgressSpinnerModule,
+        MatMomentDateModule,
+        NgxMaterialTimepickerModule.forRoot(),
         RouterModule.forRoot(ELM_ROUTES)
     ],
     providers: [LeagueService, TeamsService, PlayersService, GamesService, MatIconRegistry],
@@ -103,7 +108,7 @@ import {GamesService} from "./httpServices/games.service";
         ManageGamePopup,
         ManageTeamPopup,
         WarningPopup,
-        ManagePlayersPopup
+        ManagePlayersPopup,
     ]
 })
 export class AppModule {

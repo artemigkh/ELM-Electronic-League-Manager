@@ -16,4 +16,24 @@ export class GamesService {
             scoreTeam2: scoreTeam2
         }, httpOptions)
     }
+
+    public createNewGame(team1Id: number, team2Id: number, gameTime: number): Observable<Object> {
+        return this.http.post('http://localhost:8080/api/games/', {
+            team1Id: team1Id,
+            team2Id: team2Id,
+            gameTime: gameTime
+        }, httpOptions)
+    }
+
+    public rescheduleGame(gameId: number, gameTime: number): Observable<Object> {
+        return this.http.put('http://localhost:8080/api/games/', {
+            id: gameId,
+            gameTime: gameTime
+        }, httpOptions)
+    }
+
+    public deleteGame(teamId: number) {
+        return this.http.request('delete', 'http://localhost:8080/api/games/' + teamId,
+            httpOptions);
+    }
 }

@@ -19,6 +19,7 @@
     "@angular/forms": "^6.1.0",
     "@angular/http": "^6.1.0",
     "@angular/material": "^6.4.6",
+    "@angular/material-moment-adapter": "^7.1.1",
     "@angular/platform-browser": "^6.1.0",
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
@@ -27,6 +28,7 @@
     "font-awesome": "^4.7.0",
     "material-time-control": "github:SteveDunlap13/MaterialTimeControl",
     "moment": "^2.22.2",
+    "ngx-material-timepicker": "^2.10.0",
     "rxjs": "^6.3.3",
     "rxjs-compat": "^6.3.3",
     "zone.js": "~0.8.26"

@@ -9,6 +9,7 @@ import {Game} from "../../interfaces/Game";
 
 export class GameEntry {
     @Input() game: Game;
+    @Input() compact: Boolean;
 
     teamNameClass(teamNum: number): string {
         let toReturn = "team-name";

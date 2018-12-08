@@ -61,8 +61,16 @@
             </span>
         </mat-tab>
 
-        <mat-tab label="Match History"> Content 3 </mat-tab>
-        <mat-tab label="Upcoming Games"> Content 3 </mat-tab>
+        <mat-tab label="Match History">
+            <div class="games-list">
+                <app-game-entry *ngFor="let game of pastGames" [game]="game" [compact]="true"></app-game-entry>
+            </div>
+        </mat-tab>
+        <mat-tab label="Upcoming Games">
+            <div class="games-list">
+                <app-game-entry *ngFor="let game of upcomingGames" [game]="game" [compact]="true"></app-game-entry>
+            </div>
+        </mat-tab>
     </mat-tab-group>
 </div>
 

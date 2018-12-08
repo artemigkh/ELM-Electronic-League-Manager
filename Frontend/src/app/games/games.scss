@@ -20,3 +20,8 @@
     max-width: 120px !important;
     text-align: right!important;
 }
+
+.games-list {
+    display: flex;
+    flex-direction: column;
+}

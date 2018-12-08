@@ -49,8 +49,9 @@ func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 	}
 }
 
-func createTeam(t *testing.T, teams []*team, l *league) *team {
+func createTeam(t *testing.T, teams []*team, l *league, strength int) *team {
 	teamName := randomdata.SillyName()
+	fmt.Printf("Team Name: %v, Strength: %v\n", teamName, strength)
 	for i := 0; i < len(teams); i++ {
 		if teamName == teams[i].Name {
 			teamName = randomdata.SillyName()
@@ -99,6 +100,7 @@ func createTeam(t *testing.T, teams []*team, l *league) *team {
 		Tag:      tag,
 		Wins:     0,
 		Losses:   0,
+		Strength: strength,
 	}
 }
 

@@ -143,3 +143,9 @@ span.player-entry {
 .mat-tab-labels {
     justify-content: center;
 }
+
+.games-list {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}

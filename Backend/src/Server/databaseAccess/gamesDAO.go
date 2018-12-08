@@ -201,8 +201,18 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 }
 
 func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error {
+	//see if game is completed
+	var complete bool
+	err := psql.Select("complete").
+		From("games").
+		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		RunWith(db).QueryRow().Scan(&complete)
+	if err != nil {
+		return err
+	}
+
 	//update game entry
-	_, err := psql.Update("games").
+	_, err = psql.Update("games").
 		Set("complete", true).
 		Set("winnerId", winnerId).
 		Set("scoreteam1", scoreTeam1).
@@ -210,6 +220,10 @@ func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTea
 		Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
 	if err != nil {
 		return err
+	}
+
+	if complete {
+		return nil
 	}
 
 	//update wins and losses of both teams

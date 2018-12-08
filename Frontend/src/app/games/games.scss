@@ -1,0 +1,27 @@
+
+.mat-tab-labels {
+    justify-content: center;
+}
+
+.mat-tab-label {
+    min-width: 0 !important;
+    max-width: 800px !important;
+}
+
+.mat-tab-body-content {
+    overflow: visible !important;
+}
+
+.mat-tab-disabled {
+    color: black !important;
+    font-size: 18px;
+    opacity: 1 !important;
+    font-weight: 400;
+    max-width: 120px !important;
+    text-align: right!important;
+}
+
+.games-list {
+    display: flex;
+    flex-direction: column;
+}

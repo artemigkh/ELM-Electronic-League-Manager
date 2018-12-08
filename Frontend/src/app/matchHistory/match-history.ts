@@ -7,10 +7,7 @@ import {Game} from "../interfaces/Game";
     templateUrl: './match-history.html',
     styleUrls: ['./match-history.scss']
 })
-
-
 export class MatchHistoryComponent {
-    displayedColumns: string[] = ['game'];
     games: Game[];
 
     constructor(private leagueService: LeagueService) {

@@ -184,7 +184,9 @@ export class LeagueService {
                                         this.upcomingGames.push(game);
                                     }
                                 });
-
+                                this.upcomingGames.sort((a,b)=>
+                                    (a.gameTime > b.gameTime) ? 1 :
+                                    ((a.gameTime < b.gameTime) ? -1 : 0));
                                 observer.next(true);
                             }, error => {
                                 observer.error(error);
@@ -200,6 +202,10 @@ export class LeagueService {
         }
     }
 
+    public getGames(): Observable<any> {
+        return this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions)
+    }
+
     public getCompleteGames(): Observable<Game[]> {
         if(this.gameSummaryLoaded) {
             return of(this.completeGames);
@@ -208,6 +214,22 @@ export class LeagueService {
                 this.loadGameSummary().subscribe(
                     next => {
                         observer.next(this.completeGames);
+                    }, error => {
+                        observer.error(error);
+                    }
+                );
+            });
+        }
+    }
+
+    public getUpcomingGames(): Observable<Game[]> {
+        if(this.gameSummaryLoaded) {
+            return of(this.upcomingGames);
+        } else {
+            return new Observable(observer => {
+                this.loadGameSummary().subscribe(
+                    next => {
+                        observer.next(this.upcomingGames);
                     }, error => {
                         observer.error(error);
                     }

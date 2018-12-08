@@ -1,0 +1,15 @@
+<div class="docs-primary-header">
+    <h1 class="docs-primary-header">Past and Upcoming Games</h1>
+</div>
+
+<mat-tab-group mat-stretch-tabs [selectedIndex]="currentWeek">
+    <mat-tab disabled label="Week" class="week-label"> </mat-tab>
+    <mat-tab *ngFor="let week of weeks; let i=index"
+        [label]="i+1+': '+ week.start.format('MMMM').substring(0, 3) + ' ' + week.start.format('Do') +
+                ' - ' + week.end.format('MMMM').substring(0, 3) + ' ' + week.end.format('Do')">
+        <div class="games-list">
+            <app-game-entry *ngFor="let game of week.games" [game]="game"></app-game-entry>
+        </div>
+
+    </mat-tab>
+</mat-tab-group>

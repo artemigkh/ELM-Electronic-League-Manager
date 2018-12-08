@@ -20,6 +20,7 @@ type team struct {
 	Losses   float64
 	Managers []*user
 	Players  []*player
+	Strength int
 }
 
 type user struct {

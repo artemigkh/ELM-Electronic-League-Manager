@@ -42,6 +42,7 @@ import {PlayersService} from "./httpServices/players.service";
 import {SignupComponent} from "./signup/signup";
 import {GameEntry} from "./shared/gameEntry/game-entry";
 import {GamesComponent} from "./games/games";
+import {GamesService} from "./httpServices/games.service";
 
 @NgModule({
     declarations: [
@@ -95,7 +96,7 @@ import {GamesComponent} from "./games/games";
         MatProgressSpinnerModule,
         RouterModule.forRoot(ELM_ROUTES)
     ],
-    providers: [LeagueService, TeamsService, PlayersService, MatIconRegistry],
+    providers: [LeagueService, TeamsService, PlayersService, GamesService, MatIconRegistry],
     bootstrap: [AppComponent],
     entryComponents: [
         ReportGamePopup,

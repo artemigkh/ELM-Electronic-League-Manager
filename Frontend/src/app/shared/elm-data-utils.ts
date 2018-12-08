@@ -19,5 +19,10 @@ export function doesGameHaveTeam(teamId: number) {
 
 export function gameSort(a: Game, b: Game): number {
     return (a.gameTime > b.gameTime) ? 1 :
-           ((a.gameTime < b.gameTime) ? -1 : 0);
+        ((a.gameTime < b.gameTime) ? -1 : 0);
+}
+
+export function gameSortReverse(a: Game, b: Game): number {
+    return (a.gameTime < b.gameTime) ? 1 :
+        ((a.gameTime > b.gameTime) ? -1 : 0);
 }

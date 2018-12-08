@@ -4,13 +4,21 @@ import {Team} from "../../interfaces/Team";
 import {Game, GameCollection} from "../../interfaces/Game";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
 import {WarningPopup} from "../warningPopup/warning-popup";
+import {GamesService} from "../../httpServices/games.service";
+import {ManageComponentInterface} from "../manage-component-interface";
+import {gameSort, gameSortReverse} from "../../shared/elm-data-utils";
+
+class GameReportData {
+    caller: ManageGamesComponent;
+    game: Game;
+}
 
 @Component({
     selector: 'app-manage-games',
     templateUrl: './manage-games.html',
     styleUrls: ['./manage-games.scss'],
 })
-export class ManageGamesComponent {
+export class ManageGamesComponent implements ManageComponentInterface{
     teams: Team[];
     teamVisibility: {[id: number] : boolean;} = {};
     upcomingGames: Game[];
@@ -59,7 +67,10 @@ export class ManageGamesComponent {
     reportGamePopup(game: Game): void {
         const dialogRef = this.dialog.open(ReportGamePopup, {
             width: '500px',
-            data: game,
+            data: {
+                caller: this,
+                game: game
+            },
             autoFocus: false
         });
     }
@@ -96,6 +107,17 @@ export class ManageGamesComponent {
             autoFocus: false
         });
     }
+
+    notifyDelete: (id: number, id2?: number) => void;
+
+    notifyComplete(game: Game) {
+        this.upcomingGames = this.upcomingGames.filter((g: Game) => {
+           return g.id != game.id;
+        });
+        this.completeGames.push(game);
+        this.completeGames.sort(gameSortReverse);
+        console.log("amend notified");
+    }
 }
 
 
@@ -105,13 +127,44 @@ export class ManageGamesComponent {
     styleUrls: ['./report-game-popup.scss'],
 })
 export class ReportGamePopup {
+    game: Game;
 
     constructor(
         public dialogRef: MatDialogRef<ReportGamePopup>,
-        @Inject(MAT_DIALOG_DATA) public data: Game) {}
+        private gamesService: GamesService,
+        @Inject(MAT_DIALOG_DATA) public data: GameReportData) {
+        this.game = data.game;
+    }
 
-    onNoClick(): void {
+    OnCancel(): void {
         this.dialogRef.close();
+    }
+
+    OnConfirm(): void {
+        console.log("confirm called");
+        console.log(this.game);
+        console.log("team1Score", this.game.scoreTeam1);
+        console.log("team2Score", this.game.scoreTeam2);
+        let numScoreTeam1: number = Number(this.game.scoreTeam1);
+        let numScoreTeam2: number = Number(this.game.scoreTeam2);
+        this.game.winnerId = numScoreTeam1 > numScoreTeam2 ? this.game.team1Id : this.game.team2Id;
+        this.gamesService.reportResult(
+            this.game.id,
+            this.game.winnerId,
+            numScoreTeam1,
+            numScoreTeam2
+        ).subscribe(
+            next => {
+                console.log("reported game");
+                if (!this.game.complete) {
+                    this.data.caller.notifyComplete(this.game);
+                }
+                this.dialogRef.close();
+            }, error => {
+                console.log(error);
+                this.dialogRef.close();
+            }
+        )
     }
 }
 

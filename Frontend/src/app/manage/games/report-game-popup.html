@@ -6,7 +6,7 @@
                 Team 1
             </div>
             <div class="team-name">
-                {{data.team1.name}}
+                {{game.team1.name}}
             </div>
         </span>
 
@@ -14,9 +14,7 @@
             <div class="heading">
                 Score
             </div>
-            <div class="score-input">
-                0
-            </div>
+            <input class="score-input" [(ngModel)]="game.scoreTeam1">
         </span>
 
         <span class="spacer"></span>
@@ -31,12 +29,7 @@
             <div class="heading">
                 Score
             </div>
-            <div class="score-input">
-                <!--<mat-form-field>-->
-                    <!--<input matInput value="0">-->
-                <!--</mat-form-field>-->
-                0
-            </div>
+            <input class="score-input" [(ngModel)]="game.scoreTeam2">
         </span>
 
         <span class="team">
@@ -44,7 +37,7 @@
                 Team 2
             </div>
             <div class="team-name">
-                {{data.team2.name}}
+                {{game.team2.name}}
             </div>
         </span>
     </div>
@@ -53,10 +46,10 @@
     <div class="action-bar-wrapper">
         <span class="spacer"></span>
         <span class="button-wrapper">
-        <button mat-raised-button (click)="onNoClick()">Cancel</button>
+        <button mat-raised-button (click)="OnCancel()">Cancel</button>
     </span>
         <span class="button-wrapper">
-         <button mat-raised-button [mat-dialog-close]="true">Confirm Scores</button>
+         <button mat-raised-button (click)="OnConfirm()">Confirm Scores</button>
     </span>
         <span class="spacer"></span>
     </div>

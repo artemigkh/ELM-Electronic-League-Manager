@@ -43,3 +43,18 @@ button {
 button:hover {
     background-color: #495be4;
 }
+
+
+.visibility-section {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-content: left;
+    align-items: left;
+    height: 60px;
+
+    mat-checkbox {
+        margin-bottom: 20px;
+    }
+}

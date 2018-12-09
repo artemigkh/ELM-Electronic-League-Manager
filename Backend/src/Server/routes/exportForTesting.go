@@ -21,6 +21,7 @@ var Testing_Export_login = login
 
 // Leagues
 var Testing_Export_createNewLeague = createNewLeague
+var Testing_Export_updateLeagueInfo = updateLeagueInfo
 var Testing_Export_joinActiveLeague = joinActiveLeague
 var Testing_Export_setActiveLeague = setActiveLeague
 var Testing_Export_getActiveLeagueInformation = getActiveLeagueInformation

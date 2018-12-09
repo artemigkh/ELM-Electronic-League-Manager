@@ -106,7 +106,7 @@ func testCreateNewLeagueNameInUse(t *testing.T) {
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("IsNameInUse", "12345678901234567890123456789012345678901234567890").
+	mockLeaguesDao.On("IsNameInUse", -1, "12345678901234567890123456789012345678901234567890").
 		Return(true, nil)
 
 	routes.ElmSessions = mockSession
@@ -124,7 +124,7 @@ func testCreateNewLeagueDatabaseError(t *testing.T) {
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("IsNameInUse", "testName").
+	mockLeaguesDao.On("IsNameInUse", -1, "testName").
 		Return(false, nil)
 	mockLeaguesDao.On("CreateLeague", 1, "testName", "", true, true).
 		Return(-1, errors.New("fake db error"))
@@ -144,7 +144,7 @@ func testCorrectLeagueCreation(t *testing.T) {
 		Return(1, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("IsNameInUse", "testName").
+	mockLeaguesDao.On("IsNameInUse", -1, "testName").
 		Return(false, nil)
 	mockLeaguesDao.On("CreateLeague", 1, "testName", mock.AnythingOfType("string"), true, true).
 		Return(3, nil)

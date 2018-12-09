@@ -150,6 +150,8 @@ func setActiveLeague(ctx *gin.Context) {
  * @apiSuccess {int} id The unique numerical identifier of the league
  * @apiSuccess {string} name The name of the currently selected league
  * @apiSuccess {string} description The description of the currently selected league
+ * @apiSuccess {bool} publicView True if league is publicly viewable
+ * @apiSuccess {bool} publicJoin True if league is publicly joinable
  *
  * @apiError noActiveLeague There is no active league selected
  */

@@ -8,6 +8,8 @@ type LeagueInformation struct {
 	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	PublicView  bool   `json:"publicView"`
+	PublicJoin  bool   `json:"publicJoin"`
 }
 
 type LeaguePermissions struct {
@@ -157,10 +159,11 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, error) {
 	var leagueInfo LeagueInformation
-	err := psql.Select("id", "name", "description").
+	err := psql.Select("id", "name", "description", "publicView", "publicJoin").
 		From("leagues").
 		Where("id = ?", leagueId).
-		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description)
+		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description,
+		&leagueInfo.PublicView, &leagueInfo.PublicJoin)
 	if err != nil {
 		return nil, err
 	}

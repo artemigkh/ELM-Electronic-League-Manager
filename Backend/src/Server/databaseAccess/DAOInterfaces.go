@@ -18,6 +18,7 @@ type LeaguesDAO interface {
 	// Leagues
 	GetPublicLeagueList() ([]PublicLeagueInformation, error)
 	CreateLeague(userId int, name, description string, publicView, publicJoin bool) (int, error)
+	UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool) error
 	GetLeagueInformation(leagueId int) (*LeagueInformation, error)
 	GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error)
 	GetGameSummary(leagueId int) ([]GameSummaryInformation, error)
@@ -25,7 +26,7 @@ type LeaguesDAO interface {
 	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
 
 	// Get Information
-	IsNameInUse(name string) (bool, error)
+	IsNameInUse(leagueId int, name string) (bool, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)
 	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)

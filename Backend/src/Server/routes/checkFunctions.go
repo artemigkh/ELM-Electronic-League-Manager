@@ -105,8 +105,8 @@ func failIfEmailNotInUse(ctx *gin.Context, emailToCheck string) bool {
 	return failIfBooleanConditionTrue(ctx, !inUse, err, http.StatusBadRequest, "invalidLogin")
 }
 
-func failIfLeagueNameInUse(ctx *gin.Context, name string) bool {
-	inUse, err := LeaguesDAO.IsNameInUse(name)
+func failIfLeagueNameInUse(ctx *gin.Context, leagueId int, name string) bool {
+	inUse, err := LeaguesDAO.IsNameInUse(leagueId, name)
 	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, "nameInUse")
 }
 

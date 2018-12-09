@@ -19,3 +19,13 @@ $accent:  mat-palette($mat-pink, A200, A100, A400);
 $theme: mat-light-theme($primary, $accent);
 @include angular-material-theme($theme);
 @include material-docs-app-theme($theme);
+
+.blue-snackbar {
+    text-align: center;
+    background: #3f51b5;
+}
+
+.red-snackbar {
+    text-align: center;
+    background: #d9534f;
+}

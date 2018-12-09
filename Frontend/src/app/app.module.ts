@@ -11,7 +11,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
     MatInputModule, MatNativeDateModule, MatProgressSpinnerModule,
-    MatSelectModule, MatSpinner,
+    MatSelectModule, MatSnackBarModule, MatSpinner,
     MatTabsModule
 } from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
@@ -46,6 +46,7 @@ import {GamesComponent} from "./games/games";
 import {GamesService} from "./httpServices/games.service";
 import {NgxMaterialTimepickerModule} from "ngx-material-timepicker";
 import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@angular/material-moment-adapter";
+import {ConfirmationComponent} from "./shared/confirmation/confirmation-component";
 
 @NgModule({
     declarations: [
@@ -69,6 +70,7 @@ import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@
         ManageTeamPopup,
         WarningPopup,
         ManagePlayersPopup,
+        ConfirmationComponent,
         LoginComponent,
         SignupComponent,
         NavBar,
@@ -97,6 +99,7 @@ import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@
         FormsModule,
         ReactiveFormsModule,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
         MatMomentDateModule,
         NgxMaterialTimepickerModule.forRoot(),
         RouterModule.forRoot(ELM_ROUTES)
@@ -109,6 +112,7 @@ import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@
         ManageTeamPopup,
         WarningPopup,
         ManagePlayersPopup,
+        ConfirmationComponent
     ]
 })
 export class AppModule {

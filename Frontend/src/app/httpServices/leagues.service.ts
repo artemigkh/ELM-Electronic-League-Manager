@@ -12,6 +12,7 @@ import {httpOptions} from "./http-options";
 import {Id} from "./api-return-schemas/id";
 import {NavBar} from "../shared/navbar/navbar";
 import {TeamManagers} from "../interfaces/Manager";
+import {LeagueInformation} from "../interfaces/LeagueInformation";
 
 
 
@@ -258,5 +259,18 @@ export class LeagueService {
                 );
             });
         }
+    }
+
+    public getLeagueInformation(): Observable<Object> {
+        return this.http.get('http://localhost:8080/api/leagues/', httpOptions);
+    }
+
+    public updateLeagueInformation(leagueInfo: LeagueInformation) {
+        return this.http.put('http://localhost:8080/api/leagues/', {
+            name: leagueInfo.name,
+            description: leagueInfo.description,
+            publicView: leagueInfo.publicView,
+            publicJoin: leagueInfo.publicJoin
+        }, httpOptions)
     }
 }

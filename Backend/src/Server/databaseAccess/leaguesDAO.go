@@ -8,6 +8,8 @@ type LeagueInformation struct {
 	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	PublicView  bool   `json:"publicView"`
+	PublicJoin  bool   `json:"publicJoin"`
 }
 
 type LeaguePermissions struct {
@@ -85,6 +87,15 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, public
 	return leagueId, nil
 }
 
+func (d *PgLeaguesDAO) UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool) error {
+	_, err := db.Exec(
+		`
+		UPDATE leagues SET name = $1, description = $2, publicView = $3, publicJoin = $4
+		WHERE id = $5
+		`, name, description, publicView, publicJoin, leagueId)
+	return err
+}
+
 func (d *PgLeaguesDAO) JoinLeague(leagueId, userId int) error {
 	_, err := psql.Insert("leaguePermissions").
 		Columns("userId", "leagueId",
@@ -98,19 +109,21 @@ func (d *PgLeaguesDAO) JoinLeague(leagueId, userId int) error {
 	}
 }
 
-func (d *PgLeaguesDAO) IsNameInUse(name string) (bool, error) {
-	err := psql.Select("name").
+func (d *PgLeaguesDAO) IsNameInUse(leagueId int, name string) (bool, error) {
+	var leagueIdOfMatch int
+	err := psql.Select("name, id").
 		From("leagues").
 		Where("name = ?", name).
-		RunWith(db).QueryRow().Scan(&name)
+		RunWith(db).QueryRow().Scan(&name, &leagueIdOfMatch)
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
 		return false, err
-	} else {
+	} else if leagueIdOfMatch != leagueId {
 		return true, nil
+	} else {
+		return false, nil
 	}
-	return false, nil
 }
 
 func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
@@ -146,10 +159,11 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, error) {
 	var leagueInfo LeagueInformation
-	err := psql.Select("id", "name", "description").
+	err := psql.Select("id", "name", "description", "publicView", "publicJoin").
 		From("leagues").
 		Where("id = ?", leagueId).
-		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description)
+		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description,
+		&leagueInfo.PublicView, &leagueInfo.PublicJoin)
 	if err != nil {
 		return nil, err
 	}

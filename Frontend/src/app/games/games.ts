@@ -74,5 +74,7 @@ export class GamesComponent {
                 console.log('error');
                 console.log(error);
             });
+
+
     }
 }

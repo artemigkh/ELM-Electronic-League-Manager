@@ -12,6 +12,7 @@ type UsersDAO interface {
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (int, string, string, error)
 	GetUserProfile(userId int) (*UserInformation, error)
+	GetPermissions(leagueId, userId int) (*UserPermissions, error)
 }
 
 type LeaguesDAO interface {

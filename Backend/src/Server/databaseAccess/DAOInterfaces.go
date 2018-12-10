@@ -25,6 +25,7 @@ type LeaguesDAO interface {
 	GetGameSummary(leagueId int) ([]GameSummaryInformation, error)
 	JoinLeague(leagueId, userId int) error
 	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
+	SetLeaguePermissions(leagueId, userId int, administrator, createTeams, editTeams, editGames bool) error
 
 	// Get Information
 	IsNameInUse(leagueId int, name string) (bool, error)

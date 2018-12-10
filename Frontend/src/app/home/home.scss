@@ -1,0 +1,66 @@
+.basic-container {
+  width: 80%;
+  margin-left: 10%;
+  margin-top: 2%;
+}
+
+h1 {
+  outline: none;
+}
+
+.home-content {
+    position: fixed;
+    height: calc(100% - 132px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+        font-weight: 300;
+        font-size: 28px;
+        text-align: center;
+        margin-top: 0;
+    }
+
+    .top-row {
+        display: flex;
+        height: 40%;
+        width: 100%;
+
+        .league-about {
+            height: 100%;
+            width: 50%;
+            padding: 15px;
+        }
+
+        .top-teams {
+            height: 100%;
+            width: 50%;
+            padding: 15px;
+        }
+    }
+    .bottom-row {
+        display: flex;
+        flex-direction: row;
+        height: 60%;
+        width: 100%;
+
+        .games-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .past-games {
+            height: 100%;
+            width: 50%;
+            padding: 15px;
+        }
+
+        .upcoming-games {
+            height: 100%;
+            width: 50%;
+            padding: 15px;
+        }
+    }
+}

@@ -17,6 +17,7 @@ var Testing_Export_failIfLeagueDoesNotExist = failIfLeagueDoesNotExist
 // Users
 var Testing_Export_createNewUser = createNewUser
 var Testing_Export_getProfile = getProfile
+var Testing_Export_getUserPermissions = getUserPermissions
 var Testing_Export_login = login
 
 // Leagues
@@ -29,6 +30,7 @@ var Testing_Export_getTeamSummary = getTeamSummary
 var Testing_Export_getGameSummary = getGameSummary
 var Testing_Export_getTeamManagers = getTeamManagers
 var Testing_Export_getPublicLeagues = getPublicLeagues
+var Testing_Export_setLeaguePermissions = setLeaguePermissions
 
 // Teams
 var Testing_Export_createNewTeam = createNewTeam

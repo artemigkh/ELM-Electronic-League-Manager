@@ -76,7 +76,38 @@ func getProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, profile)
 }
 
+/**
+ * @api{GET} /api/users/permissions Get Permissions
+ * @apiGroup Users
+ * @apiDescription Get permissions in currently active league and any teams in league if applicable
+ *
+ * @apiSuccess {Object} leaguePermissions The permissions the user has in this league
+ * @apiSuccess {bool} leaguePermissions.administrator if user is a league administrator
+ * @apiSuccess {bool} leaguePermissions.createTeams if the user can create teams
+ * @apiSuccess {bool} leaguePermissions.editTeams if the user can edit existing teams
+ * @apiSuccess {bool} leaguePermissions.editGames if the user can edit games in this league
+ * @apiSuccess {[]Object} teamPermissions The permissions this user has for teams in the league
+ * @apiSuccess {number} teamPermissions.id The unique numerical identifer of the team
+ * @apiSuccess {bool} teamPermissions.administrator If the user is an admin of this team
+ * @apiSuccess {bool} teamPermissions.information If the user can change team information
+ * @apiSuccess {bool} teamPermissions.players If the user can edit players on the team
+ * @apiSuccess {bool} teamPermissions.reportResults If the user can report game results of this team
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ */
+func getUserPermissions(ctx *gin.Context) {
+	userPermissions, err := UsersDAO.GetPermissions(
+		ctx.GetInt("leagueId"), ctx.GetInt("userId"))
+
+	if checkErr(ctx, err) {
+		return
+	}
+	ctx.JSON(http.StatusOK, userPermissions)
+}
+
 func RegisterUserHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewUser)
 	g.GET("/profile", authenticate(), getProfile)
+	g.GET("/permissions", authenticate(), getActiveLeague(), getUserPermissions)
 }

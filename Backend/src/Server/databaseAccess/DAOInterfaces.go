@@ -12,6 +12,7 @@ type UsersDAO interface {
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (int, string, string, error)
 	GetUserProfile(userId int) (*UserInformation, error)
+	GetPermissions(leagueId, userId int) (*UserPermissions, error)
 }
 
 type LeaguesDAO interface {
@@ -24,6 +25,7 @@ type LeaguesDAO interface {
 	GetGameSummary(leagueId int) ([]GameSummaryInformation, error)
 	JoinLeague(leagueId, userId int) error
 	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
+	SetLeaguePermissions(leagueId, userId int, administrator, createTeams, editTeams, editGames bool) error
 
 	// Get Information
 	IsNameInUse(leagueId int, name string) (bool, error)

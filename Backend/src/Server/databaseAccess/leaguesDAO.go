@@ -367,3 +367,14 @@ func getLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
 func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
 	return getLeaguePermissions(leagueId, userId)
 }
+
+func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId, userId int,
+	administrator, createTeams, editTeams, editGames bool) error {
+
+	_, err := db.Exec(
+		`
+		UPDATE leaguePermissions SET administrator = $1, createTeams = $2, editTeams = $3, editGames = $4
+		WHERE leagueId = $5 AND userId = $6
+		`, administrator, createTeams, editTeams, editGames, leagueId, userId)
+	return err
+}

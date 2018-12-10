@@ -12,6 +12,14 @@ type LeagueRequest struct {
 	PublicJoin  bool   `json:"publicJoin"`
 }
 
+type LeaguePermissionChange struct {
+	Id            int  `json:"id"`
+	Administrator bool `json:"administrator"`
+	CreateTeams   bool `json:"createTeams"`
+	EditTeams     bool `json:"editTeams"`
+	EditGames     bool `json:"editGames"`
+}
+
 /**
  * @api{POST} /api/leagues/ Create New League
  * @apiName createNewLeague
@@ -284,6 +292,40 @@ func getPublicLeagues(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, leagueList)
 }
 
+/**
+ * @api{POST} /api/leagues/setLeaguePermissions Set League Permissions
+ * @apiGroup Leagues
+ * @apiDescription Set the specified users league permissions in the currently active league
+ *
+ * @apiParam {number} id the unique numerical identifier of the user
+ * @apiParam {bool} administrator If the user is an admin of this team
+ * @apiParam {bool} information If the user can change team information
+ * @apiParam {bool} players If the user can edit players on the team
+ * @apiParam {bool} reportResults If the user can report game results of this team
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError notAdmin The currently logged in user is not a league administrator
+ */
+func setLeaguePermissions(ctx *gin.Context) {
+	//get parameters
+	var permissionChange LeaguePermissionChange
+	err := ctx.ShouldBindJSON(&permissionChange)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	err = LeaguesDAO.SetLeaguePermissions(
+		ctx.GetInt("leagueId"), ctx.GetInt("userId"),
+		permissionChange.Administrator, permissionChange.CreateTeams,
+		permissionChange.EditTeams, permissionChange.EditGames)
+
+	if checkErr(ctx, err) {
+		return
+	}
+	ctx.Status(http.StatusOK)
+}
+
 //TODO: make endpoint "get editable teams"
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
@@ -296,4 +338,6 @@ func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
 	g.GET("/gameSummary", getActiveLeague(), getGameSummary)
 	g.GET("/teamManagers", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), getTeamManagers)
+	g.POST("/setLeaguePermissions",
+		authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), setLeaguePermissions)
 }

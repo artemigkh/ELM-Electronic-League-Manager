@@ -298,10 +298,10 @@ func getPublicLeagues(ctx *gin.Context) {
  * @apiDescription Set the specified users league permissions in the currently active league
  *
  * @apiParam {number} id the unique numerical identifier of the user
- * @apiParam {bool} administrator If the user is an admin of this team
- * @apiParam {bool} information If the user can change team information
- * @apiParam {bool} players If the user can edit players on the team
- * @apiParam {bool} reportResults If the user can report game results of this team
+ * @apiSuccess {bool} administrator if user is a league administrator
+ * @apiSuccess {bool} createTeams if the user can create teams
+ * @apiSuccess {bool} editTeams if the user can edit existing teams
+ * @apiSuccess {bool} editGames if the user can edit games in this league
  *
  * @apiError notLoggedIn No user is logged in
  * @apiError noActiveLeague There is no active league selected

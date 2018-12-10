@@ -13,10 +13,10 @@ type LeagueInformation struct {
 }
 
 type LeaguePermissions struct {
-	Administrator bool
-	CreateTeams   bool
-	EditTeams     bool
-	EditGames     bool
+	Administrator bool `json:"administrator"`
+	CreateTeams   bool `json:"createTeams"`
+	EditTeams     bool `json:"editTeams"`
+	EditGames     bool `json:"editGames"`
 }
 
 type TeamSummaryInformation struct {
@@ -345,7 +345,7 @@ func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) 
 	return leagues, nil
 }
 
-func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
+func getLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
 	var lp LeaguePermissions
 	err := psql.Select("administrator", "createTeams", "editTeams", "editGames").
 		From("leaguePermissions").
@@ -362,4 +362,8 @@ func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermis
 		return nil, err
 	}
 	return &lp, nil
+}
+
+func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
+	return getLeaguePermissions(leagueId, userId)
 }

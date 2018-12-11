@@ -10,7 +10,8 @@
         </span>
         <span class="top-teams">
             <h2>Top Teams</h2>
-            <div *ngFor="let team of teams">{{team.name}}</div>
+            <app-team-entry *ngFor="let team of teams; let i = index"
+                            [team]="team" [position]="i+1" [height]="80"></app-team-entry>
         </span>
     </div>
     <div class="bottom-row">

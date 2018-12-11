@@ -1,0 +1,33 @@
+.team-entry {
+    display: flex;
+    flex-direction: row;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: lightgray;
+
+    .position {
+        flex-grow: 1;
+    }
+
+    .logo {
+        flex-grow: 1;
+        img {
+            max-height:85%;
+            max-width:85%;
+            height:auto;
+            width:auto;
+        }
+    }
+
+    .name {
+        flex-grow: 1;
+    }
+
+    .record {
+        flex-grow: 1;
+    }
+}
+
+.team-entry:hover {
+    background-color: #f5f5f5;
+}

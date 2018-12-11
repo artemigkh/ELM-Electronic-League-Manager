@@ -42,3 +42,8 @@ img {
     height:auto;
     width:auto;
 }
+
+.teams-list {
+    display: flex;
+    flex-direction: column;
+}

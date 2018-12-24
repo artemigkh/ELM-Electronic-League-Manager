@@ -270,7 +270,11 @@ export class LeagueService {
             name: leagueInfo.name,
             description: leagueInfo.description,
             publicView: leagueInfo.publicView,
-            publicJoin: leagueInfo.publicJoin
+            publicJoin: leagueInfo.publicJoin,
+            signupStart: leagueInfo.signupStart,
+            signupEnd: leagueInfo.signupEnd,
+            leagueStart: leagueInfo.leagueStart,
+            leagueEnd: leagueInfo.leagueEnd
         }, httpOptions)
     }
 }

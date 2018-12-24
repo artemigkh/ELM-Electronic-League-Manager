@@ -37,7 +37,7 @@ type LeaguePermissionChange struct {
  * @apiParam {number} signupStart The unix timestamp of the start of the signup period
  * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
  * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
- * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
  *
  * @apiSuccess {int} id the primary id of the created league
  *
@@ -98,7 +98,7 @@ func createNewLeague(ctx *gin.Context) {
  * @apiParam {number} signupStart The unix timestamp of the start of the signup period
  * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
  * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
- * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
  *
  * @apiSuccess {int} id the primary id of the created league
  *

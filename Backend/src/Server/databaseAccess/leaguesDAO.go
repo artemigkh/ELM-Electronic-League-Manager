@@ -10,6 +10,10 @@ type LeagueInformation struct {
 	Description string `json:"description"`
 	PublicView  bool   `json:"publicView"`
 	PublicJoin  bool   `json:"publicJoin"`
+	SignupStart int    `json:"signupStart"`
+	SignupEnd   int    `json:"signupEnd"`
+	LeagueStart int    `json:"leagueStart"`
+	LeagueEnd   int    `json:"leagueEnd"`
 }
 
 type LeaguePermissions struct {
@@ -65,10 +69,15 @@ type PublicLeagueInformation struct {
 
 type PgLeaguesDAO struct{}
 
-func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, publicView, publicJoin bool) (int, error) {
+func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, publicView, publicJoin bool,
+	signupStart, signupEnd, leagueStart, leagueEnd int) (int, error) {
+
 	var leagueId int
-	err := psql.Insert("leagues").Columns("name", "description", "publicView", "publicJoin").
-		Values(name, description, publicView, publicJoin).Suffix("RETURNING \"id\"").
+	err := psql.Insert("leagues").
+		Columns("name", "description", "publicView", "publicJoin",
+			"signupStart", "signupEnd", "leagueStart", "leagueEnd").
+		Values(name, description, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
+		Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&leagueId)
 	if err != nil {
 		return -1, err
@@ -87,12 +96,14 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, public
 	return leagueId, nil
 }
 
-func (d *PgLeaguesDAO) UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool) error {
+func (d *PgLeaguesDAO) UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool,
+	signupStart, signupEnd, leagueStart, leagueEnd int) error {
 	_, err := db.Exec(
 		`
-		UPDATE leagues SET name = $1, description = $2, publicView = $3, publicJoin = $4
-		WHERE id = $5
-		`, name, description, publicView, publicJoin, leagueId)
+		UPDATE leagues SET name = $1, description = $2, publicView = $3, publicJoin = $4,
+			signupStart = $5, signupEnd = $6, leagueStart = $7, leagueEnd = $8
+		WHERE id = $9
+		`, name, description, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd, leagueId)
 	return err
 }
 
@@ -159,11 +170,13 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformation, error) {
 	var leagueInfo LeagueInformation
-	err := psql.Select("id", "name", "description", "publicView", "publicJoin").
+	err := psql.Select("id", "name", "description", "publicView", "publicJoin",
+		"signupStart", "signupEnd", "leagueStart", "leagueEnd").
 		From("leagues").
 		Where("id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description,
-		&leagueInfo.PublicView, &leagueInfo.PublicJoin)
+		&leagueInfo.PublicView, &leagueInfo.PublicJoin, &leagueInfo.SignupStart, &leagueInfo.SignupEnd,
+		&leagueInfo.LeagueStart, &leagueInfo.LeagueEnd)
 	if err != nil {
 		return nil, err
 	}

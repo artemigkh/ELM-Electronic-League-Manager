@@ -9,7 +9,11 @@ CREATE TABLE leagues (
   name            VARCHAR(50)   UNIQUE NOT NULL         ,
   description     VARCHAR(500)                          ,
   publicView      BOOLEAN       NOT NULL                ,
-  publicJoin      BOOLEAN       NOT NULL
+  publicJoin      BOOLEAN       NOT NULL                ,
+  signupStart     INT           NOT NULL                ,
+  signupEnd       INT           NOT NULL                ,
+  leagueStart     INT           NOT NULL                ,
+  leagueEnd       INT           NOT NULL
 );
 ALTER SEQUENCE leaguesIdSeq OWNED BY leagues.id;
 

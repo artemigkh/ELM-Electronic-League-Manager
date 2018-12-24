@@ -10,6 +10,10 @@ type LeagueRequest struct {
 	Description string `json:"description"`
 	PublicView  bool   `json:"publicView"`
 	PublicJoin  bool   `json:"publicJoin"`
+	SignupStart int    `json:"signupStart"`
+	SignupEnd   int    `json:"signupEnd"`
+	LeagueStart int    `json:"leagueStart"`
+	LeagueEnd   int    `json:"leagueEnd"`
 }
 
 type LeaguePermissionChange struct {
@@ -30,6 +34,10 @@ type LeaguePermissionChange struct {
  * @apiParam {string} description A brief (<500) char description of the league
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
  * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
+ * @apiParam {number} signupStart The unix timestamp of the start of the signup period
+ * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
  *
  * @apiSuccess {int} id the primary id of the created league
  *
@@ -40,6 +48,7 @@ type LeaguePermissionChange struct {
  * @apiError nameInUse The league name is currently in use
  */
 func createNewLeague(ctx *gin.Context) {
+	//TODO: here and in update, check that competition period after signup period
 	var lgRequest LeagueRequest
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
@@ -64,7 +73,11 @@ func createNewLeague(ctx *gin.Context) {
 		lgRequest.Name,
 		lgRequest.Description,
 		lgRequest.PublicView,
-		lgRequest.PublicJoin)
+		lgRequest.PublicJoin,
+		lgRequest.SignupStart,
+		lgRequest.SignupEnd,
+		lgRequest.LeagueStart,
+		lgRequest.LeagueEnd)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -82,6 +95,10 @@ func createNewLeague(ctx *gin.Context) {
  * @apiParam {string} description A brief (<500) char description of the league
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
  * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
+ * @apiParam {number} signupStart The unix timestamp of the start of the signup period
+ * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
  *
  * @apiSuccess {int} id the primary id of the created league
  *
@@ -117,7 +134,11 @@ func updateLeagueInfo(ctx *gin.Context) {
 		lgRequest.Name,
 		lgRequest.Description,
 		lgRequest.PublicView,
-		lgRequest.PublicJoin)
+		lgRequest.PublicJoin,
+		lgRequest.SignupStart,
+		lgRequest.SignupEnd,
+		lgRequest.LeagueStart,
+		lgRequest.LeagueEnd)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -168,6 +189,10 @@ func setActiveLeague(ctx *gin.Context) {
  * @apiSuccess {string} description The description of the currently selected league
  * @apiSuccess {bool} publicView True if league is publicly viewable
  * @apiSuccess {bool} publicJoin True if league is publicly joinable
+ * @apiSuccess {number} signupStart The unix timestamp of the start of the signup period
+ * @apiSuccess {number} signupEnd The unix timestamp of the end of the signup period
+ * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
  *
  * @apiError noActiveLeague There is no active league selected
  */

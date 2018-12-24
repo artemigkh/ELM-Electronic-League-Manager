@@ -175,6 +175,47 @@ func testCreateNewTeamTagTooLong(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }
 
+func testCreateNewTeamTagTooShort(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(4, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
+
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createTeamRequestBody("1234567890123456789012345678901234567890123456789", "A"),
+		"POST", "/", 400, testParams{Error: "tagTooShort"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+
+}
+func testCreateNewTeamNameTooShort(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(4, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, true, false, false), nil)
+
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createTeamRequestBody("", "1256"),
+		"POST", "/", 400, testParams{Error: "nameTooShort"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+
+}
+
 func testCreateNewTeamNameInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
@@ -268,6 +309,8 @@ func Test_CreateNewTeam(t *testing.T) {
 	t.Run("notLoggedIn", testCreateNewTeamNotLoggedIn)
 	t.Run("teamNameTooLong", testCreateNewTeamNameTooLong)
 	t.Run("teamTagTooLong", testCreateNewTeamTagTooLong)
+	t.Run("teamNameTooShort", testCreateNewTeamNameTooShort)
+	t.Run("teamTagTooShort", testCreateNewTeamTagTooShort)
 	t.Run("noActiveLeague", testCreateNewTeamNoActiveLeague)
 	t.Run("noTeamEditPermissions", testCreateNewTeamNoEditPermissions)
 	t.Run("dbError", testCreateNewTeamDbError)

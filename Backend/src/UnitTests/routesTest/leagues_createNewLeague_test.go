@@ -100,6 +100,19 @@ func testCreateNewLeagueNameTooLong(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
+func testCreateNewLeagueNameTooShort(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLeagueRequestBody("A", "", true, true),
+		"POST", "/", 400, testParams{Error: "nameTooShort"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
+}
+
 func testCreateNewLeagueNameInUse(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
@@ -169,6 +182,7 @@ func Test_CreateNewLeague(t *testing.T) {
 	t.Run("notLoggedIn", testCreateNewLeagueNotLoggedIn)
 	t.Run("descriptionTooLong", testCreateNewLeagueDescriptionTooLong)
 	t.Run("leagueNameTooLong", testCreateNewLeagueNameTooLong)
+	t.Run("leagueNameTooShort", testCreateNewLeagueNameTooShort)
 	t.Run("leagueNameInUse", testCreateNewLeagueNameInUse)
 	t.Run("databaseError", testCreateNewLeagueDatabaseError)
 	t.Run("correctLeagueCreation", testCorrectLeagueCreation)

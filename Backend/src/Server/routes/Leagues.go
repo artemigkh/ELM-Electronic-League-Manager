@@ -48,6 +48,7 @@ type LeaguePermissionChange struct {
  * @apiError nameInUse The league name is currently in use
  */
 func createNewLeague(ctx *gin.Context) {
+	//TODO: here and in update, check that competition period after signup period
 	var lgRequest LeagueRequest
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
@@ -188,6 +189,10 @@ func setActiveLeague(ctx *gin.Context) {
  * @apiSuccess {string} description The description of the currently selected league
  * @apiSuccess {bool} publicView True if league is publicly viewable
  * @apiSuccess {bool} publicJoin True if league is publicly joinable
+ * @apiSuccess {number} signupStart The unix timestamp of the start of the signup period
+ * @apiSuccess {number} signupEnd The unix timestamp of the end of the signup period
+ * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
  *
  * @apiError noActiveLeague There is no active league selected
  */

@@ -1,14 +1,18 @@
 package IntegrationTests
 
+import "time"
+
 type league struct {
-	Id         float64
-	Name       string
-	PublicView bool
-	PublicJoin bool
-	Teams      []*team
-	Managers   []*user
-	Players    []*player
-	Games      []*game
+	Id          float64
+	Name        string
+	PublicView  bool
+	PublicJoin  bool
+	Teams       []*team
+	Managers    []*user
+	Players     []*player
+	Games       []*game
+	LeagueStart *time.Time
+	LeagueEnd   *time.Time
 }
 
 type team struct {

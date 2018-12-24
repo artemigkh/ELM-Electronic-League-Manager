@@ -5,6 +5,7 @@ import (
 	"github.com/Pallinder/go-randomdata"
 	"strings"
 	"testing"
+	"time"
 )
 
 func createUser(t *testing.T) *user {
@@ -34,18 +35,40 @@ func min(a, b int) int {
 func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 	leagueName := randomdata.SillyName()
 
+	est, _ := time.LoadLocation("America/New_York")
+	currentTime := time.Now()
+	currentTime = time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, est)
+	signupStart := currentTime.AddDate(0, 0, -7*5)
+	signupEnd := signupStart.AddDate(0, 0, 7)
+	leagueStart := signupEnd.AddDate(0, 0, 7)
+	leagueEnd := leagueStart.AddDate(0, 0, 7*7)
+
+	description := ""
+	randParagraph := randomdata.Paragraph()
+	for len(description+randParagraph) < 500 {
+		description += " " + randParagraph
+		randParagraph = randomdata.Paragraph()
+	}
+
 	body := make(map[string]interface{})
 	body["name"] = leagueName
+	body["description"] = description
 	body["publicView"] = publicView
 	body["publicJoin"] = publicJoin
+	body["signupStart"] = signupStart.Unix()
+	body["signupEnd"] = signupEnd.Unix()
+	body["leagueStart"] = leagueStart.Unix()
+	body["leagueEnd"] = leagueEnd.Unix()
 
 	println("creating league with name " + leagueName)
 
 	return &league{
-		Id:         makeApiCallAndGetId(t, body, "POST", "api/leagues", 200),
-		Name:       leagueName,
-		PublicView: publicView,
-		PublicJoin: publicJoin,
+		Id:          makeApiCallAndGetId(t, body, "POST", "api/leagues", 200),
+		Name:        leagueName,
+		PublicView:  publicView,
+		PublicJoin:  publicJoin,
+		LeagueStart: &leagueStart,
+		LeagueEnd:   &leagueEnd,
 	}
 }
 

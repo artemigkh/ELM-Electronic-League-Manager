@@ -61,6 +61,41 @@ func testCreateNewGameNoActiveLeague(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession)
 }
 
+func testCreateNewGameNoEditSchedulePermissions(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(1, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 1).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createGamesRequestBody(1, 2, 1532913359),
+		"POST", "/", 403, testParams{Error: "noEditSchedulePermissions"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+}
+
+func testCreateNewGameTeamsAreSame(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(2, nil)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createGamesRequestBody(5, 5, 1532913359),
+		"POST", "/", 400, testParams{Error: "teamsAreSame"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
+}
+
 func testCreateNewGameTeam1DoesNotExist(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
@@ -217,10 +252,17 @@ func Test_CreateNewGame(t *testing.T) {
 	router.Use(routes.Testing_Export_getActiveLeague())
 	router.POST("/",
 		routes.Testing_Export_authenticate(),
+		routes.Testing_Export_failIfNoEditSchedulePermissions(),
 		routes.Testing_Export_createNewGame)
 
 	t.Run("notLoggedIn", testCreateNewGameNotLoggedIn)
 	t.Run("noActiveLeague", testCreateNewGameNoActiveLeague)
+	t.Run("NoEditSchedulePermissions", testCreateNewGameNoEditSchedulePermissions)
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 1).
+		Return(LeaguePermissions(false, false, false, true), nil)
+	routes.LeaguesDAO = mockLeaguesDao
+	t.Run("teamsAreSame", testCreateNewGameTeamsAreSame)
 	t.Run("team1DoesNotExist", testCreateNewGameTeam1DoesNotExist)
 	t.Run("team2DoesNotExist", testCreateNewGameTeam2DoesNotExist)
 	t.Run("sessionError", testCreateNewGameSessionError)

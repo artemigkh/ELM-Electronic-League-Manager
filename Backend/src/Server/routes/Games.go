@@ -34,13 +34,12 @@ type GameRescheduleInformation struct {
  * @apiSuccess {int} id The primary id of the created game
  *
  * @apiError notLoggedIn No user is logged in
+ * @apiError teamsAreSame Team 1 and Team 2 are the same team
  * @apiError noActiveLeague There is no active league selected
  * @apiError teamDoesNotExist One of the teams specified does not exist
  * @apiError conflictExists One of the teams already has a game scheduled at this time
  */
 func createNewGame(ctx *gin.Context) {
-	//TODO: check that the two teams are not the same
-	//TODO: check that has league game scheduling permissions
 	//get parameters
 	var gameInfo GameInformation
 	err := ctx.ShouldBindJSON(&gameInfo)
@@ -48,6 +47,10 @@ func createNewGame(ctx *gin.Context) {
 		return
 	}
 
+	if gameInfo.Team1Id == gameInfo.Team2Id {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "teamsAreSame"})
+		return
+	}
 	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Team1Id) {
 		return
 	}
@@ -115,10 +118,10 @@ func getGameInformation(ctx *gin.Context) {
  * @apiError IdMustBeInteger The id in the url must be an integer value
  * @apiError noActiveLeague There is no active league selected
  * @apiError gameDoesNotExist The game with specified id does not exist
+ * @apiError gameDoesNotContainWinner The game does not contain the specified winner ID
  * @apiError noReportResultPermissions The currently logged in user does not have permissions to report results for this team
  */
 func reportGameResult(ctx *gin.Context) {
-	//TODO: check if the winner Id is one of the two team Ids in the game
 	//get parameters
 	var gameInfo GameReportInformation
 	err := ctx.ShouldBindJSON(&gameInfo)
@@ -127,6 +130,9 @@ func reportGameResult(ctx *gin.Context) {
 	}
 
 	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+		return
+	}
+	if failIfGameDoesNotContainWinner(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId"), gameInfo.WinnerId) {
 		return
 	}
 
@@ -217,7 +223,7 @@ func rescheduleGame(ctx *gin.Context) {
 func RegisterGameHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 
-	g.POST("/", authenticate(), createNewGame)
+	g.POST("/", authenticate(), failIfNoEditSchedulePermissions(), createNewGame)
 	g.PUT("/", authenticate(), failIfNoEditSchedulePermissions(), rescheduleGame)
 	g.POST("/report/:id", authenticate(), getUrlId(), failIfNoReportResultPermissions(), reportGameResult)
 	g.GET("/:id", getUrlId(), getGameInformation)

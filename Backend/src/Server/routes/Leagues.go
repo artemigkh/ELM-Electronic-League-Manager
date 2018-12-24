@@ -34,6 +34,10 @@ type LeaguePermissionChange struct {
  * @apiParam {string} description A brief (<500) char description of the league
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
  * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
+ * @apiParam {number} signupStart The unix timestamp of the start of the signup period
+ * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
  *
  * @apiSuccess {int} id the primary id of the created league
  *
@@ -90,6 +94,10 @@ func createNewLeague(ctx *gin.Context) {
  * @apiParam {string} description A brief (<500) char description of the league
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
  * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
+ * @apiParam {number} signupStart The unix timestamp of the start of the signup period
+ * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+ * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
  *
  * @apiSuccess {int} id the primary id of the created league
  *
@@ -125,7 +133,11 @@ func updateLeagueInfo(ctx *gin.Context) {
 		lgRequest.Name,
 		lgRequest.Description,
 		lgRequest.PublicView,
-		lgRequest.PublicJoin)
+		lgRequest.PublicJoin,
+		lgRequest.SignupStart,
+		lgRequest.SignupEnd,
+		lgRequest.LeagueStart,
+		lgRequest.LeagueEnd)
 	if checkErr(ctx, err) {
 		return
 	}

@@ -185,7 +185,7 @@ func testCorrectLeagueInfoUpdate(t *testing.T) {
 		Return(LeaguePermissions(true, true, true, true), nil)
 	mockLeaguesDao.On("IsNameInUse", 2, "testName").
 		Return(false, nil)
-	mockLeaguesDao.On("UpdateLeague", 2, "testName", mock.AnythingOfType("string"), true, true).
+	mockLeaguesDao.On("UpdateLeague", 2, "testName", mock.AnythingOfType("string"), true, true, 1, 2, 3, 4).
 		Return(nil)
 
 	routes.ElmSessions = mockSession

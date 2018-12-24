@@ -92,12 +92,14 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, public
 	return leagueId, nil
 }
 
-func (d *PgLeaguesDAO) UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool) error {
+func (d *PgLeaguesDAO) UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool,
+	signupStart, signupEnd, leagueStart, leagueEnd int) error {
 	_, err := db.Exec(
 		`
-		UPDATE leagues SET name = $1, description = $2, publicView = $3, publicJoin = $4
-		WHERE id = $5
-		`, name, description, publicView, publicJoin, leagueId)
+		UPDATE leagues SET name = $1, description = $2, publicView = $3, publicJoin = $4,
+			signupStart = $5, signupEnd = $6, leagueStart = $7, leagueEnd = $8
+		WHERE id = $9
+		`, name, description, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd, leagueId)
 	return err
 }
 

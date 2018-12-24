@@ -47,6 +47,7 @@ import {GamesService} from "./httpServices/games.service";
 import {NgxMaterialTimepickerModule} from "ngx-material-timepicker";
 import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@angular/material-moment-adapter";
 import {ConfirmationComponent} from "./shared/confirmation/confirmation-component";
+import {TeamEntry} from "./shared/teamEntry/team-entry";
 
 @NgModule({
     declarations: [
@@ -74,7 +75,8 @@ import {ConfirmationComponent} from "./shared/confirmation/confirmation-componen
         LoginComponent,
         SignupComponent,
         NavBar,
-        GameEntry
+        GameEntry,
+        TeamEntry
     ],
     imports: [
         BrowserModule,

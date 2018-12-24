@@ -4,4 +4,8 @@ export interface LeagueInformation {
     description: string;
     publicView: boolean;
     publicJoin: boolean;
+    signupStart: number;
+    signupEnd: number;
+    leagueStart: number;
+    leagueEnd: number;
 }

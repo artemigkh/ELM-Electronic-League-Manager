@@ -12,12 +12,18 @@ import (
 	"testing"
 )
 
-func createLeagueRequestBody(name, description string, publicView, publicJoin bool) *bytes.Buffer {
+func createLeagueRequestBody(name, description string, publicView, publicJoin bool,
+	signupStart, signupEnd, leagueStart, leagueEnd int) *bytes.Buffer {
+
 	reqBody := routes.LeagueRequest{
 		Name:        name,
 		Description: description,
 		PublicView:  publicView,
 		PublicJoin:  publicJoin,
+		SignupStart: signupStart,
+		SignupEnd:   signupEnd,
+		LeagueStart: leagueStart,
+		LeagueEnd:   leagueEnd,
 	}
 	reqBodyB, _ := json.Marshal(&reqBody)
 	return bytes.NewBuffer(reqBodyB)
@@ -54,7 +60,8 @@ func testCreateNewLeagueSessionError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("testname", "", true, true),
+	httpTest(t, createLeagueRequestBody("testname", "", true, true,
+		1, 2, 3, 4),
 		"POST", "/", 500, testParams{})
 
 	mock.AssertExpectationsForObjects(t, mockSession)
@@ -67,7 +74,8 @@ func testCreateNewLeagueNotLoggedIn(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("testname", "", true, true),
+	httpTest(t, createLeagueRequestBody("testname", "", true, true,
+		1, 2, 3, 4),
 		"POST", "/", 403, testParams{Error: "notLoggedIn"})
 
 	mock.AssertExpectationsForObjects(t, mockSession)
@@ -81,7 +89,8 @@ func testCreateNewLeagueDescriptionTooLong(t *testing.T) {
 	routes.ElmSessions = mockSession
 
 	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901",
-		randomdata.RandStringRunes(501), true, true),
+		randomdata.RandStringRunes(501), true, true,
+		1, 2, 3, 4),
 		"POST", "/", 400, testParams{Error: "descriptionTooLong"})
 
 	mock.AssertExpectationsForObjects(t, mockSession)
@@ -94,8 +103,23 @@ func testCreateNewLeagueNameTooLong(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901", "", true, true),
+	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901",
+		"", true, true, 1, 2, 3, 4),
 		"POST", "/", 400, testParams{Error: "nameTooLong"})
+
+	mock.AssertExpectationsForObjects(t, mockSession)
+}
+
+func testCreateNewLeagueNameTooShort(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(1, nil)
+
+	routes.ElmSessions = mockSession
+
+	httpTest(t, createLeagueRequestBody("A", "", true, true,
+		1, 2, 3, 4),
+		"POST", "/", 400, testParams{Error: "nameTooShort"})
 
 	mock.AssertExpectationsForObjects(t, mockSession)
 }
@@ -112,7 +136,8 @@ func testCreateNewLeagueNameInUse(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, createLeagueRequestBody("12345678901234567890123456789012345678901234567890", "", true, true),
+	httpTest(t, createLeagueRequestBody("12345678901234567890123456789012345678901234567890",
+		"", true, true, 1, 2, 3, 4),
 		"POST", "/", 400, testParams{Error: "nameInUse"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -126,13 +151,14 @@ func testCreateNewLeagueDatabaseError(t *testing.T) {
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("IsNameInUse", -1, "testName").
 		Return(false, nil)
-	mockLeaguesDao.On("CreateLeague", 1, "testName", "", true, true).
+	mockLeaguesDao.On("CreateLeague", 1, "testName", "", true, true, 1, 2, 3, 4).
 		Return(-1, errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, createLeagueRequestBody("testName", "", true, true),
+	httpTest(t, createLeagueRequestBody("testName", "", true, true,
+		1, 2, 3, 4),
 		"POST", "/", 500, testParams{})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -146,13 +172,14 @@ func testCorrectLeagueCreation(t *testing.T) {
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("IsNameInUse", -1, "testName").
 		Return(false, nil)
-	mockLeaguesDao.On("CreateLeague", 1, "testName", mock.AnythingOfType("string"), true, true).
+	mockLeaguesDao.On("CreateLeague", 1, "testName", mock.AnythingOfType("string"), true, true, 1, 2, 3, 4).
 		Return(3, nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, createLeagueRequestBody("testName", randomdata.RandStringRunes(500), true, true),
+	httpTest(t, createLeagueRequestBody("testName", randomdata.RandStringRunes(500), true, true,
+		1, 2, 3, 4),
 		"POST", "/", 200, testParams{ResponseBody: createLeagueResponseBody(3)})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -169,6 +196,7 @@ func Test_CreateNewLeague(t *testing.T) {
 	t.Run("notLoggedIn", testCreateNewLeagueNotLoggedIn)
 	t.Run("descriptionTooLong", testCreateNewLeagueDescriptionTooLong)
 	t.Run("leagueNameTooLong", testCreateNewLeagueNameTooLong)
+	t.Run("leagueNameTooShort", testCreateNewLeagueNameTooShort)
 	t.Run("leagueNameInUse", testCreateNewLeagueNameInUse)
 	t.Run("databaseError", testCreateNewLeagueDatabaseError)
 	t.Run("correctLeagueCreation", testCorrectLeagueCreation)

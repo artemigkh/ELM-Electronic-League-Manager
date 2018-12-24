@@ -62,12 +62,12 @@
         </mat-tab>
 
         <mat-tab label="Match History">
-            <div class="games-list">
+            <div class="games-list-team-page">
                 <app-game-entry *ngFor="let game of pastGames" [game]="game" [compact]="true"></app-game-entry>
             </div>
         </mat-tab>
         <mat-tab label="Upcoming Games">
-            <div class="games-list">
+            <div class="games-list-team-page">
                 <app-game-entry *ngFor="let game of upcomingGames" [game]="game" [compact]="true"></app-game-entry>
             </div>
         </mat-tab>

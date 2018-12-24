@@ -58,10 +58,11 @@ type TeamManagerPermissionChange struct {
  * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
  * @apiError nameTooLong The team name has exceeded 50 characters
  * @apiError tagTooLong The team tag has exceeded 5 characters
+ * @apiError nameTooShort The name must be at least 2 characters in length
+ * @apiError tagTooShort The tag must be at least 2 characters in length
  * @apiError nameInUse The team name is currently in use
  * @apiError tagInUse The team tag is currently in use
  */
-//TODO: Add minimum name and tag length (1 char)
 func createNewTeam(ctx *gin.Context) {
 	//get parameters
 	var teamInfo TeamInformation
@@ -74,6 +75,12 @@ func createNewTeam(ctx *gin.Context) {
 		return
 	}
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfNameTooShort(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTagTooShort(ctx, teamInfo.Tag) {
 		return
 	}
 	if failIfDescriptionTooLong(ctx, teamInfo.Description) {
@@ -127,6 +134,12 @@ func updateTeam(ctx *gin.Context) {
 		return
 	}
 	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfNameTooShort(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTagTooShort(ctx, teamInfo.Tag) {
 		return
 	}
 	if failIfDescriptionTooLong(ctx, teamInfo.Description) {
@@ -228,9 +241,9 @@ func getTeamInformation(ctx *gin.Context) {
  * @apiError canNotEditPlayers The currently logged in player does not have permission to edit the players on this team
  * @apiError gameIdentifierTooLong The game identifier exceeds 50 characters
  * @apiError nameTooLong The name exceeds 50 characters
+ * @apiError gameIdentifierTooShort The game identifier is smaller than 2 characters
  * @apiError gameIdentifierInUse This game identifier is already in use in this league
  */
-//TODO: Add minimum name lengths (1 char each)
 func addPlayerToTeam(ctx *gin.Context) {
 	//get parameters
 	var playerInfo PlayerInformation
@@ -249,6 +262,9 @@ func addPlayerToTeam(ctx *gin.Context) {
 		return
 	}
 	if failIfNameTooLong(ctx, playerInfo.Name) {
+		return
+	}
+	if failIfGameIdentifierTooShort(ctx, playerInfo.GameIdentifier) {
 		return
 	}
 	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId, -1, playerInfo.GameIdentifier) {
@@ -319,6 +335,7 @@ func removePlayerFromTeam(ctx *gin.Context) {
  * @apiError canNotEditPlayers The currently logged in player does not have permission to edit the players on this team
  * @apiError gameIdentifierTooLong The game identifier exceeds 50 characters
  * @apiError nameTooLong The name exceeds 50 characters
+ * @apiError gameIdentifierTooShort The game identifier is smaller than 2 characters
  * @apiError gameIdentifierInUse This game identifier is already in use in this league
  */
 func updatePlayer(ctx *gin.Context) {
@@ -339,6 +356,9 @@ func updatePlayer(ctx *gin.Context) {
 		return
 	}
 	if failIfNameTooLong(ctx, playerInfoChange.Name) {
+		return
+	}
+	if failIfGameIdentifierTooShort(ctx, playerInfoChange.GameIdentifier) {
 		return
 	}
 	if failIfGameIdentifierInUse(

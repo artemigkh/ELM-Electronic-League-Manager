@@ -23,6 +23,7 @@ const (
 	MaxNameLength        = 50
 	MaxTagLength         = 5
 	MaxDescriptionLength = 500
+	MinInformationLength = 2
 )
 
 // operator wrappers
@@ -82,6 +83,18 @@ func failIfTeamTagTooLong(ctx *gin.Context, name string) bool {
 	return failIfImproperLength(ctx, name, MaxTagLength, ge, "tagTooLong")
 }
 
+func failIfNameTooShort(ctx *gin.Context, name string) bool {
+	return failIfImproperLength(ctx, name, MinInformationLength, le, "nameTooShort")
+}
+
+func failIfTagTooShort(ctx *gin.Context, tag string) bool {
+	return failIfImproperLength(ctx, tag, MinInformationLength, le, "tagTooShort")
+}
+
+func failIfGameIdentifierTooShort(ctx *gin.Context, tag string) bool {
+	return failIfImproperLength(ctx, tag, MinInformationLength, le, "gameIdentifierTooShort")
+}
+
 func failIfGameIdentifierTooLong(ctx *gin.Context, gameIdentifier string) bool {
 	return failIfImproperLength(ctx, gameIdentifier, MaxNameLength, ge, "gameIdentifierTooLong")
 }
@@ -134,6 +147,12 @@ func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool
 func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
 	gameInformation, err := GamesDAO.GetGameInformation(leagueId, gameId)
 	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
+}
+
+func failIfGameDoesNotContainWinner(ctx *gin.Context, leagueId, gameId, winnerId int) bool {
+	gi, err := GamesDAO.GetGameInformation(leagueId, gameId)
+	return failIfBooleanConditionTrue(ctx,
+		!(gi.Team1Id == winnerId || gi.Team2Id == winnerId), err, http.StatusBadRequest, "gameDoesNotContainWinner")
 }
 
 func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {

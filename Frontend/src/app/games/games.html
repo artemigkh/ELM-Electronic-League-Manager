@@ -7,7 +7,7 @@
     <mat-tab *ngFor="let week of weeks; let i=index"
         [label]="i+1+': '+ week.start.format('MMMM').substring(0, 3) + ' ' + week.start.format('Do') +
                 ' - ' + week.end.format('MMMM').substring(0, 3) + ' ' + week.end.format('Do')">
-        <div class="games-list">
+        <div class="games-list-games-page">
             <app-game-entry *ngFor="let game of week.games" [game]="game"></app-game-entry>
         </div>
 

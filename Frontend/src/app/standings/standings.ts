@@ -10,12 +10,12 @@ import {Team} from "../interfaces/Team";
 })
 export class StandingsComponent {
     displayedColumns: string[] = ['Position', 'Icon', 'Name', 'Score'];
-    dataSource: Team[];
+    teams: Team[];
 
     constructor(private leagueService: LeagueService) {
         this.leagueService.getTeamSummary().subscribe(
             teamSummary => {
-                this.dataSource = teamSummary;
+                this.teams = teamSummary;
             }, error => {
                 console.log(error);
             });

@@ -2,48 +2,8 @@
   <h1 class="docs-primary-header">Teams and Standings</h1>
 </div>
 
-<!--<ng-template ngFor let-item="$implicit" [ngForOf]="dataSource" let-i="index">-->
-    <!--<div class="standings-row">-->
-        <!--&lt;!&ndash;{{item.name}}, {{i+1}}&ndash;&gt;-->
-        <!--<span>-->
-            <!---->
-        <!--</span>-->
-    <!--</div>-->
-    <!--<mat-divider></mat-divider>-->
-<!--</ng-template>-->
-
-<mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-    <!-- Position Column -->
-  <ng-container matColumnDef="Position">
-      <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-      <mat-cell *matCellDef="let element; let i = index"> {{i+1}} </mat-cell>
-  </ng-container>
-
-    <ng-container matColumnDef="Icon">
-        <mat-header-cell *matHeaderCellDef> Icon </mat-header-cell>
-        <mat-cell *matCellDef="let element;">
-            <img [src]="'http://localhost:8080/icons/' + element.iconSmall">
-        </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="Name">
-      <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
-    </ng-container>
-
-    <!--&lt;!&ndash; Name Column &ndash;&gt;-->
-    <!--<ng-container matColumnDef="Tag">-->
-      <!--<mat-header-cell *matHeaderCellDef> Tag </mat-header-cell>-->
-      <!--<mat-cell *matCellDef="let element"> {{element.tag}} </mat-cell>-->
-    <!--</ng-container>-->
-
-    <!-- Symbol Column -->
-    <ng-container matColumnDef="Score">
-      <mat-header-cell *matHeaderCellDef> Losses </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.wins}}W-{{element.losses}}L</mat-cell>
-    </ng-container>
-
-    <mat-header-row style="display: none;" *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/teams', row.id]"></mat-row>
-</mat-table>
+<div class="teams-list">
+    <app-team-entry *ngFor="let team of teams; let i = index"
+                    [team]="team" [position]="i+1" [height]="80"></app-team-entry>
+</div>
 

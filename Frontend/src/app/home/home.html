@@ -1,3 +1,31 @@
 <div class="docs-primary-header">
   <h1 class="docs-primary-header">Home</h1>
 </div>
+
+<div class="home-content">
+    <div class="top-row">
+        <span class="league-about">
+            <h2>About {{leagueInformation.name}}</h2>
+            {{leagueInformation.description}}
+        </span>
+        <span class="top-teams">
+            <h2>Top Teams</h2>
+            <app-team-entry *ngFor="let team of teams; let i = index"
+                            [team]="team" [position]="i+1" [height]="80"></app-team-entry>
+        </span>
+    </div>
+    <div class="bottom-row">
+        <span class="past-games">
+            <h2>Recently Completed Games</h2>
+            <div class="games-list">
+                <app-game-entry *ngFor="let game of completeGames" [game]="game" [compact]="true"></app-game-entry>
+            </div>
+        </span>
+        <span class="upcoming-games">
+            <h2>Upcoming Games</h2>
+            <div class="games-list">
+                <app-game-entry *ngFor="let game of upcomingGames" [game]="game" [compact]="true"></app-game-entry>
+            </div>
+        </span>
+    </div>
+</div>

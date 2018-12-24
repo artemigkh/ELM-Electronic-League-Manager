@@ -1,4 +1,4 @@
-<div [class]="'game-entry' + (compact?'-compact':'')">
+<div [class]="'game-entry' + (compact?' compact':'')">
 
     <span class="time">
         <div class="dayofweek">
@@ -12,54 +12,67 @@
         </div>
     </span>
 
+
+
     <span class="info">
-        <span [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.id]">
-            {{game.team1.name}}
-        </span>
+        <span class="team-container">
+            <span class="spacer"></span>
+            <span [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.id]">
+                {{game.team1.name}}
+            </span>
 
-        <span class="team-block">
-            <div class="tag">
-                {{game.team1.tag}}
-            </div>
+            <span class="team-block" [routerLink]="['/teams', game.team1.id]">
+                <div class="tag">
+                    {{game.team1.tag}}
+                </div>
 
-            <div [class]="gameResultClass(1)">
-                {{gameResultText(1)}}
-            </div>
+                <div [class]="gameResultClass(1)">
+                    {{gameResultText(1)}}
+                </div>
 
-            <div class="record">
-                {{game.team1.wins}}W -  {{game.team1.losses}}L
-            </div>
-        </span>
+                <div class="record">
+                    {{game.team1.wins}}W -  {{game.team1.losses}}L
+                </div>
+            </span>
 
-        <span class="logo">
-            <img [src]="'http://localhost:8080/icons/' + game.team1.iconSmall">
+            <span class="spacer"></span>
+
+            <span class="logo" [routerLink]="['/teams', game.team1.id]">
+                <img [src]="'http://localhost:8080/icons/' + game.team1.iconSmall">
+            </span>
         </span>
 
         <span class="vs">vs</span>
 
-        <span class="logo">
+        <span class="team-container">
+            <span class="logo" [routerLink]="['/teams', game.team2.id]">
             <img [src]="'http://localhost:8080/icons/' + game.team2.iconSmall">
-        </span>
+            </span>
+            <span class="spacer"></span>
+            <span class="team-block" [routerLink]="['/teams', game.team2.id]">
 
-        <span class="team-block">
-            <div class="tag">
-                {{game.team2.tag}}
-            </div>
+                <div class="tag">
+                    {{game.team2.tag}}
+                </div>
 
-            <div [class]="gameResultClass(2)">
-                {{gameResultText(2)}}
-            </div>
+                <div [class]="gameResultClass(2)">
+                    {{gameResultText(2)}}
+                </div>
 
-            <div class="record">
-                {{game.team2.wins}}W -  {{game.team2.losses}}L
-            </div>
-        </span>
+                <div class="record">
+                    {{game.team2.wins}}W -  {{game.team2.losses}}L
+                </div>
+            </span>
 
-        <span [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.id]">
-            {{game.team2.name}}
+            <span [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.id]">
+                {{game.team2.name}}
+            </span>
+            <span class="spacer"></span>
         </span>
 
     </span>
+
+
 
 </div>
 

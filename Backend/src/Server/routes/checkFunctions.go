@@ -149,6 +149,12 @@ func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
 	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
 }
 
+func failIfGameDoesNotContainWinner(ctx *gin.Context, leagueId, gameId, winnerId int) bool {
+	gi, err := GamesDAO.GetGameInformation(leagueId, gameId)
+	return failIfBooleanConditionTrue(ctx,
+		!(gi.Team1Id == winnerId || gi.Team2Id == winnerId), err, http.StatusBadRequest, "gameDoesNotContainWinner")
+}
+
 func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
 	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
 	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || lp.EditTeams || tp.Administrator || tp.Players),

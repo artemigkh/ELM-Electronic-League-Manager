@@ -165,6 +165,32 @@ func testReportGameResultGameDoesNotExist(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession, mockGamesDao)
 }
 
+func testReportGameDoesNotContainWinner(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(14, nil)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(15, nil)
+
+	mockGamesDao := new(mocks.GamesDAO)
+	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
+		Return(true, nil)
+	mockGamesDao.On("GetGameInformation", 14, 16).
+		Return(&databaseAccess.GameInformation{
+			Team1Id:  3,
+			Team2Id:  3,
+			GameTime: 1545613928,
+		}, nil)
+
+	routes.ElmSessions = mockSession
+	routes.GamesDAO = mockGamesDao
+
+	httpTest(t, createGamesReportBody(5, 2, 1),
+		"POST", "/report/16", 400, testParams{Error: "gameDoesNotContainWinner"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockGamesDao)
+}
+
 func testReportGameResultCorrectReportDatabaseError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
@@ -176,7 +202,11 @@ func testReportGameResultCorrectReportDatabaseError(t *testing.T) {
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
 	mockGamesDao.On("GetGameInformation", 14, 16).
-		Return(&databaseAccess.GameInformation{}, nil)
+		Return(&databaseAccess.GameInformation{
+			Team1Id:  5,
+			Team2Id:  6,
+			GameTime: 1545613928,
+		}, nil)
 	mockGamesDao.On("ReportGame", 14, 16, 5, 2, 1).
 		Return(errors.New("fake db error"))
 
@@ -200,7 +230,11 @@ func testReportGameResultCorrectReport(t *testing.T) {
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
 	mockGamesDao.On("GetGameInformation", 14, 16).
-		Return(&databaseAccess.GameInformation{}, nil)
+		Return(&databaseAccess.GameInformation{
+			Team1Id:  5,
+			Team2Id:  6,
+			GameTime: 1545613928,
+		}, nil)
 	mockGamesDao.On("ReportGame", 14, 16, 5, 2, 1).
 		Return(nil)
 
@@ -234,6 +268,7 @@ func Test_ReportGameResult(t *testing.T) {
 	t.Run("DatabaseError", testReportGameResultDatabaseError)
 	t.Run("MalformedBody", testReportGameResultMalformedBody)
 	t.Run("GameDoesNotExist", testReportGameResultGameDoesNotExist)
+	t.Run("GameDoesNotContainWinner", testReportGameDoesNotContainWinner)
 	t.Run("CorrectReportDatabaseError", testReportGameResultCorrectReportDatabaseError)
 	t.Run("CorrectReport", testReportGameResultCorrectReport)
 

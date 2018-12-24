@@ -23,6 +23,7 @@ const (
 	MaxNameLength        = 50
 	MaxTagLength         = 5
 	MaxDescriptionLength = 500
+	MinInformationLength = 2
 )
 
 // operator wrappers
@@ -80,6 +81,18 @@ func failIfPasswordTooShort(ctx *gin.Context, password string) bool {
 
 func failIfTeamTagTooLong(ctx *gin.Context, name string) bool {
 	return failIfImproperLength(ctx, name, MaxTagLength, ge, "tagTooLong")
+}
+
+func failIfNameTooShort(ctx *gin.Context, name string) bool {
+	return failIfImproperLength(ctx, name, MinInformationLength, le, "nameTooShort")
+}
+
+func failIfTagTooShort(ctx *gin.Context, tag string) bool {
+	return failIfImproperLength(ctx, tag, MinInformationLength, le, "tagTooShort")
+}
+
+func failIfGameIdentifierTooShort(ctx *gin.Context, tag string) bool {
+	return failIfImproperLength(ctx, tag, MinInformationLength, le, "gameIdentifierTooShort")
 }
 
 func failIfGameIdentifierTooLong(ctx *gin.Context, gameIdentifier string) bool {

@@ -35,6 +35,7 @@ type LeaguePermissionChange struct {
  *
  * @apiError notLoggedIn No user is logged in
  * @apiError nameTooLong The league name has exceeded 50 characters
+ * @apiError nameTooShort The league name is shorter than 2 characters
  * @apiError descriptionTooLong The description has exceeded 500 characters
  * @apiError nameInUse The league name is currently in use
  */
@@ -49,6 +50,9 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 	if failIfNameTooLong(ctx, lgRequest.Name) {
+		return
+	}
+	if failIfNameTooShort(ctx, lgRequest.Name) {
 		return
 	}
 	if failIfLeagueNameInUse(ctx, -1, lgRequest.Name) {
@@ -84,6 +88,7 @@ func createNewLeague(ctx *gin.Context) {
  * @apiError notLoggedIn No user is logged in
  * @apiError notAdmin Currently logged in user is not a league administrator
  * @apiError nameTooLong The league name has exceeded 50 characters
+ * @apiError nameTooShort The league name is shorter than 2 characters
  * @apiError descriptionTooLong The description has exceeded 500 characters
  * @apiError nameInUse The league name is currently in use
  */
@@ -98,6 +103,9 @@ func updateLeagueInfo(ctx *gin.Context) {
 		return
 	}
 	if failIfNameTooLong(ctx, lgRequest.Name) {
+		return
+	}
+	if failIfNameTooShort(ctx, lgRequest.Name) {
 		return
 	}
 	if failIfLeagueNameInUse(ctx, ctx.GetInt("leagueId"), lgRequest.Name) {

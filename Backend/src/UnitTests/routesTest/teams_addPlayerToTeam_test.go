@@ -164,6 +164,34 @@ func testAddPlayerToTeamGameIdentifierTooLong(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
 }
 
+func testAddPlayerToTeamGameIdentifierTooShort(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(5, nil)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(4, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 5, 4).
+		Return(LeaguePermissions(false, false, false, false), nil)
+
+	mockTeamsDao := new(mocks.TeamsDAO)
+	mockTeamsDao.On("DoesTeamExist", 5, 1).
+		Return(true, nil)
+	mockTeamsDao.On("GetTeamPermissions", 1, 4).
+		Return(TeamPermissions(false, false, true, false), nil)
+
+	routes.ElmSessions = mockSession
+	routes.TeamsDAO = mockTeamsDao
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createAddPlayerRequestBody(1, "12345678901234567890123456789012345678901234567890",
+		"", true),
+		"POST", "/addPlayer", 400, testParams{Error: "gameIdentifierTooShort"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockTeamsDao, mockLeaguesDao)
+}
+
 func testAddPlayerToTeamNameTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("GetActiveLeague", mock.Anything).
@@ -375,6 +403,7 @@ func Test_AddPlayerToTeam(t *testing.T) {
 	t.Run("TeamDoesNotExist", testAddPlayerToTeamTeamDoesNotExist)
 	t.Run("CannotEditPlayersOnTeam", testAddPlayerToTeamCannotEditPlayersOnTeam)
 	t.Run("GameIdentifierTooLong", testAddPlayerToTeamGameIdentifierTooLong)
+	t.Run("GameIdentifierTooShort", testAddPlayerToTeamGameIdentifierTooShort)
 	t.Run("NameTooLong", testAddPlayerToTeamNameTooLong)
 	t.Run("GameIdentifierInUse", testAddPlayerToTeamGameIdentifierInUse)
 	t.Run("DatabaseError", testAddPlayerToTeamDatabaseError)

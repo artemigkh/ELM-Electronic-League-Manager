@@ -10,6 +10,10 @@ type LeagueRequest struct {
 	Description string `json:"description"`
 	PublicView  bool   `json:"publicView"`
 	PublicJoin  bool   `json:"publicJoin"`
+	SignupStart int    `json:"signupStart"`
+	SignupEnd   int    `json:"signupEnd"`
+	LeagueStart int    `json:"leagueStart"`
+	LeagueEnd   int    `json:"leagueEnd"`
 }
 
 type LeaguePermissionChange struct {
@@ -64,7 +68,11 @@ func createNewLeague(ctx *gin.Context) {
 		lgRequest.Name,
 		lgRequest.Description,
 		lgRequest.PublicView,
-		lgRequest.PublicJoin)
+		lgRequest.PublicJoin,
+		lgRequest.SignupStart,
+		lgRequest.SignupEnd,
+		lgRequest.LeagueStart,
+		lgRequest.LeagueEnd)
 	if checkErr(ctx, err) {
 		return
 	}

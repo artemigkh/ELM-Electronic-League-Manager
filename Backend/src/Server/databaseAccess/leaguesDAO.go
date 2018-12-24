@@ -65,10 +65,15 @@ type PublicLeagueInformation struct {
 
 type PgLeaguesDAO struct{}
 
-func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, publicView, publicJoin bool) (int, error) {
+func (d *PgLeaguesDAO) CreateLeague(userId int, name, description string, publicView, publicJoin bool,
+	signupStart, signupEnd, leagueStart, leagueEnd int) (int, error) {
+
 	var leagueId int
-	err := psql.Insert("leagues").Columns("name", "description", "publicView", "publicJoin").
-		Values(name, description, publicView, publicJoin).Suffix("RETURNING \"id\"").
+	err := psql.Insert("leagues").
+		Columns("name", "description", "publicView", "publicJoin",
+			"signupStart", "signupEnd", "leagueStart", "leagueEnd").
+		Values(name, description, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
+		Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&leagueId)
 	if err != nil {
 		return -1, err

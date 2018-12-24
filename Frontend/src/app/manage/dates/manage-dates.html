@@ -9,7 +9,7 @@
     Registration Period
 </h4>
 <mat-form-field>
-    <input matInput [matDatepicker]="picker1" placeholder="Start Date">
+    <input matInput [matDatepicker]="picker1" placeholder="Start Date" [formControl]="signupStart">
     <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
     <mat-datepicker #picker1></mat-datepicker>
 </mat-form-field>
@@ -19,8 +19,8 @@
 </span>
 
 <mat-form-field>
-    <input matInput [matDatepicker]="picker2" placeholder="End Date">
-    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <input matInput [matDatepicker]="picker2" placeholder="End Date" [formControl]="signupEnd">
+    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
     <mat-datepicker #picker2></mat-datepicker>
 </mat-form-field>
 
@@ -29,7 +29,7 @@
 </h4>
 
 <mat-form-field>
-    <input matInput [matDatepicker]="picker3" placeholder="Start Date">
+    <input matInput [matDatepicker]="picker3" placeholder="Start Date" [formControl]="leagueStart">
     <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
     <mat-datepicker #picker3></mat-datepicker>
 </mat-form-field>
@@ -39,9 +39,9 @@
 </span>
 
 <mat-form-field>
-    <input matInput [matDatepicker]="picker4" placeholder="End Date">
+    <input matInput [matDatepicker]="picker4" placeholder="End Date" [formControl]="leagueEnd">
     <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
     <mat-datepicker #picker4></mat-datepicker>
 </mat-form-field>
 
-<button mat-flat-button color="primary">Update Information</button>
+<button mat-flat-button color="primary" (click)="onUpdate()">Update Information</button>

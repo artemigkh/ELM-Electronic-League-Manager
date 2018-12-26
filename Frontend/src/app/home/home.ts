@@ -21,6 +21,10 @@ export class HomeComponent {
             description: "",
             publicView: false,
             publicJoin: false,
+            signupStart: 0,
+            signupEnd: 0,
+            leagueStart: 0,
+            leagueEnd: 0
         };
 
         this.leagueService.getAllGames().subscribe(

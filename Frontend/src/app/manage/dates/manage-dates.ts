@@ -15,6 +15,11 @@ import {MatSnackBar} from "@angular/material";
     styleUrls: ['./manage-dates.scss'],
 })
 export class ManageDatesComponent {
+    signupStart: FormControl;
+    signupEnd: FormControl;
+    leagueStart: FormControl;
+    leagueEnd: FormControl;
+    leagueInformation: LeagueInformation;
     constructor(public confirmation: MatSnackBar, private leagueService: LeagueService) {
         this.signupStart = new FormControl();
         this.signupEnd = new FormControl();

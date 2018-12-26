@@ -48,6 +48,7 @@ import {NgxMaterialTimepickerModule} from "ngx-material-timepicker";
 import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@angular/material-moment-adapter";
 import {ConfirmationComponent} from "./shared/confirmation/confirmation-component";
 import {TeamEntry} from "./shared/teamEntry/team-entry";
+import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
 
 @NgModule({
     declarations: [
@@ -74,6 +75,7 @@ import {TeamEntry} from "./shared/teamEntry/team-entry";
         ConfirmationComponent,
         LoginComponent,
         SignupComponent,
+        TournamentRegistrationComponent,
         NavBar,
         GameEntry,
         TeamEntry

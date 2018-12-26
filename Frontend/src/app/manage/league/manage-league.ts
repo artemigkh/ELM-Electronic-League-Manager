@@ -18,6 +18,10 @@ export class ManageLeagueComponent {
             description: "",
             publicView: false,
             publicJoin: false,
+            signupStart: 0,
+            signupEnd: 0,
+            leagueStart: 0,
+            leagueEnd: 0
         };
         this.leagueService.getLeagueInformation().subscribe(
             (next: LeagueInformation) => {

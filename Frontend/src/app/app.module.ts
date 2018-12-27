@@ -32,9 +32,8 @@ import {ManageLeagueComponent} from "./manage/league/manage-league";
 import {ManageTeamPopup, ManageTeamsComponent} from "./manage/teams/manage-teams";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
 import {ManageDatesComponent} from "./manage/dates/manage-dates";
-import {ManagePlayersComponent, ManagePlayersPopup} from "./manage/players/manage-players";
+import {ManagePlayersComponent} from "./manage/players/manage-players";
 import {ManageGamePopup, ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
-import {AmazingTimePickerModule} from "amazing-time-picker";
 import {WarningPopup} from "./manage/warningPopup/warning-popup";
 import {LoginComponent} from "./login/login";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -49,6 +48,7 @@ import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@
 import {ConfirmationComponent} from "./shared/confirmation/confirmation-component";
 import {TeamEntry} from "./shared/teamEntry/team-entry";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
+import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
 
 @NgModule({
     declarations: [
@@ -76,6 +76,7 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
         LoginComponent,
         SignupComponent,
         TournamentRegistrationComponent,
+        ManagePlayersTeamComponent,
         NavBar,
         GameEntry,
         TeamEntry

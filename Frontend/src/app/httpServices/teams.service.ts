@@ -17,7 +17,7 @@ export class TeamsService {
         }, httpOptions)
     }
 
-    public updateTeam(id: number, name: string, tag: string) {
+    public updateTeam(id: number, name: string, tag: string): Observable<Object> {
         return this.http.put('http://localhost:8080/api/teams/updateTeam/' + id, {
             name: name,
             tag: tag

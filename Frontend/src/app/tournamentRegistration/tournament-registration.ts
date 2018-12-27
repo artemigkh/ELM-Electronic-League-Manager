@@ -8,6 +8,7 @@ import {MatSnackBar, MatStep, MatVerticalStepper} from "@angular/material";
 import {TeamsService} from "../httpServices/teams.service";
 import {Id} from "../httpServices/api-return-schemas/id";
 import {ConfirmationComponent} from "../shared/confirmation/confirmation-component";
+import {isUndefined} from "util";
 
 @Component({
     selector: 'app-tournament-registration',
@@ -50,34 +51,55 @@ export class TournamentRegistrationComponent {
 
     onAnimationEnd() {
         if(this.playerTransition) {
-            this.playerTransition = false;
-            console.log(this.firstFormGroup.controls.name.value);
-            console.log(this.firstFormGroup.controls.tag.value);
-            this.teamsService.createNewTeam(
-                this.firstFormGroup.controls.name.value,
-                this.firstFormGroup.controls.tag.value).subscribe(
-                (next: Id) => {
-                    let team = EmptyTeam();
-                    team.id = next.id;
-                    this.team = team;
-                }, error => {
-                    let message = ": " + JSON.stringify(error.error);
-                    if(error.error.error == "nameInUse") {
-                        message = ": Name Is Already In Use"
-                    } else if(error.error.error == "tagInUse") {
-                        message = ": Tag Is Already In Use"
-                    }
-                    this.confirmation.openFromComponent(ConfirmationComponent, {
-                        duration: 2000,
-                        panelClass: ['red-snackbar'],
-                        data: {
-                            message: "Team Creation Failed" + message
+            if(isUndefined(this.team)) {
+                console.log(this.firstFormGroup.controls.name.value);
+                console.log(this.firstFormGroup.controls.tag.value);
+                this.teamsService.createNewTeam(
+                    this.firstFormGroup.controls.name.value,
+                    this.firstFormGroup.controls.tag.value).subscribe(
+                    (next: Id) => {
+                        let team = EmptyTeam();
+                        team.id = next.id;
+                        this.team = team;
+                    }, error => {
+                        let message = ": " + JSON.stringify(error.error);
+                        if(error.error.error == "nameInUse") {
+                            message = ": Name Is Already In Use"
+                        } else if(error.error.error == "tagInUse") {
+                            message = ": Tag Is Already In Use"
                         }
+                        this.confirmation.openFromComponent(ConfirmationComponent, {
+                            duration: 2000,
+                            panelClass: ['red-snackbar'],
+                            data: {
+                                message: "Team Creation Failed" + message
+                            }
+                        });
+                        this.stepper.previous();
+                    }
+                );
+            } else {
+                this.teamsService.updateTeam(this.team.id,
+                    this.firstFormGroup.controls.name.value,
+                    this.firstFormGroup.controls.tag.value).subscribe(
+                    next => {}, error => {
+                        let message = ": " + JSON.stringify(error.error);
+                        if(error.error.error == "nameInUse") {
+                            message = ": Name Is Already In Use"
+                        } else if(error.error.error == "tagInUse") {
+                            message = ": Tag Is Already In Use"
+                        }
+                        this.confirmation.openFromComponent(ConfirmationComponent, {
+                            duration: 2000,
+                            panelClass: ['red-snackbar'],
+                            data: {
+                                message: "Team Creation Failed" + message
+                            }
+                        });
+                        this.stepper.previous();
                     });
-                    this.stepper.previous();
-                }
-            );
-
+            }
+            this.playerTransition = false;
         }
     }
 

@@ -11,7 +11,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
     MatInputModule, MatNativeDateModule, MatProgressSpinnerModule,
-    MatSelectModule, MatSnackBarModule, MatSpinner,
+    MatSelectModule, MatSnackBarModule, MatSpinner, MatStepperModule,
     MatTabsModule
 } from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
@@ -32,9 +32,8 @@ import {ManageLeagueComponent} from "./manage/league/manage-league";
 import {ManageTeamPopup, ManageTeamsComponent} from "./manage/teams/manage-teams";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
 import {ManageDatesComponent} from "./manage/dates/manage-dates";
-import {ManagePlayersComponent, ManagePlayersPopup} from "./manage/players/manage-players";
+import {ManagePlayersComponent} from "./manage/players/manage-players";
 import {ManageGamePopup, ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
-import {AmazingTimePickerModule} from "amazing-time-picker";
 import {WarningPopup} from "./manage/warningPopup/warning-popup";
 import {LoginComponent} from "./login/login";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -48,6 +47,8 @@ import {NgxMaterialTimepickerModule} from "ngx-material-timepicker";
 import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@angular/material-moment-adapter";
 import {ConfirmationComponent} from "./shared/confirmation/confirmation-component";
 import {TeamEntry} from "./shared/teamEntry/team-entry";
+import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
+import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
 
 @NgModule({
     declarations: [
@@ -74,6 +75,8 @@ import {TeamEntry} from "./shared/teamEntry/team-entry";
         ConfirmationComponent,
         LoginComponent,
         SignupComponent,
+        TournamentRegistrationComponent,
+        ManagePlayersTeamComponent,
         NavBar,
         GameEntry,
         TeamEntry
@@ -103,6 +106,7 @@ import {TeamEntry} from "./shared/teamEntry/team-entry";
         MatProgressSpinnerModule,
         MatSnackBarModule,
         MatMomentDateModule,
+        MatStepperModule,
         NgxMaterialTimepickerModule.forRoot(),
         RouterModule.forRoot(ELM_ROUTES)
     ],

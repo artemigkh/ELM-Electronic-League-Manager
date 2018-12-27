@@ -11,7 +11,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
     MatInputModule, MatNativeDateModule, MatProgressSpinnerModule,
-    MatSelectModule, MatSnackBarModule, MatSpinner,
+    MatSelectModule, MatSnackBarModule, MatSpinner, MatStepperModule,
     MatTabsModule
 } from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
@@ -105,6 +105,7 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
         MatProgressSpinnerModule,
         MatSnackBarModule,
         MatMomentDateModule,
+        MatStepperModule,
         NgxMaterialTimepickerModule.forRoot(),
         RouterModule.forRoot(ELM_ROUTES)
     ],

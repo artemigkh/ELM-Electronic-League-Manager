@@ -1,0 +1,49 @@
+h1 {
+    font-weight: 300;
+    margin-bottom: 0;
+}
+
+mat-divider {
+    margin-top: 15px;
+}
+
+.registration-wrapper {
+    margin-top: 10px;
+    width: 60%;
+    margin-left: 20%;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    .team-name {
+        width: 70%;
+        margin: 10px;
+    }
+    .tag {
+        width: 30%;
+        margin: 10px;
+    }
+
+    .description {
+        margin: 10px;
+        width: 100%;
+    }
+
+    &.icons {
+        margin-top: 15px;
+        margin-bottom: 15px;
+        .icon-upload {
+            margin: 10px;
+            font-weight: 400;
+            width: 50%;
+            color: rgba(0, 0, 0, 0.54);
+            input {
+                margin-top: 10px;
+            }
+        }
+    }
+
+}
+

@@ -58,7 +58,7 @@ export class TournamentRegistrationComponent {
                 this.firstFormGroup.controls.tag.value).subscribe(
                 (next: Id) => {
                     let team = EmptyTeam();
-                    this.team.id = next.id;
+                    team.id = next.id;
                     this.team = team;
                 }, error => {
                     let message = ": " + JSON.stringify(error.error);

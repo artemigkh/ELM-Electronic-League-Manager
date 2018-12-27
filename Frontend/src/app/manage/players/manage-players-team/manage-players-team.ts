@@ -30,10 +30,12 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
     constructor(private leagueService: LeagueService,
                 private playersService: PlayersService,
                 public dialog: MatDialog) {
+        this.loaded = false;
     }
 
     ngOnChanges() {
         if(isUndefined(this.team)){return;}
+        this.loaded = true;
         console.log(this.team);
         this.leagueService.addPlayerInformationToTeam(this.team).subscribe(
             (next: Team)=>{

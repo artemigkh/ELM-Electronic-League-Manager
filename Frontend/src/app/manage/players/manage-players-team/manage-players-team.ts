@@ -9,6 +9,7 @@ import {ManageComponentInterface} from "../../manage-component-interface";
 import {Action} from "../../actions";
 import {PlayersService} from "../../../httpServices/players.service";
 import {Id} from "../../../httpServices/api-return-schemas/id";
+import {isUndefined} from "util";
 class PlayerData {
     title: string;
     action: Action;
@@ -32,6 +33,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
     }
 
     ngOnChanges() {
+        if(isUndefined(this.team)){return;}
         console.log(this.team);
         this.leagueService.addPlayerInformationToTeam(this.team).subscribe(
             (next: Team)=>{

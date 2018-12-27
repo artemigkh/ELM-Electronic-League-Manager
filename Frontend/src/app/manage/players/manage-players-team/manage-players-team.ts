@@ -26,6 +26,7 @@ class PlayerData {
 })
 export class ManagePlayersTeamComponent implements ManageComponentInterface {
     @Input() team: Team;
+    loaded: boolean;
 
     constructor(private leagueService: LeagueService,
                 private playersService: PlayersService,

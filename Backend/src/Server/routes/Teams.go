@@ -108,6 +108,7 @@ func createNewTeam(ctx *gin.Context) {
  * @apiParam {int} id The unique numerical identifier of the team
  * @apiParam {string} name The updated name of the team
  * @apiParam {string} tag The updated tag of the team
+ * @apiParam {string} description The description of the team to be created
  *
  * @apiError notLoggedIn No user is logged in
  * @apiError noActiveLeague There is no active league selected

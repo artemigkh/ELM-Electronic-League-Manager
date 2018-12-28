@@ -10,17 +10,19 @@ import {Team} from "../interfaces/Team";
 export class TeamsService {
     constructor(private http: HttpClient) {}
 
-    public createNewTeam(name: string, tag: string): Observable<Object> {
+    public createNewTeam(name: string, tag: string, description = ""): Observable<Object> {
         return this.http.post('http://localhost:8080/api/teams/', {
             name: name,
-            tag: tag
+            tag: tag,
+            description: description
         }, httpOptions)
     }
 
-    public updateTeam(id: number, name: string, tag: string): Observable<Object> {
+    public updateTeam(id: number, name: string, tag: string, description = ""): Observable<Object> {
         return this.http.put('http://localhost:8080/api/teams/updateTeam/' + id, {
             name: name,
-            tag: tag
+            tag: tag,
+            description: description
         }, httpOptions)
     }
 

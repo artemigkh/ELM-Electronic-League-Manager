@@ -21,7 +21,7 @@ class TeamData {
     templateUrl: './manage-teams.html',
     styleUrls: ['./manage-teams.scss'],
 })
-export class ManageTeamsComponent implements ManageComponentInterface {
+export class  ManageTeamsComponent implements ManageComponentInterface {
     displayedColumns: string[] = ['team'];
     teams: Team[];
 
@@ -45,7 +45,8 @@ export class ManageTeamsComponent implements ManageComponentInterface {
                 action: Action.Create,
                 team: {
                     name: "",
-                    tag: ""
+                    tag: "",
+                    description: ""
                 },
                 caller: this
             },
@@ -54,16 +55,24 @@ export class ManageTeamsComponent implements ManageComponentInterface {
     }
 
     editTeamPopup(team: Team): void {
-        const dialogRef = this.dialog.open(ManageTeamPopup, {
-            width: '500px',
-            data: {
-                title: "Edit Team Information",
-                action: Action.Edit,
-                team: team,
-                caller: this
-            },
-            autoFocus: false
-        });
+        console.log(team);
+        this.teamsService.getTeamInformation(team.id).subscribe(
+            (next: Team) => {
+                next.id = team.id;
+                const dialogRef = this.dialog.open(ManageTeamPopup, {
+                    width: '500px',
+                    data: {
+                        title: "Edit Team Information",
+                        action: Action.Edit,
+                        team: next,
+                        caller: this
+                    },
+                    autoFocus: false
+                });
+            }, error => {
+                console.log(error);
+            }
+        );
     }
 
     warningPopup(team: Team): void {
@@ -119,6 +128,7 @@ export class ManageTeamPopup {
     action: Action;
     name: string;
     tag: string;
+    description: string;
     id: number;
     constructor(
         public dialogRef: MatDialogRef<ManageTeamPopup>,
@@ -128,7 +138,9 @@ export class ManageTeamPopup {
         this.action = data.action;
         this.name = data.team.name;
         this.tag = data.team.tag;
+        this.description = data.team.description;
         this.id = data.team.id;
+        console.log(this.data.team);
         this.leagueService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
@@ -145,7 +157,7 @@ export class ManageTeamPopup {
         console.log("confirm called");
         console.log("action is", this.action);
         if(this.action == Action.Create) {
-            this.teamsService.createNewTeam(this.name, this.tag).subscribe(
+            this.teamsService.createNewTeam(this.name, this.tag, this.description).subscribe(
                 (next: Id) => {
                     console.log("successfully created team");
                     this.data.caller.notifyCreateSuccess(next.id);
@@ -157,7 +169,7 @@ export class ManageTeamPopup {
                 }
             )
         } else if(this.action = Action.Edit) {
-            this.teamsService.updateTeam(this.id, this.name, this.tag).subscribe(
+            this.teamsService.updateTeam(this.id, this.name, this.tag, this.description).subscribe(
                 next => {
                     console.log("successfully updated team");
                     this.data.caller.notifyUpdateSuccess(this.id);

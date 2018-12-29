@@ -16,6 +16,7 @@ export class ManageLeagueComponent {
             id: 0,
             name: "",
             description: "",
+            game: "genericsport",
             publicView: false,
             publicJoin: false,
             signupStart: 0,

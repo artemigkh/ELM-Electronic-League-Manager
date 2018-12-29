@@ -18,7 +18,7 @@ type UsersDAO interface {
 type LeaguesDAO interface {
 	// Leagues
 	GetPublicLeagueList() ([]PublicLeagueInformation, error)
-	CreateLeague(userId int, name, description string, publicView, publicJoin bool,
+	CreateLeague(userId int, name, description, game string, publicView, publicJoin bool,
 		signupStart, signupEnd, leagueStart, leagueEnd int) (int, error)
 	UpdateLeague(leagueId int, name, description string, publicView, publicJoin bool,
 		signupStart, signupEnd, leagueStart, leagueEnd int) error

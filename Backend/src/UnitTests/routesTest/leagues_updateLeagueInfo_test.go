@@ -17,7 +17,7 @@ func testUpateLeagueInfoSessionError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("testname", "", true, true,
+	httpTest(t, createLeagueRequestBody("testname", "","genericsport", true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 500, testParams{})
 
@@ -31,7 +31,7 @@ func testUpateLeagueInfoNotLoggedIn(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("testname", "", true, true,
+	httpTest(t, createLeagueRequestBody("testname", "", "genericsport",true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 403, testParams{Error: "notLoggedIn"})
 
@@ -102,7 +102,7 @@ func testUpateLeagueInfoDescriptionTooLong(t *testing.T) {
 	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901",
-		randomdata.RandStringRunes(501), true, true, 1, 2, 3, 4),
+		randomdata.RandStringRunes(501), "genericsport",true, true, 1, 2, 3, 4),
 		"PUT", "/", 400, testParams{Error: "descriptionTooLong"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -121,7 +121,7 @@ func testUpateLeagueInfoNameTooLong(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901", "",
+	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901", "","genericsport",
 		true, true, 1, 2, 3, 4),
 		"PUT", "/", 400, testParams{Error: "nameTooLong"})
 
@@ -145,7 +145,7 @@ func testUpateLeagueInfoNameInUse(t *testing.T) {
 	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createLeagueRequestBody("12345678901234567890123456789012345678901234567890",
-		"", true, true, 1, 2, 3, 4),
+		"","genericsport", true, true, 1, 2, 3, 4),
 		"PUT", "/", 400, testParams{Error: "nameInUse"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -166,7 +166,7 @@ func testUpateLeagueInfoDatabaseError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
-	httpTest(t, createLeagueRequestBody("testName", "", true, true,
+	httpTest(t, createLeagueRequestBody("testName", "", "genericsport",true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 500, testParams{})
 
@@ -190,7 +190,7 @@ func testCorrectLeagueInfoUpdate(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
-	httpTest(t, createLeagueRequestBody("testName", randomdata.RandStringRunes(500), true, true,
+	httpTest(t, createLeagueRequestBody("testName","genericsport", randomdata.RandStringRunes(500), true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 200, testParams{})
 

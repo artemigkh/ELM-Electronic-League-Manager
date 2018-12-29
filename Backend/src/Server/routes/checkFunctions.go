@@ -25,6 +25,21 @@ const (
 	MaxDescriptionLength = 500
 	MinInformationLength = 2
 )
+var validGameStrings = [...]string {
+	"genericsport",
+	"basketball",
+	"curling",
+	"football",
+	"hockey",
+	"rugby",
+	"soccer",
+	"volleyball",
+	"waterpolo",
+	"genericesport",
+	"csgo",
+	"leagueoflegends",
+	"overwatch",
+}
 
 // operator wrappers
 func le(x, y int) bool {
@@ -198,4 +213,14 @@ func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId, playerId int,
 	}
 
 	return false
+}
+
+func failIfGameStringtNotValid(ctx *gin.Context, game string) bool {
+	for _, g := range validGameStrings {
+		if g == game {
+			return false
+		}
+	}
+	ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameStringNotValid"})
+	return true
 }

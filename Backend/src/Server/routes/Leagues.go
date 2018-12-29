@@ -8,6 +8,7 @@ import (
 type LeagueRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Game        string `json:"game"`
 	PublicView  bool   `json:"publicView"`
 	PublicJoin  bool   `json:"publicJoin"`
 	SignupStart int    `json:"signupStart"`
@@ -32,6 +33,9 @@ type LeaguePermissionChange struct {
  *
  * @apiParam {string} name the name of the league
  * @apiParam {string} description A brief (<500) char description of the league
+ * @apiParam {string} game The type of game. Acceptable values:
+   "genericsport", "basketball", "curling", "football", "hockey", "rugby", "soccer", "volleyball", "waterpolo",
+   "genericesport", "csgo", "leagueoflegends", "overwatch"
  * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
  * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
  * @apiParam {number} signupStart The unix timestamp of the start of the signup period
@@ -45,6 +49,7 @@ type LeaguePermissionChange struct {
  * @apiError nameTooLong The league name has exceeded 50 characters
  * @apiError nameTooShort The league name is shorter than 2 characters
  * @apiError descriptionTooLong The description has exceeded 500 characters
+ * @apiError gameStringNotValid The game string is not one of the allowed values
  * @apiError nameInUse The league name is currently in use
  */
 func createNewLeague(ctx *gin.Context) {
@@ -55,6 +60,9 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
+	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
+		return
+	}
 	if failIfDescriptionTooLong(ctx, lgRequest.Description) {
 		return
 	}
@@ -72,6 +80,7 @@ func createNewLeague(ctx *gin.Context) {
 		ctx.GetInt("userId"),
 		lgRequest.Name,
 		lgRequest.Description,
+		lgRequest.Game,
 		lgRequest.PublicView,
 		lgRequest.PublicJoin,
 		lgRequest.SignupStart,

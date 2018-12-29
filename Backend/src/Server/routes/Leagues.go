@@ -197,22 +197,25 @@ func setActiveLeague(ctx *gin.Context) {
 }
 
 /**
- * @api{GET} /api/leagues Get Active League Information
- * @apiGroup Leagues
- * @apiDescription Get information about the currently selected league
- *
- * @apiSuccess {int} id The unique numerical identifier of the league
- * @apiSuccess {string} name The name of the currently selected league
- * @apiSuccess {string} description The description of the currently selected league
- * @apiSuccess {bool} publicView True if league is publicly viewable
- * @apiSuccess {bool} publicJoin True if league is publicly joinable
- * @apiSuccess {number} signupStart The unix timestamp of the start of the signup period
- * @apiSuccess {number} signupEnd The unix timestamp of the end of the signup period
- * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
- * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
- *
- * @apiError noActiveLeague There is no active league selected
- */
+* @api{GET} /api/leagues Get Active League Information
+* @apiGroup Leagues
+* @apiDescription Get information about the currently selected league
+*
+* @apiSuccess {int} id The unique numerical identifier of the league
+* @apiSuccess {string} name The name of the currently selected league
+* @apiSuccess {string} description The description of the currently selected league
+* @apiSuccess {bool} publicView True if league is publicly viewable
+* @apiSuccess {bool} publicJoin True if league is publicly joinable
+* @apiSuccess {number} signupStart The unix timestamp of the start of the signup period
+* @apiSuccess {number} signupEnd The unix timestamp of the end of the signup period
+* @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
+* @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
+* @apiSuccess {string} game The type of game. will be one of:
+ "genericsport", "basketball", "curling", "football", "hockey", "rugby", "soccer", "volleyball", "waterpolo",
+ "genericesport", "csgo", "leagueoflegends", "overwatch"
+*
+* @apiError noActiveLeague There is no active league selected
+*/
 func getActiveLeagueInformation(ctx *gin.Context) {
 	leagueInfo, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {

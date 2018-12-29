@@ -4,13 +4,10 @@ import {Team} from "../interfaces/Team";
 import {Observable} from "rxjs/index";
 import { of } from 'rxjs';
 import {Game, GameCollection} from "../interfaces/Game";
-import {getTeamName} from "../shared/elm-data-utils";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
-import {User} from "../interfaces/User";
 import {httpOptions} from "./http-options";
 import {Id} from "./api-return-schemas/id";
-import {NavBar} from "../shared/navbar/navbar";
 import {TeamManagers} from "../interfaces/Manager";
 import {LeagueInformation} from "../interfaces/LeagueInformation";
 
@@ -22,8 +19,6 @@ export class LeagueService {
     gameSummaryLoaded: boolean;
     completeGames: Game[];
     upcomingGames: Game[];
-    user: User;
-    navBar: NavBar;
 
     constructor(private http: HttpClient) {
         this.teams = null;
@@ -32,62 +27,8 @@ export class LeagueService {
         this.upcomingGames = null;
     }
 
-    public login(email: string, password: string): Observable<User> {
-        return new Observable(observer => {
-            this.http.post('http://localhost:8080/login', {
-                email: email,
-                password: password
-            }, httpOptions).subscribe(
-                (next: Id) => {
-                    console.log(this.navBar);
-                    this.navBar.notifyLogin();
-                    this.user = {
-                        id: next.id,
-                        email: email
-                    };
-                    observer.next(this.user)
-                }, error => {
-                    observer.error(error);
-                }
-            )
-        })
-    }
-
-    public signup(email: string, password: string): Observable<boolean> {
-        return new Observable(observer => {
-            this.http.post('http://localhost:8080/api/users/', {
-                email: email,
-                password: password
-            }, httpOptions).subscribe(
-                next => {observer.next(true);},
-                error => {observer.next(false);}
-            )
-        })
-    }
-
-    public logout(): Observable<Object> {
-        return this.http.post('http://localhost:8080/logout', httpOptions);
-    }
-
-    public checkIfLoggedIn(): Observable<boolean> {
-        return new Observable(observer => {
-            this.http.get('http://localhost:8080/api/users/profile', httpOptions).subscribe(
-                next => {observer.next(true);},
-                error => {observer.next(false);}
-            )
-        });
-    }
-
     public getTeamManagers(): Observable<any> {
         return this.http.get('http://localhost:8080/api/leagues/teamManagers', httpOptions);
-    }
-
-    public getCurrentUser() {
-        return this.user;
-    }
-
-    public registerNavBar(navBar: NavBar) {
-        this.navBar = navBar;
     }
 
     public setActiveLeague(leagueId: number): Observable<any> {

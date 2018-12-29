@@ -49,6 +49,7 @@ import {ConfirmationComponent} from "./shared/confirmation/confirmation-componen
 import {TeamEntry} from "./shared/teamEntry/team-entry";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
 import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
+import {UserService} from "./httpServices/user.service";
 
 @NgModule({
     declarations: [
@@ -110,7 +111,7 @@ import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/m
         NgxMaterialTimepickerModule.forRoot(),
         RouterModule.forRoot(ELM_ROUTES)
     ],
-    providers: [LeagueService, TeamsService, PlayersService, GamesService, MatIconRegistry],
+    providers: [LeagueService, TeamsService, PlayersService, GamesService, UserService, MatIconRegistry],
     bootstrap: [AppComponent],
     entryComponents: [
         ReportGamePopup,

@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material'
 import {LeagueService} from "../httpServices/leagues.service";
 import {User} from "../interfaces/User";
+import {UserService} from "../httpServices/user.service";
 
 @Component({
     selector: 'app-login',
@@ -10,13 +11,13 @@ import {User} from "../interfaces/User";
     styleUrls: ['./login.scss']
 })
 export class LoginComponent implements OnInit {
-    constructor(private router: Router, private leagueService: LeagueService) { }
+    constructor(private router: Router, private userService: UserService) { }
     email: string;
     password: string;
     ngOnInit() {
     }
     login() : void {
-        this.leagueService.login(this.email, this.password).subscribe(
+        this.userService.login(this.email, this.password).subscribe(
             (next: User) => {
                 console.log("logged in with user with id ", next.id);
                 this.router.navigate([""]);

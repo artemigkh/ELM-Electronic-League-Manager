@@ -29,7 +29,7 @@ export class  ManageTeamsComponent implements ManageComponentInterface {
                 private teamsService: TeamsService,
                 public dialog: MatDialog) {
         console.log("team service created: ", this.teamsService);
-        this.leagueService.getTeamSummary().subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
             }, error => {
@@ -89,7 +89,7 @@ export class  ManageTeamsComponent implements ManageComponentInterface {
     }
 
     private updateTeamsList(): void {
-        this.leagueService.getTeamSummary(false).subscribe(
+        this.teamsService.getTeamSummary(false).subscribe(
             teamSummary => {
                 this.teams = teamSummary;
             }, error => {
@@ -141,7 +141,7 @@ export class ManageTeamPopup {
         this.description = data.team.description;
         this.id = data.team.id;
         console.log(this.data.team);
-        this.leagueService.getTeamSummary().subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
             }, error => {

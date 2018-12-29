@@ -17,6 +17,7 @@ import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/
 import {FormControl} from "@angular/forms";
 import {Action} from "../actions";
 import {Id} from "../../httpServices/api-return-schemas/id";
+import {TeamsService} from "../../httpServices/teams.service";
 
 class GameData {
     title: string;
@@ -37,10 +38,10 @@ export class ManageGamesComponent implements ManageComponentInterface{
     upcomingGames: Game[];
     completeGames: Game[];
 
-    constructor(private leagueService: LeagueService, public dialog: MatDialog,
+    constructor(private teamsService: TeamsService, public dialog: MatDialog,
                 private gamesService: GamesService) {
 
-        this.leagueService.getTeamSummary().subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 teamSummary.forEach(team => {
                    this.teamVisibility[team.id] = true;
@@ -48,7 +49,7 @@ export class ManageGamesComponent implements ManageComponentInterface{
                 this.teams = teamSummary;
                 console.log(this.teams);
 
-                this.leagueService.getAllGames().subscribe(
+                this.gamesService.getAllGames().subscribe(
                     (games: GameCollection) => {
                         this.upcomingGames = games.upcomingGames;
                         this.completeGames = games.completeGames;
@@ -246,7 +247,7 @@ export class ManageGamePopup {
     constructor(
         public dialogRef: MatDialogRef<ManageGamePopup>,
         @Inject(MAT_DIALOG_DATA) public data: GameData,
-        private leagueService: LeagueService,
+        private teamsService: TeamsService,
         private gamesService: GamesService) {
 
         if (data.game.gameTime == null) {
@@ -257,7 +258,7 @@ export class ManageGamePopup {
             this.date = new FormControl(this.time);
         }
 
-        this.leagueService.getTeamSummary().subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
             }, error => {

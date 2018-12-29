@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
-import {LeagueService} from "../httpServices/leagues.service";
 import {Game} from "../interfaces/Game";
+import {GamesService} from "../httpServices/games.service";
 
 @Component({
     selector: 'app-upcoming-games',
@@ -10,8 +10,8 @@ import {Game} from "../interfaces/Game";
 export class UpcomingGamesComponent {
     games: Game[];
 
-    constructor(private leagueService: LeagueService) {
-        this.leagueService.getUpcomingGames().subscribe(
+    constructor(private gamesService: GamesService) {
+        this.gamesService.getUpcomingGames().subscribe(
             gameSummary => {
                 console.log('success');
                 console.log(gameSummary);

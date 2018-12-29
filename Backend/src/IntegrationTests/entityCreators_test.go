@@ -1,6 +1,7 @@
 package IntegrationTests
 
 import (
+	"Server/routes"
 	"fmt"
 	"github.com/Pallinder/go-randomdata"
 	"strings"
@@ -53,6 +54,7 @@ func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 	body := make(map[string]interface{})
 	body["name"] = leagueName
 	body["description"] = description
+	body["game"] = routes.ValidGameStrings[randomdata.Number(12)]
 	body["publicView"] = publicView
 	body["publicJoin"] = publicJoin
 	body["signupStart"] = signupStart.Unix()

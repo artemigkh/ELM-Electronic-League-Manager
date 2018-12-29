@@ -12,13 +12,14 @@ import (
 	"testing"
 )
 
-func createLeagueInfoBody(id int, name, description string, publicView, publicJoin bool,
+func createLeagueInfoBody(id int, name, description, game string, publicView, publicJoin bool,
 	signupStart, signupEnd, leagueStart, leagueEnd int) *bytes.Buffer {
 
 	reqBody := databaseAccess.LeagueInformation{
 		Id:          id,
 		Name:        name,
 		Description: description,
+		Game:        game,
 		PublicView:  publicView,
 		PublicJoin:  publicJoin,
 		SignupStart: signupStart,
@@ -82,6 +83,7 @@ func testCorrectGetLeagueData(t *testing.T) {
 		Id:          2,
 		Name:        "testName",
 		Description: "testDescription",
+		Game:        "basketball",
 		PublicView:  true,
 		PublicJoin:  false,
 		SignupStart: 1,
@@ -94,7 +96,7 @@ func testCorrectGetLeagueData(t *testing.T) {
 	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, nil, "GET", "/", 200,
-		testParams{ResponseBody: createLeagueInfoBody(2, "testName", "testDescription",
+		testParams{ResponseBody: createLeagueInfoBody(2, "testName", "testDescription", "basketball",
 			true, false, 1, 2, 3, 4)})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)

@@ -8,6 +8,7 @@ import (
 type LeagueRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Game        string `json:"game"`
 	PublicView  bool   `json:"publicView"`
 	PublicJoin  bool   `json:"publicJoin"`
 	SignupStart int    `json:"signupStart"`
@@ -25,28 +26,32 @@ type LeaguePermissionChange struct {
 }
 
 /**
- * @api{POST} /api/leagues/ Create New League
- * @apiName createNewLeague
- * @apiGroup Leagues
- * @apiDescription Register a new league
- *
- * @apiParam {string} name the name of the league
- * @apiParam {string} description A brief (<500) char description of the league
- * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
- * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
- * @apiParam {number} signupStart The unix timestamp of the start of the signup period
- * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
- * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
- * @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
- *
- * @apiSuccess {int} id the primary id of the created league
- *
- * @apiError notLoggedIn No user is logged in
- * @apiError nameTooLong The league name has exceeded 50 characters
- * @apiError nameTooShort The league name is shorter than 2 characters
- * @apiError descriptionTooLong The description has exceeded 500 characters
- * @apiError nameInUse The league name is currently in use
- */
+* @api{POST} /api/leagues/ Create New League
+* @apiName createNewLeague
+* @apiGroup Leagues
+* @apiDescription Register a new league
+*
+* @apiParam {string} name the name of the league
+* @apiParam {string} description A brief (<500) char description of the league
+* @apiParam {string} game The type of game. Acceptable values:
+  "genericsport", "basketball", "curling", "football", "hockey", "rugby", "soccer", "volleyball", "waterpolo",
+  "genericesport", "csgo", "leagueoflegends", "overwatch"
+* @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
+* @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
+* @apiParam {number} signupStart The unix timestamp of the start of the signup period
+* @apiParam {number} signupEnd The unix timestamp of the end of the signup period
+* @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+* @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
+*
+* @apiSuccess {int} id the primary id of the created league
+*
+* @apiError notLoggedIn No user is logged in
+* @apiError nameTooLong The league name has exceeded 50 characters
+* @apiError nameTooShort The league name is shorter than 2 characters
+* @apiError descriptionTooLong The description has exceeded 500 characters
+* @apiError gameStringNotValid The game string is not one of the allowed values
+* @apiError nameInUse The league name is currently in use
+*/
 func createNewLeague(ctx *gin.Context) {
 	//TODO: here and in update, check that competition period after signup period
 	var lgRequest LeagueRequest
@@ -55,6 +60,9 @@ func createNewLeague(ctx *gin.Context) {
 		return
 	}
 
+	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
+		return
+	}
 	if failIfDescriptionTooLong(ctx, lgRequest.Description) {
 		return
 	}
@@ -72,6 +80,7 @@ func createNewLeague(ctx *gin.Context) {
 		ctx.GetInt("userId"),
 		lgRequest.Name,
 		lgRequest.Description,
+		lgRequest.Game,
 		lgRequest.PublicView,
 		lgRequest.PublicJoin,
 		lgRequest.SignupStart,
@@ -86,29 +95,33 @@ func createNewLeague(ctx *gin.Context) {
 }
 
 /**
- * @api{PUT} /api/leagues/ Update League Information
- * @apiName updateLeagueInformation
- * @apiGroup Leagues
- * @apiDescription Update currently active league information
- *
- * @apiParam {string} name the name of the league
- * @apiParam {string} description A brief (<500) char description of the league
- * @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
- * @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
- * @apiParam {number} signupStart The unix timestamp of the start of the signup period
- * @apiParam {number} signupEnd The unix timestamp of the end of the signup period
- * @apiParam {number} leagueStart The unix timestamp of the start of the competition period
- * @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
- *
- * @apiSuccess {int} id the primary id of the created league
- *
- * @apiError notLoggedIn No user is logged in
- * @apiError notAdmin Currently logged in user is not a league administrator
- * @apiError nameTooLong The league name has exceeded 50 characters
- * @apiError nameTooShort The league name is shorter than 2 characters
- * @apiError descriptionTooLong The description has exceeded 500 characters
- * @apiError nameInUse The league name is currently in use
- */
+* @api{PUT} /api/leagues/ Update League Information
+* @apiName updateLeagueInformation
+* @apiGroup Leagues
+* @apiDescription Update currently active league information
+*
+* @apiParam {string} name the name of the league
+* @apiParam {string} description A brief (<500) char description of the league
+* @apiParam {string} game The type of game. Acceptable values:
+  "genericsport", "basketball", "curling", "football", "hockey", "rugby", "soccer", "volleyball", "waterpolo",
+  "genericesport", "csgo", "leagueoflegends", "overwatch"
+* @apiParam {boolean} publicView should the league be viewable by people not playing in the league?
+* @apiParam {boolean} publicJoin should the league be joinable by any team that has viewing rights?
+* @apiParam {number} signupStart The unix timestamp of the start of the signup period
+* @apiParam {number} signupEnd The unix timestamp of the end of the signup period
+* @apiParam {number} leagueStart The unix timestamp of the start of the competition period
+* @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
+*
+* @apiSuccess {int} id the primary id of the created league
+*
+* @apiError notLoggedIn No user is logged in
+* @apiError notAdmin Currently logged in user is not a league administrator
+* @apiError nameTooLong The league name has exceeded 50 characters
+* @apiError nameTooShort The league name is shorter than 2 characters
+* @apiError descriptionTooLong The description has exceeded 500 characters
+* @apiError gameStringNotValid The game string is not one of the allowed values
+* @apiError nameInUse The league name is currently in use
+*/
 func updateLeagueInfo(ctx *gin.Context) {
 	var lgRequest LeagueRequest
 	err := ctx.ShouldBindJSON(&lgRequest)
@@ -116,6 +129,9 @@ func updateLeagueInfo(ctx *gin.Context) {
 		return
 	}
 
+	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
+		return
+	}
 	if failIfDescriptionTooLong(ctx, lgRequest.Description) {
 		return
 	}
@@ -133,6 +149,7 @@ func updateLeagueInfo(ctx *gin.Context) {
 		ctx.GetInt("leagueId"),
 		lgRequest.Name,
 		lgRequest.Description,
+		lgRequest.Game,
 		lgRequest.PublicView,
 		lgRequest.PublicJoin,
 		lgRequest.SignupStart,
@@ -180,22 +197,25 @@ func setActiveLeague(ctx *gin.Context) {
 }
 
 /**
- * @api{GET} /api/leagues Get Active League Information
- * @apiGroup Leagues
- * @apiDescription Get information about the currently selected league
- *
- * @apiSuccess {int} id The unique numerical identifier of the league
- * @apiSuccess {string} name The name of the currently selected league
- * @apiSuccess {string} description The description of the currently selected league
- * @apiSuccess {bool} publicView True if league is publicly viewable
- * @apiSuccess {bool} publicJoin True if league is publicly joinable
- * @apiSuccess {number} signupStart The unix timestamp of the start of the signup period
- * @apiSuccess {number} signupEnd The unix timestamp of the end of the signup period
- * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
- * @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
- *
- * @apiError noActiveLeague There is no active league selected
- */
+* @api{GET} /api/leagues Get Active League Information
+* @apiGroup Leagues
+* @apiDescription Get information about the currently selected league
+*
+* @apiSuccess {int} id The unique numerical identifier of the league
+* @apiSuccess {string} name The name of the currently selected league
+* @apiSuccess {string} description The description of the currently selected league
+* @apiSuccess {bool} publicView True if league is publicly viewable
+* @apiSuccess {bool} publicJoin True if league is publicly joinable
+* @apiSuccess {number} signupStart The unix timestamp of the start of the signup period
+* @apiSuccess {number} signupEnd The unix timestamp of the end of the signup period
+* @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
+* @apiSuccess {number} leagueStart The unix timestamp of the start of the competition period
+* @apiSuccess {string} game The type of game. will be one of:
+ "genericsport", "basketball", "curling", "football", "hockey", "rugby", "soccer", "volleyball", "waterpolo",
+ "genericesport", "csgo", "leagueoflegends", "overwatch"
+*
+* @apiError noActiveLeague There is no active league selected
+*/
 func getActiveLeagueInformation(ctx *gin.Context) {
 	leagueInfo, err := LeaguesDAO.GetLeagueInformation(ctx.GetInt("leagueId"))
 	if checkErr(ctx, err) {

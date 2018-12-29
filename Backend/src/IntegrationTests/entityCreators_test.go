@@ -1,12 +1,12 @@
 package IntegrationTests
 
 import (
+	"Server/routes"
 	"fmt"
 	"github.com/Pallinder/go-randomdata"
 	"strings"
 	"testing"
 	"time"
-	"Server/routes"
 )
 
 func createUser(t *testing.T) *user {

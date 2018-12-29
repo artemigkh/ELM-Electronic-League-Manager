@@ -25,7 +25,8 @@ const (
 	MaxDescriptionLength = 500
 	MinInformationLength = 2
 )
-var ValidGameStrings = [...]string {
+
+var ValidGameStrings = [...]string{
 	"genericsport",
 	"basketball",
 	"curling",

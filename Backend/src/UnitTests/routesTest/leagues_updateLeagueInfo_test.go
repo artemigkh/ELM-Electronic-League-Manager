@@ -17,7 +17,7 @@ func testUpateLeagueInfoSessionError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("testname", "","genericsport", true, true,
+	httpTest(t, createLeagueRequestBody("testname", "", "genericsport", true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 500, testParams{})
 
@@ -31,7 +31,7 @@ func testUpateLeagueInfoNotLoggedIn(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 
-	httpTest(t, createLeagueRequestBody("testname", "", "genericsport",true, true,
+	httpTest(t, createLeagueRequestBody("testname", "", "genericsport", true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 403, testParams{Error: "notLoggedIn"})
 
@@ -88,6 +88,26 @@ func testUpateLeagueInfoMalformedBody(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
 }
 
+func testUpdateLeagueInvalidGameName(t *testing.T) {
+	mockSession := new(mocks.SessionManager)
+	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
+		Return(1, nil)
+	mockSession.On("GetActiveLeague", mock.Anything).
+		Return(2, nil)
+
+	mockLeaguesDao := new(mocks.LeaguesDAO)
+	mockLeaguesDao.On("GetLeaguePermissions", 2, 1).
+		Return(LeaguePermissions(true, true, true, true), nil)
+	routes.ElmSessions = mockSession
+	routes.LeaguesDAO = mockLeaguesDao
+
+	httpTest(t, createLeagueRequestBody("12345678901234567890123456789012345671",
+		randomdata.RandStringRunes(501), "not sport", true, true, 1, 2, 3, 4),
+		"PUT", "/", 400, testParams{Error: "gameStringNotValid"})
+
+	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
+}
+
 func testUpateLeagueInfoDescriptionTooLong(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("AuthenticateAndGetUserId", mock.Anything).
@@ -102,7 +122,7 @@ func testUpateLeagueInfoDescriptionTooLong(t *testing.T) {
 	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901",
-		randomdata.RandStringRunes(501), "genericsport",true, true, 1, 2, 3, 4),
+		randomdata.RandStringRunes(501), "genericsport", true, true, 1, 2, 3, 4),
 		"PUT", "/", 400, testParams{Error: "descriptionTooLong"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -121,7 +141,7 @@ func testUpateLeagueInfoNameTooLong(t *testing.T) {
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
 
-	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901", "","genericsport",
+	httpTest(t, createLeagueRequestBody("123456789012345678901234567890123456789012345678901", "", "genericsport",
 		true, true, 1, 2, 3, 4),
 		"PUT", "/", 400, testParams{Error: "nameTooLong"})
 
@@ -145,7 +165,7 @@ func testUpateLeagueInfoNameInUse(t *testing.T) {
 	routes.LeaguesDAO = mockLeaguesDao
 
 	httpTest(t, createLeagueRequestBody("12345678901234567890123456789012345678901234567890",
-		"","genericsport", true, true, 1, 2, 3, 4),
+		"", "genericsport", true, true, 1, 2, 3, 4),
 		"PUT", "/", 400, testParams{Error: "nameInUse"})
 
 	mock.AssertExpectationsForObjects(t, mockSession, mockLeaguesDao)
@@ -166,7 +186,7 @@ func testUpateLeagueInfoDatabaseError(t *testing.T) {
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
-	httpTest(t, createLeagueRequestBody("testName", "", "genericsport",true, true,
+	httpTest(t, createLeagueRequestBody("testName", "", "genericsport", true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 500, testParams{})
 
@@ -185,12 +205,12 @@ func testCorrectLeagueInfoUpdate(t *testing.T) {
 		Return(LeaguePermissions(true, true, true, true), nil)
 	mockLeaguesDao.On("IsNameInUse", 2, "testName").
 		Return(false, nil)
-	mockLeaguesDao.On("UpdateLeague", 2, "testName", mock.AnythingOfType("string"), true, true, 1, 2, 3, 4).
+	mockLeaguesDao.On("UpdateLeague", 2, "testName", mock.AnythingOfType("string"), "basketball", true, true, 1, 2, 3, 4).
 		Return(nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
-	httpTest(t, createLeagueRequestBody("testName","genericsport", randomdata.RandStringRunes(500), true, true,
+	httpTest(t, createLeagueRequestBody("testName", randomdata.RandStringRunes(500), "basketball", true, true,
 		1, 2, 3, 4),
 		"PUT", "/", 200, testParams{})
 
@@ -212,6 +232,7 @@ func Test_UpdateLeagueInfo(t *testing.T) {
 	t.Run("NoActiveLeague", testUpdateLeagueInfoNoActiveLeague)
 	t.Run("NotAdmin", testUpdateLeagueInfoNotAdmin)
 	t.Run("malformedBody", testUpateLeagueInfoMalformedBody)
+	t.Run("invalidGameName", testUpdateLeagueInvalidGameName)
 	t.Run("descriptionTooLong", testUpateLeagueInfoDescriptionTooLong)
 	t.Run("leagueNameTooLong", testUpateLeagueInfoNameTooLong)
 	t.Run("leagueNameInUse", testUpateLeagueInfoNameInUse)

@@ -1,11 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Team} from "../interfaces/Team";
 import {Observable} from "rxjs/index";
-import { of } from 'rxjs';
-import {Game, GameCollection} from "../interfaces/Game";
-import {GtiTeam} from "./api-return-schemas/get-team-information";
-import {Player} from "../interfaces/Player";
 import {httpOptions} from "./http-options";
 import {LeagueInformation} from "../interfaces/LeagueInformation";
 

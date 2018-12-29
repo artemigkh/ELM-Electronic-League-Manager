@@ -4,7 +4,6 @@ import {Observable} from "rxjs/Rx";
 import {httpOptions} from "./http-options";
 import {Game, GameCollection} from "../interfaces/Game";
 import {of} from "rxjs/index";
-import {LeagueService} from "./leagues.service";
 import {TeamsService} from "./teams.service";
 
 @Injectable()

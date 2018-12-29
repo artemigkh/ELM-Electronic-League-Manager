@@ -56,7 +56,8 @@ export class TournamentRegistrationComponent {
                 console.log(this.firstFormGroup.controls.tag.value);
                 this.teamsService.createNewTeam(
                     this.firstFormGroup.controls.name.value,
-                    this.firstFormGroup.controls.tag.value).subscribe(
+                    this.firstFormGroup.controls.tag.value,
+                    this.description).subscribe(
                     (next: Id) => {
                         let team = EmptyTeam();
                         team.id = next.id;
@@ -81,7 +82,8 @@ export class TournamentRegistrationComponent {
             } else {
                 this.teamsService.updateTeam(this.team.id,
                     this.firstFormGroup.controls.name.value,
-                    this.firstFormGroup.controls.tag.value).subscribe(
+                    this.firstFormGroup.controls.tag.value,
+                    this.description).subscribe(
                     next => {}, error => {
                         let message = ": " + JSON.stringify(error.error);
                         if(error.error.error == "nameInUse") {

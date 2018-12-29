@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {LeagueService} from "../../httpServices/leagues.service";
+import {UserService} from "../../httpServices/user.service";
 
 @Component({
     selector: 'app-navbar',
@@ -8,15 +8,15 @@ import {LeagueService} from "../../httpServices/leagues.service";
 })
 export class NavBar {
     loggedIn: boolean;
-    constructor(private leagueService: LeagueService) {
-        this.leagueService.registerNavBar(this);
-        this.leagueService.checkIfLoggedIn().subscribe(
+    constructor(private userService: UserService) {
+        this.userService.registerNavBar(this);
+        this.userService.checkIfLoggedIn().subscribe(
             next => {this.loggedIn = next}
         )
     }
 
     logout(): void {
-        this.leagueService.logout().subscribe(next=>{this.loggedIn = false;})
+        this.userService.logout().subscribe(next=>{this.loggedIn = false;})
     }
 
     public notifyLogin() {

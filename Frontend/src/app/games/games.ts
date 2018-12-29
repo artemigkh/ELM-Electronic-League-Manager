@@ -3,6 +3,7 @@ import {LeagueService} from "../httpServices/leagues.service";
 import {Game} from "../interfaces/Game";
 import * as moment from "moment";
 import {Moment} from "moment";
+import {GamesService} from "../httpServices/games.service";
 
 class Week {
     start: Moment;
@@ -62,8 +63,8 @@ export class GamesComponent {
         console.log(this.weeks);
     }
 
-    constructor(private leagueService: LeagueService) {
-        this.leagueService.getAllGames().subscribe(
+    constructor(private gamesService: GamesService) {
+        this.gamesService.getAllGames().subscribe(
             gameSummary => {
                 console.log('success');
                 console.log(gameSummary);

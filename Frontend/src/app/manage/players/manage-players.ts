@@ -9,6 +9,7 @@ import {ManageComponentInterface} from "../manage-component-interface";
 import {Action} from "../actions";
 import {PlayersService} from "../../httpServices/players.service";
 import {Id} from "../../httpServices/api-return-schemas/id";
+import {TeamsService} from "../../httpServices/teams.service";
 
 class PlayerData {
     title: string;
@@ -28,9 +29,9 @@ export class ManagePlayersComponent {
     teams: Team[];
 
     constructor(private leagueService: LeagueService,
-                private playersService: PlayersService,
+                private teamsService: TeamsService,
                 public dialog: MatDialog) {
-        this.leagueService.getTeamSummary().subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
                 console.log(this.teams);

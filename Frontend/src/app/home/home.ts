@@ -3,6 +3,8 @@ import {LeagueService} from "../httpServices/leagues.service";
 import {Game} from "../interfaces/Game";
 import {LeagueInformation} from "../interfaces/LeagueInformation";
 import {Team} from "../interfaces/Team";
+import {GamesService} from "../httpServices/games.service";
+import {TeamsService} from "../httpServices/teams.service";
 
 @Component({
     selector: 'app-home',
@@ -14,7 +16,9 @@ export class HomeComponent {
     upcomingGames: Game[];
     leagueInformation: LeagueInformation;
     teams: Team[];
-    constructor(private leagueService: LeagueService) {
+    constructor(private leagueService: LeagueService,
+                private gamesService: GamesService,
+                private teamsService: TeamsService) {
         this.leagueInformation = {
             id: 0,
             name: "",
@@ -27,7 +31,7 @@ export class HomeComponent {
             leagueEnd: 0
         };
 
-        this.leagueService.getAllGames().subscribe(
+        this.gamesService.getAllGames().subscribe(
             gameSummary => {
                 console.log('success');
                 console.log(gameSummary);
@@ -48,7 +52,7 @@ export class HomeComponent {
             }
         );
 
-        this.leagueService.getTeamSummary().subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary.slice(0,3);
             }, error => {

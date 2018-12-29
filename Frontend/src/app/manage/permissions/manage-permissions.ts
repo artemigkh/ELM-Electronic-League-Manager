@@ -15,7 +15,7 @@ export class ManagePermissionsComponent {
     teams: TeamManagers[];
     displayedColumns: string[] = ['userEmail', 'administrator', 'information', 'players', 'reportResults'];
     constructor(public confirmation: MatSnackBar, private leagueService: LeagueService, private teamsService: TeamsService){
-        this.leagueService.getTeamManagers().subscribe(
+        this.teamsService.getTeamManagers().subscribe(
             (next: TeamManagers[]) => {
                 this.teams = next;
                 console.log(this.teams);

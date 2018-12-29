@@ -5,10 +5,15 @@ import {Observable} from "rxjs/Rx";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
 import {Team} from "../interfaces/Team";
+import {Game} from "../interfaces/Game";
+import {of} from "rxjs/index";
 
 @Injectable()
 export class TeamsService {
-    constructor(private http: HttpClient) {}
+    teams: Team[];
+    constructor(private http: HttpClient) {
+        this.teams = null;
+    }
 
     public createNewTeam(name: string, tag: string, description = ""): Observable<Object> {
         return this.http.post('http://localhost:8080/api/teams/', {
@@ -28,6 +33,10 @@ export class TeamsService {
 
     public deleteTeam(id: number): Observable<Object> {
         return this.http.delete('http://localhost:8080/api/teams/removeTeam/' + id, httpOptions)
+    }
+
+    public getTeamManagers(): Observable<any> {
+        return this.http.get('http://localhost:8080/api/leagues/teamManagers', httpOptions);
     }
 
     public updateManagerPermissions(teamId: number, userId: number, administrator: boolean, information: boolean,
@@ -72,5 +81,72 @@ export class TeamsService {
                 }
             );
         });
+    }
+
+    public addPlayerInformationToTeam(team: Team): Observable<Team> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/teams/' + team.id, httpOptions).subscribe(
+                (next: GtiTeam) => {
+                    if(next.players) {
+                        next.players.forEach(player=> {
+                            let tempPlayer: Player = {
+                                id: player.id,
+                                name: player.name,
+                                gameIdentifier: player.gameIdentifier
+                            };
+
+                            if(player.mainRoster) {
+                                team.players.push(tempPlayer);
+                            } else {
+                                team.substitutes.push(tempPlayer);
+                            }
+                        });
+                    } else {
+                        team.players = [];
+                        team.substitutes = [];
+                    }
+
+
+                    observer.next(team)
+                }, error => {
+                    observer.error(error);
+                    console.log(error);
+                }
+            );
+        });
+    }
+
+    public getTeamSummary(useCache = true): Observable<Team[]> {
+        if(this.teams != null && useCache) {
+            return of(this.teams);
+        } else {
+            return new Observable(observer => {
+                this.http.get('http://localhost:8080/api/leagues/teamSummary', httpOptions).subscribe(
+                    (next: Team[]) => {
+                        this.teams = next;
+                        this.teams.forEach(team => {
+                            team.players = [];
+                            team.substitutes = [];
+                        });
+                        observer.next(this.teams)
+                    }, error => {
+                        console.log(error);
+                        observer.error(error);
+                    }
+                );
+            });
+        }
+    }
+
+    public addTeamInformation(games: Game[], teams: Team[]) {
+        games.forEach(game => {
+            teams.forEach(team => {
+                if(game.team1Id == team.id) {
+                    game.team1 = team;
+                } else if (game.team2Id == team.id) {
+                    game.team2 = team;
+                }
+            })
+        })
     }
 }

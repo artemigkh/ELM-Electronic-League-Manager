@@ -10,6 +10,7 @@ import {Action} from "../../actions";
 import {PlayersService} from "../../../httpServices/players.service";
 import {Id} from "../../../httpServices/api-return-schemas/id";
 import {isUndefined} from "util";
+import {TeamsService} from "../../../httpServices/teams.service";
 class PlayerData {
     title: string;
     action: Action;
@@ -30,6 +31,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
 
     constructor(private leagueService: LeagueService,
                 private playersService: PlayersService,
+                private teamsService: TeamsService,
                 public dialog: MatDialog) {
         this.loaded = false;
     }
@@ -38,7 +40,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
         if(isUndefined(this.team)){return;}
         this.loaded = true;
         console.log(this.team);
-        this.leagueService.addPlayerInformationToTeam(this.team).subscribe(
+        this.teamsService.addPlayerInformationToTeam(this.team).subscribe(
             (next: Team)=>{
                 this.team = next;
             },error=>{

@@ -25,7 +25,7 @@ const (
 	MaxDescriptionLength = 500
 	MinInformationLength = 2
 )
-var validGameStrings = [...]string {
+var ValidGameStrings = [...]string {
 	"genericsport",
 	"basketball",
 	"curling",
@@ -216,7 +216,7 @@ func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId, playerId int,
 }
 
 func failIfGameStringtNotValid(ctx *gin.Context, game string) bool {
-	for _, g := range validGameStrings {
+	for _, g := range ValidGameStrings {
 		if g == game {
 			return false
 		}

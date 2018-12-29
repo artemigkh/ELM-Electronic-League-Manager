@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"Server/routes"
 )
 
 func createUser(t *testing.T) *user {
@@ -53,6 +54,7 @@ func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 	body := make(map[string]interface{})
 	body["name"] = leagueName
 	body["description"] = description
+	body["game"] = routes.ValidGameStrings[randomdata.Number(12)]
 	body["publicView"] = publicView
 	body["publicJoin"] = publicJoin
 	body["signupStart"] = signupStart.Unix()

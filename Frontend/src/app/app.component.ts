@@ -9,26 +9,28 @@ import {UserService} from "./httpServices/user.service";
     styleUrls: ['./app.component.scss'],
     encapsulation: ViewEncapsulation.None,
 })
-// and password:
+
 export class AppComponent {
     constructor(private leagueService: LeagueService, private userService: UserService) {
-        this.leagueService.setActiveLeague(TestingConfig.leagueId).subscribe(
-            success => {
-                console.log('successful set league');
-                console.log(success);
-                this.userService.login(TestingConfig.email,
-                    TestingConfig.password).subscribe(
-                    success => {
-                        console.log('successful login');
-                        console.log(success);
-                    }, error => {
+        if(TestingConfig.testing) {
+            this.leagueService.setActiveLeague(TestingConfig.leagueId).subscribe(
+                success => {
+                    console.log('successful set league');
+                    console.log(success);
+                    this.userService.login(TestingConfig.email,
+                        TestingConfig.password).subscribe(
+                        success => {
+                            console.log('successful login');
+                            console.log(success);
+                        }, error => {
+                            console.log('error');
+                            console.log(error);
+                        });
+                },
+                error => {
                     console.log('error');
                     console.log(error);
                 });
-            },
-            error => {
-                console.log('error');
-                console.log(error);
-            });
+        }
     }
 }

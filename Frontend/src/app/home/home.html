@@ -6,7 +6,28 @@
     <div class="top-row">
         <span class="league-about">
             <h2>About {{leagueInformation.name}}</h2>
-            {{leagueInformation.description}}
+
+            <div>{{leagueInformation.description}}</div>
+            <div>
+                <span>Game: </span>
+                <span>{{getGameLabel()}}</span>
+            </div>
+            <div>
+                <span>Registration Period: </span>
+                <span>
+                    {{leagueInformation.signupStart * 1000 | date:'EEEE'}} {{leagueInformation.signupStart * 1000 | date:'MMMM d'}}
+                    to
+                    {{leagueInformation.signupEnd * 1000 | date:'EEEE'}} {{leagueInformation.signupEnd * 1000 | date:'MMMM d'}}
+                </span>
+            </div>
+            <div>
+                <span>Competition Period: </span>
+                <span>
+                    {{leagueInformation.leagueStart * 1000 | date:'EEEE'}} {{leagueInformation.leagueStart * 1000 | date:'MMMM d'}}
+                    to
+                    {{leagueInformation.leagueEnd * 1000 | date:'EEEE'}} {{leagueInformation.leagueEnd * 1000 | date:'MMMM d'}}
+                </span>
+            </div>
         </span>
         <span class="top-teams">
             <h2>Top Teams</h2>

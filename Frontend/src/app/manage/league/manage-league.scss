@@ -58,3 +58,13 @@ button:hover {
         margin-bottom: 20px;
     }
 }
+
+.game-selection {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    span {
+        width: 50%;
+    }
+}

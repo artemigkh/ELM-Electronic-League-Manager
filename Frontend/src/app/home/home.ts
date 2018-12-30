@@ -5,6 +5,8 @@ import {LeagueInformation} from "../interfaces/LeagueInformation";
 import {Team} from "../interfaces/Team";
 import {GamesService} from "../httpServices/games.service";
 import {TeamsService} from "../httpServices/teams.service";
+import {sports} from "../shared/sports.defs";
+import {isUndefined} from "util";
 
 @Component({
     selector: 'app-home',
@@ -61,4 +63,9 @@ export class HomeComponent {
             });
     }
 
+    getGameLabel(): string {
+        console.log(this.leagueInformation.game);
+        console.log(sports);
+        return sports[this.leagueInformation.game];
+    }
 }

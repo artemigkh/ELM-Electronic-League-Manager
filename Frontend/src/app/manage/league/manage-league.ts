@@ -3,6 +3,7 @@ import {MatSnackBar} from "@angular/material";
 import {ConfirmationComponent} from "../../shared/confirmation/confirmation-component";
 import {LeagueService} from "../../httpServices/leagues.service";
 import {LeagueInformation} from "../../interfaces/LeagueInformation";
+import {esportsDef, physicalSportsDef} from "../../shared/sports.defs";
 
 @Component({
     selector: 'app-manage-league',
@@ -11,7 +12,24 @@ import {LeagueInformation} from "../../interfaces/LeagueInformation";
 })
 export class ManageLeagueComponent {
     leagueInformation: LeagueInformation;
+    physicalSportsArray: {value: string; display: string}[];
+    eSportsArray: {value: string; display: string}[];
+    selectedGame: string;
     constructor(public confirmation: MatSnackBar, private leagueService: LeagueService) {
+        this.physicalSportsArray = [];
+        Object.keys(physicalSportsDef).forEach((key: string) => {
+            this.physicalSportsArray.push({
+                value: key,
+                display: physicalSportsDef[key]
+            });
+        });
+        this.eSportsArray = [];
+        Object.keys(esportsDef).forEach((key: string) => {
+            this.eSportsArray.push({
+                value: key,
+                display: esportsDef[key]
+            });
+        });
         this.leagueInformation = {
             id: 0,
             name: "",
@@ -28,6 +46,7 @@ export class ManageLeagueComponent {
             (next: LeagueInformation) => {
                 console.log(next);
                 this.leagueInformation = next;
+                this.selectedGame = next.game;
             }, error => {
                 console.log(error);
             }

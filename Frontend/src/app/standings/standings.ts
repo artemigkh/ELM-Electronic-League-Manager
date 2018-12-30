@@ -1,6 +1,7 @@
 import {Component, ViewEncapsulation} from '@angular/core';
 import {LeagueService} from '../httpServices/leagues.service';
 import {Team} from "../interfaces/Team";
+import {TeamsService} from "../httpServices/teams.service";
 
 @Component({
     selector: 'app-standings',
@@ -12,8 +13,8 @@ export class StandingsComponent {
     displayedColumns: string[] = ['Position', 'Icon', 'Name', 'Score'];
     teams: Team[];
 
-    constructor(private leagueService: LeagueService) {
-        this.leagueService.getTeamSummary().subscribe(
+    constructor(private teamsService: TeamsService) {
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
             }, error => {

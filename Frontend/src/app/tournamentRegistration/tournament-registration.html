@@ -1,0 +1,50 @@
+<div class="docs-primary-header">
+    <h1 class="docs-primary-header">Tournament Registration</h1>
+</div>
+
+<div class="registration-wrapper">
+    <mat-vertical-stepper [linear]="false" (selectionChange)="onNext($event)" (animationDone)="onAnimationEnd()" #stepper>
+        <mat-step [stepControl]="firstFormGroup">
+            <ng-template matStepLabel>Team Information</ng-template>
+            <form [formGroup]="firstFormGroup">
+                <div class="content-wrapper">
+                    <mat-form-field class="team-name" hintLabel="Between 3 and 25 characters">
+                        <input matInput #input maxlength="25" placeholder="Team Name" value="{{name}}"
+                               formControlName="name" required>
+                        <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
+                    </mat-form-field>
+
+                    <mat-form-field class="tag" hintLabel="Between 3 and 5 characters">
+                        <input matInput #input maxlength="5" placeholder="Tag" value="{{tag}}"
+                               formControlName="tag" required>
+                        <mat-hint align="end">{{input.value?.length || 0}}/5</mat-hint>
+                    </mat-form-field>
+                </div>
+                <div class="content-wrapper">
+                    <mat-form-field class="description" hintLabel="Maximum 500 characters">
+                    <textarea matInput #input2 [(ngModel)]="description" [ngModelOptions]="{standalone: true}"
+                          placeholder="Description" [mat-autosize]="true"></textarea>
+                        <mat-hint align="end">{{input2.value?.length || 0}}/500</mat-hint>
+                    </mat-form-field>
+                </div>
+                <div class="content-wrapper icons">
+                    <div class="icon-upload">
+                        <div>Icon (128px by 128px png)</div>
+                        <input type="file" accept=".png">
+                    </div>
+                    <div class="icon-upload">
+                        <div>Icon (512px by 512px png)</div>
+                        <input type="file" accept=".png">
+                    </div>
+                </div>
+                <div>
+                    <button mat-raised-button color="primary" matStepperNext>Next</button>
+                </div>
+            </form>
+        </mat-step>
+        <mat-step [stepControl]="secondFormGroup" #teamStep>
+            <ng-template matStepLabel>Player Information</ng-template>
+            <app-manage-players-team [team]="team"></app-manage-players-team>
+        </mat-step>
+    </mat-vertical-stepper>
+</div>

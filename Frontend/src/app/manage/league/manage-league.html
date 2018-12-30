@@ -22,6 +22,31 @@
 </div>
 
 <mat-divider></mat-divider>
+<h2>Game Selection</h2>
+<div class="game-selection">
+    <span>
+        <div>Physical Sports</div>
+        <mat-form-field>
+            <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
+                <mat-option *ngFor="let s of physicalSportsArray" [value]="s.value">
+                    {{s.display}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </span>
+    <span>
+        <div>E-Sports</div>
+        <mat-form-field>
+            <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
+                <mat-option *ngFor="let s of eSportsArray" [value]="s.value">
+                    {{s.display}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </span>
+</div>
+
+<mat-divider></mat-divider>
 
 <section class="visibility-section">
     <mat-checkbox [(ngModel)]="leagueInformation.publicView">Anyone Can View This League</mat-checkbox>

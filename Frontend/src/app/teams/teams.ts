@@ -6,6 +6,7 @@ import { ViewEncapsulation } from '@angular/core';
 import {Game} from "../interfaces/Game";
 import {doesGameHaveTeam, gameSort} from "../shared/elm-data-utils";
 import {LeagueService} from "../httpServices/leagues.service";
+import {GamesService} from "../httpServices/games.service";
 @Component({
     selector: 'app-teams',
     templateUrl: './teams.html',
@@ -16,7 +17,7 @@ export class TeamsComponent {
     team: Team;
     pastGames: Game[];
     upcomingGames: Game[];
-    
+
     filterGamesByTeam(): void {
         console.log("team id: ", this.team.id);
         this.pastGames = this.pastGames.filter(doesGameHaveTeam(this.team.id));
@@ -29,7 +30,8 @@ export class TeamsComponent {
 
     constructor(private route: ActivatedRoute,
                 private leagueService: LeagueService,
-                private teamsService: TeamsService) {
+                private teamsService: TeamsService,
+                private gamesService: GamesService) {
         this.route.params.subscribe(params => {
             this.teamsService.getTeamInformation(+params['id']).subscribe(
                 (next: Team) => {
@@ -37,7 +39,7 @@ export class TeamsComponent {
                     this.team.id = +params['id'];
                     console.log('test new');
                     console.log(next);
-                    this.leagueService.getAllGames().subscribe(
+                    this.gamesService.getAllGames().subscribe(
                         gameSummary => {
                             console.log('success');
                             console.log(gameSummary);

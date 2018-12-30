@@ -13,7 +13,8 @@ CREATE TABLE leagues (
   signupStart     INT           NOT NULL                ,
   signupEnd       INT           NOT NULL                ,
   leagueStart     INT           NOT NULL                ,
-  leagueEnd       INT           NOT NULL
+  leagueEnd       INT           NOT NULL                ,
+  game            VARCHAR(30)   NOT NULL
 );
 ALTER SEQUENCE leaguesIdSeq OWNED BY leagues.id;
 

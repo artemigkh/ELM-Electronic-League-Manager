@@ -3,14 +3,20 @@ Go/PostGreSQL/Angular5/Angular Materials Sports League Manager
 
 Easily create, manage, and view leagues of any sport
 
-## Setup
-Download and install GoLang. Very highly recommend using JetBrains GoLand IDE.
+# Initial Setup
 
+## Frontend
 Install node/NPM, then angular CLI:
 
 ```
 npm install -g @angular/cli
 ```
+
+
+
+Download and install GoLang. Very highly recommend using JetBrains GoLand IDE.
+
+
 
 Set local gopath to project root
 ```

@@ -49,7 +49,7 @@ Check that it compiles with
 go build src/Server/main.go
 ```
 
-## Frontend
+### Frontend
 Install node/NPM, then angular CLI:
 
 ```
@@ -101,7 +101,22 @@ Note that running the integration tests requires the following environment:
 * Permission for the go testing executable to send requests to the local loopback on port 8080 on HTTP
 
 ```
-go test -v ./Backend/IntegrationTests/...
+go test -v ./Backend/src/IntegrationTests/...
+```
+
+The email, password, and  at the very top of the testing output should be put into `Frontend/testingConfig.json`
+
+They can be found in this part of the output
+```
+=== RUN   Test_NormalUseCase/create_user,_login,_and_check_that_logged_in
+[GIN-debug] Listening and serving HTTP on 0.0.0.0:8080
+creating user with email: elizabethwilliams648@test.net and password: JXdMdNEZuJ
+```
+
+and
+
+```
+[GIN] 2018/12/30 - 20:27:58 | 200 |       975.8?s |             ::1 | POST     /api/leagues/setActiveLeague/8
 ```
 
 ## Generate Endpoint Documentation

@@ -3,64 +3,95 @@ Go/PostGreSQL/Angular5/Angular Materials Sports League Manager
 
 Easily create, manage, and view leagues of any sport
 
-## Setup
-Download and install GoLang. Very highly recommend using JetBrains GoLand IDE.
+# Initial Setup
 
+## Backend
+
+### Database
+
+If you are familiar with postgres
+* Create a new database, with unique user if desired
+* Run `Backend/Database/createTables.sql` against new db to generate tables
+* Modify `Backend/conf.json` with created user, password, and database name
+
+If you are not familiar with postgres
+* Download and install postgresql and pgAdmin4. Packages for all major OS can be found on the postgresql website
+* Set postgres user password: On ubuntu this can be done with
+```
+sudo -u postgres psql postgres
+\password postgres
+```
+
+* Open pgAdmin
+* If no servers appear, create a new one: Name can be anything, under connection
+host=localhost, username=postgres, password=<what you set it to earlier>
+* Opening the server, right click on databases and create new database with name `elmdb` and owner `postgres`
+* Click on newly created database, then tools->query tool
+* Paste in contents of `Backend/Database/createTables.sql` and execute (F5)
+* Modify `Backend/conf.json` with dbUser="postgres, password=<what you set it to earlier>, and dbName=elmdb
+
+### Server
+Download and install Go following instructions from golang.org/doc/install
+
+Set local gopath to project root - recommended to add this to ~/.profile or equivalent to make it persist through reboots
+```
+export GOPATH=<path to git repo>/Backend
+```
+
+Get all dependencies
+```
+cd <path to git repo>/Backend
+go get -u ./...
+```
+
+Check that it compiles with
+```
+go build src/Server/main.go
+```
+
+### Frontend
 Install node/NPM, then angular CLI:
 
 ```
+cd <path git repo>/Frontend
+npm install
 npm install -g @angular/cli
 ```
 
-Set local gopath to project root
+Test that it works with
+
 ```
-export $GOPATH=<path to git repo>
+ng serve
 ```
 
-create src folder and symlink it to Backend so that go compiler can find packages
-```
-mkdir src
-ln -s <path to git repo>Backend <path to git repo>src
-```
+And ensure that it compiles successfully
 
-### Database
-1. Download postgres
-2. Run `Backend/Database/createTables.sql` against postgres
-3. Change the parameters in `Backend/conf.json` to the credentials you set in postgres install
 
-### Go Libraries
+## How To Run
+### Server
 ```
-go get ./...
+cd <path to git repo>
+go build Backend/src/Server/main.go
+./main
 ```
 
 ### Frontend
 ```
-cd Frontend/
-npm install
+cd <path to git repo>/Frontend
+ng serve
 ```
 
-## How To Run
+## Backend Tests
 
-### Server
+### Unit Tests
 ```
-go build Backend/Server/main.go
-./main
-```
-
-Or in GoLand, open main.go, right click, and 'run go build main.go'.
-If errors with "cannot find find file" happen, set the working directory to the
-root directory of the git repo.
-
-#### Server Tests
-
-##### Unit Tests
-```
-go test -v ./Backend/UnitTests/...
+go test -v ./Backend/src/UnitTests/...
 ```
 
-Or in GoLand, right click on the UnitTests folder in project view, and press Run->Go Test
+### Test Data Generation / Integration Tests
 
-##### Integration Tests
+The integration tests that start the server and test both the endpoints and database access is also used to
+generate mock league data for use of testing the API and the frontend
 
 Note that running the integration tests requires the following environment:
 
@@ -70,47 +101,44 @@ Note that running the integration tests requires the following environment:
 * Permission for the go testing executable to send requests to the local loopback on port 8080 on HTTP
 
 ```
-go test -v ./Backend/IntegrationTests/...
+go test -v ./Backend/src/IntegrationTests/...
 ```
-Or in GoLand, right click on the IntegrationTests folder in project view, and press Run->Go Test
 
-### Generate Endpoint Documentation
+The email, password, and  at the very top of the testing output should be put into `Frontend/testingConfig.json`
+
+They can be found in this part of the output
+```
+=== RUN   Test_NormalUseCase/create_user,_login,_and_check_that_logged_in
+[GIN-debug] Listening and serving HTTP on 0.0.0.0:8080
+creating user with email: elizabethwilliams648@test.net and password: JXdMdNEZuJ
+```
+
+and
+
+```
+[GIN] 2018/12/30 - 20:27:58 | 200 |       975.8?s |             ::1 | POST     /api/leagues/setActiveLeague/8
+```
+
+## Generate Endpoint Documentation
 Download and install [http://apidocjs.com/](apiDoc)
 Execute this command in the Backend directory of this project:
 ```
-cd Backend/
+cd Backend/src/Server
 apidoc
 ```
 Open `doc/index.html` on the browser of your choice
-
-### Frontend
-
-```
-cd Frontend/
-ng serve
-```
-
-Then, navigate to `http://localhost:4200/` in your browser
 
 ## Development
 
 ### Go Backend
 
-This repository strives to maintain readable, reusable, stable, and easily augmentable code.
-
-As such, the style guide at https://golang.org/doc/effective_go.html is strictly enforced (GoLand automatically highlights
-problems with these guidelines).
-
-All PRs must come with unit tests that cover new functionality, and pass the full suite of tests.
-
-All PRs must have files `go fmt`d
+All PRs must come with unit tests that cover new functionality and pass the full suite of tests
 
 This project uses `github.com/stretchr/testify/mock` for testing. To generate mocks after changing an interface, run
 ```
 go get github.com/vektra/mockery/.../
-mockery -all
+cd Backend/src/Server
+mockery -all -output ../mocks
 ```
-
-#
 
 This project is licensed under the terms of the GPL-3.0 license

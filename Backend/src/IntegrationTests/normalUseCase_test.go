@@ -9,7 +9,7 @@ import (
 
 func Test_NormalUseCase(t *testing.T) {
 	createRouterAndHttpClient()
-
+	time.Sleep(time.Millisecond * 500) //wait for server to start
 	var leagueOwner *user
 	var l *league
 

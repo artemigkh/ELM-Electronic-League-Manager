@@ -50,6 +50,7 @@ import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/m
 import {UserService} from "./httpServices/user.service";
 import {LeaguesComponent} from "./leagues/leagues";
 import {LeagueCreationComponent} from "./leagueCreation/league-creation";
+import {StatsComponent} from "./stats/stats";
 
 @NgModule({
     declarations: [
@@ -66,6 +67,7 @@ import {LeagueCreationComponent} from "./leagueCreation/league-creation";
         ManagePlayersComponent,
         ManageGamesComponent,
         LeaguesComponent,
+        StatsComponent,
         LeagueCreationComponent,
         ReportGamePopup,
         ManageGamePopup,

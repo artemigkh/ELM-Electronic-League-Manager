@@ -36,19 +36,15 @@ export class HomeComponent {
 
         this.gamesService.getAllGames().subscribe(
             gameSummary => {
-                console.log('success');
-                console.log(gameSummary);
                 this.completeGames = gameSummary.completeGames.slice(0,5);
                 this.upcomingGames = gameSummary.upcomingGames.slice(0,5);
             },
             error => {
-                console.log('error');
                 console.log(error);
             });
 
         this.leagueService.getLeagueInformation().subscribe(
             (next: LeagueInformation) => {
-                console.log(next);
                 this.leagueInformation = next;
             }, error => {
                 console.log(error);
@@ -57,15 +53,18 @@ export class HomeComponent {
 
         this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
-                this.teams = teamSummary.slice(0,3);
+                if(teamSummary.length > 3) {
+                    this.teams = teamSummary.slice(0,3);
+                } else {
+                    this.teams = teamSummary;
+                }
+
             }, error => {
                 console.log(error);
             });
     }
 
     getGameLabel(): string {
-        console.log(this.leagueInformation.game);
-        console.log(sports);
         return sports[this.leagueInformation.game];
     }
 }

@@ -15,6 +15,10 @@ export class LeagueService {
         return this.http.post('http://localhost:8080/api/leagues/setActiveLeague/' + leagueId, null, httpOptions);
     }
 
+    public joinActiveLeague(): Observable<any> {
+        return this.http.post('http://localhost:8080/api/leagues/join', null, httpOptions);
+    }
+
     public getLeagueInformation(): Observable<Object> {
         return this.http.get('http://localhost:8080/api/leagues/', httpOptions);
     }
@@ -51,4 +55,23 @@ export class LeagueService {
             leagueEnd: leagueInfo.leagueEnd
         }, httpOptions)
     }
+
+    public createLeague(leagueInfo: LeagueInformation) {
+        return this.http.post('http://localhost:8080/api/leagues/', {
+            name: leagueInfo.name,
+            description: leagueInfo.description,
+            game: leagueInfo.game,
+            publicView: leagueInfo.publicView,
+            publicJoin: leagueInfo.publicJoin,
+            signupStart: leagueInfo.signupStart,
+            signupEnd: leagueInfo.signupEnd,
+            leagueStart: leagueInfo.leagueStart,
+            leagueEnd: leagueInfo.leagueEnd
+        }, httpOptions)
+    }
+
+    public getListOfLeagues(): Observable<any>  {
+        return this.http.get('http://localhost:8080/api/leagues/publicLeagues', httpOptions);
+    }
+
 }

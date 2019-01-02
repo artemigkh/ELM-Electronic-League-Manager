@@ -89,7 +89,7 @@ export class  ManageTeamsComponent implements ManageComponentInterface {
     }
 
     private updateTeamsList(): void {
-        this.teamsService.getTeamSummary(false).subscribe(
+        this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
                 this.teams = teamSummary;
             }, error => {

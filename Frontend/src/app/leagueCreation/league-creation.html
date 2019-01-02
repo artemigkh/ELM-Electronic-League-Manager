@@ -1,0 +1,106 @@
+<div class="docs-primary-header">
+    <h1 class="docs-primary-header">League Creation</h1>
+</div>
+
+<div class="creation-wrapper">
+    <mat-vertical-stepper #stepper>
+        <mat-step>
+            <ng-template matStepLabel>League Information</ng-template>
+            <div class="field-container">
+                <mat-form-field hintLabel="Between 3 and 25 characters">
+                    <input matInput [(ngModel)]="leagueInformation.name" #input1 maxlength="25" placeholder="League Name" required>
+                    <mat-hint align="end">{{input1.value?.length || 0}}/25</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field hintLabel="Maximum 500 characters">
+                <textarea matInput #input2 [(ngModel)]="leagueInformation.description"
+                  placeholder="Description" [mat-autosize]="true"></textarea>
+                    <mat-hint align="end">{{input2.value?.length || 0}}/500</mat-hint>
+                </mat-form-field>
+
+                <mat-divider></mat-divider>
+
+                <section class="visibility-section">
+                    <mat-checkbox [(ngModel)]="leagueInformation.publicView">Anyone Can View This League</mat-checkbox>
+                    <mat-checkbox [(ngModel)]="leagueInformation.publicJoin">Anyone Can Join This League</mat-checkbox>
+                </section>
+            </div>
+            <div class="next-button">
+                <button mat-raised-button color="primary" matStepperNext>Next</button>
+            </div>
+        </mat-step>
+        <mat-step>
+            <ng-template matStepLabel>Signup and Competition Times</ng-template>
+
+            <h4>
+                Registration Period
+            </h4>
+            <mat-form-field>
+                <input matInput [matDatepicker]="picker1" placeholder="Start Date" [formControl]="signupStart">
+                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+
+            <span>
+                to
+            </span>
+
+            <mat-form-field>
+                <input matInput [matDatepicker]="picker2" placeholder="End Date" [formControl]="signupEnd">
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
+
+            <h4>
+                Competition Period
+            </h4>
+
+            <mat-form-field>
+                <input matInput [matDatepicker]="picker3" placeholder="Start Date" [formControl]="leagueStart">
+                <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                <mat-datepicker #picker3></mat-datepicker>
+            </mat-form-field>
+
+            <span>
+                to
+            </span>
+
+            <mat-form-field>
+                <input matInput [matDatepicker]="picker4" placeholder="End Date" [formControl]="leagueEnd">
+                <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+                <mat-datepicker #picker4></mat-datepicker>
+            </mat-form-field>
+            <div class="next-button">
+                <button mat-raised-button color="primary" matStepperNext>Next</button>
+            </div>
+        </mat-step>
+        <mat-step>
+            <ng-template matStepLabel>Game Selection</ng-template>
+            <div class="game-selection">
+                <span>
+                    <div>Physical Sports</div>
+                    <mat-form-field>
+                        <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
+                            <mat-option *ngFor="let s of physicalSportsArray" [value]="s.value">
+                                {{s.display}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </span>
+                <span>
+                    <div>E-Sports</div>
+                    <mat-form-field>
+                        <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
+                            <mat-option *ngFor="let s of eSportsArray" [value]="s.value">
+                                {{s.display}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </span>
+            </div>
+            <div class="next-button">
+                <button mat-raised-button color="primary" (click)="create()">Create</button>
+            </div>
+        </mat-step>
+    </mat-vertical-stepper>
+</div>

@@ -8,16 +8,8 @@ import {TeamsService} from "./teams.service";
 
 @Injectable()
 export class GamesService {
-    gameSummaryLoaded: boolean;
-    completeGames: Game[];
-    upcomingGames: Game[];
-
     constructor(private http: HttpClient,
-                private teamsService: TeamsService) {
-        this.gameSummaryLoaded = false;
-        this.completeGames = null;
-        this.upcomingGames = null;
-    }
+                private teamsService: TeamsService) {}
 
     public reportResult(gameId: number, winnerId: number,
                         scoreTeam1: number, scoreTeam2: number): Observable<Object> {
@@ -48,103 +40,50 @@ export class GamesService {
             httpOptions);
     }
 
-    private loadGameSummary(): Observable<boolean> {
-        //if game summary already loaded, no need to do anything
-        if(this.gameSummaryLoaded) {
-            return of(true);
-        } else {
-            return new Observable(observer => {
-                //get the game summary from the server
-                this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions).subscribe(
-                    (games: Game[]) => {
-                        //get the team summary from the server (or cached)
+    public getAllGames(): Observable<GameCollection> {
+        return new Observable(observer => {
+            //get the game summary from the server
+            this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions).subscribe(
+                (games: Game[]) => {
+                    if(games == null) {
+                        observer.next({
+                            upcomingGames: [],
+                            completeGames: []
+                        });
+                    } else {
+                        //get the team summary from the server
                         this.teamsService.getTeamSummary().subscribe(
                             teams => {
                                 this.teamsService.addTeamInformation(games, teams);
 
-                                this.completeGames = [];
-                                this.upcomingGames = [];
+                                let completeGames = [];
+                                let upcomingGames = [];
 
                                 games.forEach(game => {
                                     if(game.complete) {
-                                        this.completeGames.push(game);
+                                        completeGames.push(game);
                                     } else {
-                                        this.upcomingGames.push(game);
+                                        upcomingGames.push(game);
                                     }
                                 });
-                                this.upcomingGames.sort((a,b)=>
+                                upcomingGames.sort((a,b)=>
                                     (a.gameTime > b.gameTime) ? 1 :
                                         ((a.gameTime < b.gameTime) ? -1 : 0));
-                                observer.next(true);
+                                observer.next({
+                                    upcomingGames: upcomingGames,
+                                    completeGames: completeGames
+                                });
                             }, error => {
                                 observer.error(error);
                                 console.log(error);
                             }
                         );
-                    }, error => {
-                        observer.error(error);
-                        console.log(error);
                     }
-                )
-            })
-        }
-    }
-
-    public getGames(): Observable<any> {
-        return this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions)
-    }
-
-    public getCompleteGames(): Observable<Game[]> {
-        if(this.gameSummaryLoaded) {
-            return of(this.completeGames);
-        } else {
-            return new Observable(observer => {
-                this.loadGameSummary().subscribe(
-                    next => {
-                        observer.next(this.completeGames);
-                    }, error => {
-                        observer.error(error);
-                    }
-                );
-            });
-        }
-    }
-
-    public getUpcomingGames(): Observable<Game[]> {
-        if(this.gameSummaryLoaded) {
-            return of(this.upcomingGames);
-        } else {
-            return new Observable(observer => {
-                this.loadGameSummary().subscribe(
-                    next => {
-                        observer.next(this.upcomingGames);
-                    }, error => {
-                        observer.error(error);
-                    }
-                );
-            });
-        }
-    }
-
-    public getAllGames(): Observable<GameCollection> {
-        if(this.gameSummaryLoaded) {
-            return of({
-                upcomingGames: this.upcomingGames,
-                completeGames: this.completeGames
-            });
-        } else {
-            return new Observable(observer => {
-                this.loadGameSummary().subscribe(
-                    next => {
-                        observer.next({
-                            upcomingGames: this.upcomingGames,
-                            completeGames: this.completeGames
-                        });
-                    }, error => {
-                        observer.error(error);
-                    }
-                );
-            });
-        }
+                }, error => {
+                    observer.error(error);
+                    console.log(error);
+                }
+            )
+        })
     }
 }

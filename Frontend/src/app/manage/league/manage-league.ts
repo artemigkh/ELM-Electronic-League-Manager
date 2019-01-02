@@ -14,7 +14,6 @@ export class ManageLeagueComponent {
     leagueInformation: LeagueInformation;
     physicalSportsArray: {value: string; display: string}[];
     eSportsArray: {value: string; display: string}[];
-    selectedGame: string;
     constructor(public confirmation: MatSnackBar, private leagueService: LeagueService) {
         this.physicalSportsArray = [];
         Object.keys(physicalSportsDef).forEach((key: string) => {
@@ -46,7 +45,6 @@ export class ManageLeagueComponent {
             (next: LeagueInformation) => {
                 console.log(next);
                 this.leagueInformation = next;
-                this.selectedGame = next.game;
             }, error => {
                 console.log(error);
             }

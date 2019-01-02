@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {ActivatedRoute} from "@angular/router";
+import {Router} from "@angular/router";
 import {LeagueService} from "../httpServices/leagues.service";
 import {LeagueInformation} from "../interfaces/LeagueInformation";
 import {sports} from "../shared/sports.defs";
@@ -11,7 +11,7 @@ import {sports} from "../shared/sports.defs";
 })
 export class LeaguesComponent {
     leagues: LeagueInformation[];
-    constructor(private route: ActivatedRoute,
+    constructor(private router: Router,
                 private leagueService: LeagueService) {
         this.leagueService.getListOfLeagues().subscribe(
             (next: LeagueInformation[]) => {
@@ -24,5 +24,20 @@ export class LeaguesComponent {
 
     getGameLabel(sport: string): string {
         return sports[sport];
+    }
+
+    join(league: LeagueInformation) {
+
+    }
+
+    view(league: LeagueInformation) {
+        this.leagueService.setActiveLeague(league.id).subscribe(
+            next=> {
+                this.router.navigate([""]);
+            }, error=> {
+                console.log(error);
+            }
+        );
+
     }
 }

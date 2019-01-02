@@ -19,10 +19,8 @@ import {MatTableModule} from '@angular/material/table';
 import {NavBar} from "./shared/navbar/navbar";
 import {AppComponent} from './app.component';
 import {HomeComponent} from "./home/home";
-import {MatchHistoryComponent} from "./matchHistory/match-history";
 import {StandingsComponent} from "./standings/standings";
 import {TeamsComponent} from "./teams/teams";
-import {UpcomingGamesComponent} from "./upcomingGames/upcoming-games";
 
 import {LeagueService} from './httpServices/leagues.service';
 
@@ -57,10 +55,7 @@ import {LeaguesComponent} from "./leagues/leagues";
         AppComponent,
         StandingsComponent,
         HomeComponent,
-        MatchHistoryComponent,
         TeamsComponent,
-        MatchHistoryComponent,
-        UpcomingGamesComponent,
         GamesComponent,
         ManageComponent,
         ManageLeagueComponent,

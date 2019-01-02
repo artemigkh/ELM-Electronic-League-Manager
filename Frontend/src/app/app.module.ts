@@ -11,7 +11,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
     MatInputModule, MatNativeDateModule, MatProgressSpinnerModule,
-    MatSelectModule, MatSnackBarModule, MatSpinner, MatStepperModule,
+    MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSpinner, MatStepperModule,
     MatTabsModule
 } from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
@@ -98,6 +98,7 @@ import {LeagueCreationComponent} from "./leagueCreation/league-creation";
         MatCheckboxModule,
         MatDatepickerModule,
         MatNativeDateModule,
+        MatSlideToggleModule,
         MatIconModule,
         MatChipsModule,
         MatDialogModule,

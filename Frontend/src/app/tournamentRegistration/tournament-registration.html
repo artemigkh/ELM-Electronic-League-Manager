@@ -3,7 +3,7 @@
 </div>
 
 <div class="registration-wrapper">
-    <mat-vertical-stepper [linear]="false" (selectionChange)="onNext($event)" (animationDone)="onAnimationEnd()" #stepper>
+    <mat-vertical-stepper [linear]="true" (selectionChange)="onNext($event)" (animationDone)="onAnimationEnd()" #stepper>
         <mat-step [stepControl]="firstFormGroup">
             <ng-template matStepLabel>Team Information</ng-template>
             <form [formGroup]="firstFormGroup">

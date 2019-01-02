@@ -11,7 +11,7 @@
             Game
         </span>
         <span class="flex-spacer"></span>
-        <button mat-raised-button class="new-team" color="primary" (click)="newGamePopup()">
+        <button mat-raised-button class="new-team" color="primary" (click)="newLeaguePopup()">
             <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
             New League
         </button>
@@ -26,7 +26,7 @@
         </span>
             <span class="flex-spacer"></span>
             <span class="control-button">
-            <button mat-raised-button>
+            <button mat-raised-button (click)="join(league)">
                 Join
             </button>
         </span>

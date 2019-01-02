@@ -117,12 +117,16 @@ export class TeamsService {
         return new Observable(observer => {
             this.http.get('http://localhost:8080/api/leagues/teamSummary', httpOptions).subscribe(
                 (next: Team[]) => {
-                    let teams = next;
-                    teams.forEach(team => {
-                        team.players = [];
-                        team.substitutes = [];
-                    });
-                    observer.next(teams)
+                    if(next == null) {
+                        observer.next([]);
+                    } else {
+                        let teams = next;
+                        teams.forEach(team => {
+                            team.players = [];
+                            team.substitutes = [];
+                        });
+                        observer.next(teams)
+                    }
                 }, error => {
                     console.log(error);
                     observer.error(error);

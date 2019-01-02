@@ -49,6 +49,7 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
 import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
 import {UserService} from "./httpServices/user.service";
 import {LeaguesComponent} from "./leagues/leagues";
+import {LeagueCreationComponent} from "./leagueCreation/league-creation";
 
 @NgModule({
     declarations: [
@@ -65,6 +66,7 @@ import {LeaguesComponent} from "./leagues/leagues";
         ManagePlayersComponent,
         ManageGamesComponent,
         LeaguesComponent,
+        LeagueCreationComponent,
         ReportGamePopup,
         ManageGamePopup,
         ManageTeamPopup,

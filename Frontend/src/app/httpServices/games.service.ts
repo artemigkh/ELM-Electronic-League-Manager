@@ -45,33 +45,40 @@ export class GamesService {
             //get the game summary from the server
             this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions).subscribe(
                 (games: Game[]) => {
-                    //get the team summary from the server
-                    this.teamsService.getTeamSummary().subscribe(
-                        teams => {
-                            this.teamsService.addTeamInformation(games, teams);
+                    if(games == null) {
+                        observer.next({
+                            upcomingGames: [],
+                            completeGames: []
+                        });
+                    } else {
+                        //get the team summary from the server
+                        this.teamsService.getTeamSummary().subscribe(
+                            teams => {
+                                this.teamsService.addTeamInformation(games, teams);
 
-                            let completeGames = [];
-                            let upcomingGames = [];
+                                let completeGames = [];
+                                let upcomingGames = [];
 
-                            games.forEach(game => {
-                                if(game.complete) {
-                                    completeGames.push(game);
-                                } else {
-                                    upcomingGames.push(game);
-                                }
-                            });
-                            upcomingGames.sort((a,b)=>
-                                (a.gameTime > b.gameTime) ? 1 :
-                                    ((a.gameTime < b.gameTime) ? -1 : 0));
-                            observer.next({
-                                upcomingGames: upcomingGames,
-                                completeGames: completeGames
-                            });
-                        }, error => {
-                            observer.error(error);
-                            console.log(error);
-                        }
-                    );
+                                games.forEach(game => {
+                                    if(game.complete) {
+                                        completeGames.push(game);
+                                    } else {
+                                        upcomingGames.push(game);
+                                    }
+                                });
+                                upcomingGames.sort((a,b)=>
+                                    (a.gameTime > b.gameTime) ? 1 :
+                                        ((a.gameTime < b.gameTime) ? -1 : 0));
+                                observer.next({
+                                    upcomingGames: upcomingGames,
+                                    completeGames: completeGames
+                                });
+                            }, error => {
+                                observer.error(error);
+                                console.log(error);
+                            }
+                        );
+                    }
                 }, error => {
                     observer.error(error);
                     console.log(error);

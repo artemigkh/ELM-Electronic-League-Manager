@@ -50,6 +50,7 @@ import {TeamEntry} from "./shared/teamEntry/team-entry";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
 import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
 import {UserService} from "./httpServices/user.service";
+import {LeaguesComponent} from "./leagues/leagues";
 
 @NgModule({
     declarations: [
@@ -68,6 +69,7 @@ import {UserService} from "./httpServices/user.service";
         ManageDatesComponent,
         ManagePlayersComponent,
         ManageGamesComponent,
+        LeaguesComponent,
         ReportGamePopup,
         ManageGamePopup,
         ManageTeamPopup,

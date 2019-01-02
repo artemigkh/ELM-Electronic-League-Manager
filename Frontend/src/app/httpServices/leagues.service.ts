@@ -51,4 +51,9 @@ export class LeagueService {
             leagueEnd: leagueInfo.leagueEnd
         }, httpOptions)
     }
+
+    public getListOfLeagues(): Observable<any>  {
+        return this.http.get('http://localhost:8080/api/leagues/publicLeagues', httpOptions);
+    }
+
 }

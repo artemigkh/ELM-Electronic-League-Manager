@@ -16,6 +16,7 @@ import {LoginComponent} from "./login/login";
 import {SignupComponent} from "./signup/signup";
 import {GamesComponent} from "./games/games";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
+import {LeaguesComponent} from "./leagues/leagues";
 
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
@@ -25,6 +26,7 @@ export const ELM_ROUTES: Routes = [
     {path: 'upcomingGames', component: UpcomingGamesComponent, data: {}},
     {path: 'games', component: GamesComponent, data: {}},
     {path: 'login', component: LoginComponent, data: {}},
+    {path: 'leagues', component: LeaguesComponent, data: {}},
     {path: 'signup', component: SignupComponent, data: {}},
     {path: 'register', component: TournamentRegistrationComponent, data: {}},
     {

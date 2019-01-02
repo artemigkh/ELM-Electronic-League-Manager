@@ -1,0 +1,41 @@
+<div class="docs-primary-header">
+    <h1 class="docs-primary-header">Leagues</h1>
+</div>
+
+<div class="leagues">
+    <div class="header">
+        <span class="name">
+            Name
+        </span>
+        <span class="game">
+            Game
+        </span>
+        <span class="flex-spacer"></span>
+        <button mat-raised-button class="new-team" color="primary" (click)="newGamePopup()">
+            <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
+            New League
+        </button>
+    </div>
+    <ng-container *ngFor="let league of leagues">
+        <div class="league-container">
+        <span class="name">
+            {{league.name}}
+        </span>
+            <span class="game">
+            {{getGameLabel(league.game)}}
+        </span>
+            <span class="flex-spacer"></span>
+            <span class="control-button">
+            <button mat-raised-button>
+                Join
+            </button>
+        </span>
+            <span class="control-button">
+            <button mat-raised-button>
+                View
+            </button>
+        </span>
+        </div>
+    </ng-container>
+</div>
+

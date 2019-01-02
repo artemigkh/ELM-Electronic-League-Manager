@@ -330,10 +330,15 @@ func getGameSummary(ctx *gin.Context) {
  * @apiDescription Get a list of all publicly viewable leagues
  *
  * @apiSuccess {jsonArray} _ An array of JSON objects, each representing a league
- * @apiSuccess {int} _.id The unique numerical identifier of the league
- * @apiSuccess {int} _.name The name of the league
- * @apiSuccess {int} _.description The description of the league
- * @apiSuccess {int} _.publicJoin A boolean that signifies if the league can be joined by the general public
+ * @apiSuccess {umber} _.id The unique numerical identifier of the league
+ * @apiSuccess {string} _.name The name of the league
+ * @apiSuccess {string} _.description The description of the league
+ * @apiSuccess {bool} _.publicJoin A boolean that signifies if the league can be joined by the general public
+ * @apiSuccess {number} _.signupStart The unix timestamp of the start of the signup period
+ * @apiSuccess {number} _.signupEnd The unix timestamp of the end of the signup period
+ * @apiSuccess {number} _.leagueStart The unix timestamp of the start of the competition period
+ * @apiSuccess {number} _.leagueStart The unix timestamp of the start of the competition period
+ * @apiSuccess {string} _.game The type of game. will be one of:
  *
  */
 func getPublicLeagues(ctx *gin.Context) {

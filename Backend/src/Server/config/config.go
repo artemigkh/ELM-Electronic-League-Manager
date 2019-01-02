@@ -1,11 +1,11 @@
 package config
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"encoding/hex"
 )
 
 type Config interface {
@@ -16,12 +16,12 @@ type Config interface {
 }
 
 type Configuration struct {
-	DbUser   string `json:"dbUser"`
-	DbPass   string `json:"dbPass"`
-	DbName   string `json:"dbName"`
-	Port     string `json:"port"`
-	IconsDir string `json:"iconsDir"`
-	AuthKey string `json:"authKey"`
+	DbUser        string `json:"dbUser"`
+	DbPass        string `json:"dbPass"`
+	DbName        string `json:"dbName"`
+	Port          string `json:"port"`
+	IconsDir      string `json:"iconsDir"`
+	AuthKey       string `json:"authKey"`
 	EncryptionKey string `json:"encryptionKey"`
 }
 

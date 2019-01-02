@@ -1,8 +1,8 @@
 package sessionManager
 
 import (
-	"github.com/gorilla/sessions"
 	"Server/config"
+	"github.com/gorilla/sessions"
 )
 
 func CreateCookieSessionManager(conf config.Config) SessionManager {

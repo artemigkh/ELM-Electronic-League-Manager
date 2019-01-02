@@ -37,7 +37,7 @@ func createRouterAndHttpClient() {
 	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()
 	routes.TeamsDAO = databaseAccess.CreateTeamsDAO()
 	routes.GamesDAO = databaseAccess.CreateGamesDAO()
-	routes.ElmSessions = sessionManager.CreateCookieSessionManager()
+	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 
 	routes.RegisterLoginHandlers(router.Group("/"))
 	routes.RegisterUserHandlers(router.Group("/api/users"))

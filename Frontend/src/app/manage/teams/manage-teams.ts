@@ -37,17 +37,11 @@ export class  ManageTeamsComponent implements ManageComponentInterface {
                 this.userService.getUserPermissions().subscribe(
                     (next: UserPermissions) => {
                         this.teams = [];
-                        console.log(teams);
-                        console.log(next);
                         teams.forEach((team: Team) => {
                             if(next.leaguePermissions.administrator || next.leaguePermissions.editTeams) {
                                 this.teams.push(team);
                             } else {
                                 next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
-                                    console.log("-----------");
-                                    console.log(team);
-                                    console.log(teamPermission);
-                                    console.log("-----------");
                                     if(team.id == teamPermission.id &&
                                         (teamPermission.administrator || teamPermission.information)) {
                                         this.teams.push(team);

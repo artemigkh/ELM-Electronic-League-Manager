@@ -10,6 +10,8 @@ import {Action} from "../actions";
 import {PlayersService} from "../../httpServices/players.service";
 import {Id} from "../../httpServices/api-return-schemas/id";
 import {TeamsService} from "../../httpServices/teams.service";
+import {UserService} from "../../httpServices/user.service";
+import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
 
 class PlayerData {
     title: string;
@@ -30,11 +32,31 @@ export class ManagePlayersComponent {
 
     constructor(private leagueService: LeagueService,
                 private teamsService: TeamsService,
+                private userService: UserService,
                 public dialog: MatDialog) {
+        this.teams = [];
         this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
-                this.teams = teamSummary;
-                console.log(this.teams);
+                let teams = teamSummary;
+                this.userService.getUserPermissions().subscribe(
+                    (next: UserPermissions) => {
+                        this.teams = [];
+                        teams.forEach((team: Team) => {
+                            if(next.leaguePermissions.administrator || next.leaguePermissions.editTeams) {
+                                this.teams.push(team);
+                            } else {
+                                next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
+                                    if(team.id == teamPermission.id &&
+                                        (teamPermission.administrator || teamPermission.players)) {
+                                        this.teams.push(team);
+                                    }
+                                });
+                            }
+                        });
+                    }, error => {
+                        console.log(error);
+                    }
+                );
             }, error => {
                 console.log(error);
             });

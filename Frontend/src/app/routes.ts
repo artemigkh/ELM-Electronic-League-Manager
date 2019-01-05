@@ -27,7 +27,7 @@ export const ELM_ROUTES: Routes = [
     {path: 'leagues', component: LeaguesComponent, data: {}},
     {path: 'leagueCreation', component: LeagueCreationComponent, data: {}},
     {path: 'signup', component: SignupComponent, data: {}},
-    {path: 'signup', component: SignupComponent, data: {}},
+    {path: 'register', component: TournamentRegistrationComponent, data: {}},
     {path: 'stats', component: StatsComponent, data: {}},
     {
         path: 'manage',

@@ -18,6 +18,8 @@ import {FormControl} from "@angular/forms";
 import {Action} from "../actions";
 import {Id} from "../../httpServices/api-return-schemas/id";
 import {TeamsService} from "../../httpServices/teams.service";
+import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
+import {UserService} from "../../httpServices/user.service";
 
 class GameData {
     title: string;
@@ -39,25 +41,49 @@ export class ManageGamesComponent implements ManageComponentInterface{
     completeGames: Game[];
 
     constructor(private teamsService: TeamsService, public dialog: MatDialog,
-                private gamesService: GamesService) {
+                private gamesService: GamesService,
+                private userService: UserService) {
 
         this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
-                teamSummary.forEach(team => {
-                   this.teamVisibility[team.id] = true;
-                });
-                this.teams = teamSummary;
-                console.log(this.teams);
+                let teams = teamSummary;
+                this.userService.getUserPermissions().subscribe(
+                    (next: UserPermissions) => {
+                        this.teams = [];
+                        teams.forEach((team: Team) => {
+                            if(next.leaguePermissions.administrator || next.leaguePermissions.editGames) {
+                                this.teams.push(team);
+                            } else {
+                                next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
+                                    if(team.id == teamPermission.id &&
+                                        (teamPermission.administrator || teamPermission.reportResults)) {
+                                        this.teams.push(team);
+                                    }
+                                });
+                            }
+                        });
+                        teams.forEach(team => {
+                            this.teamVisibility[team.id] = false;
+                        });
+                        this.teams.forEach(team => {
+                            this.teamVisibility[team.id] = true;
+                        });
+                        console.log(this.teams);
 
-                this.gamesService.getAllGames().subscribe(
-                    (games: GameCollection) => {
-                        this.upcomingGames = games.upcomingGames;
-                        this.completeGames = games.completeGames;
-                        console.log(games);
+                        this.gamesService.getAllGames().subscribe(
+                            (games: GameCollection) => {
+                                this.upcomingGames = games.upcomingGames;
+                                this.completeGames = games.completeGames;
+                                console.log(games);
+                            }, error => {
+                                console.log(error);
+                            }
+                        )
+
                     }, error => {
                         console.log(error);
                     }
-                )
+                );
 
             }, error => {
                 console.log(error);

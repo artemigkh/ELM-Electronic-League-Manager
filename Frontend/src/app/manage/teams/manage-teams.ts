@@ -8,6 +8,8 @@ import {TeamsService} from "../../httpServices/teams.service";
 import {Action} from "../actions";
 import {Id} from "../../httpServices/api-return-schemas/id";
 import {ManageComponentInterface} from "../manage-component-interface";
+import {UserService} from "../../httpServices/user.service";
+import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
 
 class TeamData {
     title: string;
@@ -24,14 +26,33 @@ class TeamData {
 export class  ManageTeamsComponent implements ManageComponentInterface {
     displayedColumns: string[] = ['team'];
     teams: Team[];
-
     constructor(private leagueService: LeagueService,
                 private teamsService: TeamsService,
+                private userService: UserService,
                 public dialog: MatDialog) {
         console.log("team service created: ", this.teamsService);
         this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
-                this.teams = teamSummary;
+                let teams = teamSummary;
+                this.userService.getUserPermissions().subscribe(
+                    (next: UserPermissions) => {
+                        this.teams = [];
+                        teams.forEach((team: Team) => {
+                            if(next.leaguePermissions.administrator || next.leaguePermissions.editTeams) {
+                                this.teams.push(team);
+                            } else {
+                                next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
+                                    if(team.id == teamPermission.id &&
+                                        (teamPermission.administrator || teamPermission.information)) {
+                                        this.teams.push(team);
+                                    }
+                                });
+                            }
+                        });
+                    }, error => {
+                        console.log(error);
+                    }
+                );
             }, error => {
                 console.log(error);
         });

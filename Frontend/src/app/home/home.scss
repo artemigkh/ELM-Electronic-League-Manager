@@ -14,6 +14,35 @@ h1 {
     width: 100%;
     display: flex;
     flex-direction: column;
+    &.signup {
+        flex-direction: row;
+        .all-teams {
+            height: 100%;
+            width: 50%;
+            padding: 15px;
+            overflow: scroll;
+        }
+
+        .league-about {
+            height: 100%;
+            width: 50%;
+            padding: 15px;
+            div {
+                margin-bottom: 10px;
+            }
+        }
+
+        .signup {
+            margin-top: 100px;
+            div {
+                font-size: 20px;
+            }
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-items: center;
+        }
+    }
 
     h2 {
         font-family: Roboto, "Helvetica Neue", sans-serif;

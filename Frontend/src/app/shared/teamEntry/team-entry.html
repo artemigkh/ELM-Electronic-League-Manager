@@ -4,6 +4,7 @@
     </span>
 
     <span class="spacer-1"></span>
+    <span class="centering-spacer" *ngIf="signup"></span>
 
     <span class="logo">
         <img [src]="'http://localhost:8080/icons/' + team.iconSmall">
@@ -15,7 +16,7 @@
 
     <span class="spacer-2"></span>
 
-    <span class="record">
+    <span class="record" *ngIf="!signup">
         {{team.wins}}W-{{team.losses}}L
     </span>
 </div>

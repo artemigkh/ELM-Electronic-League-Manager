@@ -2,6 +2,7 @@
   <h1 class="docs-primary-header">Home</h1>
 </div>
 
+<ng-container *ngIf="!signupPeriod">
 <div class="home-content">
     <div class="top-row">
         <span class="league-about">
@@ -50,3 +51,48 @@
         </span>
     </div>
 </div>
+</ng-container>
+
+<ng-container *ngIf="signupPeriod">
+    <div class="home-content signup">
+        <span class="league-about">
+            <h2>About {{leagueInformation.name}}</h2>
+
+            <div>{{leagueInformation.description}}</div>
+            <div>
+                <span>Game: </span>
+                <span>{{getGameLabel()}}</span>
+            </div>
+            <div>
+                <span>Registration Period: </span>
+                <span>
+                    {{leagueInformation.signupStart * 1000 | date:'EEEE'}} {{leagueInformation.signupStart * 1000 | date:'MMMM d'}}
+                    to
+                    {{leagueInformation.signupEnd * 1000 | date:'EEEE'}} {{leagueInformation.signupEnd * 1000 | date:'MMMM d'}}
+                </span>
+            </div>
+            <div>
+                <span>Competition Period: </span>
+                <span>
+                    {{leagueInformation.leagueStart * 1000 | date:'EEEE'}} {{leagueInformation.leagueStart * 1000 | date:'MMMM d'}}
+                    to
+                    {{leagueInformation.leagueEnd * 1000 | date:'EEEE'}} {{leagueInformation.leagueEnd * 1000 | date:'MMMM d'}}
+                </span>
+            </div>
+            <div class="signup">
+                <div>
+                    This league is currently accepting new teams!
+                </div>
+                <div>
+                    <button mat-raised-button color="primary" routerLink="/register">Sign Up</button>
+                </div>
+
+            </div>
+        </span>
+            <span class="all-teams">
+            <h2>Currently Signed up Teams</h2>
+            <app-team-entry *ngFor="let team of allTeams; let i = index"
+                            [team]="team" [position]="i+1" [height]="80" [signup]="signupPeriod"></app-team-entry>
+        </span>
+    </div>
+</ng-container>

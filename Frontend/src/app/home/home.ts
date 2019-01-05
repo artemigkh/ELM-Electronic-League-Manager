@@ -18,6 +18,8 @@ export class HomeComponent {
     upcomingGames: Game[];
     leagueInformation: LeagueInformation;
     teams: Team[];
+    allTeams: Team[];
+    signupPeriod: boolean;
     constructor(private leagueService: LeagueService,
                 private gamesService: GamesService,
                 private teamsService: TeamsService) {
@@ -33,6 +35,14 @@ export class HomeComponent {
             leagueStart: 0,
             leagueEnd: 0
         };
+
+        this.leagueService.isLeagueRegistrationPeriod().subscribe(
+            (next: boolean) => {
+                this.signupPeriod = next;
+            }, error => {
+                console.log(error);
+            }
+        );
 
         this.gamesService.getAllGames().subscribe(
             gameSummary => {
@@ -53,6 +63,7 @@ export class HomeComponent {
 
         this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
+                this.allTeams = teamSummary;
                 if(teamSummary.length > 3) {
                     this.teams = teamSummary.slice(0,3);
                 } else {

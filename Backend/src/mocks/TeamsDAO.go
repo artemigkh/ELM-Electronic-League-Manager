@@ -66,6 +66,27 @@ func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, name string, tag string
 	return r0, r1
 }
 
+// CreateTeamWithIcon provides a mock function with given fields: leagueId, userId, name, tag, description, small, large
+func (_m *TeamsDAO) CreateTeamWithIcon(leagueId int, userId int, name string, tag string, description string, small string, large string) (int, error) {
+	ret := _m.Called(leagueId, userId, name, tag, description, small, large)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(int, int, string, string, string, string, string) int); ok {
+		r0 = rf(leagueId, userId, name, tag, description, small, large)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int, string, string, string, string, string) error); ok {
+		r1 = rf(leagueId, userId, name, tag, description, small, large)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteTeam provides a mock function with given fields: leagueId, teamId
 func (_m *TeamsDAO) DeleteTeam(leagueId int, teamId int) error {
 	ret := _m.Called(leagueId, teamId)
@@ -252,6 +273,20 @@ func (_m *TeamsDAO) UpdateTeam(leagueId int, teamId int, name string, tag string
 	var r0 error
 	if rf, ok := ret.Get(0).(func(int, int, string, string, string) error); ok {
 		r0 = rf(leagueId, teamId, name, tag, description)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateTeamIcon provides a mock function with given fields: leagueId, teamId, small, large
+func (_m *TeamsDAO) UpdateTeamIcon(leagueId int, teamId int, small string, large string) error {
+	ret := _m.Called(leagueId, teamId, small, large)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, string, string) error); ok {
+		r0 = rf(leagueId, teamId, small, large)
 	} else {
 		r0 = ret.Error(0)
 	}

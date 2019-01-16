@@ -100,6 +100,75 @@ func createNewTeam(ctx *gin.Context) {
 }
 
 /**
+ * @api{POST} /api/teams/withIcon Create New Team With Icon
+ * @apiName createNewTeamWithIcon
+ * @apiGroup Teams
+ * @apiDescription Register a new team with icon
+ *
+ * @apiParam {string} name The name of the team to be created in form
+ * @apiParam {string} tag The tag of the team to be created in form
+ * @apiParam {string} description The description of the team to be created in form
+ * @apiParam {File} icon The icon png as multipart/form-data
+ *
+ * @apiSuccess {int} id the unique numerical identifier of the created team
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError noEditTeamPermissions The currently logged in user does not have permissions to edit teams in this league
+ * @apiError nameTooLong The team name has exceeded 50 characters
+ * @apiError tagTooLong The team tag has exceeded 5 characters
+ * @apiError nameTooShort The name must be at least 2 characters in length
+ * @apiError tagTooShort The tag must be at least 2 characters in length
+ * @apiError nameInUse The team name is currently in use
+ * @apiError tagInUse The team tag is currently in use
+ * @apiError iconError There was an error while processing the icon image png file
+ */
+func createNewTeamWithIcon(ctx *gin.Context) {
+	//get parameters
+	var teamInfo TeamInformation
+	teamInfo.Name = ctx.PostForm("name")
+	teamInfo.Tag = ctx.PostForm("tag")
+	teamInfo.Description = ctx.PostForm("description")
+	if teamInfo.Name == "" || teamInfo.Tag == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		return
+	}
+
+	if failIfNameTooLong(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfNameTooShort(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTagTooShort(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfDescriptionTooLong(ctx, teamInfo.Description) {
+		return
+	}
+	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), -1, teamInfo.Name, teamInfo.Tag) {
+		return
+	}
+
+	smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		return
+	}
+
+	teamId, err := TeamsDAO.CreateTeamWithIcon(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
+		teamInfo.Name, teamInfo.Tag, teamInfo.Description, smallIcon, largeIcon)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"id": teamId})
+}
+
+/**
  * @api{PUT} /api/teams/updateTeam/:id Update Team Information
  * @apiName updateTeam
  * @apiGroup Teams
@@ -426,6 +495,7 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.Use(getActiveLeague())
 
 	g.POST("/", authenticate(), failIfNoTeamCreatePermissions(), createNewTeam)
+	g.POST("/withIcon", authenticate(), failIfNoTeamCreatePermissions(), createNewTeamWithIcon)
 	g.POST("/addPlayer", authenticate(), addPlayerToTeam)
 	g.DELETE("/removePlayer", authenticate(), removePlayerFromTeam)
 	g.PUT("/updatePlayer", authenticate(), updatePlayer)

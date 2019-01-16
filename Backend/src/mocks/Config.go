@@ -37,6 +37,31 @@ func (_m *Config) GetIconsDir() string {
 	return r0
 }
 
+// GetKeys provides a mock function with given fields:
+func (_m *Config) GetKeys() ([]byte, []byte) {
+	ret := _m.Called()
+
+	var r0 []byte
+	if rf, ok := ret.Get(0).(func() []byte); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	var r1 []byte
+	if rf, ok := ret.Get(1).(func() []byte); ok {
+		r1 = rf()
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]byte)
+		}
+	}
+
+	return r0, r1
+}
+
 // GetPortString provides a mock function with given fields:
 func (_m *Config) GetPortString() string {
 	ret := _m.Called()

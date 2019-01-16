@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Server/databaseAccess"
+	"Server/icons"
 	"Server/sessionManager"
 )
 
@@ -13,6 +14,8 @@ var GamesDAO databaseAccess.GamesDAO
 var InviteCodesDAO databaseAccess.InviteCodesDAO
 
 var ElmSessions sessionManager.SessionManager
+
+var IconManager icons.IconManager
 
 // Structs
 type userInfo struct {

@@ -60,20 +60,6 @@ func getRequiredGames(tournamentType int, teams []int) []sgame {
 		//	}
 		//}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		curPos := 0
 		curJmp := 1
 		for numGames := 0; numGames < (numTeams*(numTeams-1))/2; numGames++ {

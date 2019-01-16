@@ -119,6 +119,28 @@ func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, name, tag, description str
 	return teamId, nil
 }
 
+func (d *PgTeamsDAO) CreateTeamWithIcon(leagueId, userId int, name, tag, description, small, large string) (int, error) {
+	var teamId int
+	err := psql.Insert("teams").
+		Columns("leagueId", "name", "tag", "description", "wins", "losses", "iconSmall", "iconLarge").
+		Values(leagueId, name, strings.ToUpper(tag), description, 0, 0, small, large).Suffix("RETURNING \"id\"").
+		RunWith(db).QueryRow().Scan(&teamId)
+	if err != nil {
+		return -1, err
+	}
+
+	//create permissions entry linking current user Id as the league creator
+	_, err = psql.Insert("teamPermissions").
+		Columns("userId", "teamId", "administrator", "information", "players", "reportResults").
+		Values(userId, teamId, true, true, true, true).
+		RunWith(db).Exec()
+	if err != nil {
+		return -1, err
+	}
+
+	return teamId, nil
+}
+
 func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error) {
 	//check if name in use
 	var teamIdOfMatch int

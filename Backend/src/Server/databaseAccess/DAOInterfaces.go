@@ -39,6 +39,7 @@ type LeaguesDAO interface {
 type TeamsDAO interface {
 	// Teams
 	CreateTeam(leagueId, userId int, name, tag, description string) (int, error)
+	CreateTeamWithIcon(leagueId, userId int, name, tag, description, small, large string) (int, error)
 	DeleteTeam(leagueId, teamId int) error
 	UpdateTeam(leagueId, teamId int, name, tag, description string) error
 	GetTeamInformation(leagueId, teamId int) (*TeamInformation, error)

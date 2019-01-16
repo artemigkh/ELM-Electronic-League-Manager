@@ -141,6 +141,15 @@ func (d *PgTeamsDAO) CreateTeamWithIcon(leagueId, userId int, name, tag, descrip
 	return teamId, nil
 }
 
+func (d *PgTeamsDAO) UpdateTeamIcon(leagueId, teamId int, small, large string) error {
+	_, err := db.Exec(
+		`
+		UPDATE teams SET iconSmall = $1, iconLarge = $2
+		WHERE id = $3 AND leagueId = $4
+		`, small, large, teamId, leagueId)
+	return err
+}
+
 func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error) {
 	//check if name in use
 	var teamIdOfMatch int

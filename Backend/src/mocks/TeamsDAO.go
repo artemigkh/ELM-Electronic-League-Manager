@@ -279,3 +279,17 @@ func (_m *TeamsDAO) UpdateTeam(leagueId int, teamId int, name string, tag string
 
 	return r0
 }
+
+// UpdateTeamIcon provides a mock function with given fields: leagueId, teamId, small, large
+func (_m *TeamsDAO) UpdateTeamIcon(leagueId int, teamId int, small string, large string) error {
+	ret := _m.Called(leagueId, teamId, small, large)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, string, string) error); ok {
+		r0 = rf(leagueId, teamId, small, large)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

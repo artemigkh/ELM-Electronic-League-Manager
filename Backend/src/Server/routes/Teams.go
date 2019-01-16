@@ -155,7 +155,7 @@ func createNewTeamWithIcon(ctx *gin.Context) {
 
 	smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "iconError"})
 		return
 	}
 
@@ -221,6 +221,42 @@ func updateTeam(ctx *gin.Context) {
 
 	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
 		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
+/**
+ * @api{PUT} /api/teams/updateTeamIcon/:id Update Team Icon
+ * @apiName updateTeamIcon
+ * @apiGroup Teams
+ * @apiDescription Change Team Icon
+ *
+ * @apiParam {int} id The unique numerical identifier of the team
+ * @apiParam {File} icon The icon png as multipart/form-data
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError IdMustBeInteger The id in the url must be an integer value
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError noEditTeamInformationPermissions The currently logged in user does not have permissions to edit this team information
+ * @apiError iconError There was an error while processing the icon image png file
+ */
+func updateTeamIcon(ctx *gin.Context) {
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+		return
+	}
+
+	smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "iconError"})
+		return
+	}
+
+	err = TeamsDAO.UpdateTeamIcon(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
+		smallIcon, largeIcon)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -502,5 +538,6 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.GET("/:id", getUrlId(), getTeamInformation)
 	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfNotTeamAdministrator(), deleteTeam)
 	g.PUT("/updateTeam/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeam)
+	g.PUT("/updateTeamIcon/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeamIcon)
 	g.PUT("/updatePermissions", authenticate(), updateManagerPermissions)
 }

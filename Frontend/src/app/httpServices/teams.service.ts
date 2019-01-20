@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {httpOptions} from "./http-options";
+import {httpOptions, httpOptionsForm} from "./http-options";
 import {Observable} from "rxjs/Rx";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
@@ -10,10 +10,7 @@ import {of} from "rxjs/index";
 
 @Injectable()
 export class TeamsService {
-    teams: Team[];
-    constructor(private http: HttpClient) {
-        this.teams = null;
-    }
+    constructor(private http: HttpClient) {}
 
     public createNewTeam(name: string, tag: string, description = ""): Observable<Object> {
         return this.http.post('http://localhost:8080/api/teams/', {
@@ -23,12 +20,20 @@ export class TeamsService {
         }, httpOptions)
     }
 
+    public createNewTeamWithIcon(form: FormData): Observable<Object> {
+        return this.http.post('http://localhost:8080/api/teams/withIcon', form, httpOptionsForm)
+    }
+
     public updateTeam(id: number, name: string, tag: string, description = ""): Observable<Object> {
         return this.http.put('http://localhost:8080/api/teams/updateTeam/' + id, {
             name: name,
             tag: tag,
             description: description
         }, httpOptions)
+    }
+
+    public updateTeamWithIcon(teamId: number, form: FormData): Observable<Object> {
+        return this.http.put('http://localhost:8080/api/teams/updateTeamWithIcon/' +teamId, form, httpOptionsForm)
     }
 
     public deleteTeam(id: number): Observable<Object> {
@@ -116,26 +121,26 @@ export class TeamsService {
         });
     }
 
-    public getTeamSummary(useCache = true): Observable<Team[]> {
-        if(this.teams != null && useCache) {
-            return of(this.teams);
-        } else {
-            return new Observable(observer => {
-                this.http.get('http://localhost:8080/api/leagues/teamSummary', httpOptions).subscribe(
-                    (next: Team[]) => {
-                        this.teams = next;
-                        this.teams.forEach(team => {
+    public getTeamSummary(): Observable<Team[]> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/leagues/teamSummary', httpOptions).subscribe(
+                (next: Team[]) => {
+                    if(next == null) {
+                        observer.next([]);
+                    } else {
+                        let teams = next;
+                        teams.forEach(team => {
                             team.players = [];
                             team.substitutes = [];
                         });
-                        observer.next(this.teams)
-                    }, error => {
-                        console.log(error);
-                        observer.error(error);
+                        observer.next(teams)
                     }
-                );
-            });
-        }
+                }, error => {
+                    console.log(error);
+                    observer.error(error);
+                }
+            );
+        });
     }
 
     public addTeamInformation(games: Game[], teams: Team[]) {

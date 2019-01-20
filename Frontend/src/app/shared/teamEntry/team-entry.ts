@@ -11,4 +11,5 @@ export class TeamEntry {
     @Input() team: Team;
     @Input() position: Number;
     @Input() height: Number;
+    @Input() signup: Boolean = false;
 }

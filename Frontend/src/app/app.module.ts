@@ -11,7 +11,7 @@ import {
     MatExpansionModule,
     MatFormFieldModule, MatIconModule, MatIconRegistry,
     MatInputModule, MatNativeDateModule, MatProgressSpinnerModule,
-    MatSelectModule, MatSnackBarModule, MatSpinner, MatStepperModule,
+    MatSelectModule, MatSlideToggleModule, MatSnackBarModule, MatSpinner, MatStepperModule,
     MatTabsModule
 } from '@angular/material';
 import {MatTableModule} from '@angular/material/table';
@@ -19,10 +19,8 @@ import {MatTableModule} from '@angular/material/table';
 import {NavBar} from "./shared/navbar/navbar";
 import {AppComponent} from './app.component';
 import {HomeComponent} from "./home/home";
-import {MatchHistoryComponent} from "./matchHistory/match-history";
 import {StandingsComponent} from "./standings/standings";
 import {TeamsComponent} from "./teams/teams";
-import {UpcomingGamesComponent} from "./upcomingGames/upcoming-games";
 
 import {LeagueService} from './httpServices/leagues.service';
 
@@ -50,16 +48,16 @@ import {TeamEntry} from "./shared/teamEntry/team-entry";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
 import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
 import {UserService} from "./httpServices/user.service";
+import {LeaguesComponent} from "./leagues/leagues";
+import {LeagueCreationComponent} from "./leagueCreation/league-creation";
+import {StatsComponent} from "./stats/stats";
 
 @NgModule({
     declarations: [
         AppComponent,
         StandingsComponent,
         HomeComponent,
-        MatchHistoryComponent,
         TeamsComponent,
-        MatchHistoryComponent,
-        UpcomingGamesComponent,
         GamesComponent,
         ManageComponent,
         ManageLeagueComponent,
@@ -68,6 +66,9 @@ import {UserService} from "./httpServices/user.service";
         ManageDatesComponent,
         ManagePlayersComponent,
         ManageGamesComponent,
+        LeaguesComponent,
+        StatsComponent,
+        LeagueCreationComponent,
         ReportGamePopup,
         ManageGamePopup,
         ManageTeamPopup,
@@ -99,6 +100,7 @@ import {UserService} from "./httpServices/user.service";
         MatCheckboxModule,
         MatDatepickerModule,
         MatNativeDateModule,
+        MatSlideToggleModule,
         MatIconModule,
         MatChipsModule,
         MatDialogModule,

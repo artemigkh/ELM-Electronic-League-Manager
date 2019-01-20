@@ -1,0 +1,38 @@
+.creation-wrapper {
+    margin-top: 25px;
+    width: 60%;
+    margin-left: 20%;
+}
+
+.field-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-selection {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    span {
+        width: 50%;
+    }
+}
+
+.next-button {
+    margin-top:15px;
+}
+
+mat-divider {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+.visibility-section {
+    display: flex;
+    flex-direction: row;
+
+    mat-checkbox {
+        margin-right: 20px;
+    }
+}

@@ -1,0 +1,108 @@
+h1 {
+    outline: none;
+}
+
+.leagues {
+     max-width: calc(100% - 20px);
+}
+
+mat-divider {
+    margin-left: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.filter {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    padding-left: 10px;
+
+    .title {
+        font-weight: 400;
+        font-size: 20px;
+    }
+
+    span {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-grow: 1;
+    }
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    .name {
+        min-width: 25%;
+        font-weight: 400;
+        font-size: 20px;
+    }
+    .game {
+        min-width: 25%;
+        font-weight: 400;
+        font-size: 20px;
+    }
+    .flex-spacer {
+        flex: 1 1 50%;
+    }
+    .mat-raised-button {
+        width: 150px;
+        border-radius: 99999px!important;
+    }
+}
+
+.league-container {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    padding-left: 10px;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: lightgray;
+
+    .flex-spacer {
+        flex: 1 1 50%;
+    }
+
+    .name {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 25%;
+        font-weight: 400;
+        font-size: 22px;
+    }
+
+    .game {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 25%;
+        font-weight: 300;
+        font-size: 20px;
+    }
+
+    .control-button {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background-color: #fafafa;
+        padding-left: 10px;
+
+        mat-icon:before {
+            height: 100%;
+            font-size: 24px;
+        }
+
+    }
+
+}

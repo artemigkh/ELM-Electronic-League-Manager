@@ -66,6 +66,11 @@ type PublicLeagueInformation struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	PublicJoin  bool   `json:"publicJoin"`
+	SignupStart int    `json:"signupStart"`
+	SignupEnd   int    `json:"signupEnd"`
+	LeagueStart int    `json:"leagueStart"`
+	LeagueEnd   int    `json:"leagueEnd"`
+	Game        string `json:"game"`
 }
 
 type PgLeaguesDAO struct{}
@@ -331,7 +336,8 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 }
 
 func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) {
-	rows, err := psql.Select("id", "name", "description", "publicJoin").
+	rows, err := psql.Select("id", "name", "description", "publicJoin", "signupStart",
+		"signupEnd", "leagueStart", "leagueEnd", "game").
 		From("leagues").
 		Where("publicView = true").
 		RunWith(db).Query()
@@ -345,7 +351,8 @@ func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) 
 	var league PublicLeagueInformation
 
 	for rows.Next() {
-		err := rows.Scan(&league.Id, &league.Name, &league.Description, &league.PublicJoin)
+		err := rows.Scan(&league.Id, &league.Name, &league.Description, &league.PublicJoin, &league.SignupStart,
+			&league.SignupEnd, &league.LeagueStart, &league.LeagueEnd, &league.Game)
 		if err != nil {
 			return nil, err
 		}

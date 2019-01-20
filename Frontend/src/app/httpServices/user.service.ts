@@ -5,6 +5,7 @@ import {httpOptions} from "./http-options";
 import {Id} from "./api-return-schemas/id";
 import {NavBar} from "../shared/navbar/navbar";
 import {HttpClient} from "@angular/common/http";
+import {UserPermissions} from "./api-return-schemas/permissions";
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,10 @@ export class UserService {
                 error => {observer.next(false);}
             )
         });
+    }
+
+    public getUserPermissions(): Observable<Object> {
+        return this.http.get('http://localhost:8080/api/users/permissions', httpOptions)
     }
 
     public getCurrentUser() {

@@ -32,12 +32,13 @@ mat-divider {
     }
 
     &.icons {
+        justify-content: left;
         margin-top: 15px;
         margin-bottom: 15px;
         .icon-upload {
             margin: 10px;
             font-weight: 400;
-            width: 50%;
+            //width: 50%;
             color: rgba(0, 0, 0, 0.54);
             input {
                 margin-top: 10px;

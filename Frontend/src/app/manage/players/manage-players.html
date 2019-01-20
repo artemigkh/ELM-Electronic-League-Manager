@@ -6,7 +6,7 @@
 <div class="layout-spacer"></div>
 
 <mat-accordion displayMode="flat" multi="true" *ngFor="let team of teams; let i = index">
-    <mat-expansion-panel>
+    <mat-expansion-panel [expanded]="teams.length == 1">
         <mat-expansion-panel-header [style.border-width]="i==0?'1px 0 1px 0':'0 0 1px 0'">
             <mat-panel-title>
                 <span class="team-entry">

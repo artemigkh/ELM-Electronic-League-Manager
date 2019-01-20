@@ -3,7 +3,7 @@
 </div>
 
 <div class="registration-wrapper">
-    <mat-vertical-stepper [linear]="false" (selectionChange)="onNext($event)" (animationDone)="onAnimationEnd()" #stepper>
+    <mat-vertical-stepper [linear]="true" (selectionChange)="onNext($event)" (animationDone)="onAnimationEnd()" #stepper>
         <mat-step [stepControl]="firstFormGroup">
             <ng-template matStepLabel>Team Information</ng-template>
             <form [formGroup]="firstFormGroup">
@@ -22,19 +22,15 @@
                 </div>
                 <div class="content-wrapper">
                     <mat-form-field class="description" hintLabel="Maximum 500 characters">
-                    <textarea matInput #input2 [(ngModel)]="description" [ngModelOptions]="{standalone: true}"
-                          placeholder="Description" [mat-autosize]="true"></textarea>
+                    <textarea matInput #input2 value="{{description}}"
+                          placeholder="Description" [mat-autosize]="true" formControlName="description"></textarea>
                         <mat-hint align="end">{{input2.value?.length || 0}}/500</mat-hint>
                     </mat-form-field>
                 </div>
                 <div class="content-wrapper icons">
                     <div class="icon-upload">
-                        <div>Icon (128px by 128px png)</div>
-                        <input type="file" accept=".png">
-                    </div>
-                    <div class="icon-upload">
-                        <div>Icon (512px by 512px png)</div>
-                        <input type="file" accept=".png">
+                        <div>Icon</div>
+                        <input type="file" accept=".png" (change)="onFileChange($event)">
                     </div>
                 </div>
                 <div>

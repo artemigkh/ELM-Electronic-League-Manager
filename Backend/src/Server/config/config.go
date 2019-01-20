@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,14 +12,17 @@ type Config interface {
 	GetDbConnString() string
 	GetPortString() string
 	GetIconsDir() string
+	GetKeys() ([]byte, []byte)
 }
 
 type Configuration struct {
-	DbUser   string `json:"dbUser"`
-	DbPass   string `json:"dbPass"`
-	DbName   string `json:"dbName"`
-	Port     string `json:"port"`
-	IconsDir string `json:"iconsDir"`
+	DbUser        string `json:"dbUser"`
+	DbPass        string `json:"dbPass"`
+	DbName        string `json:"dbName"`
+	Port          string `json:"port"`
+	IconsDir      string `json:"iconsDir"`
+	AuthKey       string `json:"authKey"`
+	EncryptionKey string `json:"encryptionKey"`
 }
 
 func (c *Configuration) GetDbConnString() string {
@@ -31,6 +35,12 @@ func (c *Configuration) GetPortString() string {
 
 func (c *Configuration) GetIconsDir() string {
 	return c.IconsDir
+}
+
+func (c *Configuration) GetKeys() ([]byte, []byte) {
+	authKey, _ := hex.DecodeString(c.AuthKey)
+	encryptionKey, _ := hex.DecodeString(c.EncryptionKey)
+	return authKey, encryptionKey
 }
 
 func GetConfig(location string) Config {

@@ -1,9 +1,13 @@
 package icons
 
 import (
+	"Server/config"
+	"fmt"
 	"github.com/Pallinder/go-randomdata"
+	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
 	"image/png"
+	"net/http"
 	"os"
 )
 
@@ -11,10 +15,28 @@ type GoIconManager struct {
 	OutPath string
 }
 
-func (m *GoIconManager) StoreNewIcon(tempLoc string) (string, string, error) {
-	defer os.Remove(tempLoc)
+func CreateGoIconManager(conf config.Config) IconManager {
+	return &GoIconManager{
+		OutPath: conf.GetIconsDir(),
+	}
+}
 
-	file, err := os.Open(tempLoc)
+func (m *GoIconManager) StoreNewIcon(ctx *gin.Context) (string, string, error) {
+	tmpFileLoc := "tmp/" + randomdata.RandStringRunes(10)
+	formFile, err := ctx.FormFile("icon")
+	if err != nil {
+		ctx.String(http.StatusBadRequest, fmt.Sprintf("get form err: %s", err.Error()))
+		return "", "", err
+	}
+
+	if err := ctx.SaveUploadedFile(formFile, tmpFileLoc); err != nil {
+		ctx.String(http.StatusBadRequest, fmt.Sprintf("upload file err: %s", err.Error()))
+		return "", "", err
+	}
+
+	defer os.Remove(tmpFileLoc)
+
+	file, err := os.Open(tmpFileLoc)
 	if err != nil {
 		return "", "", err
 	}
@@ -25,19 +47,20 @@ func (m *GoIconManager) StoreNewIcon(tempLoc string) (string, string, error) {
 	}
 	file.Close()
 
-	largeOutPath := randomdata.RandStringRunes(10)
-	smallOutPath := randomdata.RandStringRunes(10)
+	largeOutPath := randomdata.RandStringRunes(10) + ".png"
+	smallOutPath := randomdata.RandStringRunes(10) + ".png"
 
 	largeImg := resize.Resize(512, 512, img, resize.Lanczos3)
 	smallImg := resize.Resize(128, 128, img, resize.Lanczos3)
 
-	largeOut, err := os.Create(m.OutPath + largeOutPath + ".png")
+	largeOut, err := os.Create(m.OutPath + largeOutPath)
+
 	if err != nil {
 		return "", "", err
 	}
 	defer largeOut.Close()
 
-	smallOut, err := os.Create(m.OutPath + smallOutPath + ".png")
+	smallOut, err := os.Create(m.OutPath + smallOutPath)
 	if err != nil {
 		return "", "", err
 	}
@@ -46,5 +69,5 @@ func (m *GoIconManager) StoreNewIcon(tempLoc string) (string, string, error) {
 	png.Encode(largeOut, largeImg)
 	png.Encode(smallOut, smallImg)
 
-	return largeOutPath, smallOutPath, nil
+	return smallOutPath, largeOutPath, nil
 }

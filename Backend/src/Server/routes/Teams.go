@@ -129,6 +129,7 @@ func createNewTeamWithIcon(ctx *gin.Context) {
 	teamInfo.Name = ctx.PostForm("name")
 	teamInfo.Tag = ctx.PostForm("tag")
 	teamInfo.Description = ctx.PostForm("description")
+
 	if teamInfo.Name == "" || teamInfo.Tag == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 		return
@@ -153,19 +154,111 @@ func createNewTeamWithIcon(ctx *gin.Context) {
 		return
 	}
 
-	smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "iconError"})
+	_, err := ctx.FormFile("icon")
+	if err == nil {
+		smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "iconError"})
+			return
+		}
+
+		teamId, err := TeamsDAO.CreateTeamWithIcon(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
+			teamInfo.Name, teamInfo.Tag, teamInfo.Description, smallIcon, largeIcon)
+		if checkErr(ctx, err) {
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"id": teamId})
+	} else {
+		teamId, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
+			teamInfo.Name, teamInfo.Tag, teamInfo.Description)
+		if checkErr(ctx, err) {
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"id": teamId})
+	}
+}
+
+/**
+ * @api{PUT} /api/teams/updateTeamWithIcon/:id Update Team Information
+ * @apiName updateTeam
+ * @apiGroup Teams
+ * @apiDescription Change Team Information
+ *
+ * @apiParam {int} id The unique numerical identifier of the team
+ * @apiParam {string} name The updated name of the team
+ * @apiParam {string} tag The updated tag of the team
+ * @apiParam {string} description The description of the team to be created
+ * @apiParam {File} icon The icon png as multipart/form-data
+ *
+ * @apiError notLoggedIn No user is logged in
+ * @apiError noActiveLeague There is no active league selected
+ * @apiError IdMustBeInteger The id in the url must be an integer value
+ * @apiError teamDoesNotExist The specified team does not exist
+ * @apiError noEditTeamInformationPermissions The currently logged in user does not have permissions to edit this team information
+ * @apiError nameTooLong The team name has exceeded 50 characters
+ * @apiError tagTooLong The team tag has exceeded 5 characters
+ * @apiError nameInUse The team name is currently in use
+ * @apiError tagInUse The team tag is currently in use
+ * @apiError iconError There was an error while processing the icon image png file
+ */
+func updateTeamWithIcon(ctx *gin.Context) {
+	//get parameters
+	var teamInfo TeamInformation
+	teamInfo.Name = ctx.PostForm("name")
+	teamInfo.Tag = ctx.PostForm("tag")
+	teamInfo.Description = ctx.PostForm("description")
+
+	if teamInfo.Name == "" || teamInfo.Tag == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 		return
 	}
 
-	teamId, err := TeamsDAO.CreateTeamWithIcon(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
-		teamInfo.Name, teamInfo.Tag, teamInfo.Description, smallIcon, largeIcon)
+	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+		return
+	}
+	if failIfNameTooLong(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTeamTagTooLong(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfNameTooShort(ctx, teamInfo.Name) {
+		return
+	}
+	if failIfTagTooShort(ctx, teamInfo.Tag) {
+		return
+	}
+	if failIfDescriptionTooLong(ctx, teamInfo.Description) {
+		return
+	}
+	if failIfTeamInfoInUse(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId"), teamInfo.Name, teamInfo.Tag) {
+		return
+	}
+
+	_, err := ctx.FormFile("icon")
+	if err == nil {
+		smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "iconError"})
+			return
+		}
+
+		err = TeamsDAO.UpdateTeamIcon(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
+			smallIcon, largeIcon)
+		if checkErr(ctx, err) {
+			return
+		}
+	}
+
+	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
+		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"id": teamId})
+	ctx.Status(http.StatusOK)
 }
 
 /**
@@ -538,6 +631,7 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.GET("/:id", getUrlId(), getTeamInformation)
 	g.DELETE("/removeTeam/:id", getUrlId(), authenticate(), failIfTeamActive(), failIfNotTeamAdministrator(), deleteTeam)
 	g.PUT("/updateTeam/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeam)
+	g.PUT("/updateTeamWithIcon/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeamWithIcon)
 	g.PUT("/updateTeamIcon/:id", getUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeamIcon)
 	g.PUT("/updatePermissions", authenticate(), updateManagerPermissions)
 }

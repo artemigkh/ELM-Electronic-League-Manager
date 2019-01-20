@@ -10,6 +10,7 @@ import {Id} from "../../httpServices/api-return-schemas/id";
 import {ManageComponentInterface} from "../manage-component-interface";
 import {UserService} from "../../httpServices/user.service";
 import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
+import {FormBuilder, FormGroup} from "@angular/forms";
 
 class TeamData {
     title: string;
@@ -151,16 +152,19 @@ export class ManageTeamPopup {
     tag: string;
     description: string;
     id: number;
+    iconContainer: FormGroup;
     constructor(
         public dialogRef: MatDialogRef<ManageTeamPopup>,
         @Inject(MAT_DIALOG_DATA) public data: TeamData,
         private leagueService: LeagueService,
-        private teamsService: TeamsService) {
+        private teamsService: TeamsService,
+        private _formBuilder: FormBuilder,) {
         this.action = data.action;
         this.name = data.team.name;
         this.tag = data.team.tag;
         this.description = data.team.description;
         this.id = data.team.id;
+        this.iconContainer = this._formBuilder.group({icon: null});
         console.log(this.data.team);
         this.teamsService.getTeamSummary().subscribe(
             teamSummary => {
@@ -170,15 +174,25 @@ export class ManageTeamPopup {
             });
     }
 
+    onFileChange(event) {
+        if(event.target.files.length > 0) {
+            this.iconContainer.value.icon = event.target.files[0];
+        }
+    }
+
     OnCancel(): void {
         this.dialogRef.close();
     }
 
     OnConfirm(): void {
-        console.log("confirm called");
-        console.log("action is", this.action);
+        let form = new FormData();
+        form.append("name", this.name);
+        form.append("tag", this.tag);
+        form.append("description", this.description);
+        form.append("icon", this.iconContainer.value.icon);
+
         if(this.action == Action.Create) {
-            this.teamsService.createNewTeam(this.name, this.tag, this.description).subscribe(
+            this.teamsService.createNewTeamWithIcon(form).subscribe(
                 (next: Id) => {
                     console.log("successfully created team");
                     this.data.caller.notifyCreateSuccess(next.id);
@@ -190,7 +204,7 @@ export class ManageTeamPopup {
                 }
             )
         } else if(this.action = Action.Edit) {
-            this.teamsService.updateTeam(this.id, this.name, this.tag, this.description).subscribe(
+            this.teamsService.updateTeamWithIcon(this.id, form).subscribe(
                 next => {
                     console.log("successfully updated team");
                     this.data.caller.notifyUpdateSuccess(this.id);

@@ -18,6 +18,13 @@
                               placeholder="Description" [mat-autosize]="true"></textarea>
             <mat-hint align="end">{{input3.value?.length || 0}}/500</mat-hint>
         </mat-form-field>
+
+        <div class="icons">
+            <div class="icon-upload">
+                <div>Icon</div>
+                <input type="file" accept=".png" (change)="onFileChange($event)">
+            </div>
+        </div>
     </div>
 
 </div>

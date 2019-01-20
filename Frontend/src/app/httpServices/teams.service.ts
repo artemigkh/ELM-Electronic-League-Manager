@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {httpOptions} from "./http-options";
+import {httpOptions, httpOptionsForm} from "./http-options";
 import {Observable} from "rxjs/Rx";
 import {GtiTeam} from "./api-return-schemas/get-team-information";
 import {Player} from "../interfaces/Player";
@@ -20,12 +20,20 @@ export class TeamsService {
         }, httpOptions)
     }
 
+    public createNewTeamWithIcon(form: FormData): Observable<Object> {
+        return this.http.post('http://localhost:8080/api/teams/withIcon', form, httpOptionsForm)
+    }
+
     public updateTeam(id: number, name: string, tag: string, description = ""): Observable<Object> {
         return this.http.put('http://localhost:8080/api/teams/updateTeam/' + id, {
             name: name,
             tag: tag,
             description: description
         }, httpOptions)
+    }
+
+    public updateTeamWithIcon(teamId: number, form: FormData): Observable<Object> {
+        return this.http.put('http://localhost:8080/api/teams/updateTeamWithIcon/' +teamId, form, httpOptionsForm)
     }
 
     public deleteTeam(id: number): Observable<Object> {

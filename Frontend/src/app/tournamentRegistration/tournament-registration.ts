@@ -35,7 +35,9 @@ export class TournamentRegistrationComponent {
     ngOnInit() {
         this.firstFormGroup = this._formBuilder.group({
             name: ['', Validators.required],
-            tag: ['', Validators.required]
+            tag: ['', Validators.required],
+            description: '',
+            icon: null
         });
         this.secondFormGroup = this._formBuilder.group({
             secondCtrl: ['', Validators.required]
@@ -49,15 +51,22 @@ export class TournamentRegistrationComponent {
         }
     }
 
+    onFileChange(event) {
+        if(event.target.files.length > 0) {
+            let file = event.target.files[0];
+            this.firstFormGroup.value.icon = file;
+        }
+    }
+
     onAnimationEnd() {
         if(this.playerTransition) {
+            let form = new FormData();
+            form.append("name", this.firstFormGroup.value.name);
+            form.append("tag", this.firstFormGroup.value.tag);
+            form.append("description", this.firstFormGroup.value.description);
+            form.append("icon", this.firstFormGroup.value.icon);
             if(isUndefined(this.team)) {
-                console.log(this.firstFormGroup.controls.name.value);
-                console.log(this.firstFormGroup.controls.tag.value);
-                this.teamsService.createNewTeam(
-                    this.firstFormGroup.controls.name.value,
-                    this.firstFormGroup.controls.tag.value,
-                    this.description).subscribe(
+                this.teamsService.createNewTeamWithIcon(form).subscribe(
                     (next: Id) => {
                         let team = EmptyTeam();
                         team.id = next.id;
@@ -80,10 +89,7 @@ export class TournamentRegistrationComponent {
                     }
                 );
             } else {
-                this.teamsService.updateTeam(this.team.id,
-                    this.firstFormGroup.controls.name.value,
-                    this.firstFormGroup.controls.tag.value,
-                    this.description).subscribe(
+                this.teamsService.updateTeamWithIcon(this.team.id, form).subscribe(
                     next => {}, error => {
                         let message = ": " + JSON.stringify(error.error);
                         if(error.error.error == "nameInUse") {

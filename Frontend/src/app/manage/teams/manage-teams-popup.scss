@@ -22,6 +22,19 @@ h1 {
     justify-content: center;
     //height: 300px;
     margin-bottom: 20px;
+
+    .icons {
+        justify-content: left;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        .icon-upload {
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.54);
+            input {
+                margin-top: 10px;
+            }
+        }
+    }
 }
 
 .action-bar-wrapper {

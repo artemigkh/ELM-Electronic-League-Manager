@@ -6,3 +6,7 @@ export const httpOptions = {
         'Content-Type': 'application/json'
     })
 };
+
+export const httpOptionsForm = {
+    withCredentials: true
+};

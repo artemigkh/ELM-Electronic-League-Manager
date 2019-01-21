@@ -13,6 +13,8 @@ type Config interface {
 	GetPortString() string
 	GetIconsDir() string
 	GetKeys() ([]byte, []byte)
+
+	GetLeagueOfLegendsApiKey() string
 }
 
 type Configuration struct {
@@ -23,6 +25,8 @@ type Configuration struct {
 	IconsDir      string `json:"iconsDir"`
 	AuthKey       string `json:"authKey"`
 	EncryptionKey string `json:"encryptionKey"`
+
+	LeagueOfLegendsApiKey string `json:"leagueOfLegendsApiKey"`
 }
 
 func (c *Configuration) GetDbConnString() string {
@@ -41,6 +45,10 @@ func (c *Configuration) GetKeys() ([]byte, []byte) {
 	authKey, _ := hex.DecodeString(c.AuthKey)
 	encryptionKey, _ := hex.DecodeString(c.EncryptionKey)
 	return authKey, encryptionKey
+}
+
+func (c *Configuration) GetLeagueOfLegendsApiKey() string {
+	return c.LeagueOfLegendsApiKey
 }
 
 func GetConfig(location string) Config {

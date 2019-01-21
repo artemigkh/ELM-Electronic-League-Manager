@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -446,7 +447,7 @@ func getTeamInformation(ctx *gin.Context) {
 func addPlayerToTeam(ctx *gin.Context) {
 	//get parameters
 	var playerInfo PlayerInformation
-	err := ctx.ShouldBindJSON(&playerInfo)
+	err := ctx.ShouldBindBodyWith(&playerInfo, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
 	}

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -446,7 +447,7 @@ func getTeamInformation(ctx *gin.Context) {
 func addPlayerToTeam(ctx *gin.Context) {
 	//get parameters
 	var playerInfo PlayerInformation
-	err := ctx.ShouldBindJSON(&playerInfo)
+	err := ctx.ShouldBindBodyWith(&playerInfo, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
 	}
@@ -471,7 +472,7 @@ func addPlayerToTeam(ctx *gin.Context) {
 	}
 
 	playerId, err := TeamsDAO.AddNewPlayer(playerInfo.TeamId, playerInfo.GameIdentifier,
-		playerInfo.Name, playerInfo.MainRoster)
+		playerInfo.Name, ctx.GetString("externalId"), playerInfo.MainRoster)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -567,7 +568,7 @@ func updatePlayer(ctx *gin.Context) {
 	}
 
 	err = TeamsDAO.UpdatePlayer(playerInfoChange.TeamId, playerInfoChange.PlayerId, playerInfoChange.GameIdentifier,
-		playerInfoChange.Name, playerInfoChange.MainRoster)
+		playerInfoChange.Name, ctx.GetString("externalId"), playerInfoChange.MainRoster)
 	if checkErr(ctx, err) {
 		return
 	}

@@ -53,9 +53,9 @@ type TeamsDAO interface {
 	IsTeamActive(leagueId, teamId int) (bool, error)
 
 	// Players
-	AddNewPlayer(teamId int, gameIdentifier, name, externalId string, mainRoster bool) (int, error)
+	AddNewPlayer(teamId int, gameIdentifier, name, externalId, position string, mainRoster bool) (int, error)
 	RemovePlayer(teamId, playerId int) error
-	UpdatePlayer(teamId, playerId int, gameIdentifier, name, externalId string, mainRoster bool) error
+	UpdatePlayer(teamId, playerId int, gameIdentifier, name, externalId, position string, mainRoster bool) error
 
 	// Managers
 	ChangeManagerPermissions(teamId, userId int, administrator, information, players, reportResults bool) error

@@ -33,7 +33,8 @@ CREATE TABLE players (
   gameIdentifier  VARCHAR(50)   NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
   externalId      VARCHAR(50)   UNIQUE           ,
-  mainRoster      BOOLEAN       NOT NULL
+  mainRoster      BOOLEAN       NOT NULL         ,
+  position        VARCHAR(20)
 );
 ALTER SEQUENCE playersIdSeq OWNED BY players.id;
 

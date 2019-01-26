@@ -278,7 +278,7 @@ func testUpdatePlayerDatabaseError(t *testing.T) {
 				},
 			},
 		}, nil)
-	mockTeamsDao.On("UpdatePlayer", 1, 2, "inGameTestName", "Test Player1", "", true).
+	mockTeamsDao.On("UpdatePlayer", 1, 2, "inGameTestName", "Test Player1", "", "", true).
 		Return(errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
@@ -334,7 +334,7 @@ func testUpdatePlayerCorrectUpdatePlayer(t *testing.T) {
 				},
 			},
 		}, nil)
-	mockTeamsDao.On("UpdatePlayer", 1, 2, "inGameTestName", "Test Player1", "", true).
+	mockTeamsDao.On("UpdatePlayer", 1, 2, "inGameTestName", "Test Player1", "", "", true).
 		Return(nil)
 
 	routes.ElmSessions = mockSession

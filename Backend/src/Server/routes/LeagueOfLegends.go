@@ -13,6 +13,7 @@ type LeagueOfLegendsPlayerInformation struct {
 	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
 	ExternalId     string `json:"externalId"`
+	Position       string `json:"position"`
 	MainRoster     bool   `json:"mainRoster"`
 	Rank           string `json:"rank"`
 	Tier           string `json:"tier"`
@@ -121,6 +122,7 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 			GameIdentifier: player.GameIdentifier,
 			ExternalId:     player.ExternalId,
 			MainRoster:     player.MainRoster,
+			Position:       player.Position,
 			Rank:           "",
 			Tier:           "",
 		}

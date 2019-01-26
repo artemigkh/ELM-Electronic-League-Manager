@@ -10,20 +10,20 @@ type TeamsDAO struct {
 	mock.Mock
 }
 
-// AddNewPlayer provides a mock function with given fields: teamId, gameIdentifier, name, externalId, mainRoster
-func (_m *TeamsDAO) AddNewPlayer(teamId int, gameIdentifier string, name string, externalId string, mainRoster bool) (int, error) {
-	ret := _m.Called(teamId, gameIdentifier, name, externalId, mainRoster)
+// AddNewPlayer provides a mock function with given fields: teamId, gameIdentifier, name, externalId, position, mainRoster
+func (_m *TeamsDAO) AddNewPlayer(teamId int, gameIdentifier string, name string, externalId string, position string, mainRoster bool) (int, error) {
+	ret := _m.Called(teamId, gameIdentifier, name, externalId, position, mainRoster)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, string, string, string, bool) int); ok {
-		r0 = rf(teamId, gameIdentifier, name, externalId, mainRoster)
+	if rf, ok := ret.Get(0).(func(int, string, string, string, string, bool) int); ok {
+		r0 = rf(teamId, gameIdentifier, name, externalId, position, mainRoster)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, string, string, string, bool) error); ok {
-		r1 = rf(teamId, gameIdentifier, name, externalId, mainRoster)
+	if rf, ok := ret.Get(1).(func(int, string, string, string, string, bool) error); ok {
+		r1 = rf(teamId, gameIdentifier, name, externalId, position, mainRoster)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -252,13 +252,13 @@ func (_m *TeamsDAO) RemovePlayer(teamId int, playerId int) error {
 	return r0
 }
 
-// UpdatePlayer provides a mock function with given fields: teamId, playerId, gameIdentifier, name, externalId, mainRoster
-func (_m *TeamsDAO) UpdatePlayer(teamId int, playerId int, gameIdentifier string, name string, externalId string, mainRoster bool) error {
-	ret := _m.Called(teamId, playerId, gameIdentifier, name, externalId, mainRoster)
+// UpdatePlayer provides a mock function with given fields: teamId, playerId, gameIdentifier, name, externalId, position, mainRoster
+func (_m *TeamsDAO) UpdatePlayer(teamId int, playerId int, gameIdentifier string, name string, externalId string, position string, mainRoster bool) error {
+	ret := _m.Called(teamId, playerId, gameIdentifier, name, externalId, position, mainRoster)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, string, string, string, bool) error); ok {
-		r0 = rf(teamId, playerId, gameIdentifier, name, externalId, mainRoster)
+	if rf, ok := ret.Get(0).(func(int, int, string, string, string, string, bool) error); ok {
+		r0 = rf(teamId, playerId, gameIdentifier, name, externalId, position, mainRoster)
 	} else {
 		r0 = ret.Error(0)
 	}

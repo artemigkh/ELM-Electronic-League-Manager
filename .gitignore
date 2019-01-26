@@ -1,0 +1,7 @@
+Backend/
+!Backend/Database
+!Backend/src
+!Backend/conf.json
+
+doc/
+icons/

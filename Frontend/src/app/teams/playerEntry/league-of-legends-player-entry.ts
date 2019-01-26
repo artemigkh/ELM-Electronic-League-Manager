@@ -6,10 +6,13 @@ import {LeagueOfLegendsPlayer} from "../../interfaces/Player";
     template: `
         <span class="player-entry">
             <span class="rank">
-                <div>
+                <div *ngIf="mainRoster" class="position">
+                    <img [src]="getPositionIcon()">
+                </div>
+                <div class="game-identifier">
                     {{player.gameIdentifier}}
                 </div>
-                <div>
+                <div class="emblem">
                     <img [src]="getEmblem()">
                 </div>
                 <div>
@@ -17,11 +20,11 @@ import {LeagueOfLegendsPlayer} from "../../interfaces/Player";
                 </div>
             </span>
         </span>
-  `, styles: ['img { max-height: 100px; max-width: 100px; }',
-    '.player-entry {height: 100px;}']
+  `
 })
 export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
     @Input() player: LeagueOfLegendsPlayer;
+    @Input() mainRoster: boolean = false;
     getEmblem(): string {
         if(this.player.tier.length > 0) {
             return "assets/leagueOfLegends/" +
@@ -31,6 +34,10 @@ export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
         } else {
             return "assets/leagueOfLegends/Unranked_Emblem.png";
         }
+    }
+
+    getPositionIcon(): string {
+        return "assets/leagueOfLegends/" + this.player.position + "_Icon.png";
     }
 
     addRankNum(): string {

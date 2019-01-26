@@ -16,6 +16,7 @@ export class PlayerEntryDirective {
 
 export interface PlayerEntryInterface {
     player: Player;
+    mainRoster: boolean;
 }
 
 const componentMapping: { [id: string] : any; } = {
@@ -39,6 +40,7 @@ const componentMapping: { [id: string] : any; } = {
 })
 export class PlayerEntryComponent implements OnInit {
     @Input() player: Player;
+    @Input() mainRoster: boolean = false;
     @ViewChild(PlayerEntryDirective) playerEntryHost: PlayerEntryDirective;
 
     constructor(private componentFactoryResolver: ComponentFactoryResolver,
@@ -55,5 +57,6 @@ export class PlayerEntryComponent implements OnInit {
         let viewContainerRef = this.playerEntryHost.viewContainerRef;
         let componentRef = viewContainerRef.createComponent(componentFactory);
         (<PlayerEntryInterface>componentRef.instance).player = this.player;
+        (<PlayerEntryInterface>componentRef.instance).mainRoster = this.mainRoster;
     }
 }

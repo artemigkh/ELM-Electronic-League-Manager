@@ -9,6 +9,18 @@ import {Game} from "../interfaces/Game";
 import {of} from "rxjs/index";
 import {LeagueService} from "./leagues.service";
 
+function sortMainRosterByPosition(team: Team) {
+    let sortedRoster = [];
+    ['top', 'jungle', 'middle', 'support', 'bottom'].forEach((role: string) => {
+        team.players.forEach((player: Player) => {
+            if(player.position == role) {
+                sortedRoster.push(player);
+            }
+        });
+    });
+    team.players = sortedRoster;
+}
+
 @Injectable()
 export class TeamsService {
     constructor(private http: HttpClient, private leagueService: LeagueService) {}
@@ -85,6 +97,9 @@ export class TeamsService {
                                 team.substitutes.push(player);
                             }
                         });
+                    }
+                    if(this.leagueService.getGame() == 'leagueoflegends') {
+                        sortMainRosterByPosition(team);
                     }
                     observer.next(team);
                 }, error => {

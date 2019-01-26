@@ -3,6 +3,7 @@ export interface GtiPlayer {
     name: string;
     gameIdentifier: string;
     mainRoster: boolean;
+    position: string;
 }
 
 export interface GtiTeam {

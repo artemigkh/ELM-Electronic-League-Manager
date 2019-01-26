@@ -17,4 +17,5 @@ import {Player} from "../../interfaces/Player";
 })
 export class GenericPlayerEntry implements PlayerEntryInterface {
     @Input() player: Player;
+    @Input() mainRoster: boolean = false;
 }

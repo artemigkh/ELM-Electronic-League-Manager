@@ -25,9 +25,14 @@
 
                 <div class="player-entries">
                     <span *ngFor="let player of team.players">
-                        <player-entry-component [player]="player"></player-entry-component>
+                        <player-entry-component [player]="player" [mainRoster]="true"></player-entry-component>
                     </span>
                 </div>
+
+                <div class="vertical-spacer"></div>
+                <mat-divider></mat-divider>
+                <div class="vertical-spacer"></div>
+
                 <div class="player-type">
                     Substitutes
                 </div>

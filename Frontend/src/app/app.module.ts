@@ -51,6 +51,9 @@ import {UserService} from "./httpServices/user.service";
 import {LeaguesComponent} from "./leagues/leagues";
 import {LeagueCreationComponent} from "./leagueCreation/league-creation";
 import {StatsComponent} from "./stats/stats";
+import {GenericPlayerEntry} from "./teams/playerEntry/generic-player-entry";
+import {PlayerEntryComponent, PlayerEntryDirective} from "./teams/playerEntry/player-entry";
+import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-player-entry";
 
 @NgModule({
     declarations: [
@@ -81,7 +84,11 @@ import {StatsComponent} from "./stats/stats";
         ManagePlayersTeamComponent,
         NavBar,
         GameEntry,
-        TeamEntry
+        TeamEntry,
+        GenericPlayerEntry,
+        PlayerEntryComponent,
+        PlayerEntryDirective,
+        LeagueOfLegendsPlayerEntry
     ],
     imports: [
         BrowserModule,
@@ -121,7 +128,9 @@ import {StatsComponent} from "./stats/stats";
         ManageTeamPopup,
         WarningPopup,
         ManagePlayersPopup,
-        ConfirmationComponent
+        ConfirmationComponent,
+        GenericPlayerEntry,
+        LeagueOfLegendsPlayerEntry
     ]
 })
 export class AppModule {

@@ -1,0 +1,16 @@
+<div class="player-entries">
+    <span *ngFor="let player of players" class="player-entry">
+    <div *ngIf="mainRoster" class="position">
+        <img [src]="getPositionIcon(player)">
+    </div>
+    <div class="game-identifier">
+        {{player.gameIdentifier}}
+    </div>
+    <div class="emblem">
+        <img [src]="getEmblem(player)">
+    </div>
+    <div>
+        {{getRankString(player)}}
+    </div>
+</span>
+</div>

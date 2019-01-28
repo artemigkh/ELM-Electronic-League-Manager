@@ -3,50 +3,34 @@ import {Component, Input} from "@angular/core";
 import {LeagueOfLegendsPlayer} from "../../interfaces/Player";
 
 @Component({
-    template: `
-        <span class="player-entry">
-            <span class="rank">
-                <div *ngIf="mainRoster" class="position">
-                    <img [src]="getPositionIcon()">
-                </div>
-                <div class="game-identifier">
-                    {{player.gameIdentifier}}
-                </div>
-                <div class="emblem">
-                    <img [src]="getEmblem()">
-                </div>
-                <div>
-                    {{getRankString()}}
-                </div>
-            </span>
-        </span>
-  `
+    templateUrl: './league-of-legends-player-entry.html',
+    styleUrls: ['./league-of-legends-player-entry.scss'],
 })
 export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
-    @Input() player: LeagueOfLegendsPlayer;
+    @Input() players: LeagueOfLegendsPlayer[];
     @Input() mainRoster: boolean = false;
-    getEmblem(): string {
-        if(this.player.tier.length > 0) {
+    getEmblem(player): string {
+        if(player.tier.length > 0) {
             return "assets/leagueOfLegends/" +
-                this.player.tier.substring(0, 1) +
-                this.player.tier.substring(1).toLowerCase() +
+                player.tier.substring(0, 1) +
+                player.tier.substring(1).toLowerCase() +
                 "_Emblem.png";
         } else {
             return "assets/leagueOfLegends/Unranked_Emblem.png";
         }
     }
 
-    getPositionIcon(): string {
-        return "assets/leagueOfLegends/" + this.player.position + "_Icon.png";
+    getPositionIcon(player: LeagueOfLegendsPlayer): string {
+        return "assets/leagueOfLegends/" + player.position + "_Icon.png";
     }
 
-    addRankNum(): string {
-        if(this.player.tier == "MASTER" ||
-            this.player.tier == "GRANDMASTER" ||
-            this.player.tier == "CHALLENGER" ) {
+    addRankNum(player: LeagueOfLegendsPlayer): string {
+        if(player.tier == "MASTER" ||
+            player.tier == "GRANDMASTER" ||
+            player.tier == "CHALLENGER" ) {
             return ""
         } else {
-            switch(this.player.rank) {
+            switch(player.rank) {
                 case "I": {
                     return " 1";
                 }
@@ -66,11 +50,11 @@ export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
         }
     }
 
-    getRankString(): string {
-        if(this.player.tier.length > 0) {
-            return this.player.tier.substring(0, 1) +
-                this.player.tier.substring(1).toLowerCase() +
-                this.addRankNum()
+    getRankString(player: LeagueOfLegendsPlayer): string {
+        if(player.tier.length > 0) {
+            return player.tier.substring(0, 1) +
+                player.tier.substring(1).toLowerCase() +
+                this.addRankNum(player)
         } else {
             return "Unranked";
         }

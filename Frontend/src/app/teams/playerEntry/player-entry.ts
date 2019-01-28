@@ -15,7 +15,7 @@ export class PlayerEntryDirective {
 }
 
 export interface PlayerEntryInterface {
-    player: Player;
+    players: Player[];
     mainRoster: boolean;
 }
 
@@ -39,7 +39,7 @@ const componentMapping: { [id: string] : any; } = {
     template: `<ng-template player-entry-host></ng-template>`
 })
 export class PlayerEntryComponent implements OnInit {
-    @Input() player: Player;
+    @Input() players: Player[];
     @Input() mainRoster: boolean = false;
     @ViewChild(PlayerEntryDirective) playerEntryHost: PlayerEntryDirective;
 
@@ -56,7 +56,7 @@ export class PlayerEntryComponent implements OnInit {
             resolveComponentFactory(componentMapping[this.leagueService.getGame()]);
         let viewContainerRef = this.playerEntryHost.viewContainerRef;
         let componentRef = viewContainerRef.createComponent(componentFactory);
-        (<PlayerEntryInterface>componentRef.instance).player = this.player;
+        (<PlayerEntryInterface>componentRef.instance).players = this.players;
         (<PlayerEntryInterface>componentRef.instance).mainRoster = this.mainRoster;
     }
 }

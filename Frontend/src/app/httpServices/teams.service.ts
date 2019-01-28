@@ -7,10 +7,23 @@ import {Player} from "../interfaces/Player";
 import {Team} from "../interfaces/Team";
 import {Game} from "../interfaces/Game";
 import {of} from "rxjs/index";
+import {LeagueService} from "./leagues.service";
+
+function sortMainRosterByPosition(team: Team) {
+    let sortedRoster = [];
+    ['top', 'jungle', 'middle', 'support', 'bottom'].forEach((role: string) => {
+        team.players.forEach((player: Player) => {
+            if(player.position == role) {
+                sortedRoster.push(player);
+            }
+        });
+    });
+    team.players = sortedRoster;
+}
 
 @Injectable()
 export class TeamsService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private leagueService: LeagueService) {}
 
     public createNewTeam(name: string, tag: string, description = ""): Observable<Object> {
         return this.http.post('http://localhost:8080/api/teams/', {
@@ -57,27 +70,36 @@ export class TeamsService {
     }
 
     public getTeamInformation(teamId: number): Observable<Object> {
+        let url = "";
+        switch(this.leagueService.getGame()) {
+            case 'leagueoflegends': {
+                url = 'http://localhost:8080/api/league-of-legends/teams/';
+                break;
+            }
+            default: {
+                url = 'http://localhost:8080/api/teams/';
+            }
+        }
         return new Observable(observer => {
-            this.http.get('http://localhost:8080/api/teams/' + teamId, httpOptions).subscribe(
-                (next: Team) => {
+            this.http.get(url + teamId, httpOptions).subscribe(
+            (next: Team) => {
+                    console.log(next);
                     let players = next.players;
+                    console.log(players);
                     let team = next;
                     team.substitutes = [];
                     team.players = [];
                     if(players) {
                         players.forEach((player: any)=> {
-                            let tempPlayer: Player = {
-                                id: player.id,
-                                name: player.name,
-                                gameIdentifier: player.gameIdentifier
-                            };
-
                             if(player.mainRoster) {
-                                team.players.push(tempPlayer);
+                                team.players.push(player);
                             } else {
-                                team.substitutes.push(tempPlayer);
+                                team.substitutes.push(player);
                             }
                         });
+                    }
+                    if(this.leagueService.getGame() == 'leagueoflegends') {
+                        sortMainRosterByPosition(team);
                     }
                     observer.next(team);
                 }, error => {
@@ -94,16 +116,10 @@ export class TeamsService {
                 (next: GtiTeam) => {
                     if(next.players) {
                         next.players.forEach(player=> {
-                            let tempPlayer: Player = {
-                                id: player.id,
-                                name: player.name,
-                                gameIdentifier: player.gameIdentifier
-                            };
-
                             if(player.mainRoster) {
-                                team.players.push(tempPlayer);
+                                team.players.push(player);
                             } else {
-                                team.substitutes.push(tempPlayer);
+                                team.substitutes.push(player);
                             }
                         });
                     } else {

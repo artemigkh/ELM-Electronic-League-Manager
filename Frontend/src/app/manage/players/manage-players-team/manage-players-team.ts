@@ -143,7 +143,8 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
         let newPlayer = {
             id: id,
             name: name,
-            gameIdentifier: gameIdentifier
+            gameIdentifier: gameIdentifier,
+            position: ""
         };
         if(mainRoster) {
             this.team.players.push(newPlayer);

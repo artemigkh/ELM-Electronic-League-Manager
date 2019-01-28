@@ -1,0 +1,12 @@
+<div class="player-entries">
+    <span *ngFor="let player of players" class="player-entry">
+        <span class="spacer"></span>
+        <span class="name">
+            {{player.name}}
+        </span>
+        <span class="game-name">
+            {{player.gameIdentifier}}
+        </span>
+        <span class="spacer"></span>
+    </span>
+</div>

@@ -2,13 +2,24 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {httpOptions} from "./http-options";
 import {Observable} from "rxjs/Rx";
+import {LeagueService} from "./leagues.service";
 
 @Injectable()
 export class PlayersService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private leagueSevice: LeagueService) {}
 
     public addPlayer(teamId: number, name: string, gameIdentifier: string, mainRoster: boolean): Observable<Object> {
-        return this.http.post('http://localhost:8080/api/teams/addPlayer', {
+        let url = "";
+        switch(this.leagueSevice.getGame()) {
+            case 'leagueoflegends': {
+                url = 'http://localhost:8080/api/league-of-legends/teams/addPlayer';
+                break;
+            }
+            default: {
+                url = 'http://localhost:8080/api/teams/addPlayer';
+            }
+        }
+        return this.http.post(url, {
             teamId: teamId,
             name: name,
             gameIdentifier: gameIdentifier,

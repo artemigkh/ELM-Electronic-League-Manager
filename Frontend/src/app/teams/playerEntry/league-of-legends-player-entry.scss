@@ -1,0 +1,34 @@
+.player-entries {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    .player-entry {
+        height: 250px;
+        min-width: 200px;
+        max-width: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        text-align: center;
+        margin-left: 20px;
+        margin-right: 20px;
+        font-weight: 300;
+        font-size: 24px;
+
+        .game-identifier {
+            margin-bottom: 15px;
+        }
+
+        .position {
+            img {
+                max-height: 50px; max-width: 50px;
+            }
+        }
+
+        .emblem {
+            img {
+                max-height: 100px; max-width: 100px;
+            }
+        }
+    }
+}

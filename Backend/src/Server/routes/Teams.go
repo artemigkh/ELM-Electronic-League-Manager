@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -15,6 +16,7 @@ type PlayerInformation struct {
 	TeamId         int    `json:"teamId"`
 	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
+	Position       string `json:"position"`
 	MainRoster     bool   `json:"mainRoster"`
 }
 
@@ -23,6 +25,7 @@ type PlayerInformationChange struct {
 	PlayerId       int    `json:"playerId"`
 	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
+	Position       string `json:"position"`
 	MainRoster     bool   `json:"mainRoster"`
 }
 
@@ -443,10 +446,11 @@ func getTeamInformation(ctx *gin.Context) {
  * @apiError gameIdentifierTooShort The game identifier is smaller than 2 characters
  * @apiError gameIdentifierInUse This game identifier is already in use in this league
  */
+//TODO: add length check for position
 func addPlayerToTeam(ctx *gin.Context) {
 	//get parameters
 	var playerInfo PlayerInformation
-	err := ctx.ShouldBindJSON(&playerInfo)
+	err := ctx.ShouldBindBodyWith(&playerInfo, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
 	}
@@ -471,7 +475,7 @@ func addPlayerToTeam(ctx *gin.Context) {
 	}
 
 	playerId, err := TeamsDAO.AddNewPlayer(playerInfo.TeamId, playerInfo.GameIdentifier,
-		playerInfo.Name, playerInfo.MainRoster)
+		playerInfo.Name, ctx.GetString("externalId"), playerInfo.Position, playerInfo.MainRoster)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -537,6 +541,7 @@ func removePlayerFromTeam(ctx *gin.Context) {
  * @apiError gameIdentifierTooShort The game identifier is smaller than 2 characters
  * @apiError gameIdentifierInUse This game identifier is already in use in this league
  */
+//TODO: add length check for position
 func updatePlayer(ctx *gin.Context) {
 	//get parameters
 	var playerInfoChange PlayerInformationChange
@@ -567,7 +572,7 @@ func updatePlayer(ctx *gin.Context) {
 	}
 
 	err = TeamsDAO.UpdatePlayer(playerInfoChange.TeamId, playerInfoChange.PlayerId, playerInfoChange.GameIdentifier,
-		playerInfoChange.Name, playerInfoChange.MainRoster)
+		playerInfoChange.Name, ctx.GetString("externalId"), playerInfoChange.Position, playerInfoChange.MainRoster)
 	if checkErr(ctx, err) {
 		return
 	}

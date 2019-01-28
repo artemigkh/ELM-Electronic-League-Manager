@@ -8,6 +8,10 @@ h1 {
   outline: none;
 }
 
+.vertical-spacer {
+    margin-bottom: 25px;
+}
+
 .title {
     display: flex;
     flex-direction: row;
@@ -74,7 +78,7 @@ mat-tab-body {
     }
 
     .members {
-        width: 60%;
+        width: 90%;
         margin-top:20px;
 
         .player-type {
@@ -84,6 +88,7 @@ mat-tab-body {
             padding-top: 5px;
             padding-bottom: 5px;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         ul {
@@ -95,8 +100,9 @@ mat-tab-body {
         }
 
         li {
-            height: 48px;
-            width: 100%;
+            display: inline;
+            //max-height: 100px;
+            //width: 100%;
 
             border-style: solid;
             border-width: 1px 0 0 0;
@@ -105,40 +111,6 @@ mat-tab-body {
     }
 }
 
-span.player-entry {
-    flex-grow: 1;
-    height: 100%;
-    padding-right: 10px;
-    display: flex;
-    flex-direction: row;
-
-    .name {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        width: 60%;
-    }
-
-    .game-name {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        font-weight: 500;
-        width: 25%;
-    }
-
-    .spacer {
-        flex-grow: 1;
-    }
-
-    .delete {
-        color: #d9534f!important;
-    }
-
-    .move {
-        color: gray;
-    }
-}
 
 .mat-tab-labels {
     justify-content: center;

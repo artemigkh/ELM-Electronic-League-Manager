@@ -29,6 +29,8 @@ type PlayerInformation struct {
 	Id             int    `json:"id"`
 	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
+	ExternalId     string `json:"externalId"`
+	Position       string `json:"position"`
 	MainRoster     bool   `json:"mainRoster"`
 }
 
@@ -194,7 +196,7 @@ func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamInformation,
 	}
 
 	//get players of team
-	rows, err := psql.Select("id", "gameIdentifier", "name", "mainRoster").
+	rows, err := psql.Select("id", "gameIdentifier", "name", "externalId", "position", "mainRoster").
 		From("players").
 		Where("teamId = ?", teamId).RunWith(db).Query()
 	if err != nil {
@@ -206,7 +208,8 @@ func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamInformation,
 	var player PlayerInformation
 
 	for rows.Next() {
-		err := rows.Scan(&player.Id, &player.GameIdentifier, &player.Name, &player.MainRoster)
+		err := rows.Scan(&player.Id, &player.GameIdentifier, &player.Name, &player.ExternalId,
+			&player.Position, &player.MainRoster)
 		if err != nil {
 			return nil, err
 		}
@@ -240,10 +243,10 @@ func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
 	return doesTeamExist(leagueId, teamId)
 }
 
-func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name string, mainRoster bool) (int, error) {
+func (d *PgTeamsDAO) AddNewPlayer(teamId int, gameIdentifier, name, externalId, position string, mainRoster bool) (int, error) {
 	var playerId int
-	err := psql.Insert("players").Columns("teamId", "gameIdentifier", "name", "mainRoster").
-		Values(teamId, gameIdentifier, name, mainRoster).Suffix("RETURNING \"id\"").
+	err := psql.Insert("players").Columns("teamId", "gameIdentifier", "name", "externalID", "position", "mainRoster").
+		Values(teamId, gameIdentifier, name, externalId, position, mainRoster).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&playerId)
 	if err != nil {
 		return -1, err
@@ -268,12 +271,12 @@ func (d *PgTeamsDAO) RemovePlayer(teamId, playerId int) error {
 	return err
 }
 
-func (d *PgTeamsDAO) UpdatePlayer(teamId, playerId int, gameIdentifier, name string, mainRoster bool) error {
+func (d *PgTeamsDAO) UpdatePlayer(teamId, playerId int, gameIdentifier, name, externalId, position string, mainRoster bool) error {
 	_, err := db.Exec(
 		`
-		UPDATE players SET gameIdentifier = $1, name = $2, mainRoster = $3
-		WHERE id = $4 AND teamId = $5
-		`, gameIdentifier, name, mainRoster, playerId, teamId)
+		UPDATE players SET gameIdentifier = $1, name = $2, externalId = $3, position = $4, mainRoster = $5
+		WHERE id = $6 AND teamId = $7
+		`, gameIdentifier, name, externalId, position, mainRoster, playerId, teamId)
 	return err
 }
 

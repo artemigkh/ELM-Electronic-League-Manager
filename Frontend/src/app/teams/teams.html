@@ -19,39 +19,26 @@
     <mat-tab-group>
         <mat-tab label="Members">
             <span class="members">
-                <ul>
-                    <div class="player-type">
-                        Players
-                    </div>
-                    <li *ngFor="let player of team.players">
-                        <span class="player-entry">
-                            <span class="spacer"></span>
-                            <span class="name">
-                                {{player.name}}
-                            </span>
-                            <span class="game-name">
-                                {{player.gameIdentifier}}
-                            </span>
-                        </span>
-                    </li>
-                </ul>
-                <ul>
-                    <div class="player-type">
-                        Substitutes
-                    </div>
-                    <li *ngFor="let player of team.substitutes">
-                        <span class="player-entry">
-                            <span class="spacer"></span>
-                            <span class="name">
-                                {{player.name}}
-                            </span>
+                <div class="player-type">
+                    Players
+                </div>
 
-                            <span class="game-name">
-                                {{player.gameIdentifier}}
-                            </span>
-                        </span>
-                    </li>
-                </ul>
+                <div class="player-entries">
+                    <player-entry-component [players]="team.players" [mainRoster]="true"></player-entry-component>
+                </div>
+
+                <div class="vertical-spacer"></div>
+                <mat-divider></mat-divider>
+                <div class="vertical-spacer"></div>
+
+                <div class="player-type">
+                    Substitutes
+                </div>
+
+                <div class="player-entries">
+                    <player-entry-component [players]="team.substitutes"></player-entry-component>
+                </div>
+
             </span>
         </mat-tab>
 

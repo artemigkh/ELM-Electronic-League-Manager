@@ -9,10 +9,34 @@ import {Moment} from "moment";
 
 @Injectable()
 export class LeagueService {
-    constructor(private http: HttpClient) {}
+    game: string;
+    constructor(private http: HttpClient) {
+        this.game = 'leagueoflegends';
+    }
+
+    public getGame(): string {
+        console.log(this.game);
+        return this.game;
+    }
 
     public setActiveLeague(leagueId: number): Observable<any> {
-        return this.http.post('http://localhost:8080/api/leagues/setActiveLeague/' + leagueId, null, httpOptions);
+        return new Observable(observer => {
+            this.http.post('http://localhost:8080/api/leagues/setActiveLeague/' + leagueId, null, httpOptions).subscribe(
+                next => {
+                    this.getLeagueInformation().subscribe(
+                        (next: LeagueInformation) => {
+                            console.log("setting active game to " + next.game);
+                            this.game = next.game;
+                            observer.next();
+                        }, error => {
+                            observer.error(error);
+                        }
+                    );
+                }, error => {
+                    observer.error(error);
+                }
+            )
+        });
     }
 
     public joinActiveLeague(): Observable<any> {
@@ -43,17 +67,26 @@ export class LeagueService {
     }
 
     public updateLeagueInformation(leagueInfo: LeagueInformation) {
-        return this.http.put('http://localhost:8080/api/leagues/', {
-            name: leagueInfo.name,
-            description: leagueInfo.description,
-            game: leagueInfo.game,
-            publicView: leagueInfo.publicView,
-            publicJoin: leagueInfo.publicJoin,
-            signupStart: leagueInfo.signupStart,
-            signupEnd: leagueInfo.signupEnd,
-            leagueStart: leagueInfo.leagueStart,
-            leagueEnd: leagueInfo.leagueEnd
-        }, httpOptions)
+        return new Observable(observer => {
+            this.http.put('http://localhost:8080/api/leagues/', {
+                name: leagueInfo.name,
+                description: leagueInfo.description,
+                game: leagueInfo.game,
+                publicView: leagueInfo.publicView,
+                publicJoin: leagueInfo.publicJoin,
+                signupStart: leagueInfo.signupStart,
+                signupEnd: leagueInfo.signupEnd,
+                leagueStart: leagueInfo.leagueStart,
+                leagueEnd: leagueInfo.leagueEnd
+            }, httpOptions).subscribe(
+                next => {
+                    this.game = leagueInfo.game;
+                    observer.next();
+                }, error => {
+                    observer.error(error);
+                }
+            );
+        });
     }
 
     public createLeague(leagueInfo: LeagueInformation) {

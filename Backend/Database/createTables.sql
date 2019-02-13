@@ -32,7 +32,7 @@ CREATE TABLE players (
   userId          INT           UNIQUE           ,
   gameIdentifier  VARCHAR(50)   NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
-  externalId      VARCHAR(50)   UNIQUE           ,
+  externalId      VARCHAR(50)                    ,
   mainRoster      BOOLEAN       NOT NULL         ,
   position        VARCHAR(20)
 );

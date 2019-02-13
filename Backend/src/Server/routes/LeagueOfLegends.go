@@ -132,8 +132,14 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 			soloq, err := p.League(lolApi.SummonersRiftSoloQueue)
 			flexq, err := p.League(lolApi.SummonersRiftFlexQueue)
 			if soloq != nil && err == nil {
-				lolPlayer.Rank = soloq.Rank
-				lolPlayer.Tier = soloq.Tier
+				mainPosRank, err := p.SoloQueuePositionRank(lolApi.GetPosition(lolPlayer.Position))
+				if mainPosRank != nil && err == nil {
+					lolPlayer.Rank = mainPosRank.Rank
+					lolPlayer.Tier = mainPosRank.Tier
+				} else {
+					lolPlayer.Rank = soloq.Rank
+					lolPlayer.Tier = soloq.Tier
+				}
 			} else if flexq != nil && err == nil {
 				lolPlayer.Rank = flexq.Rank
 				lolPlayer.Tier = flexq.Tier

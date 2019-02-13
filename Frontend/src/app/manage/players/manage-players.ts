@@ -43,12 +43,24 @@ export class ManagePlayersComponent {
                         this.teams = [];
                         teams.forEach((team: Team) => {
                             if(next.leaguePermissions.administrator || next.leaguePermissions.editTeams) {
-                                this.teams.push(team);
+                                this.teamsService.addPlayerInformationToTeam(team).subscribe(
+                                    (next: Team)=>{
+                                        this.teams.push(next);
+                                    },error=>{
+                                        console.log(error);
+                                    }
+                                );
                             } else {
                                 next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
                                     if(team.id == teamPermission.id &&
                                         (teamPermission.administrator || teamPermission.players)) {
-                                        this.teams.push(team);
+                                        this.teamsService.addPlayerInformationToTeam(team).subscribe(
+                                            (next: Team)=>{
+                                                this.teams.push(next);
+                                            },error=>{
+                                                console.log(error);
+                                            }
+                                        );
                                     }
                                 });
                             }

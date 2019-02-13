@@ -13,7 +13,7 @@ function sortMainRosterByPosition(team: Team) {
     let sortedRoster = [];
     ['top', 'jungle', 'middle', 'support', 'bottom'].forEach((role: string) => {
         team.players.forEach((player: Player) => {
-            if(player.position == role) {
+            if(player.position.toLowerCase() == role) {
                 sortedRoster.push(player);
             }
         });

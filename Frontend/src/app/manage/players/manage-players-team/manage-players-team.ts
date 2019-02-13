@@ -1,7 +1,15 @@
-import {Component, Inject, Input} from "@angular/core";
+import {
+    Component,
+    ComponentFactoryResolver,
+    Directive,
+    Inject,
+    Input,
+    OnInit,
+    ViewChild,
+    ViewContainerRef
+} from "@angular/core";
 import {LeagueService} from "../../../httpServices/leagues.service";
 import {Team} from "../../../interfaces/Team";
-import {forkJoin} from "rxjs";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
 import {Player} from "../../../interfaces/Player";
 import {WarningPopup} from "../../warningPopup/warning-popup";
@@ -9,9 +17,13 @@ import {ManageComponentInterface} from "../../manage-component-interface";
 import {Action} from "../../actions";
 import {PlayersService} from "../../../httpServices/players.service";
 import {Id} from "../../../httpServices/api-return-schemas/id";
-import {isUndefined} from "util";
 import {TeamsService} from "../../../httpServices/teams.service";
-class PlayerData {
+import {PlayerEntryDirective, PlayerEntryInterface} from "../../../teams/playerEntry/player-entry";
+import {GenericPlayerEntry} from "../../../teams/playerEntry/generic-player-entry";
+import {LeagueOfLegendsPlayerEntry} from "../../../teams/playerEntry/league-of-legends-player-entry";
+import {ManagePlayersTeamLeagueOfLegendsComponent} from "./league-of-legends/manage-players-team-league-of-legends";
+
+export class PlayerData {
     title: string;
     action: Action;
     player: Player;
@@ -27,27 +39,13 @@ class PlayerData {
 })
 export class ManagePlayersTeamComponent implements ManageComponentInterface {
     @Input() team: Team;
-    loaded: boolean;
 
-    constructor(private leagueService: LeagueService,
-                private playersService: PlayersService,
-                private teamsService: TeamsService,
+    constructor(public leagueService: LeagueService,
+                public playersService: PlayersService,
+                public teamsService: TeamsService,
                 public dialog: MatDialog) {
-        this.loaded = false;
     }
 
-    ngOnChanges() {
-        if(isUndefined(this.team)){return;}
-        this.loaded = true;
-        console.log(this.team);
-        this.teamsService.addPlayerInformationToTeam(this.team).subscribe(
-            (next: Team)=>{
-                this.team = next;
-            },error=>{
-                console.log(error);
-            }
-        );
-    }
 
     newPlayerPopup(teamId: number, mainRoster: boolean): void {
         const dialogRef = this.dialog.open(ManagePlayersPopup, {
@@ -84,7 +82,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
 
     movePlayerRole(player: Player, teamId: number, mainRoster: boolean): void {
         this.playersService.updatePlayer(
-            teamId, player.id, player.name, player.gameIdentifier, mainRoster
+            teamId, mainRoster, player
         ).subscribe(
             next => {
                 console.log("successfully updated player");
@@ -211,16 +209,14 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface {
 })
 export class ManagePlayersPopup {
     action: Action;
-    name: string;
-    gameIdentifier: string;
+    player: Player;
 
     constructor(
         public dialogRef: MatDialogRef<ManagePlayersPopup>,
         @Inject(MAT_DIALOG_DATA) public data: PlayerData,
         private playersService: PlayersService) {
         this.action = data.action;
-        this.name = data.player.name;
-        this.gameIdentifier = data.player.gameIdentifier;
+        this.player = data.player;
     }
 
     OnCancel(): void {
@@ -232,12 +228,12 @@ export class ManagePlayersPopup {
         console.log("action is", this.action);
         if(this.action == Action.Create) {
             this.playersService.addPlayer(
-                this.data.teamId, this.name, this.gameIdentifier, this.data.mainRoster
+                this.data.teamId, this.data.mainRoster, this.player
             ).subscribe(
                 (next: Id) => {
                     console.log("successfully added player");
                     this.data.caller.notifyCreateSuccess(
-                        next.id, this.data.teamId, this.name, this.gameIdentifier, this.data.mainRoster
+                        next.id, this.data.teamId, this.player.name, this.player.gameIdentifier, this.data.mainRoster
                     );
                     this.dialogRef.close();
                 }, error => {
@@ -246,14 +242,14 @@ export class ManagePlayersPopup {
                     this.dialogRef.close();
                 }
             );
-        } else if(this.action = Action.Edit) {
+        } else if(this.action == Action.Edit) {
             this.playersService.updatePlayer(
-                this.data.teamId, this.data.player.id, this.name, this.gameIdentifier, this.data.mainRoster
+                this.data.teamId, this.data.mainRoster, this.player
             ).subscribe(
                 next => {
                     console.log("successfully updated player");
                     this.data.caller.notifyUpdateSuccess(
-                        this.data.player.id, this.data.teamId, this.name, this.gameIdentifier, this.data.mainRoster
+                        this.data.player.id, this.data.teamId, this.player.name, this.player.gameIdentifier, this.data.mainRoster
                     );
                     this.dialogRef.close();
                 }, error => {
@@ -265,4 +261,3 @@ export class ManagePlayersPopup {
         }
     }
 }
-

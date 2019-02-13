@@ -3,13 +3,21 @@ import {HttpClient} from "@angular/common/http";
 import {httpOptions} from "./http-options";
 import {Observable} from "rxjs/Rx";
 import {LeagueService} from "./leagues.service";
+import {Player} from "../interfaces/Player";
 
 @Injectable()
 export class PlayersService {
     constructor(private http: HttpClient, private leagueSevice: LeagueService) {}
 
-    public addPlayer(teamId: number, name: string, gameIdentifier: string, mainRoster: boolean): Observable<Object> {
+    public addPlayer(teamId: number, mainRoster: boolean, player: Player): Observable<Object> {
         let url = "";
+        let body = {
+            teamId: teamId,
+            name: player.name,
+            gameIdentifier: player.gameIdentifier,
+            position: player.position,
+            mainRoster: mainRoster
+        };
         switch(this.leagueSevice.getGame()) {
             case 'leagueoflegends': {
                 url = 'http://localhost:8080/api/league-of-legends/teams/addPlayer';
@@ -19,12 +27,7 @@ export class PlayersService {
                 url = 'http://localhost:8080/api/teams/addPlayer';
             }
         }
-        return this.http.post(url, {
-            teamId: teamId,
-            name: name,
-            gameIdentifier: gameIdentifier,
-            mainRoster: mainRoster
-        }, httpOptions)
+        return this.http.post(url, body, httpOptions)
     }
 
     public removePlayer(teamId: number, playerId: number) {
@@ -39,13 +42,25 @@ export class PlayersService {
             });
     }
 
-    public updatePlayer(teamId: number, playerId: number, name: string, gameIdentifier: string, mainRoster: boolean): Observable<Object> {
-        return this.http.put('http://localhost:8080/api/teams/updatePlayer', {
+    public updatePlayer(teamId: number, mainRoster: boolean, player: Player): Observable<Object> {
+        let url = "";
+        let body = {
             teamId: teamId,
-            playerId: playerId,
-            name: name,
-            gameIdentifier: gameIdentifier,
+            playerId: player.id,
+            name: player.name,
+            gameIdentifier: player.gameIdentifier,
+            position: player.position,
             mainRoster: mainRoster
-        }, httpOptions)
+        };
+        switch(this.leagueSevice.getGame()) {
+            case 'leagueoflegends': {
+                url = 'http://localhost:8080/api/league-of-legends/teams/updatePlayer';
+                break;
+            }
+            default: {
+                url = 'http://localhost:8080/api/teams/updatePlayer';
+            }
+        }
+        return this.http.put(url, body, httpOptions)
     }
 }

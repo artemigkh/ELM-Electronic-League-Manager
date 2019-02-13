@@ -21,7 +21,7 @@ export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
     }
 
     getPositionIcon(player: LeagueOfLegendsPlayer): string {
-        return "assets/leagueOfLegends/" + player.position + "_Icon.png";
+        return "assets/leagueOfLegends/" + player.position.toLowerCase() + "_Icon.png";
     }
 
     addRankNum(player: LeagueOfLegendsPlayer): string {

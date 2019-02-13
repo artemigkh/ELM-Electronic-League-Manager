@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>{{data.title}}</h1>
+<h1 mat-dialog-title>{{data.title}} lol popup</h1>
 <div mat-dialog-content>
     <div class="content-wrapper">
         <mat-form-field hintLabel="Between 3 and 25 characters">
@@ -11,6 +11,14 @@
             <input matInput #input maxlength="25" placeholder="Game Identifier" value="{{player.gameIdentifier}}"
                    [(ngModel)]="player.gameIdentifier" required>
             <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-select placeholder="Position" [(value)]="player.position==''?None:player.position">
+                <mat-option *ngFor="let pos of availablePositions" [value]="pos" (click)="setPosition(pos)">
+                    {{pos.charAt(0).toUpperCase() + pos.slice(1)}}
+                </mat-option>
+            </mat-select>
         </mat-form-field>
     </div>
 

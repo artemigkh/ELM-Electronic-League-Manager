@@ -16,23 +16,26 @@ type Game struct {
 }
 
 type IScheduler interface {
-	InitScheduler(tournamentType int, stretch bool, gameDuration time.Duration, start, end time.Time, teams []int)
+	InitScheduler(tournamentType, roundsPerWeek, concurrentGameNum int, gameDuration time.Duration, start, end time.Time, teams []int)
 	AddDailyAvailability(hour, minute int, duration time.Duration)
 	AddWeeklyAvailability(dayOfWeek time.Weekday, hour, minute int, duration time.Duration)
 	GetSchedule() []Game
 }
 
-type Availability struct {
-	Start time.Time
-	End   time.Time
+type GameBlock struct {
+	Start    time.Time
+	End      time.Time
+	NumGames int
+	teams    []int
 }
 
 type Scheduler struct {
-	tournamentType int
-	stretch        bool
-	gameDuration   time.Duration
-	start          time.Time
-	end            time.Time
-	teams          []int
-	availabilities []Availability
+	tournamentType    int
+	roundsPerWeek     int
+	concurrentGameNum int
+	gameDuration      time.Duration
+	start             time.Time
+	end               time.Time
+	teams             []int
+	gameBlocks        []*GameBlock
 }

@@ -3,6 +3,7 @@ package routes
 import (
 	"Server/databaseAccess"
 	"Server/icons"
+	"Server/markdown"
 	"Server/sessionManager"
 )
 
@@ -16,6 +17,7 @@ var InviteCodesDAO databaseAccess.InviteCodesDAO
 var ElmSessions sessionManager.SessionManager
 
 var IconManager icons.IconManager
+var MarkdownManager markdown.MdManager
 
 // Structs
 type userInfo struct {

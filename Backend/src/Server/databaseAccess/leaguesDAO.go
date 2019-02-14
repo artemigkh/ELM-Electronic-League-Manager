@@ -80,9 +80,9 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description, game string, 
 
 	var leagueId int
 	err := psql.Insert("leagues").
-		Columns("name", "description", "game", "publicView", "publicJoin",
+		Columns("name", "description", "markdownLoc", "game", "publicView", "publicJoin",
 			"signupStart", "signupEnd", "leagueStart", "leagueEnd").
-		Values(name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
+		Values(name, description, "", game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
 		Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&leagueId)
 	if err != nil {
@@ -398,4 +398,25 @@ func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId, userId int,
 		WHERE leagueId = $5 AND userId = $6
 		`, administrator, createTeams, editTeams, editGames, leagueId, userId)
 	return err
+}
+
+func (d *PgLeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
+	_, err := db.Exec(
+		`
+		UPDATE leagues SET markdownLoc = $1
+		WHERE id = $2
+		`, fileName, leagueId)
+	return err
+}
+
+func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
+	var markdownFile string
+	err := psql.Select("markdownLoc").
+		From("leagues").
+		Where("id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&markdownFile)
+	if err != nil {
+		return "", err
+	}
+	return markdownFile, nil
 }

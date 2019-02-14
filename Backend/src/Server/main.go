@@ -4,6 +4,7 @@ import (
 	"Server/config"
 	"Server/databaseAccess"
 	"Server/icons"
+	"Server/markdown"
 	"Server/routes"
 	"Server/sessionManager"
 	"github.com/gin-contrib/cors"
@@ -34,6 +35,7 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.InviteCodesDAO = databaseAccess.CreateInviteCodesDAO()
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 	routes.IconManager = icons.CreateGoIconManager(conf)
+	routes.MarkdownManager = markdown.CreateGoMarkdownManager(conf)
 
 	routes.RegisterLoginHandlers(app.Group("/"))
 	routes.RegisterUserHandlers(app.Group("/api/users"))

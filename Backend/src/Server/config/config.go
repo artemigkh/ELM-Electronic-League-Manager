@@ -12,6 +12,7 @@ type Config interface {
 	GetDbConnString() string
 	GetPortString() string
 	GetIconsDir() string
+	GetMarkdownDir() string
 	GetKeys() ([]byte, []byte)
 
 	GetLeagueOfLegendsApiKey() string
@@ -23,6 +24,7 @@ type Configuration struct {
 	DbName        string `json:"dbName"`
 	Port          string `json:"port"`
 	IconsDir      string `json:"iconsDir"`
+	MarkdownDir   string `json:"markdownDir"`
 	AuthKey       string `json:"authKey"`
 	EncryptionKey string `json:"encryptionKey"`
 
@@ -39,6 +41,10 @@ func (c *Configuration) GetPortString() string {
 
 func (c *Configuration) GetIconsDir() string {
 	return c.IconsDir
+}
+
+func (c *Configuration) GetMarkdownDir() string {
+	return c.MarkdownDir
 }
 
 func (c *Configuration) GetKeys() ([]byte, []byte) {

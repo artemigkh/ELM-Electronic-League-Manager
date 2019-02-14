@@ -121,6 +121,27 @@ func (_m *LeaguesDAO) GetLeaguePermissions(leagueId int, userId int) (*databaseA
 	return r0, r1
 }
 
+// GetMarkdownFile provides a mock function with given fields: leagueId
+func (_m *LeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
+	ret := _m.Called(leagueId)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(int) string); ok {
+		r0 = rf(leagueId)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(leagueId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetPublicLeagueList provides a mock function with given fields:
 func (_m *LeaguesDAO) GetPublicLeagueList() ([]databaseAccess.PublicLeagueInformation, error) {
 	ret := _m.Called()
@@ -253,6 +274,20 @@ func (_m *LeaguesDAO) SetLeaguePermissions(leagueId int, userId int, administrat
 	var r0 error
 	if rf, ok := ret.Get(0).(func(int, int, bool, bool, bool, bool) error); ok {
 		r0 = rf(leagueId, userId, administrator, createTeams, editTeams, editGames)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SetMarkdownFile provides a mock function with given fields: leagueId, fileName
+func (_m *LeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
+	ret := _m.Called(leagueId, fileName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, string) error); ok {
+		r0 = rf(leagueId, fileName)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -65,6 +65,10 @@ import {
     ManagePlayersTeamContainerComponent,
     ManagePlayersTeamDirective
 } from "./manage/players/manage-players-team/manage-players-team-loader";
+import {RulesComponent} from "./rules/rules";
+import { MarkdownModule } from 'ngx-markdown';
+import { LMarkdownEditorModule } from 'ngx-markdown-editor';
+import {ManageRulesComponent} from "./manage/rules/manage-rules";
 
 @NgModule({
     declarations: [
@@ -103,7 +107,9 @@ import {
         ManagePlayersTeamDirective,
         ManagePlayersTeamContainerComponent,
         ManagePlayersTeamLeagueOfLegendsComponent,
-        ManagePlayersPopupLeagueOfLegends
+        ManagePlayersPopupLeagueOfLegends,
+        RulesComponent,
+        ManageRulesComponent
     ],
     imports: [
         BrowserModule,
@@ -133,7 +139,9 @@ import {
         MatMomentDateModule,
         MatStepperModule,
         NgxMaterialTimepickerModule.forRoot(),
-        RouterModule.forRoot(ELM_ROUTES)
+        RouterModule.forRoot(ELM_ROUTES),
+        MarkdownModule.forRoot(),
+        LMarkdownEditorModule
     ],
     providers: [LeagueService, TeamsService, PlayersService, GamesService, UserService, MatIconRegistry],
     bootstrap: [AppComponent],

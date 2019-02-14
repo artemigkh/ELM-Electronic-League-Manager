@@ -8,6 +8,7 @@ CREATE TABLE leagues (
   id              INT           PRIMARY KEY DEFAULT nextval('leaguesIdSeq'),
   name            VARCHAR(50)   UNIQUE NOT NULL         ,
   description     VARCHAR(500)                          ,
+  markdownLoc     VARCHAR(20)   NOT NULL                ,
   publicView      BOOLEAN       NOT NULL                ,
   publicJoin      BOOLEAN       NOT NULL                ,
   signupStart     INT           NOT NULL                ,

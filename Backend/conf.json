@@ -4,6 +4,7 @@
   "dbName": "elmdb",
   "port": "8080",
   "iconsDir": "icons/",
+  "markdownDir": "markdown",
   "authKey": "1d33a1d56b77a253f78dabcdc266548a3ef8054d6adcac8f76ec0867a38a35aef08d31af3080ec31dac05a8277b0bf9021c489a2846c339e8280a54dcae494fc",
   "encryptionKey": "69952aa88b12bce87673a48a912ef079759ba5b7c68e0b99c90279df6f6a408d",
 

@@ -24,6 +24,7 @@ const (
 	MaxTagLength         = 5
 	MaxDescriptionLength = 500
 	MinInformationLength = 2
+	MaxMdLength          = 50000
 )
 
 var ValidGameStrings = [...]string{
@@ -117,6 +118,10 @@ func failIfGameIdentifierTooLong(ctx *gin.Context, gameIdentifier string) bool {
 
 func failIfNameTooLong(ctx *gin.Context, name string) bool {
 	return failIfImproperLength(ctx, name, MaxNameLength, ge, "nameTooLong")
+}
+
+func failIfMdTooLong(ctx *gin.Context, name string) bool {
+	return failIfImproperLength(ctx, name, MaxMdLength, ge, "markdownTooLong")
 }
 
 func failIfDescriptionTooLong(ctx *gin.Context, description string) bool {

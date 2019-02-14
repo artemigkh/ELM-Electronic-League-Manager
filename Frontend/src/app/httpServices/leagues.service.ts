@@ -107,4 +107,8 @@ export class LeagueService {
         return this.http.get('http://localhost:8080/api/leagues/publicLeagues', httpOptions);
     }
 
+    public getMarkdown(): Observable<any>  {
+        return this.http.get('http://localhost:8080/api/leagues/markdown', httpOptions);
+    }
+
 }

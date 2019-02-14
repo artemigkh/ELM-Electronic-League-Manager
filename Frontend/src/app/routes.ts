@@ -17,9 +17,11 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
 import {LeaguesComponent} from "./leagues/leagues";
 import {LeagueCreationComponent} from "./leagueCreation/league-creation";
 import {StatsComponent} from "./stats/stats";
+import {RulesComponent} from "./rules/rules";
 
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
+    {path: 'rules', component: RulesComponent, data: {}},
     {path: 'standings', component: StandingsComponent, data: {}},
     {path: 'teams/:id', component: TeamsComponent, data: {}},
     {path: 'games', component: GamesComponent, data: {}},

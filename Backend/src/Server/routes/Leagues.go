@@ -445,12 +445,15 @@ func getLeagueMarkdown(ctx *gin.Context) {
 		return
 	}
 
-	markdown, err := MarkdownManager.GetMarkdown(fileName)
-	if checkErr(ctx, err) {
-		return
+	if fileName == "" {
+		ctx.JSON(http.StatusOK, gin.H{"markdown": ""})
+	} else {
+		markdown, err := MarkdownManager.GetMarkdown(fileName)
+		if checkErr(ctx, err) {
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{"markdown": markdown})
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"markdown": markdown})
 }
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {

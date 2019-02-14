@@ -8,3 +8,4 @@ Backend/src/go.uber.org
 Backend/src/golang.org
 Backend/src/google.golang.org
 Backend/src/gopkg.in
+Backend/bin/

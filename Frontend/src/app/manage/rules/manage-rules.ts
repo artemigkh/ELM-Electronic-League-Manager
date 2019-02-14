@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, ViewEncapsulation} from "@angular/core";
 import {LeagueInformation} from "../../interfaces/LeagueInformation";
 import {MatSnackBar} from "@angular/material";
 import {LeagueService} from "../../httpServices/leagues.service";

@@ -111,4 +111,10 @@ export class LeagueService {
         return this.http.get('http://localhost:8080/api/leagues/markdown', httpOptions);
     }
 
+    public setMarkdown(markdown: string): Observable<any>  {
+        return this.http.post('http://localhost:8080/api/leagues/markdown', {
+            markdown: markdown
+        }, httpOptions);
+    }
+
 }

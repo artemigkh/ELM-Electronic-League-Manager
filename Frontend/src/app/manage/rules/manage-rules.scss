@@ -1,0 +1,28 @@
+
+mat-divider {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+.example-container > * {
+    width: 100%;
+}
+
+h1 {
+    font-weight: 300;
+    margin-bottom: 0;
+}
+
+h2 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+h4 {
+    font-weight: 400;
+    margin-bottom: 0;
+}
+
+::ng-deep.md-editor-container.fullscreen {
+    top: 135px !important;
+}

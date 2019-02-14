@@ -1,0 +1,15 @@
+<h1>
+    Rules and Information
+</h1>
+
+<mat-divider></mat-divider>
+
+<md-editor name="Content"
+           [(ngModel)]=markdown
+           [height]="'450px'"
+           [mode]="'editor'"
+           required
+           maxlength="50000">
+</md-editor>
+
+<button mat-flat-button color="primary" (click)="updateAtServer()">Update Information</button>

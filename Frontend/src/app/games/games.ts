@@ -69,7 +69,9 @@ export class GamesComponent {
                 console.log('success');
                 console.log(gameSummary);
                 this.games = gameSummary.upcomingGames.concat(gameSummary.completeGames);
-                this.processGamesIntoWeeks();
+                if(this.games.length > 0) {
+                    this.processGamesIntoWeeks();
+                }
             },
             error => {
                 console.log('error');

@@ -1,0 +1,92 @@
+<h1>
+    Automatic Tournament Scheduling
+</h1>
+
+<mat-divider></mat-divider>
+
+<div class="new-avail-container">
+    <span class="avails-title">Scheduling Availabilities</span>
+    <button mat-raised-button class="new-avail" color="primary"
+            (click)="newAvailabilityPopup()">
+        <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
+        Add Availability
+    </button>
+</div>
+
+<span class="availability-entry" *ngFor="let avail of availabilities">
+    <div class="day">
+        {{avail.start.format("dddd")}}
+    </div>
+    <div class="time">
+        {{avail.start.format("h:mm a")}} to {{avail.end.format("h:mm a")}}
+    </div>
+    <span class="spacer"></span>
+
+    <span class="control-button">
+        <button mat-icon-button color="primary"
+                (click)="editAvailabilityPopup(avail)">
+            <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
+        </button>
+    </span>
+
+    <span class="control-button delete">
+        <button mat-icon-button (click)="warningPopup(avail)">
+            <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
+        </button>
+    </span>
+</span>
+
+<!--<mat-divider></mat-divider>-->
+
+<h2>Generate Schedule</h2>
+<div class="parameter-selection">
+    <span>
+        <div>Tournament Type</div>
+        <mat-form-field>
+            <mat-select [(value)]="tournamentType">
+                <mat-option *ngFor="let t of tournamentTypes" [value]="t.value">
+                    {{t.display}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </span>
+    <span>
+        <div>Rounds Per Week</div>
+        <mat-form-field>
+            <input type="number" matInput [(ngModel)]="roundsPerWeek">
+        </mat-form-field>
+    </span>
+    <span>
+        <div>Concurrent Number of Games</div>
+        <mat-form-field>
+            <input type="number" matInput [(ngModel)]="concurrentGameNum">
+        </mat-form-field>
+    </span>
+    <span>
+        <div>Game Duration In Minutes</div>
+        <mat-form-field>
+            <input type="number" matInput [(ngModel)]="gameDuration">
+        </mat-form-field>
+    </span>
+</div>
+<div>
+    <span>
+        <button mat-flat-button color="primary" (click)="generateSchedule()" class="generate">Generate Schedule</button>
+    </span>
+    <span>
+        After generation, look over tentative schedule, then accept schedule at bottom of page
+    </span>
+</div>
+
+
+<ng-container *ngIf="tentativeSchedule.length > 0">
+    <h1>Tentative Schedule</h1>
+    <div *ngFor="let week of weeks; let i=index" class="week-container">
+        <div>
+            Week {{i+1}}: {{week.start.format('MMMM').substring(0, 3) + ' ' + week.start.format('Do') +
+        ' - ' + week.end.format('MMMM').substring(0, 3) + ' ' + week.end.format('Do')}}
+        </div>
+            <app-game-entry *ngFor="let game of week.games" [game]="game" [compact]="true" [tentative]="true"></app-game-entry>
+    </div>
+    <button mat-flat-button color="primary" (click)="acceptSchedule()">Accept Schedule</button>
+</ng-container>

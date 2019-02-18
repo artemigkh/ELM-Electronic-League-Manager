@@ -42,7 +42,7 @@ func createLeague(t *testing.T, publicView, publicJoin bool) *league {
 	signupStart := currentTime.AddDate(0, 0, -7*5)
 	signupEnd := signupStart.AddDate(0, 0, 7)
 	leagueStart := signupEnd.AddDate(0, 0, 7)
-	leagueEnd := leagueStart.AddDate(0, 0, 7*7)
+	leagueEnd := leagueStart.AddDate(0, 0, 9*7)
 
 	description := ""
 	randParagraph := randomdata.Paragraph()

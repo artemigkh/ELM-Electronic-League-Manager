@@ -1,8 +1,8 @@
 export class TestingConfig {
     static testing = true; //in testing mode, app auto logs in, sets active league, and sets some behaviour to be constant
-    static email = "madisonmoore253@test.com"; //email to automatically log in with
-    static password = "9t3tcg2Mb8"; //password to automatically log in with
-    static leagueId = 15; //league id to automatically set active
+    static email = "averyharris248@example.com"; //email to automatically log in with
+    static password = "yfpVLZY4sZ"; //password to automatically log in with
+    static leagueId = 8; //league id to automatically set active
     static forceRegistrationPeriod = false; //if true, league will behave as if in registration mode
 }
 

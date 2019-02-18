@@ -28,12 +28,21 @@ type LeaguesDAO interface {
 	JoinLeague(leagueId, userId int) error
 	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
 	SetLeaguePermissions(leagueId, userId int, administrator, createTeams, editTeams, editGames bool) error
+	GetMarkdownFile(leagueId int) (string, error)
+	SetMarkdownFile(leagueId int, fileName string) error
+	AddRecurringAvailability(leagueId int, weekday int, timezone int,
+		hour, minute, duration int, constrained bool, start, end int) (int, error)
+	EditRecurringAvailability(leagueId, availabilityId int, weekday int, timezone int,
+		hour, minute, duration int, constrained bool, start, end int) error
+	RemoveRecurringAvailabilities(leagueId, availabilityId int) error
 
 	// Get Information
 	IsNameInUse(leagueId int, name string) (bool, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)
 	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)
+	GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailability, error)
+	GetSchedulingAvailabilities(leagueId int) ([]SchedulingAvailability, error)
 }
 
 type TeamsDAO interface {

@@ -4,6 +4,7 @@ import (
 	"Server/config"
 	"Server/databaseAccess"
 	"Server/icons"
+	"Server/markdown"
 	"Server/routes"
 	"Server/sessionManager"
 	"github.com/gin-contrib/cors"
@@ -34,12 +35,14 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.InviteCodesDAO = databaseAccess.CreateInviteCodesDAO()
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 	routes.IconManager = icons.CreateGoIconManager(conf)
+	routes.MarkdownManager = markdown.CreateGoMarkdownManager(conf)
 
 	routes.RegisterLoginHandlers(app.Group("/"))
 	routes.RegisterUserHandlers(app.Group("/api/users"))
 	routes.RegisterLeagueHandlers(app.Group("/api/leagues"))
 	routes.RegisterTeamHandlers(app.Group("/api/teams"))
 	routes.RegisterGameHandlers(app.Group("/api/games"))
+	routes.RegisterSchedulingHandlers(app.Group("/api/scheduling"))
 	routes.RegisterInviteCodeHandlers(app.Group("/api/inviteCodes"))
 
 	routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/league-of-legends"), conf)

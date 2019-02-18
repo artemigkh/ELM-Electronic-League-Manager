@@ -1,0 +1,60 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+    <div class="content-wrapper">
+        <div class="">
+            <mat-form-field>
+                <mat-select placeholder="Day of Week" [(value)]="dayOfWeek">
+                    <mat-option *ngFor="let day of daysOfWeek" [value]="day.value">
+                        {{day.display}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div class="time-selection">
+                <div class="ngx-material-timepicker-example__body">
+                    <div
+                        class="ngx-material-timepicker-example__form-group ngx-material-timepicker-example__form-group--toggled">
+                        <div class="input-position">
+                            <input placeholder="Select Time" [ngxTimepicker]="toggleTimepickerStart" [(ngModel)]="start"
+                                   [disableClick]="true" readonly [style.color]="start==null?'rgba(0, 0, 0, 0.54)':'black'">
+                        </div>
+
+                        <div class="clock-position">
+                            <ngx-material-timepicker-toggle [for]="toggleTimepickerStart"></ngx-material-timepicker-toggle>
+                            <ngx-material-timepicker #toggleTimepickerStart></ngx-material-timepicker>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="to">to</div>
+                <div class="ngx-material-timepicker-example__body">
+                    <div
+                        class="ngx-material-timepicker-example__form-group ngx-material-timepicker-example__form-group--toggled">
+                        <div class="input-position">
+                            <input placeholder="Select Time" [ngxTimepicker]="toggleTimepickerEnd" [(ngModel)]="end"
+                                   [disableClick]="true" readonly [style.color]="end==null?'rgba(0, 0, 0, 0.54)':'black'">
+                        </div>
+
+                        <div class="clock-position">
+                            <ngx-material-timepicker-toggle [for]="toggleTimepickerEnd"></ngx-material-timepicker-toggle>
+                            <ngx-material-timepicker #toggleTimepickerEnd></ngx-material-timepicker>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div mat-dialog-actions>
+    <div class="action-bar-wrapper">
+        <span class="spacer"></span>
+        <span class="button-wrapper">
+        <button mat-raised-button (click)="OnCancel()">Cancel</button>
+    </span>
+        <span class="button-wrapper">
+         <button mat-raised-button (click)="OnConfirm()">Confirm</button>
+    </span>
+        <span class="spacer"></span>
+    </div>
+</div>

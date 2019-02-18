@@ -25,6 +25,10 @@ type LeaguePermissionChange struct {
 	EditGames     bool `json:"editGames"`
 }
 
+type LeagueMarkdown struct {
+	Markdown string `json:"markdown"`
+}
+
 /**
 * @api{POST} /api/leagues/ Create New League
 * @apiName createNewLeague
@@ -384,7 +388,73 @@ func setLeaguePermissions(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-//TODO: make endpoint "get editable teams"
+/**
+* @api{POST} /api/leagues/markdown Provide leagues rules and information markdown
+* @apiName createMarkdown
+* @apiGroup Leagues
+* @apiDescription Provide rules and information markdown for active league
+*
+* @apiParam {string} markdown The markdown to be stored
+*
+* @apiError notLoggedIn No user is logged in
+* @apiError noActiveLeague There is no active league selected
+* @apiError notAdmin Currently logged in user is not a league administrator
+* @apiError markdownTooLong Markdown is larger than 50k characters
+ */
+func setLeagueMarkdown(ctx *gin.Context) {
+	var md LeagueMarkdown
+	err := ctx.ShouldBindJSON(&md)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	if failIfMdTooLong(ctx, md.Markdown) {
+		return
+	}
+
+	oldFile, err := LeaguesDAO.GetMarkdownFile(ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	fileName, err := MarkdownManager.StoreMarkdown(ctx.GetInt("leagueId"), md.Markdown, oldFile)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	err = LeaguesDAO.SetMarkdownFile(ctx.GetInt("leagueId"), fileName)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
+/**
+* @api{GET} /api/leagues/markdown Get leagues rules and information markdown
+* @apiGroup Leagues
+* @apiDescription Get rules and information markdown for active league
+*
+* @apiSuccess {string} markdown The unique numerical identifier of the league
+*
+* @apiError noActiveLeague There is no active league selected
+ */
+func getLeagueMarkdown(ctx *gin.Context) {
+	fileName, err := LeaguesDAO.GetMarkdownFile(ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+
+	if fileName == "" {
+		ctx.JSON(http.StatusOK, gin.H{"markdown": ""})
+	} else {
+		markdown, err := MarkdownManager.GetMarkdown(fileName)
+		if checkErr(ctx, err) {
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{"markdown": markdown})
+	}
+}
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.POST("/", authenticate(), createNewLeague)
@@ -398,4 +468,6 @@ func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.GET("/teamManagers", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), getTeamManagers)
 	g.POST("/setLeaguePermissions",
 		authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), setLeaguePermissions)
+	g.POST("/markdown", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), setLeagueMarkdown)
+	g.GET("/markdown", getActiveLeague(), getLeagueMarkdown)
 }

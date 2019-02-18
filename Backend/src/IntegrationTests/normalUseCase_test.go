@@ -106,12 +106,12 @@ func Test_NormalUseCase(t *testing.T) {
 		}
 
 		s := scheduler.Scheduler{}
-		s.InitScheduler(scheduler.DoubleRoundRobin, true, time.Hour,
+		s.InitScheduler(scheduler.DoubleRoundRobin, 2, 1, time.Hour,
 			*l.LeagueStart, *l.LeagueEnd, teamIds)
 		s.AddWeeklyAvailability(time.Friday, 12+6, 0, time.Hour*2)
 		s.AddWeeklyAvailability(time.Saturday, 12+4, 0, time.Hour*6)
 		s.AddWeeklyAvailability(time.Sunday, 12+5, 0, time.Hour*5)
-		games := s.GetSchedule()
+		games, _ := s.GetSchedule()
 		for _, game := range games {
 			l.Games = append(l.Games, createGame(t, l, int(game.GameTime), float64(game.Team1Id), float64(game.Team2Id)))
 		}

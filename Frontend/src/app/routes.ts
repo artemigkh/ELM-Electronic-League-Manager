@@ -17,9 +17,13 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
 import {LeaguesComponent} from "./leagues/leagues";
 import {LeagueCreationComponent} from "./leagueCreation/league-creation";
 import {StatsComponent} from "./stats/stats";
+import {RulesComponent} from "./rules/rules";
+import {ManageRulesComponent} from "./manage/rules/manage-rules";
+import {ManageScheduleComponent} from "./manage/schedule/manage-schedule";
 
 export const ELM_ROUTES: Routes = [
     {path: '', component: HomeComponent, pathMatch: 'full', data: {}},
+    {path: 'rules', component: RulesComponent, data: {}},
     {path: 'standings', component: StandingsComponent, data: {}},
     {path: 'teams/:id', component: TeamsComponent, data: {}},
     {path: 'games', component: GamesComponent, data: {}},
@@ -35,6 +39,8 @@ export const ELM_ROUTES: Routes = [
         data: {},
         children: [
             {path: 'league', component: ManageLeagueComponent},
+            {path: 'rules', component: ManageRulesComponent},
+            {path: 'schedule', component: ManageScheduleComponent},
             {path: 'permissions', component: ManagePermissionsComponent},
             {path: 'teams', component: ManageTeamsComponent},
             {path: 'dates', component: ManageDatesComponent},

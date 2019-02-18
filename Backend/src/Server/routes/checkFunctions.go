@@ -24,6 +24,11 @@ const (
 	MaxTagLength         = 5
 	MaxDescriptionLength = 500
 	MinInformationLength = 2
+	MaxMdLength          = 50000
+	MaxOffsetSize        = 24*3600 - 1
+	MaxHour              = 24
+	MaxMinute            = 60
+	MaxDuration          = 60 * 24
 )
 
 var ValidGameStrings = [...]string{
@@ -119,8 +124,26 @@ func failIfNameTooLong(ctx *gin.Context, name string) bool {
 	return failIfImproperLength(ctx, name, MaxNameLength, ge, "nameTooLong")
 }
 
+func failIfMdTooLong(ctx *gin.Context, name string) bool {
+	return failIfImproperLength(ctx, name, MaxMdLength, ge, "markdownTooLong")
+}
+
 func failIfDescriptionTooLong(ctx *gin.Context, description string) bool {
 	return failIfImproperLength(ctx, description, MaxDescriptionLength, ge, "descriptionTooLong")
+}
+func failIfTimezoneOffsetTooLarge(ctx *gin.Context, offset float64) bool {
+	return failIfBooleanConditionTrue(ctx, offset > MaxOffsetSize, nil, http.StatusBadRequest, "offsetTooLarge")
+}
+func failIfMinuteTooLarge(ctx *gin.Context, minute int) bool {
+	return failIfBooleanConditionTrue(ctx, minute > MaxMinute, nil, http.StatusBadRequest, "invalidMinute")
+}
+
+func failIfHourTooLarge(ctx *gin.Context, hour int) bool {
+	return failIfBooleanConditionTrue(ctx, hour > MaxHour, nil, http.StatusBadRequest, "invalidHour")
+}
+
+func failIfDurationTooLarge(ctx *gin.Context, duration int) bool {
+	return failIfBooleanConditionTrue(ctx, duration > MaxDuration, nil, http.StatusBadRequest, "invalidDuration")
 }
 
 // Boolean Checks
@@ -163,6 +186,11 @@ func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool
 func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
 	gameInformation, err := GamesDAO.GetGameInformation(leagueId, gameId)
 	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
+}
+
+func failIfAvailabilityDoesNotExist(ctx *gin.Context, leagueId, availabilityId int) bool {
+	availability, err := LeaguesDAO.GetSchedulingAvailability(leagueId, availabilityId)
+	return failIfBooleanConditionTrue(ctx, availability == nil, err, http.StatusBadRequest, "AvailabilityDoesNotExist")
 }
 
 func failIfGameDoesNotContainWinner(ctx *gin.Context, leagueId, gameId, winnerId int) bool {

@@ -46,7 +46,10 @@ import {MAT_MOMENT_DATE_FORMATS, MatMomentDateModule, MomentDateAdapter} from "@
 import {ConfirmationComponent} from "./shared/confirmation/confirmation-component";
 import {TeamEntry} from "./shared/teamEntry/team-entry";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
-import {ManagePlayersPopup, ManagePlayersTeamComponent} from "./manage/players/manage-players-team/manage-players-team";
+import {
+    ManagePlayersPopup,
+    ManagePlayersTeamComponent
+} from "./manage/players/manage-players-team/manage-players-team";
 import {UserService} from "./httpServices/user.service";
 import {LeaguesComponent} from "./leagues/leagues";
 import {LeagueCreationComponent} from "./leagueCreation/league-creation";
@@ -54,6 +57,19 @@ import {StatsComponent} from "./stats/stats";
 import {GenericPlayerEntry} from "./teams/playerEntry/generic-player-entry";
 import {PlayerEntryComponent, PlayerEntryDirective} from "./teams/playerEntry/player-entry";
 import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-player-entry";
+import {
+    ManagePlayersPopupLeagueOfLegends,
+    ManagePlayersTeamLeagueOfLegendsComponent
+} from "./manage/players/manage-players-team/league-of-legends/manage-players-team-league-of-legends";
+import {
+    ManagePlayersTeamContainerComponent,
+    ManagePlayersTeamDirective
+} from "./manage/players/manage-players-team/manage-players-team-loader";
+import {RulesComponent} from "./rules/rules";
+import { MarkdownModule } from 'ngx-markdown';
+import { LMarkdownEditorModule } from 'ngx-markdown-editor';
+import {ManageRulesComponent} from "./manage/rules/manage-rules";
+import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedule/manage-schedule";
 
 @NgModule({
     declarations: [
@@ -69,6 +85,7 @@ import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-
         ManageDatesComponent,
         ManagePlayersComponent,
         ManageGamesComponent,
+        ManageScheduleComponent,
         LeaguesComponent,
         StatsComponent,
         LeagueCreationComponent,
@@ -88,7 +105,14 @@ import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-
         GenericPlayerEntry,
         PlayerEntryComponent,
         PlayerEntryDirective,
-        LeagueOfLegendsPlayerEntry
+        LeagueOfLegendsPlayerEntry,
+        ManagePlayersTeamDirective,
+        ManagePlayersTeamContainerComponent,
+        ManagePlayersTeamLeagueOfLegendsComponent,
+        ManagePlayersPopupLeagueOfLegends,
+        RulesComponent,
+        ManageRulesComponent,
+        ManageAvailabilityPopup
     ],
     imports: [
         BrowserModule,
@@ -118,7 +142,9 @@ import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-
         MatMomentDateModule,
         MatStepperModule,
         NgxMaterialTimepickerModule.forRoot(),
-        RouterModule.forRoot(ELM_ROUTES)
+        RouterModule.forRoot(ELM_ROUTES),
+        MarkdownModule.forRoot(),
+        LMarkdownEditorModule
     ],
     providers: [LeagueService, TeamsService, PlayersService, GamesService, UserService, MatIconRegistry],
     bootstrap: [AppComponent],
@@ -130,7 +156,11 @@ import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-
         ManagePlayersPopup,
         ConfirmationComponent,
         GenericPlayerEntry,
-        LeagueOfLegendsPlayerEntry
+        LeagueOfLegendsPlayerEntry,
+        ManagePlayersTeamComponent,
+        ManagePlayersTeamLeagueOfLegendsComponent,
+        ManagePlayersPopupLeagueOfLegends,
+        ManageAvailabilityPopup
     ]
 })
 export class AppModule {

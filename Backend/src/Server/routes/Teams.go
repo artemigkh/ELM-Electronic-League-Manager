@@ -545,7 +545,7 @@ func removePlayerFromTeam(ctx *gin.Context) {
 func updatePlayer(ctx *gin.Context) {
 	//get parameters
 	var playerInfoChange PlayerInformationChange
-	err := ctx.ShouldBindJSON(&playerInfoChange)
+	err := ctx.ShouldBindBodyWith(&playerInfoChange, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
 	}

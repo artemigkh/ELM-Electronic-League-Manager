@@ -1,7 +1,11 @@
-Backend/
-!Backend/Database
-!Backend/src
-!Backend/conf.json
+doc
+icons
+markdown
 
-doc/
-icons/
+Backend/pkg
+Backend/src/github.com
+Backend/src/go.uber.org
+Backend/src/golang.org
+Backend/src/google.golang.org
+Backend/src/gopkg.in
+Backend/bin/

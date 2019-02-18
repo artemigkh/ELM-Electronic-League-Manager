@@ -3,11 +3,14 @@ CREATE SEQUENCE usersIdSeq;
 CREATE SEQUENCE playersIdSeq;
 CREATE SEQUENCE teamsIdSeq;
 CREATE SEQUENCE gamesIdSeq;
+CREATE SEQUENCE leagueRecurringAvailabilitiesIdSeq;
+CREATE SEQUENCE leagueOneTimeAvailabilitiesIdSeq;
 
 CREATE TABLE leagues (
   id              INT           PRIMARY KEY DEFAULT nextval('leaguesIdSeq'),
   name            VARCHAR(50)   UNIQUE NOT NULL         ,
   description     VARCHAR(500)                          ,
+  markdownLoc     VARCHAR(20)   NOT NULL                ,
   publicView      BOOLEAN       NOT NULL                ,
   publicJoin      BOOLEAN       NOT NULL                ,
   signupStart     INT           NOT NULL                ,
@@ -17,6 +20,28 @@ CREATE TABLE leagues (
   game            VARCHAR(30)   NOT NULL
 );
 ALTER SEQUENCE leaguesIdSeq OWNED BY leagues.id;
+
+CREATE TABLE leagueRecurringAvailabilities (
+  id              INT           PRIMARY KEY DEFAULT nextval('leagueRecurringAvailabilitiesIdSeq'),
+  leagueId        INT           NOT NULL                ,
+  weekday         SMALLINT      NOT NULL                ,
+  timezone        INT           NOT NULL                ,
+  hour            SMALLINT      NOT NULL                ,
+  minute          SMALLINT      NOT NULL                ,
+  duration        SMALLINT      NOT NULL                ,
+  constrained     BOOLEAN       NOT NULL                ,
+  startUnixTime   INT                                   ,
+  endUnixTime     INT
+);
+ALTER SEQUENCE leagueRecurringAvailabilitiesIdSeq OWNED BY leagueRecurringAvailabilities.id;
+
+CREATE TABLE leagueOneTimeAvailabilities (
+  id              INT           PRIMARY KEY DEFAULT nextval('leagueOneTimeAvailabilitiesIdSeq'),
+  leagueId        INT           NOT NULL                ,
+  start           INT                                   ,
+  end             INT
+);
+ALTER SEQUENCE leagueOneTimeAvailabilitiesIdSeq OWNED BY leagueOneTimeAvailabilities.id;
 
 CREATE TABLE users (
   id              INT           PRIMARY KEY DEFAULT nextval('usersIdSeq'),
@@ -32,7 +57,7 @@ CREATE TABLE players (
   userId          INT           UNIQUE           ,
   gameIdentifier  VARCHAR(50)   NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
-  externalId      VARCHAR(50)   UNIQUE           ,
+  externalId      VARCHAR(50)                    ,
   mainRoster      BOOLEAN       NOT NULL         ,
   position        VARCHAR(20)
 );

@@ -16,6 +16,10 @@ type GoIconManager struct {
 }
 
 func CreateGoIconManager(conf config.Config) IconManager {
+	if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+		os.Mkdir("tmp", os.ModePerm)
+	}
+
 	return &GoIconManager{
 		OutPath: conf.GetIconsDir(),
 	}

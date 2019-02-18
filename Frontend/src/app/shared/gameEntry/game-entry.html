@@ -17,7 +17,7 @@
     <span class="info">
         <span class="team-container">
             <span class="spacer"></span>
-            <span [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.id]">
+            <span *ngIf="!compact || tentative" [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.id]">
                 {{game.team1.name}}
             </span>
 
@@ -30,7 +30,7 @@
                     {{gameResultText(1)}}
                 </div>
 
-                <div class="record">
+                <div class="record" *ngIf="!tentative">
                     {{game.team1.wins}}W -  {{game.team1.losses}}L
                 </div>
             </span>
@@ -59,12 +59,12 @@
                     {{gameResultText(2)}}
                 </div>
 
-                <div class="record">
+                <div class="record" *ngIf="!tentative">
                     {{game.team2.wins}}W -  {{game.team2.losses}}L
                 </div>
             </span>
 
-            <span [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.id]">
+            <span *ngIf="!compact || tentative" [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.id]">
                 {{game.team2.name}}
             </span>
             <span class="spacer"></span>

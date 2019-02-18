@@ -1,0 +1,106 @@
+h1 {
+    text-align: center!important;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    //height: 300px;
+    margin-bottom: 20px;
+}
+
+.action-bar-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    .button-wrapper {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 125px;
+    }
+
+    .spacer {
+        flex-grow: 1;
+    }
+}
+
+.time-selection {
+    display: flex;
+    flex-direction: row;
+    .to {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 5px;
+    }
+}
+
+.ngx-material-timepicker-example {
+    height: 100%;
+    border-radius: 2px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0 1px 6px, rgba(0, 0, 0, 0.12) 0 1px 4px;
+    overflow: hidden;
+    &__body {
+        //padding-left: 10px;
+        padding-bottom: 20px;
+    }
+    &__form-group {
+        position: relative;
+        max-width: 300px;
+        height: 100%;
+        width: 180px;
+        border-bottom: 1px solid rgb(148, 148, 148);
+
+        &:not(:last-child) {
+            margin-bottom: 20px;
+        }
+        &--toggled {
+            display: flex;
+        }
+        &--disabled {
+            border-bottom-style: dashed;
+        }
+        .input-position {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0.4375em 0;
+            line-height: 1.125 !important;
+        }
+        .clock-position {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0;
+            line-height: 1.125 !important;
+        }
+        input {
+            line-height: inherit;
+            background-color: rgba(0, 0, 0, 0);
+            padding: 0;
+            width: 100%;
+            border: 0;
+            font-family: Roboto, "Helvetica Neue", sans-serif;
+            font-size: 16px;
+            //color: rgba(0, 0, 0, 0.54);
+            outline: 0;
+            &:disabled {
+                background-color: transparent;
+                cursor: not-allowed;
+            }
+            &:focus {
+                outline: none;
+            }
+            &::placeholder {
+                font-size: 16px;
+                color: currentColor;
+            }
+        }
+
+        ngx-material-timepicker-toggle {
+            fill: grey !important;
+        }
+    }
+}

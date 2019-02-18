@@ -73,6 +73,18 @@ type PublicLeagueInformation struct {
 	Game        string `json:"game"`
 }
 
+type SchedulingAvailability struct {
+	Id          int  `json:"id"`
+	Weekday     int  `json:"weekday"`
+	Timezone    int  `json:"timezone"`
+	Hour        int  `json:"hour"`
+	Minute      int  `json:"minute"`
+	Duration    int  `json:"duration"`
+	Constrained bool `json:"constrained"`
+	Start       int  `json:"start"`
+	End         int  `json:"end"`
+}
+
 type PgLeaguesDAO struct{}
 
 func (d *PgLeaguesDAO) CreateLeague(userId int, name, description, game string, publicView, publicJoin bool,
@@ -80,9 +92,9 @@ func (d *PgLeaguesDAO) CreateLeague(userId int, name, description, game string, 
 
 	var leagueId int
 	err := psql.Insert("leagues").
-		Columns("name", "description", "game", "publicView", "publicJoin",
+		Columns("name", "description", "markdownLoc", "game", "publicView", "publicJoin",
 			"signupStart", "signupEnd", "leagueStart", "leagueEnd").
-		Values(name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
+		Values(name, description, "", game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
 		Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&leagueId)
 	if err != nil {
@@ -397,5 +409,112 @@ func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId, userId int,
 		UPDATE leaguePermissions SET administrator = $1, createTeams = $2, editTeams = $3, editGames = $4
 		WHERE leagueId = $5 AND userId = $6
 		`, administrator, createTeams, editTeams, editGames, leagueId, userId)
+	return err
+}
+
+func (d *PgLeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
+	_, err := db.Exec(
+		`
+		UPDATE leagues SET markdownLoc = $1
+		WHERE id = $2
+		`, fileName, leagueId)
+	return err
+}
+
+func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
+	var markdownFile string
+	err := psql.Select("markdownLoc").
+		From("leagues").
+		Where("id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&markdownFile)
+	if err != nil {
+		return "", err
+	}
+	return markdownFile, nil
+}
+
+func (d *PgLeaguesDAO) AddRecurringAvailability(leagueId int, weekday int, timezone int,
+	hour, minute, duration int, constrained bool, start, end int) (int, error) {
+
+	var availabilityId int
+	err := psql.Insert("leagueRecurringAvailabilities").
+		Columns("leagueId", "weekday", "timezone", "hour", "minute", "duration",
+			"constrained", "startUnixTime", "endUnixTime").
+		Values(leagueId, weekday, timezone, hour, minute, duration, constrained, start, end).
+		Suffix("RETURNING \"id\"").
+		RunWith(db).QueryRow().Scan(&availabilityId)
+	if err != nil {
+		return -1, err
+	}
+
+	return availabilityId, nil
+}
+
+func (d *PgLeaguesDAO) RemoveRecurringAvailabilities(leagueId, availabilityId int) error {
+	_, err := psql.Delete("leagueRecurringAvailabilities").
+		Where("id = ? AND leagueId = ?", availabilityId, leagueId).
+		RunWith(db).Exec()
+	return err
+}
+
+func (d *PgLeaguesDAO) GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailability, error) {
+	var availability SchedulingAvailability
+	err := psql.Select("id", "weekday", "timezone", "hour", "minute", "duration",
+		"constrained", "startUnixTime", "endUnixTime").
+		From("leagueRecurringAvailabilities").
+		Where("leagueId = ? AND id = ?", leagueId, availabilityId).
+		RunWith(db).QueryRow().Scan(&availability.Id, &availability.Weekday, &availability.Timezone,
+		&availability.Hour, &availability.Minute, &availability.Duration, &availability.Constrained,
+		&availability.Start, &availability.End)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return &availability, nil
+}
+
+func (d *PgLeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]SchedulingAvailability, error) {
+	rows, err := psql.Select("id", "weekday", "timezone", "hour", "minute", "duration",
+		"constrained", "startUnixTime", "endUnixTime").
+		From("leagueRecurringAvailabilities").
+		Where("leagueId = ?", leagueId).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var availabilities []SchedulingAvailability
+	var availability SchedulingAvailability
+
+	for rows.Next() {
+		err := rows.Scan(&availability.Id, &availability.Weekday, &availability.Timezone,
+			&availability.Hour, &availability.Minute, &availability.Duration, &availability.Constrained,
+			&availability.Start, &availability.End)
+		if err != nil {
+			return nil, err
+		}
+		availabilities = append(availabilities, availability)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return availabilities, nil
+}
+
+func (d *PgLeaguesDAO) EditRecurringAvailability(leagueId, availabilityId int, weekday int, timezone int,
+	hour, minute, duration int, constrained bool, start, end int) error {
+	_, err := db.Exec(
+		`
+		UPDATE leagueRecurringAvailabilities SET weekday = $1, timezone = $2, hour = $3, minute = $4,
+		duration = $5, constrained = $6, startUnixTime = $7, endUnixTime = $8
+		WHERE leagueId = $9 AND id = $10
+		`, weekday, timezone, hour, minute, duration, constrained, start, end, leagueId, availabilityId)
 	return err
 }

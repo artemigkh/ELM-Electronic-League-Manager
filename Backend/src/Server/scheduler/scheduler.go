@@ -2,12 +2,15 @@ package scheduler
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"math"
 	"sort"
 	"time"
 )
 
-func (s *Scheduler) InitScheduler(tournamentType, roundsPerWeek, concurrentGameNum int, gameDuration time.Duration, start, end time.Time, teams []int) {
+func (s *Scheduler) InitScheduler(tournamentType, roundsPerWeek, concurrentGameNum int,
+	gameDuration time.Duration, start, end time.Time, teams []int) {
+
 	s.tournamentType = tournamentType
 	s.roundsPerWeek = roundsPerWeek
 	s.concurrentGameNum = concurrentGameNum
@@ -26,11 +29,13 @@ func leq(t1, t2 time.Time) bool {
 }
 
 func (s *Scheduler) AddWeeklyAvailability(dayOfWeek time.Weekday, hour, minute int, duration time.Duration) {
+	fmt.Printf("League start: %v\n", s.start.Format(time.UnixDate))
 	weekCursor := time.Time(s.start)
 	for weekCursor.Weekday() != dayOfWeek {
 		weekCursor = weekCursor.Add(time.Hour * 24)
 	}
-
+	fmt.Printf("week cursor start: %v\n", s.start.Format(time.UnixDate))
+	fmt.Printf("League end: %v\n", s.end.Format(time.UnixDate))
 	for weekCursor.Before(s.end) {
 		blockCursor := weekCursor.Add(time.Hour*time.Duration(hour) + time.Minute*time.Duration(minute))
 		for leq(blockCursor.Add(s.gameDuration), weekCursor.Add(time.Hour*time.Duration(hour)+
@@ -45,6 +50,8 @@ func (s *Scheduler) AddWeeklyAvailability(dayOfWeek time.Weekday, hour, minute i
 		}
 
 		weekCursor = weekCursor.AddDate(0, 0, 7)
+		fmt.Printf("week cursor current: %v\n", weekCursor.Format(time.UnixDate))
+		fmt.Printf("League end: %v\n", s.end.Format(time.UnixDate))
 	}
 }
 
@@ -57,7 +64,7 @@ func in(el int, list []int) bool {
 	return false
 }
 
-func (s *Scheduler) GetSchedule() []Game {
+func (s *Scheduler) GetSchedule() ([]Game, error) {
 	sort.Slice(s.gameBlocks, func(i, j int) bool {
 		return s.gameBlocks[i].Start.Before(s.gameBlocks[j].Start)
 	})
@@ -67,7 +74,7 @@ func (s *Scheduler) GetSchedule() []Game {
 
 	// if no gameBlocks, fail
 	if len(s.gameBlocks) == 0 {
-		return nil
+		return nil, errors.New("Zero Available Game Blocks")
 	}
 
 	// split up game blocks into weeks
@@ -76,12 +83,14 @@ func (s *Scheduler) GetSchedule() []Game {
 	weekCursor := time.Time(s.start)
 	for _, block := range s.gameBlocks {
 		if block.Start.After(weekCursor.AddDate(0, 0, 7)) {
+			println(fmt.Sprintf("Updating week cursor to %v\n", weekCursor.AddDate(0, 0, 7).Format(time.UnixDate)))
 			weekGameBlocks = append(weekGameBlocks, blocks)
 			weekCursor = weekCursor.AddDate(0, 0, 7)
 			blocks = make([]*GameBlock, 0)
 		}
 		blocks = append(blocks, block)
 	}
+	weekGameBlocks = append(weekGameBlocks, blocks)
 
 	println("week game blocks")
 	for weeknum, week := range weekGameBlocks {
@@ -93,7 +102,8 @@ func (s *Scheduler) GetSchedule() []Game {
 
 	requiredGames := getRequiredGames(s.tournamentType, s.teams)
 	if len(requiredGames) > len(s.gameBlocks)*s.concurrentGameNum {
-		return nil
+		return nil, errors.New(fmt.Sprintf("Number of available game blocks (%v) is "+
+			"less than number of required games (%v).", len(s.gameBlocks)*s.concurrentGameNum, len(requiredGames)))
 	}
 
 	var games []Game
@@ -114,7 +124,7 @@ func (s *Scheduler) GetSchedule() []Game {
 				}
 			}
 			if !scheduled {
-				return nil
+				return nil, errors.New("Scheduling failed due to constraints")
 			}
 		}
 	} else {
@@ -127,12 +137,16 @@ func (s *Scheduler) GetSchedule() []Game {
 		totalWeeks := totalRounds / s.roundsPerWeek
 
 		if totalWeeks > len(weekGameBlocks) {
-			return nil
+			return nil, errors.New(fmt.Sprintf("Number of required weeks(%v) "+
+				"for specified number of rounds per week is larger than amount of available weeks(%v)",
+				totalWeeks, len(weekGameBlocks)))
 		}
 
-		for _, weekBlocks := range weekGameBlocks {
+		for weekNum, weekBlocks := range weekGameBlocks {
 			if gamesPerWeek > len(weekBlocks) {
-				return nil
+				return nil, errors.New(fmt.Sprintf("Number of game blocks(%v) on week %v is"+
+					"smaller than number of required games for week %v (%v)",
+					len(weekBlocks), weekNum+1, weekNum+1, gamesPerWeek))
 			}
 
 			for i := 0; i < gamesPerWeek; i++ {
@@ -156,7 +170,7 @@ func (s *Scheduler) GetSchedule() []Game {
 					}
 				}
 				if !scheduled {
-					return nil
+					return nil, errors.New(fmt.Sprintf("Scheduling failed on week %v due to constraints", weekNum+1))
 				}
 				if gameIndex >= len(requiredGames) {
 					break
@@ -179,5 +193,5 @@ func (s *Scheduler) GetSchedule() []Game {
 		}
 	}
 
-	return games
+	return games, nil
 }

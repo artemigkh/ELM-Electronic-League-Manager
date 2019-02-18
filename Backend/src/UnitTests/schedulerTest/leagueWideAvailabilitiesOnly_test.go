@@ -17,7 +17,7 @@ func Test_LeagueWideWeeklyAvailabilities(t *testing.T) {
 	s.AddWeeklyAvailability(time.Friday, 12+6, 0, time.Hour*2)
 	s.AddWeeklyAvailability(time.Saturday, 12+4, 0, time.Hour*6)
 	s.AddWeeklyAvailability(time.Sunday, 12+5, 0, time.Hour*5)
-	games := s.GetSchedule()
+	games, _ := s.GetSchedule()
 	for _, game := range games {
 		fmt.Printf("%v vs %v - %v\n", game.Team1Id, game.Team2Id, time.Unix(game.GameTime, 0).Format(time.UnixDate))
 	}

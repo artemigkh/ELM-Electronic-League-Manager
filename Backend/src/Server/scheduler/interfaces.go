@@ -5,8 +5,6 @@ import "time"
 const (
 	RoundRobin       = iota
 	DoubleRoundRobin = iota
-	SingleElim       = iota
-	DoubleElim       = iota
 )
 
 type Game struct {

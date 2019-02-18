@@ -42,6 +42,7 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.RegisterLeagueHandlers(app.Group("/api/leagues"))
 	routes.RegisterTeamHandlers(app.Group("/api/teams"))
 	routes.RegisterGameHandlers(app.Group("/api/games"))
+	routes.RegisterSchedulingHandlers(app.Group("/api/scheduling"))
 	routes.RegisterInviteCodeHandlers(app.Group("/api/inviteCodes"))
 
 	routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/league-of-legends"), conf)

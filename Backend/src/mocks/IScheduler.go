@@ -37,7 +37,7 @@ func (_m *IScheduler) GetSchedule() []scheduler.Game {
 	return r0
 }
 
-// InitScheduler provides a mock function with given fields: tournamentType, stretch, gameDuration, start, end, teams
-func (_m *IScheduler) InitScheduler(tournamentType int, stretch bool, gameDuration time.Duration, start time.Time, end time.Time, teams []int) {
-	_m.Called(tournamentType, stretch, gameDuration, start, end, teams)
+// InitScheduler provides a mock function with given fields: tournamentType, roundsPerWeek, concurrentGameNum, gameDuration, start, end, teams
+func (_m *IScheduler) InitScheduler(tournamentType int, roundsPerWeek int, concurrentGameNum int, gameDuration time.Duration, start time.Time, end time.Time, teams []int) {
+	_m.Called(tournamentType, roundsPerWeek, concurrentGameNum, gameDuration, start, end, teams)
 }

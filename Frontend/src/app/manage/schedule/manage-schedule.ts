@@ -18,6 +18,10 @@ import {
 } from "../players/manage-players-team/manage-players-team";
 import {WarningPopup} from "../warningPopup/warning-popup";
 import {FormControl} from "@angular/forms";
+import {forkJoin} from "rxjs";
+import {Manager} from "../../interfaces/Manager";
+import {ConfirmationComponent} from "../../shared/confirmation/confirmation-component";
+import {GamesService} from "../../httpServices/games.service";
 
 class Availability {
     id: number;
@@ -62,6 +66,7 @@ export class ManageScheduleComponent {
 
     weeks: Week[];
     constructor(public confirmation: MatSnackBar, private leagueService: LeagueService,
+                private gamesService: GamesService,
                 public dialog: MatDialog) {
         this.tentativeSchedule = [];
         this.teamLookup = {};
@@ -82,6 +87,9 @@ export class ManageScheduleComponent {
         this.availabilities = [];
         this.leagueService.getSchedulingAvailabilities().subscribe(
             (next: availability[]) => {
+                if(next == null) {
+                    next = [];
+                }
                 next.forEach((avail: availability) => {
                     let startMoment = moment().
                         milliseconds(0).
@@ -183,6 +191,30 @@ export class ManageScheduleComponent {
                 console.log(error);
             }
         );
+    }
+
+    acceptSchedule(): void {
+        forkJoin(this.tentativeSchedule.map((game: scheduledGame) => {
+            return this.gamesService.createNewGame(game.team1Id, game.team2Id, game.gameTime);
+        })).subscribe(_ => {
+            console.log("successfully updated permissions");
+            this.confirmation.openFromComponent(ConfirmationComponent, {
+                duration: 1250,
+                panelClass: ['blue-snackbar'],
+                data: {
+                    message: "Games Successfully Scheduled"
+                }
+            });
+        }, error=>{
+            console.log(error);
+            this.confirmation.openFromComponent(ConfirmationComponent, {
+                duration: 2000,
+                panelClass: ['red-snackbar'],
+                data: {
+                    message: "Scheduling Games Failed"
+                }
+            });
+        });
     }
 
     newAvailabilityPopup(): void {

@@ -14,7 +14,6 @@ type GoMdManager struct {
 
 func CreateGoMarkdownManager(conf config.Config) *GoMdManager {
 	path := conf.GetMarkdownDir()
-	println(path)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.Mkdir(path, os.ModePerm)
 	}

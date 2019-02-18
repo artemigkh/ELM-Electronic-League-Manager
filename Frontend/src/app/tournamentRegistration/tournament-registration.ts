@@ -30,6 +30,12 @@ export class TournamentRegistrationComponent {
                 private _formBuilder: FormBuilder,
                 public confirmation: MatSnackBar) {
         this.playerTransition = false;
+        this.leagueService.joinActiveLeague().subscribe(
+            next => {
+            }, error => {
+                console.log(error);
+            }
+        );
     }
 
     ngOnInit() {

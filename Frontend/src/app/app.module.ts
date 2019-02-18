@@ -69,6 +69,7 @@ import {RulesComponent} from "./rules/rules";
 import { MarkdownModule } from 'ngx-markdown';
 import { LMarkdownEditorModule } from 'ngx-markdown-editor';
 import {ManageRulesComponent} from "./manage/rules/manage-rules";
+import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedule/manage-schedule";
 
 @NgModule({
     declarations: [
@@ -84,6 +85,7 @@ import {ManageRulesComponent} from "./manage/rules/manage-rules";
         ManageDatesComponent,
         ManagePlayersComponent,
         ManageGamesComponent,
+        ManageScheduleComponent,
         LeaguesComponent,
         StatsComponent,
         LeagueCreationComponent,
@@ -109,7 +111,8 @@ import {ManageRulesComponent} from "./manage/rules/manage-rules";
         ManagePlayersTeamLeagueOfLegendsComponent,
         ManagePlayersPopupLeagueOfLegends,
         RulesComponent,
-        ManageRulesComponent
+        ManageRulesComponent,
+        ManageAvailabilityPopup
     ],
     imports: [
         BrowserModule,
@@ -156,7 +159,8 @@ import {ManageRulesComponent} from "./manage/rules/manage-rules";
         LeagueOfLegendsPlayerEntry,
         ManagePlayersTeamComponent,
         ManagePlayersTeamLeagueOfLegendsComponent,
-        ManagePlayersPopupLeagueOfLegends
+        ManagePlayersPopupLeagueOfLegends,
+        ManageAvailabilityPopup
     ]
 })
 export class AppModule {

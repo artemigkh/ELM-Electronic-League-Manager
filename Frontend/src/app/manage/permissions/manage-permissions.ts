@@ -30,7 +30,7 @@ export class ManagePermissionsComponent {
             return this.teamsService.updateManagerPermissions(team.teamId, manager.userId, manager.administrator,
                 manager.information, manager.players, manager.reportResults);
         })).subscribe(_ => {
-            console.log("successfully updated permissions")
+            console.log("successfully updated permissions");
             this.confirmation.openFromComponent(ConfirmationComponent, {
                 duration: 1250,
                 panelClass: ['blue-snackbar'],

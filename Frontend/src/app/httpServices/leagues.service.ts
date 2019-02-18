@@ -117,4 +117,58 @@ export class LeagueService {
         }, httpOptions);
     }
 
+    public generateSchedule(tournamentType: string, roundsPerWeek: number, concurrentGameNum: number,
+                            gameDuration: number): Observable<any> {
+        return this.http.request('post', 'http://localhost:8080/api/scheduling/schedule', {
+            body: {
+                tournamentType: tournamentType,
+                roundsPerWeek: roundsPerWeek,
+                concurrentGameNum: concurrentGameNum,
+                gameDuration: gameDuration
+            }, withCredentials: true,
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json'
+            })
+        });
+    }
+
+    public getSchedulingAvailabilities(): Observable<any> {
+        return this.http.get('http://localhost:8080/api/scheduling/availabilities', httpOptions);
+    }
+
+    public addRecurringSchedulingAvailability(weekday: string, timezone: number, hour: number,
+                                               minute: number, duration: number, constrained: boolean,
+                                               start: number, end: number): Observable<any> {
+        return this.http.post('http://localhost:8080/api/scheduling/recurringAvailability', {
+            weekday: weekday,
+            timezone: timezone,
+            hour: hour,
+            minute: minute,
+            duration: duration,
+            constrained: constrained,
+            start: start,
+            end: end
+        }, httpOptions);
+    }
+
+    public editRecurringSchedulingAvailability(id: number, weekday: string, timezone: number, hour: number,
+                                              minute: number, duration: number, constrained: boolean,
+                                              start: number, end: number): Observable<any> {
+        return this.http.put('http://localhost:8080/api/scheduling/recurringAvailability', {
+            id: id,
+            weekday: weekday,
+            timezone: timezone,
+            hour: hour,
+            minute: minute,
+            duration: duration,
+            constrained: constrained,
+            start: start,
+            end: end
+        }, httpOptions);
+    }
+
+    public deleteRecurringSchedulingAvailability(id: number) {
+        return this.http.request('delete', 'http://localhost:8080/api/scheduling/recurringAvailability/' + id,
+            httpOptions);
+    }
 }

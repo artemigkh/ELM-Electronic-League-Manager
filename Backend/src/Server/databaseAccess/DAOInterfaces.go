@@ -72,7 +72,7 @@ type TeamsDAO interface {
 
 type GamesDAO interface {
 	// Games
-	CreateGame(leagueId, team1Id, team2Id, gameTime int) (int, error)
+	CreateGame(leagueId, team1Id, team2Id, gameTime int, externalId string) (int, error)
 	GetGameInformation(leagueId, gameId int) (*GameInformation, error)
 	ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error
 	DeleteGame(leagueId, gameId int) error

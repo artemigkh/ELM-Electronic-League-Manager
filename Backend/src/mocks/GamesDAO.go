@@ -10,20 +10,20 @@ type GamesDAO struct {
 	mock.Mock
 }
 
-// CreateGame provides a mock function with given fields: leagueId, team1Id, team2Id, gameTime
-func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime int) (int, error) {
-	ret := _m.Called(leagueId, team1Id, team2Id, gameTime)
+// CreateGame provides a mock function with given fields: leagueId, team1Id, team2Id, gameTime, externalId
+func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime int, externalId string) (int, error) {
+	ret := _m.Called(leagueId, team1Id, team2Id, gameTime, externalId)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, int, int) int); ok {
-		r0 = rf(leagueId, team1Id, team2Id, gameTime)
+	if rf, ok := ret.Get(0).(func(int, int, int, int, string) int); ok {
+		r0 = rf(leagueId, team1Id, team2Id, gameTime, externalId)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, int, int) error); ok {
-		r1 = rf(leagueId, team1Id, team2Id, gameTime)
+	if rf, ok := ret.Get(1).(func(int, int, int, int, string) error); ok {
+		r1 = rf(leagueId, team1Id, team2Id, gameTime, externalId)
 	} else {
 		r1 = ret.Error(1)
 	}

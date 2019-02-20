@@ -12,21 +12,23 @@ const (
 )
 
 type GameInformation struct {
-	Id         int  `json:"id"`
-	LeagueId   int  `json:"leagueId"`
-	Team1Id    int  `json:"team1Id"`
-	Team2Id    int  `json:"team2Id"`
-	GameTime   int  `json:"gameTime"`
-	Complete   bool `json:"complete"`
-	WinnerId   int  `json:"winnerId"`
-	ScoreTeam1 int  `json:"scoreTeam1"`
-	ScoreTeam2 int  `json:"scoreTeam2"`
+	Id         int    `json:"id"`
+	ExternalId string `json:"externalId"`
+	LeagueId   int    `json:"leagueId"`
+	Team1Id    int    `json:"team1Id"`
+	Team2Id    int    `json:"team2Id"`
+	GameTime   int    `json:"gameTime"`
+	Complete   bool   `json:"complete"`
+	WinnerId   int    `json:"winnerId"`
+	ScoreTeam1 int    `json:"scoreTeam1"`
+	ScoreTeam2 int    `json:"scoreTeam2"`
 }
 
 type PgGamesDAO struct{}
 
 func getGamesOfTeam(teamId int) ([]GameInformation, error) {
-	rows, err := psql.Select("*").From("games").
+	rows, err := psql.Select("id", "externalId", "leagueId", "team1Id", "team2Id",
+		"gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").From("games").
 		Where(squirrel.Or{squirrel.Eq{"team1Id": teamId}, squirrel.Eq{"team2Id": teamId}}).
 		RunWith(db).Query()
 
@@ -39,7 +41,7 @@ func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	var game GameInformation
 
 	for rows.Next() {
-		err := rows.Scan(&game.Id, &game.LeagueId, &game.Team1Id, &game.Team2Id, &game.GameTime,
+		err := rows.Scan(&game.Id, &game.ExternalId, &game.LeagueId, &game.Team1Id, &game.Team2Id, &game.GameTime,
 			&game.Complete, &game.WinnerId, &game.ScoreTeam1, &game.ScoreTeam2)
 		if err != nil {
 			return nil, err
@@ -95,11 +97,11 @@ func getLosingTeamId(gameId, leagueId, winnerId int) (int, error) {
 	}
 }
 
-func (d *PgGamesDAO) CreateGame(leagueId, team1Id, team2Id, gameTime int) (int, error) {
+func (d *PgGamesDAO) CreateGame(leagueId, team1Id, team2Id, gameTime int, externalId string) (int, error) {
 	var gameId int
 	err := psql.Insert("games").
-		Columns("leagueId", "team1Id", "team2Id", "gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
-		Values(leagueId, team1Id, team2Id, gameTime, false, -1, 0, 0).Suffix("RETURNING \"id\"").
+		Columns("leagueId", "externalId", "team1Id", "team2Id", "gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
+		Values(leagueId, externalId, team1Id, team2Id, gameTime, false, -1, 0, 0).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&gameId)
 	if err != nil {
 		return -1, err
@@ -137,11 +139,12 @@ func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, er
 func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameInformation, error) {
 	var gameInformation GameInformation
 
-	err := psql.Select("*").
+	err := psql.Select("id", "externalId", "leagueId", "team1Id", "team2Id",
+		"gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
 		From("games").
 		Where("id = ? AND leagueId = ?", gameId, leagueId).
 		RunWith(db).QueryRow().
-		Scan(&gameInformation.Id, &gameInformation.LeagueId, &gameInformation.Team1Id, &gameInformation.Team2Id,
+		Scan(&gameInformation.Id, &gameInformation.ExternalId, &gameInformation.LeagueId, &gameInformation.Team1Id, &gameInformation.Team2Id,
 			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerId,
 			&gameInformation.ScoreTeam1, &gameInformation.ScoreTeam2)
 	if err == sql.ErrNoRows {

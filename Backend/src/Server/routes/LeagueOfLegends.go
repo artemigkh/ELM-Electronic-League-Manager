@@ -30,6 +30,51 @@ type LeagueOfLegendsTeamInformation struct {
 	Players     []LeagueOfLegendsPlayerInformation `json:"players"`
 }
 
+type SummonerInformation struct {
+	SummonerId   string `json:"summonerId"`
+	SummonerName string `json:"summonerName"`
+}
+
+type TournamentCallback struct {
+	WinningTeam    []SummonerInformation `json:"winningTeam"`
+	LosingTeam     []SummonerInformation `json:"losingTeam"`
+	TournamentCode string                `json:"shortCode"`
+	GameId         int                   `json:"gameId"`
+}
+
+// Team Stats Mappings
+const (
+	GameTime     = iota
+	FirstBloods  = iota
+	FirstTurrets = iota
+	TeamKDA      = iota
+)
+
+// Individual Stats Mappings
+const (
+	DamagePerMinute    = iota
+	GoldPerMinute      = iota
+	CsPerMinute        = iota
+	PlayerKDA          = iota
+	Kills              = iota
+	Deaths             = iota
+	Assists            = iota
+	VisionWardsPlaced  = iota
+	ControlWardsPlaced = iota
+)
+
+var tierOrder = map[string]int{
+	"IRON":        0,
+	"BRONZE":      1,
+	"SILVER":      2,
+	"GOLD":        3,
+	"PLATINUM":    4,
+	"DIAMOND":     5,
+	"MASTER":      6,
+	"GRANDMASTER": 7,
+	"CHALLENGER":  8,
+}
+
 /**
  * @api{POST} /api/league-of-legends/teams/addPlayer Add Player To Team
  * @apiGroup Teams

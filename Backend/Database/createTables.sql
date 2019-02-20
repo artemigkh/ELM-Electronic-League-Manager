@@ -97,6 +97,7 @@ CREATE TABLE teamPermissions (
 
 CREATE TABLE games (
   id              INT           PRIMARY KEY DEFAULT nextval('gamesIdSeq'),
+  externalId      VARCHAR(50)              NOT NULL      ,
   leagueId        INT                      NOT NULL      ,
   team1Id         INT                      NOT NULL      ,
   team2Id         INT                      NOT NULL      ,

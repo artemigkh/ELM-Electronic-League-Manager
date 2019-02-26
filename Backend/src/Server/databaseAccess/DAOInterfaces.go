@@ -93,3 +93,6 @@ type InviteCodesDAO interface {
 	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)
 	IsTeamManagerInviteCodeValid(code string) (bool, string, error)
 }
+
+type LeagueOfLegendsDAO interface {
+}

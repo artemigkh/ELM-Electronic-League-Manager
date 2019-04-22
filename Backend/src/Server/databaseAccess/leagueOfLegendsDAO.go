@@ -249,6 +249,10 @@ func (d *PgLeagueOfLegendsDAO) GetTopPerformers(leagueId int) (*TopPerformers, e
 
 func (d *PgLeagueOfLegendsDAO) reportEndGameStats(match GoLang_LeagueOfLegendsAPIV4Framework.Match) error {
 	for _, summ := range match.Summoners() {
+		summId, err := summ.SummonerId()
+		if err != nil {
+			return err
+		}
 		var (
 			id              int
 			numGames        int
@@ -261,10 +265,10 @@ func (d *PgLeagueOfLegendsDAO) reportEndGameStats(match GoLang_LeagueOfLegendsAP
 			visionWards     float64
 			controlWards    float64
 		)
-		err := psql.Select("playerId", "numGames", "goldPerMinute", "csPerMinute",
+		err = psql.Select("playerId", "numGames", "goldPerMinute", "csPerMinute",
 			"damagePerMinute", "kills", "deaths", "assists", "visionWards", "controlWards").
 			From("playerStats").Join("players ON playersId = id").
-			Where("externalId = ?", summ.SummonerId()).
+			Where("externalId = ?", summId).
 			RunWith(db).QueryRow().Scan(&id, &numGames, &goldPerMinute, &csPerMinute,
 			&damagePerMinute, &kills, &deaths, &assists, &visionWards, &controlWards)
 		if err != nil {

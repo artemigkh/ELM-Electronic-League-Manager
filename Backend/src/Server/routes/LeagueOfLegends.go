@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Server/config"
+	"fmt"
 	lolApi "github.com/artemigkh/GoLang-LeagueOfLegendsAPIV4Framework"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -20,14 +21,14 @@ type LeagueOfLegendsPlayerInformation struct {
 }
 
 type LeagueOfLegendsTeamInformation struct {
-	Name        string                             `json:"name"`
-	Tag         string                             `json:"tag"`
-	Description string                             `json:"description"`
-	Wins        int                                `json:"wins"`
-	Losses      int                                `json:"losses"`
-	IconSmall   string                             `json:"iconSmall"`
-	IconLarge   string                             `json:"iconLarge"`
-	Players     []LeagueOfLegendsPlayerInformation `json:"players"`
+	Name        string                              `json:"name"`
+	Tag         string                              `json:"tag"`
+	Description string                              `json:"description"`
+	Wins        int                                 `json:"wins"`
+	Losses      int                                 `json:"losses"`
+	IconSmall   string                              `json:"iconSmall"`
+	IconLarge   string                              `json:"iconLarge"`
+	Players     []*LeagueOfLegendsPlayerInformation `json:"players"`
 }
 
 type SummonerInformation struct {
@@ -160,6 +161,7 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 		Players:     nil,
 	}
 
+	ids := make([]string, 0)
 	for _, player := range teamInfo.Players {
 		lolPlayer := LeagueOfLegendsPlayerInformation{
 			Id:             player.Id,
@@ -173,25 +175,25 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 		}
 
 		if lolPlayer.ExternalId != "" {
-			p := lolApi.FromSummonerId(player.ExternalId)
-			soloq, err := p.League(lolApi.SummonersRiftSoloQueue)
-			flexq, err := p.League(lolApi.SummonersRiftFlexQueue)
-			if soloq != nil && err == nil {
-				mainPosRank, err := p.SoloQueuePositionRank(lolApi.GetPosition(lolPlayer.Position))
-				if mainPosRank != nil && err == nil {
-					lolPlayer.Rank = mainPosRank.Rank
-					lolPlayer.Tier = mainPosRank.Tier
-				} else {
-					lolPlayer.Rank = soloq.Rank
-					lolPlayer.Tier = soloq.Tier
-				}
-			} else if flexq != nil && err == nil {
-				lolPlayer.Rank = flexq.Rank
-				lolPlayer.Tier = flexq.Tier
-			}
+			ids = append(ids, lolPlayer.ExternalId)
 		}
 
-		leagueTeamInfo.Players = append(leagueTeamInfo.Players, lolPlayer)
+		leagueTeamInfo.Players = append(leagueTeamInfo.Players, &lolPlayer)
+	}
+
+	for key, val := range LoLApi.GetSummonerInformation(ids) {
+		fmt.Printf("%+v\n", key)
+		fmt.Printf("%+v\n", val)
+	}
+
+	summonerInformation := LoLApi.GetSummonerInformation(ids)
+
+	for _, player := range leagueTeamInfo.Players {
+		if info, ok := summonerInformation[player.ExternalId]; ok {
+			player.GameIdentifier = info.GameIdentifier
+			player.Rank = info.Rank
+			player.Tier = info.Tier
+		}
 	}
 
 	ctx.JSON(http.StatusOK, leagueTeamInfo)

@@ -4,6 +4,7 @@ import (
 	"Server/config"
 	"Server/databaseAccess"
 	"Server/icons"
+	"Server/lolApi"
 	"Server/markdown"
 	"Server/routes"
 	"Server/sessionManager"
@@ -36,6 +37,7 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 	routes.IconManager = icons.CreateGoIconManager(conf)
 	routes.MarkdownManager = markdown.CreateGoMarkdownManager(conf)
+	routes.LoLApi = lolApi.GetLolApiWrapper()
 
 	routes.RegisterLoginHandlers(app.Group("/"))
 	routes.RegisterUserHandlers(app.Group("/api/users"))

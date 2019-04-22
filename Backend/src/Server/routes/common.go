@@ -3,6 +3,7 @@ package routes
 import (
 	"Server/databaseAccess"
 	"Server/icons"
+	"Server/lolApi"
 	"Server/markdown"
 	"Server/sessionManager"
 )
@@ -18,6 +19,8 @@ var ElmSessions sessionManager.SessionManager
 
 var IconManager icons.IconManager
 var MarkdownManager markdown.MdManager
+
+var LoLApi lolApi.LoLApi
 
 // Structs
 type userInfo struct {

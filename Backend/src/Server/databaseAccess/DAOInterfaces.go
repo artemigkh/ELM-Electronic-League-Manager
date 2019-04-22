@@ -1,5 +1,7 @@
 package databaseAccess
 
+import "github.com/artemigkh/GoLang-LeagueOfLegendsAPIV4Framework"
+
 /*
  * For consistency across all function signatures, the order of numerical Ids
  * should be in order of magnitude of entity:
@@ -95,4 +97,7 @@ type InviteCodesDAO interface {
 }
 
 type LeagueOfLegendsDAO interface {
+	reportEndGameStats(match GoLang_LeagueOfLegendsAPIV4Framework.Match) error
+
+	GetTopPerformers(leagueId int) (*TopPerformers, error)
 }

@@ -255,10 +255,19 @@ func tournamentCallback(ctx *gin.Context) {
 	print(fmt.Sprintf("%+v", matchStats))
 }
 
+func getPlayerStats(ctx *gin.Context) {
+	playerStats, err := LeagueOfLegendsDAO.GetPlayerStats(ctx.GetInt("leagueId"))
+	if checkJsonErr(ctx, err) {
+		return
+	}
+	ctx.JSON(http.StatusOK, playerStats)
+}
+
 func RegisterLeagueOfLegendsHandlers(g *gin.RouterGroup, conf config.Config) {
 	g.POST("/tournamentCallback", tournamentCallback)
 	g.Use(getActiveLeague())
 
+	g.GET("/stats/player", getPlayerStats)
 	//TODO: add permissions
 	g.POST("/teams/addPlayer", authenticate(), leagueOfLegendsGetSummonerId(), addPlayerToTeam)
 	g.PUT("/teams/updatePlayer", authenticate(), leagueOfLegendsGetSummonerId(), updatePlayer)

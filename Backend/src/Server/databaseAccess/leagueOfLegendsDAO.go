@@ -5,248 +5,36 @@ import (
 	"database/sql"
 )
 
-type ChampionInfo struct {
-	ChampionName string  `json:"championName"`
-	NumGames     int     `json:"numGames"`
-	NumBans      int     `json:"numBans"`
-	NumWins      int     `json:"numWins"`
-	NumLosses    int     `json:"numLosses"`
-	Winrate      float64 `json:"winrate"`
+type PlayerStats struct {
+	Id              string  `json:"id"`
+	Name            string  `json:"name"`
+	TeamId          int     `json:"teamId"`
+	AverageDuration float64 `json:"averageDuration"`
+	GoldPerMinute   float64 `json:"goldPerMinute"`
+	CsPerMinute     float64 `json:"csPerMinute"`
+	DamagePerMinute float64 `json:"damagePerMinute"`
+	AverageKills    float64 `json:"averageKills"`
+	AverageDeaths   float64 `json:"averageDeaths"`
+	AverageAssists  float64 `json:"averageAssists"`
+	AverageKda      float64 `json:"averageKda"`
 }
 
-type TeamInfo struct {
-	TeamId    int     `json:"teamId"`
-	TeamName  string  `json:"teamName"`
-	TeamTag   string  `json:"teamTag"`
-	StatName  string  `json:"statName"`
-	StatValue float64 `json:"statValue"`
-	NumGames  int     `json:"numGames"`
+type TeamStats struct {
+	Id                 string  `json:"id"`
+	AverageDuration    float64 `json:"averageDuration"`
+	NumberFirstBloods  int     `json:"numberFirstBloods"`
+	NumberFirstTurrets int     `json:"numberFirstTurrets"`
 }
 
-type PlayerInfo struct {
-	PlayerName string  `json:"playerName"`
-	StatName   string  `json:"statName"`
-	StatValue  float64 `json:"statValue"`
-	NumGames   int     `json:"numGames"`
-}
-
-type PlayerWardInfo struct {
-	PlayerName   string `json:"playerName"`
-	NumGames     int    `json:"numGames"`
-	VisionWards  int    `json:"visionWards"`
-	ControlWards int    `json:"controlWards"`
-}
-
-type TopPerformers struct {
-	ChampionInfo []ChampionInfo `json:"championInfo"`
-
-	// Teams
-	HighestTeamKDA   []TeamInfo `json:"highestTeamKda"`
-	ShortestGames    []TeamInfo `json:"shortestGames"`
-	MostFirstBloods  []TeamInfo `json:"mostFirstBloods"`
-	MostFirstTurrets []TeamInfo `json:"mostFirstTurrets"`
-
-	// Players
-	HighestDPM       []PlayerInfo     `json:"highestDpm"`
-	HighestGPM       []PlayerInfo     `json:"higheestGpm"`
-	HighestCSPM      []PlayerInfo     `json:"highestCspm"`
-	HighestPlayerKDA []PlayerInfo     `json:"highestPlayerKda"`
-	MostKills        []PlayerInfo     `json:"mostKills"`
-	MostDeaths       []PlayerInfo     `json:"mostDeaths"`
-	MostAssists      []PlayerInfo     `json:"mostAssists"`
-	MostWardsPlaced  []PlayerWardInfo `json:"mostVisionWards"`
-}
-
-func getChampionInformation(leagueId int) ([]ChampionInfo, error) {
-	rows, err := psql.Select("name", "picks", "wins",
-		"picks - wins as losses", "bans", "wins / picks as winrate").
-		From("championStats").
-		Where("leagueId = ?", leagueId).
-		RunWith(db).Query()
-
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var champions []ChampionInfo
-	var champion ChampionInfo
-	for rows.Next() {
-		err := rows.Scan(&champion.ChampionName, &champion.NumGames,
-			&champion.NumWins, &champion.NumLosses, &champion.NumBans,
-			&champion.Winrate)
-		if err != nil {
-			return nil, err
-		}
-		champions = append(champions, champion)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return champions, nil
-}
-
-func getTeamInfo(leagueId int, column, label string) ([]TeamInfo, error) {
-	rows, err := psql.Select("teamId", "numGames", "name", "tag", column).
-		From("teamStats").Join("teams ON teamStats.teamId = teams.id").
-		Where("teamStats.leagueId = ?", leagueId).
-		RunWith(db).Query()
-
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var teamInfo []TeamInfo
-	var teamInfoEntry TeamInfo
-	for rows.Next() {
-		err := rows.Scan(teamInfoEntry.TeamId, teamInfoEntry.NumGames, teamInfoEntry.TeamName,
-			teamInfoEntry.TeamTag, teamInfoEntry.StatValue)
-		if err != nil {
-			return nil, err
-		}
-		teamInfoEntry.StatName = label
-		teamInfo = append(teamInfo, teamInfoEntry)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-
-	return teamInfo, nil
-}
-
-func getHighestTeamKDA(leagueId int) ([]TeamInfo, error) {
-	return nil, nil
-}
-
-func getShortestGames(leagueId int) ([]TeamInfo, error) {
-	return nil, nil
-}
-
-func getMostFirstBloods(leagueId int) ([]TeamInfo, error) {
-	return nil, nil
-}
-
-func getMostFirstTurrets(leagueId int) ([]TeamInfo, error) {
-	return nil, nil
-}
-
-func getHighestDPM(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-
-func getHighestGPM(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-func getHighestCSPM(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-func getHighestPlayerKDA(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-func getMostKills(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-
-func getMostDeaths(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-
-func getMostAssists(leagueId int) ([]PlayerInfo, error) {
-	return nil, nil
-}
-
-func getMostWardsPlaced(leagueId int) ([]PlayerWardInfo, error) {
-	return nil, nil
+type ChampionStats struct {
+	Name    string  `json:"name"`
+	Picks   int     `json:"picks"`
+	Wins    int     `json:"wins"`
+	Losses  int     `json:"losses"`
+	Winrate float64 `json:"winrate"`
 }
 
 type PgLeagueOfLegendsDAO struct{}
-
-func (d *PgLeagueOfLegendsDAO) GetTopPerformers(leagueId int) (*TopPerformers, error) {
-	championInfo, err := getChampionInformation(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	highestTeamKDA, err := getHighestTeamKDA(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	shortestGames, err := getShortestGames(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	mostFirstBloods, err := getMostFirstBloods(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	mostFirstTurrets, err := getMostFirstTurrets(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	highestDPM, err := getHighestDPM(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	highestGPM, err := getHighestGPM(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	highestCSPM, err := getHighestCSPM(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	highestPlayerKDA, err := getHighestPlayerKDA(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	mostKills, err := getMostKills(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	mostDeaths, err := getMostDeaths(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	mostAssists, err := getMostAssists(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	mostWardsPlaced, err := getMostWardsPlaced(leagueId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &TopPerformers{
-		ChampionInfo:     championInfo,
-		HighestTeamKDA:   highestTeamKDA,
-		ShortestGames:    shortestGames,
-		MostFirstBloods:  mostFirstBloods,
-		MostFirstTurrets: mostFirstTurrets,
-		HighestDPM:       highestDPM,
-		HighestGPM:       highestGPM,
-		HighestCSPM:      highestCSPM,
-		HighestPlayerKDA: highestPlayerKDA,
-		MostKills:        mostKills,
-		MostDeaths:       mostDeaths,
-		MostAssists:      mostAssists,
-		MostWardsPlaced:  mostWardsPlaced,
-	}, nil
-}
 
 func (d *PgLeagueOfLegendsDAO) createChampionStatsIfNotExist(leagueId int, champion string) error {
 	// check if exists
@@ -382,4 +170,51 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 	}
 
 	return nil
+}
+
+func (d *PgLeagueOfLegendsDAO) GetPlayerStats(leagueId int) ([]*PlayerStats, error) {
+	rows, err := db.Query(`
+SELECT id, (array_agg(name ORDER BY name))[1] as name, (array_agg(teamId ORDER BY teamId))[1] as teamId,
+SUM(damage) / (SUM(duration) / 60) AS DPM,
+SUM(gold) / (SUM(duration) / 60) AS GPM,
+SUM(cs) / (SUM(duration) / 60) AS CSPM,
+AVG(duration) AS AverageDuration,
+AVG(kills) AS AverageKills,
+AVG(deaths) AS AverageDeaths,
+AVG(assists) AS AverageAssists,	
+(AVG(kills) + AVG(assists)) / GREATEST(1, AVG(deaths)) AS AverageKda
+FROM playerStats WHERE leagueId = $1
+GROUP BY id`, leagueId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var allPlayerStats []*PlayerStats
+	var playerStats PlayerStats
+
+	for rows.Next() {
+		err := rows.Scan(&playerStats.Id, &playerStats.Name, &playerStats.TeamId, &playerStats.DamagePerMinute,
+			&playerStats.GoldPerMinute, &playerStats.CsPerMinute, &playerStats.AverageDuration,
+			&playerStats.AverageKills, &playerStats.AverageDeaths, &playerStats.AverageAssists, &playerStats.AverageKda)
+		if err != nil {
+			return nil, err
+		}
+		allPlayerStats = append(allPlayerStats, &playerStats)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return allPlayerStats, nil
+}
+
+func (d *PgLeagueOfLegendsDAO) GetTeamStats(leagueId int) ([]*TeamStats, error) {
+	return nil, nil
+}
+
+func (d *PgLeagueOfLegendsDAO) GetChampionStats(leagueId int) ([]*ChampionStats, error) {
+	return nil, nil
 }

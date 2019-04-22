@@ -103,5 +103,7 @@ type InviteCodesDAO interface {
 type LeagueOfLegendsDAO interface {
 	ReportEndGameStats(leagueId, gameId, winTeamId, loseTeamId int, match *lolApi.MatchInformation) error
 
-	GetTopPerformers(leagueId int) (*TopPerformers, error)
+	GetPlayerStats(leagueId int) ([]*PlayerStats, error)
+	GetTeamStats(leagueId int) ([]*TeamStats, error)
+	GetChampionStats(leagueId int) ([]*ChampionStats, error)
 }

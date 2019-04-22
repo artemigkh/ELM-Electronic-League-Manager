@@ -1,7 +1,8 @@
 package databaseAccess
 
 import (
-	"github.com/artemigkh/GoLang-LeagueOfLegendsAPIV4Framework"
+	"Server/lolApi"
+	"database/sql"
 )
 
 type ChampionInfo struct {
@@ -247,59 +248,138 @@ func (d *PgLeagueOfLegendsDAO) GetTopPerformers(leagueId int) (*TopPerformers, e
 	}, nil
 }
 
-func (d *PgLeagueOfLegendsDAO) reportEndGameStats(match GoLang_LeagueOfLegendsAPIV4Framework.Match) error {
-	for _, summ := range match.Summoners() {
-		summId, err := summ.SummonerId()
+func (d *PgLeagueOfLegendsDAO) createChampionStatsIfNotExist(leagueId int, champion string) error {
+	// check if exists
+	var id int
+	err := psql.Select("leagueId").
+		From("championStats").
+		Where("leagueId = ? AND name = ?", leagueId, champion).
+		RunWith(db).QueryRow().
+		Scan(&id)
+	if err == sql.ErrNoRows {
+		// does not exist, so create
+		_, err := psql.Insert("championStats").
+			Columns("leagueId", "name", "picks", "wins", "bans").
+			Values(leagueId, champion, 0, 0, 0).RunWith(db).Exec()
 		if err != nil {
 			return err
 		}
-		var (
-			id              int
-			numGames        int
-			goldPerMinute   float64
-			csPerMinute     float64
-			damagePerMinute float64
-			kills           float64
-			deaths          float64
-			assists         float64
-			visionWards     float64
-			controlWards    float64
-		)
-		err = psql.Select("playerId", "numGames", "goldPerMinute", "csPerMinute",
-			"damagePerMinute", "kills", "deaths", "assists", "visionWards", "controlWards").
-			From("playerStats").Join("players ON playersId = id").
-			Where("externalId = ?", summId).
-			RunWith(db).QueryRow().Scan(&id, &numGames, &goldPerMinute, &csPerMinute,
-			&damagePerMinute, &kills, &deaths, &assists, &visionWards, &controlWards)
-		if err != nil {
-			return err
-		}
-
-		summStats := match.PlayerStats(summ)
-
-		gpm := float64(summStats.GoldEarned) / float64(match.GameDuration()*60)
-		goldPerMinute = (goldPerMinute*float64(numGames) + float64(gpm)) /
-			(float64(numGames + 1))
-
-		//cspm := summStats. / (match.GameDuration() * 60)
-		//goldPerMinute = (goldPerMinute * float64(numGames) + float64(gpm)) /
-		//	(float64(numGames + 1))
-
-		dpm := float64(summStats.TotalDamageDealtToChampions) / float64(match.GameDuration()*60)
-		damagePerMinute = (damagePerMinute*float64(numGames) + dpm) /
-			(float64(numGames + 1))
-
-		kills = (kills*float64(numGames) + float64(summStats.Kills)) /
-			float64(numGames+1)
-
-		deaths = (deaths*float64(numGames) + float64(summStats.Deaths)) /
-			float64(numGames+1)
-
-		assists = (assists*float64(numGames) + float64(summStats.Assists)) /
-			float64(numGames+1)
-
-		//visionWards = (visionWards * float64(numGames) + float64(summStats.)) /
-		//	float64(numGames + 1)
+	} else if err != nil {
+		// some db error occured
+		return err
 	}
+
+	//exists so do nothing
+	return nil
+}
+
+func (d *PgLeagueOfLegendsDAO) updateChampionStats(leagueId int, match *lolApi.MatchInformation) error {
+	for _, champion := range match.BannedChampions {
+		err := d.createChampionStatsIfNotExist(leagueId, champion)
+		if err != nil {
+			return err
+		}
+
+		_, err = db.Exec(
+			`
+		UPDATE championStats SET bans = bans + 1
+		WHERE leagueId = $1 AND name = $2
+		`, leagueId, champion)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, champion := range match.WinningChampions {
+		err := d.createChampionStatsIfNotExist(leagueId, champion)
+		if err != nil {
+			return err
+		}
+
+		_, err = db.Exec(
+			`
+		UPDATE championStats SET picks = picks + 1, wins = wins + 1
+		WHERE leagueId = $1 AND name = $2
+		`, leagueId, champion)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, champion := range match.LosingChampions {
+		err := d.createChampionStatsIfNotExist(leagueId, champion)
+		if err != nil {
+			return err
+		}
+
+		_, err = db.Exec(
+			`
+		UPDATE championStats SET picks = picks + 1
+		WHERE leagueId = $1 AND name = $2
+		`, leagueId, champion)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
+	winTeamId, loseTeamId int, match *lolApi.MatchInformation) error {
+
+	err := d.updateChampionStats(leagueId, match)
+	if err != nil {
+		return err
+	}
+
+	// Create League Game Entry
+	var leagueGameId int
+	err = psql.Insert("leagueGame").
+		Columns("gameId", "leagueId", "winTeamId", "loseTeamId", "timestamp", "duration").
+		Values(gameId, leagueId, winTeamId, loseTeamId, match.Timestamp, match.Duration).
+		Suffix("RETURNING \"id\"").
+		RunWith(db).QueryRow().Scan(&leagueGameId)
+	if err != nil {
+		return err
+	}
+
+	// Create Winning Team Stats Entry for this game
+	_, err = psql.Insert("teamStats").
+		Columns("teamId", "gameId", "leagueId", "duration", "side", "firstBlood", "firstTurret", "win").
+		Values(winTeamId, leagueGameId, leagueId, match.Duration, match.WinningTeamStats.Side,
+			match.WinningTeamStats.FirstBlood, match.WinningTeamStats.FirstTower, true).RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
+	// Create Losing Team Stats Entry for this game
+	_, err = psql.Insert("teamStats").
+		Columns("teamId", "gameId", "leagueId", "duration", "side", "firstBlood", "firstTurret", "win").
+		Values(loseTeamId, leagueGameId, leagueId, match.Duration, match.LosingTeamStats.Side,
+			match.LosingTeamStats.FirstBlood, match.LosingTeamStats.FirstTower, false).RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
+	// Create Stats Entry for each Player
+	for _, player := range match.PlayerStats {
+		var teamId int
+		if player.Win {
+			teamId = winTeamId
+		} else {
+			teamId = loseTeamId
+		}
+		_, err = psql.Insert("playerStats").
+			Columns("id", "name", "gameId", "teamId", "leagueId", "duration", "championPicked",
+				"gold", "cs", "damage", "kills", "deaths", "assists", "wards", "win").
+			Values(player.Id, player.Name, leagueGameId, teamId, leagueId, match.Duration,
+				player.ChampionPicked, player.Gold, player.Cs, player.Damage,
+				player.Kills, player.Deaths, player.Assists, player.Wards, player.Win).RunWith(db).Exec()
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

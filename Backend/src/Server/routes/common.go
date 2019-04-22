@@ -14,6 +14,7 @@ var LeaguesDAO databaseAccess.LeaguesDAO
 var TeamsDAO databaseAccess.TeamsDAO
 var GamesDAO databaseAccess.GamesDAO
 var InviteCodesDAO databaseAccess.InviteCodesDAO
+var LeagueOfLegendsDAO databaseAccess.LeagueOfLegendsDAO
 
 var ElmSessions sessionManager.SessionManager
 

@@ -1,6 +1,8 @@
 package databaseAccess
 
-import "github.com/artemigkh/GoLang-LeagueOfLegendsAPIV4Framework"
+import (
+	"Server/lolApi"
+)
 
 /*
  * For consistency across all function signatures, the order of numerical Ids
@@ -79,6 +81,8 @@ type GamesDAO interface {
 	ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error
 	DeleteGame(leagueId, gameId int) error
 	RescheduleGame(leagueId, gameId, gameTime int) error
+	AddExternalId(leagueId, gameId int, externalId string) error
+	GetGameInformationFromExternalId(externalId string) (*GameInformation, error)
 
 	// Get Information
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)
@@ -97,7 +101,7 @@ type InviteCodesDAO interface {
 }
 
 type LeagueOfLegendsDAO interface {
-	reportEndGameStats(match GoLang_LeagueOfLegendsAPIV4Framework.Match) error
+	ReportEndGameStats(leagueId, gameId, winTeamId, loseTeamId int, match *lolApi.MatchInformation) error
 
 	GetTopPerformers(leagueId int) (*TopPerformers, error)
 }

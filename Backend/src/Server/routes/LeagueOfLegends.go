@@ -3,7 +3,7 @@ package routes
 import (
 	"Server/config"
 	"fmt"
-	lolApi "github.com/artemigkh/GoLang-LeagueOfLegendsAPIV4Framework"
+	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"net/http"
@@ -40,7 +40,7 @@ type TournamentCallback struct {
 	WinningTeam    []SummonerInformation `json:"winningTeam"`
 	LosingTeam     []SummonerInformation `json:"losingTeam"`
 	TournamentCode string                `json:"shortCode"`
-	GameId         int                   `json:"gameId"`
+	GameId         string                `json:"gameId"`
 }
 
 // Team Stats Mappings
@@ -105,7 +105,7 @@ func leagueOfLegendsGetSummonerId() gin.HandlerFunc {
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 		}
-		summonerId, err := lolApi.FromName(playerInfo.GameIdentifier).SummonerId()
+		summonerId, err := LoLApi.GetSummonerId(playerInfo.GameIdentifier)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "lolApiError"})
 		}
@@ -181,11 +181,6 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 		leagueTeamInfo.Players = append(leagueTeamInfo.Players, &lolPlayer)
 	}
 
-	for key, val := range LoLApi.GetSummonerInformation(ids) {
-		fmt.Printf("%+v\n", key)
-		fmt.Printf("%+v\n", val)
-	}
-
 	summonerInformation := LoLApi.GetSummonerInformation(ids)
 
 	for _, player := range leagueTeamInfo.Players {
@@ -199,11 +194,75 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, leagueTeamInfo)
 }
 
+func getTournamentCodeForGame(ctx *gin.Context) {
+	// mocked for testing: when complete, should get a tournament code from LoL tournament api
+	tournamentCode := randomdata.RandStringRunes(10)
+	err := GamesDAO.AddExternalId(ctx.GetInt("leagueId"), ctx.GetInt("urlId"), tournamentCode)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"code": tournamentCode})
+}
+
+func tournamentCallback(ctx *gin.Context) {
+	var callbackInfo TournamentCallback
+	err := ctx.ShouldBindJSON(&callbackInfo)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	// Get team information from database
+	gameInfo, err := GamesDAO.GetGameInformationFromExternalId(callbackInfo.TournamentCode)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	team1Info, err := TeamsDAO.GetTeamInformation(gameInfo.LeagueId, gameInfo.Team1Id)
+	if checkJsonErr(ctx, err) {
+		return
+	}
+
+	// Find which team id won and which team id lost by querying a member
+	var winningId int
+	var losingId int
+
+	losingId = gameInfo.Team1Id
+	for _, player := range team1Info.Players {
+		if callbackInfo.WinningTeam[0].SummonerId == player.ExternalId {
+			winningId = gameInfo.Team1Id
+			losingId = gameInfo.Team2Id
+		}
+	}
+	if losingId == gameInfo.Team1Id {
+		winningId = gameInfo.Team2Id
+	}
+
+	// Report Game Complete
+	// TODO
+
+	// Get match stats from LoL Api
+	matchStats, err := LoLApi.GetMatchStats(callbackInfo.GameId)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "lolApiError"})
+	}
+
+	err = LeagueOfLegendsDAO.ReportEndGameStats(gameInfo.LeagueId, gameInfo.Id, winningId, losingId, matchStats)
+	if checkErr(ctx, err) {
+		return
+	}
+
+	print(fmt.Sprintf("%+v", matchStats))
+}
+
 func RegisterLeagueOfLegendsHandlers(g *gin.RouterGroup, conf config.Config) {
-	lolApi.Init("NA1", conf.GetLeagueOfLegendsApiKey())
+	g.POST("/tournamentCallback", tournamentCallback)
 	g.Use(getActiveLeague())
 
+	//TODO: add permissions
 	g.POST("/teams/addPlayer", authenticate(), leagueOfLegendsGetSummonerId(), addPlayerToTeam)
 	g.PUT("/teams/updatePlayer", authenticate(), leagueOfLegendsGetSummonerId(), updatePlayer)
 	g.GET("/teams/:id", getUrlId(), leagueOfLegendsGetTeamInformation)
+	g.GET("/tournamentCode/:id", getUrlId(), getTournamentCodeForGame)
+
 }

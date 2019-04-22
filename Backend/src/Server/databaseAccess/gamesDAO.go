@@ -272,3 +272,33 @@ func (d *PgGamesDAO) RescheduleGame(leagueId, gameId, gameTime int) error {
 		Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
 	return err
 }
+
+func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*GameInformation, error) {
+	var gameInformation GameInformation
+
+	err := psql.Select("id", "externalId", "leagueId", "team1Id", "team2Id",
+		"gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
+		From("games").
+		Where("externalId = ?", externalId).
+		RunWith(db).QueryRow().
+		Scan(&gameInformation.Id, &gameInformation.ExternalId, &gameInformation.LeagueId, &gameInformation.Team1Id, &gameInformation.Team2Id,
+			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerId,
+			&gameInformation.ScoreTeam1, &gameInformation.ScoreTeam2)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gameInformation, nil
+}
+
+func (d *PgGamesDAO) AddExternalId(leagueId, gameId int, externalId string) error {
+	_, err := db.Exec(
+		`
+		UPDATE games SET externalId = $1
+		WHERE id = $2 AND leagueId = $3
+		`, externalId, gameId, leagueId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

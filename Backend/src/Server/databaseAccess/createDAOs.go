@@ -19,3 +19,7 @@ func CreateGamesDAO() GamesDAO {
 func CreateInviteCodesDAO() InviteCodesDAO {
 	return &PgInviteCodesDAO{}
 }
+
+func CreateLeagueOfLegendsDAO() LeagueOfLegendsDAO {
+	return &PgLeagueOfLegendsDAO{}
+}

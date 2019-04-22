@@ -38,6 +38,7 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.IconManager = icons.CreateGoIconManager(conf)
 	routes.MarkdownManager = markdown.CreateGoMarkdownManager(conf)
 	routes.LoLApi = lolApi.GetLolApiWrapper()
+	routes.LeagueOfLegendsDAO = databaseAccess.CreateLeagueOfLegendsDAO()
 
 	routes.RegisterLoginHandlers(app.Group("/"))
 	routes.RegisterUserHandlers(app.Group("/api/users"))

@@ -207,7 +207,7 @@ func testCreateNewGameCorrectDatabaseError(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("DoesExistConflict", 1, 3, 1532913359).Return(false, nil)
-	mockGamesDao.On("CreateGame", 2, 1, 3, 1532913359).Return(14, errors.New("Fake db error"))
+	mockGamesDao.On("CreateGame", 2, 1, 3, 1532913359, "").Return(14, errors.New("Fake db error"))
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -232,7 +232,7 @@ func testCreateNewGameCorrectCreation(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("DoesExistConflict", 1, 3, 1532913359).Return(false, nil)
-	mockGamesDao.On("CreateGame", 2, 1, 3, 1532913359).Return(14, nil)
+	mockGamesDao.On("CreateGame", 2, 1, 3, 1532913359, "").Return(14, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao

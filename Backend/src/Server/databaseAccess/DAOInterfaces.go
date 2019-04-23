@@ -1,5 +1,9 @@
 package databaseAccess
 
+import (
+	"Server/lolApi"
+)
+
 /*
  * For consistency across all function signatures, the order of numerical Ids
  * should be in order of magnitude of entity:
@@ -72,11 +76,13 @@ type TeamsDAO interface {
 
 type GamesDAO interface {
 	// Games
-	CreateGame(leagueId, team1Id, team2Id, gameTime int) (int, error)
+	CreateGame(leagueId, team1Id, team2Id, gameTime int, externalId string) (int, error)
 	GetGameInformation(leagueId, gameId int) (*GameInformation, error)
 	ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error
 	DeleteGame(leagueId, gameId int) error
 	RescheduleGame(leagueId, gameId, gameTime int) error
+	AddExternalId(leagueId, gameId int, externalId string) error
+	GetGameInformationFromExternalId(externalId string) (*GameInformation, error)
 
 	// Get Information
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)
@@ -92,4 +98,12 @@ type InviteCodesDAO interface {
 
 	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)
 	IsTeamManagerInviteCodeValid(code string) (bool, string, error)
+}
+
+type LeagueOfLegendsDAO interface {
+	ReportEndGameStats(leagueId, gameId, winTeamId, loseTeamId int, match *lolApi.MatchInformation) error
+
+	GetPlayerStats(leagueId int) ([]*PlayerStats, error)
+	GetTeamStats(leagueId int) ([]*TeamStats, error)
+	GetChampionStats(leagueId int) ([]*ChampionStats, error)
 }

@@ -3,6 +3,7 @@ package routes
 import (
 	"Server/databaseAccess"
 	"Server/icons"
+	"Server/lolApi"
 	"Server/markdown"
 	"Server/sessionManager"
 )
@@ -13,11 +14,14 @@ var LeaguesDAO databaseAccess.LeaguesDAO
 var TeamsDAO databaseAccess.TeamsDAO
 var GamesDAO databaseAccess.GamesDAO
 var InviteCodesDAO databaseAccess.InviteCodesDAO
+var LeagueOfLegendsDAO databaseAccess.LeagueOfLegendsDAO
 
 var ElmSessions sessionManager.SessionManager
 
 var IconManager icons.IconManager
 var MarkdownManager markdown.MdManager
+
+var LoLApi lolApi.LoLApi
 
 // Structs
 type userInfo struct {

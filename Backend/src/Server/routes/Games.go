@@ -61,7 +61,8 @@ func createNewGame(ctx *gin.Context) {
 		return
 	}
 
-	gameId, err := GamesDAO.CreateGame(ctx.GetInt("leagueId"), gameInfo.Team1Id, gameInfo.Team2Id, gameInfo.GameTime)
+	gameId, err := GamesDAO.CreateGame(ctx.GetInt("leagueId"), gameInfo.Team1Id, gameInfo.Team2Id,
+		gameInfo.GameTime, ctx.GetString("externalId"))
 	if checkErr(ctx, err) {
 		return
 	}

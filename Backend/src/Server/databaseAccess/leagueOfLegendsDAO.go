@@ -28,6 +28,7 @@ type TeamStats struct {
 
 type ChampionStats struct {
 	Name    string  `json:"name"`
+	Bans    int     `json:"bans"`
 	Picks   int     `json:"picks"`
 	Wins    int     `json:"wins"`
 	Losses  int     `json:"losses"`
@@ -192,9 +193,9 @@ GROUP BY id`, leagueId)
 	defer rows.Close()
 
 	var allPlayerStats []*PlayerStats
-	var playerStats PlayerStats
 
 	for rows.Next() {
+		var playerStats PlayerStats
 		err := rows.Scan(&playerStats.Id, &playerStats.Name, &playerStats.TeamId, &playerStats.DamagePerMinute,
 			&playerStats.GoldPerMinute, &playerStats.CsPerMinute, &playerStats.AverageDuration,
 			&playerStats.AverageKills, &playerStats.AverageDeaths, &playerStats.AverageAssists, &playerStats.AverageKda)
@@ -211,10 +212,73 @@ GROUP BY id`, leagueId)
 	return allPlayerStats, nil
 }
 
+//type TeamStats struct {
+//	Id                 string  `json:"id"`
+//	AverageDuration    float64 `json:"averageDuration"`
+//	NumberFirstBloods  int     `json:"numberFirstBloods"`
+//	NumberFirstTurrets int     `json:"numberFirstTurrets"`
+//}
 func (d *PgLeagueOfLegendsDAO) GetTeamStats(leagueId int) ([]*TeamStats, error) {
-	return nil, nil
+	rows, err := db.Query(`
+SELECT teamid, AVG(duration) AS averageDuration,
+COUNT(*) FILTER (WHERE firstBlood) AS numberFirstBloods,
+COUNT(*) FILTER (WHERE firstTurret) AS numberFirstTurrets
+FROM teamStats WHERE leagueId = $1
+GROUP BY teamid`, leagueId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var allTeamStats []*TeamStats
+
+	for rows.Next() {
+		var teamStats TeamStats
+		err := rows.Scan(&teamStats.Id, &teamStats.AverageDuration,
+			&teamStats.NumberFirstBloods, &teamStats.NumberFirstTurrets)
+		if err != nil {
+			return nil, err
+		}
+		allTeamStats = append(allTeamStats, &teamStats)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return allTeamStats, nil
 }
 
 func (d *PgLeagueOfLegendsDAO) GetChampionStats(leagueId int) ([]*ChampionStats, error) {
-	return nil, nil
+	rows, err := db.Query(`
+SELECT name, bans, picks, wins, picks-wins AS losses, 
+CASE picks
+   WHEN 0 THEN 0
+   ELSE wins / picks
+END AS winrate
+FROM championStats WHERE leagueId = $1`, leagueId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var allChampStats []*ChampionStats
+
+	for rows.Next() {
+		var champStats ChampionStats
+		err := rows.Scan(&champStats.Name, &champStats.Bans, &champStats.Picks, &champStats.Wins,
+			&champStats.Losses, &champStats.Winrate)
+		if err != nil {
+			return nil, err
+		}
+		allChampStats = append(allChampStats, &champStats)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return allChampStats, nil
 }

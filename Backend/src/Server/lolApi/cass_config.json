@@ -8,7 +8,7 @@
     "Cache": {},
     "DDragon": {},
     "RiotAPI": {
-      "api_key": "RGAPI-fae8b720-c612-4271-82b3-ef52d57362f2",
+      "api_key": "",
       "request_error_handling": {
         "404": {
           "strategy": "throw"

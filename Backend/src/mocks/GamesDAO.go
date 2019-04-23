@@ -10,6 +10,20 @@ type GamesDAO struct {
 	mock.Mock
 }
 
+// AddExternalId provides a mock function with given fields: leagueId, gameId, externalId
+func (_m *GamesDAO) AddExternalId(leagueId int, gameId int, externalId string) error {
+	ret := _m.Called(leagueId, gameId, externalId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, string) error); ok {
+		r0 = rf(leagueId, gameId, externalId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateGame provides a mock function with given fields: leagueId, team1Id, team2Id, gameTime, externalId
 func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime int, externalId string) (int, error) {
 	ret := _m.Called(leagueId, team1Id, team2Id, gameTime, externalId)
@@ -82,6 +96,29 @@ func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAcces
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int, int) error); ok {
 		r1 = rf(leagueId, gameId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGameInformationFromExternalId provides a mock function with given fields: externalId
+func (_m *GamesDAO) GetGameInformationFromExternalId(externalId string) (*databaseAccess.GameInformation, error) {
+	ret := _m.Called(externalId)
+
+	var r0 *databaseAccess.GameInformation
+	if rf, ok := ret.Get(0).(func(string) *databaseAccess.GameInformation); ok {
+		r0 = rf(externalId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*databaseAccess.GameInformation)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(externalId)
 	} else {
 		r1 = ret.Error(1)
 	}

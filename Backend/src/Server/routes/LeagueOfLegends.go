@@ -257,10 +257,26 @@ func tournamentCallback(ctx *gin.Context) {
 
 func getPlayerStats(ctx *gin.Context) {
 	playerStats, err := LeagueOfLegendsDAO.GetPlayerStats(ctx.GetInt("leagueId"))
-	if checkJsonErr(ctx, err) {
+	if checkErr(ctx, err) {
 		return
 	}
 	ctx.JSON(http.StatusOK, playerStats)
+}
+
+func getTeamStats(ctx *gin.Context) {
+	teamStats, err := LeagueOfLegendsDAO.GetTeamStats(ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+	ctx.JSON(http.StatusOK, teamStats)
+}
+
+func getChampionStats(ctx *gin.Context) {
+	championStats, err := LeagueOfLegendsDAO.GetChampionStats(ctx.GetInt("leagueId"))
+	if checkErr(ctx, err) {
+		return
+	}
+	ctx.JSON(http.StatusOK, championStats)
 }
 
 func RegisterLeagueOfLegendsHandlers(g *gin.RouterGroup, conf config.Config) {
@@ -268,6 +284,8 @@ func RegisterLeagueOfLegendsHandlers(g *gin.RouterGroup, conf config.Config) {
 	g.Use(getActiveLeague())
 
 	g.GET("/stats/player", getPlayerStats)
+	g.GET("/stats/team", getTeamStats)
+	g.GET("/stats/champion", getChampionStats)
 	//TODO: add permissions
 	g.POST("/teams/addPlayer", authenticate(), leagueOfLegendsGetSummonerId(), addPlayerToTeam)
 	g.PUT("/teams/updatePlayer", authenticate(), leagueOfLegendsGetSummonerId(), updatePlayer)

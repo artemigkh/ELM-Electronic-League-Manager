@@ -70,6 +70,10 @@ import { MarkdownModule } from 'ngx-markdown';
 import { LMarkdownEditorModule } from 'ngx-markdown-editor';
 import {ManageRulesComponent} from "./manage/rules/manage-rules";
 import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedule/manage-schedule";
+import {StatsPageComponent, StatsPageDirective} from "./stats/statsPage/stats-page";
+import {GenericStatsPage} from "./stats/statsPage/generic-stats-page";
+import {LeagueOfLegendsStatsPage} from "./stats/statsPage/league-of-legends-stats-page";
+import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stats.service";
 
 @NgModule({
     declarations: [
@@ -103,16 +107,20 @@ import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedul
         GameEntry,
         TeamEntry,
         GenericPlayerEntry,
+        GenericStatsPage,
         PlayerEntryComponent,
+        StatsPageComponent,
         PlayerEntryDirective,
         LeagueOfLegendsPlayerEntry,
+        LeagueOfLegendsStatsPage,
         ManagePlayersTeamDirective,
         ManagePlayersTeamContainerComponent,
         ManagePlayersTeamLeagueOfLegendsComponent,
         ManagePlayersPopupLeagueOfLegends,
         RulesComponent,
         ManageRulesComponent,
-        ManageAvailabilityPopup
+        ManageAvailabilityPopup,
+        StatsPageDirective
     ],
     imports: [
         BrowserModule,
@@ -146,7 +154,7 @@ import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedul
         MarkdownModule.forRoot(),
         LMarkdownEditorModule
     ],
-    providers: [LeagueService, TeamsService, PlayersService, GamesService, UserService, MatIconRegistry],
+    providers: [LeagueService, TeamsService, PlayersService, GamesService, UserService, LeagueOfLegendsStatsService, MatIconRegistry],
     bootstrap: [AppComponent],
     entryComponents: [
         ReportGamePopup,
@@ -157,10 +165,12 @@ import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedul
         ConfirmationComponent,
         GenericPlayerEntry,
         LeagueOfLegendsPlayerEntry,
+        LeagueOfLegendsStatsPage,
         ManagePlayersTeamComponent,
         ManagePlayersTeamLeagueOfLegendsComponent,
         ManagePlayersPopupLeagueOfLegends,
-        ManageAvailabilityPopup
+        ManageAvailabilityPopup,
+        GenericStatsPage
     ]
 })
 export class AppModule {

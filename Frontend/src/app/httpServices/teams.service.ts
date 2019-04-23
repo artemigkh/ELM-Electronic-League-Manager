@@ -101,7 +101,9 @@ export class TeamsService {
                     if(this.leagueService.getGame() == 'leagueoflegends') {
                         sortMainRosterByPosition(team);
                     }
+                    team.id = teamId;
                     observer.next(team);
+                    observer.complete();
                 }, error => {
                     observer.error(error);
                     console.log(error);

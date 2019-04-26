@@ -1,0 +1,238 @@
+<mat-tab-group>
+    <mat-tab label="Players">
+        <div class="player-categories">
+            <div class="player-stats-container">
+                <div class="category-title">Best KDA</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('averageKda')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Most Average Kills</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('averageKills')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Least Average Deaths</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('averageDeaths', false)">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Most Average Assists</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('averageAssists')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Most Average Wards</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('averageWards')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Highest DPM</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('damagePerMinute')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Highest CSPM</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('csPerMinute')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-stats-container">
+                <div class="category-title">Highest GPM</div>
+                <div class="category-content">
+                    <div class="player-entry" *ngFor="let entry of getPlayerStats('goldPerMinute')">
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </mat-tab>
+
+    <mat-tab label="Teams">
+
+        <div class="team-categories">
+            <div class="team-stats-container">
+                <div class="category-title">Best KDA</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('averageKda')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Most First Bloods</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('numberFirstBloods')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Most First Towers</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('numberFirstTurrets')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Most Wards per Game</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('averageWards')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Highest Action Score</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('averageActionScore')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Average GPM</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('goldPerMinute')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Average CSPM</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('csPerMinute')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-stats-container">
+                <div class="category-title">Fastest Games</div>
+                <div class="category-content">
+                    <div class="team-entry" *ngFor="let entry of getTeamStats('averageDuration')">
+                        <span class="icon" [routerLink]="['/teams', entry.id]">
+                            <img [src]="'http://localhost:8080/icons/' + entry.iconSmall">
+                        </span>
+                        <span class="name" [routerLink]="['/teams', entry.id]">{{entry.name}}</span>
+                        <span class="value">{{entry.value}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </mat-tab>
+
+    <mat-tab label="Champions">
+
+        <div class="champion-categories">
+            <div class="champion-stats-container">
+                <div class="category-title">Most Picked</div>
+                <div class="category-content">
+                    <div class="champion-entry" *ngFor="let entry of getChampionStats('picks'); let i = index">
+                        <span class="ranking"> {{i+1}}. </span>
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.picks}}</span>
+                        <span class="winloss">{{entry.wins}}W{{entry.losses}}L</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="champion-stats-container">
+                <div class="category-title">Most Banned</div>
+                <div class="category-content">
+                    <div class="champion-entry" *ngFor="let entry of getChampionStats('bans'); let i = index">
+                        <span class="ranking"> {{i+1}}. </span>
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.bans}}</span>
+                        <span class="winloss">{{entry.wins}}W{{entry.losses}}L</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="champion-stats-container">
+                <div class="category-title">Highest Winrate</div>
+                <div class="category-content">
+                    <div class="champion-entry" *ngFor="let entry of getChampionStats('winrate'); let i = index">
+                        <span class="ranking"> {{i+1}}. </span>
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{formatWinrate(entry.winrate)}}</span>
+                        <span class="winloss">{{entry.wins}}W{{entry.losses}}L</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </mat-tab>
+</mat-tab-group>

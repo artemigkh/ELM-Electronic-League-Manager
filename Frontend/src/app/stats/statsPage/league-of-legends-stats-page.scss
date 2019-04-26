@@ -1,0 +1,185 @@
+.mat-tab-labels {
+    justify-content: center;
+}
+
+.mat-tab-body-content {
+    padding: 50px;
+    overflow: visible !important;
+    height:unset!important;
+}
+
+.player-categories {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .player-stats-container {
+        display: flex;
+        flex-direction: column;
+        width: 350px;
+        margin: 15px;
+
+        .category-title {
+            font-size: 30px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .category-content {
+            .player-entry {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 15px;
+
+                .name {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 18px;
+                    min-width: 70%;
+                }
+                .value {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 26px;
+                    font-weight: 300;
+                    min-width: 30%;
+                }
+            }
+        }
+    }
+}
+
+.team-categories {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .team-stats-container {
+        display: flex;
+        flex-direction: column;
+        width: 350px;
+        margin: 15px;
+
+        .category-title {
+            font-size: 30px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .category-content {
+            .team-entry {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 15px;
+
+                .icon {
+                    width: 20%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    img {
+                        max-height:95%;
+                        max-width:95%;
+                        height:auto;
+                        width:auto;
+                    }
+                }
+
+                .name {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 18px;
+                    min-width: 50%;
+                }
+                .value {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 26px;
+                    font-weight: 300;
+                    min-width: 30%;
+                }
+            }
+        }
+    }
+}
+
+.champion-categories {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .champion-stats-container {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        margin: 15px;
+        margin-left: 100px;
+        margin-right: 100px;
+
+        .category-title {
+            font-size: 30px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+
+        .category-content {
+            .champion-entry {
+                display: flex;
+                flex-direction: row;
+                margin-bottom: 15px;
+
+                .icon {
+                    width: 20%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    img {
+                        max-height:95%;
+                        max-width:95%;
+                        height:auto;
+                        width:auto;
+                    }
+                }
+
+                .ranking {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    min-width: 12.5%;
+                    font-size: 20px;
+                }
+
+                .name {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 18px;
+                    min-width: 40%;
+                }
+                .value {
+                     display: flex;
+                     flex-direction: column;
+                     justify-content: center;
+                     font-size: 20px;
+                     font-weight: 300;
+                     min-width: 25%;
+                 }
+                .winloss {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 20px;
+                    font-weight: 300;
+                    min-width: 12.5%;
+                }
+            }
+        }
+    }
+}

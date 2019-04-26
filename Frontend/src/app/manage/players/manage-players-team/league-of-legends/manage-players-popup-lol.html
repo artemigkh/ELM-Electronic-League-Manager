@@ -13,7 +13,7 @@
             <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field *ngIf="mainRoster">
             <mat-select placeholder="Position" [(value)]="player.position==''?None:player.position">
                 <mat-option *ngFor="let pos of availablePositions" [value]="pos" (click)="setPosition(pos)">
                     {{pos.charAt(0).toUpperCase() + pos.slice(1)}}

@@ -17,6 +17,7 @@ type PlayerStats struct {
 	AverageDeaths   float64 `json:"averageDeaths"`
 	AverageAssists  float64 `json:"averageAssists"`
 	AverageKda      float64 `json:"averageKda"`
+	AverageWards    float64 `json:"averageWards"`
 }
 
 type TeamStats struct {
@@ -24,6 +25,11 @@ type TeamStats struct {
 	AverageDuration    float64 `json:"averageDuration"`
 	NumberFirstBloods  int     `json:"numberFirstBloods"`
 	NumberFirstTurrets int     `json:"numberFirstTurrets"`
+	AverageKda         float64 `json:"averageKda"`
+	AverageWards       float64 `json:"averageWards"`
+	AverageActionScore float64 `json:"averageActionScore"`
+	GoldPerMinute      float64 `json:"goldPerMinute"`
+	CsPerMinute        float64 `json:"csPerMinute"`
 }
 
 type ChampionStats struct {
@@ -182,7 +188,8 @@ SUM(cs) / (SUM(duration) / 60) AS CSPM,
 AVG(duration) AS AverageDuration,
 AVG(kills) AS AverageKills,
 AVG(deaths) AS AverageDeaths,
-AVG(assists) AS AverageAssists,	
+AVG(assists) AS AverageAssists,
+AVG(wards) AS AverageWards,
 (AVG(kills) + AVG(assists)) / GREATEST(1, AVG(deaths)) AS AverageKda
 FROM playerStats WHERE leagueId = $1
 GROUP BY id`, leagueId)
@@ -198,7 +205,8 @@ GROUP BY id`, leagueId)
 		var playerStats PlayerStats
 		err := rows.Scan(&playerStats.Id, &playerStats.Name, &playerStats.TeamId, &playerStats.DamagePerMinute,
 			&playerStats.GoldPerMinute, &playerStats.CsPerMinute, &playerStats.AverageDuration,
-			&playerStats.AverageKills, &playerStats.AverageDeaths, &playerStats.AverageAssists, &playerStats.AverageKda)
+			&playerStats.AverageKills, &playerStats.AverageDeaths, &playerStats.AverageAssists,
+			&playerStats.AverageWards, &playerStats.AverageKda)
 		if err != nil {
 			return nil, err
 		}
@@ -220,11 +228,23 @@ GROUP BY id`, leagueId)
 //}
 func (d *PgLeagueOfLegendsDAO) GetTeamStats(leagueId int) ([]*TeamStats, error) {
 	rows, err := db.Query(`
-SELECT teamid, AVG(duration) AS averageDuration,
+SELECT t1.teamId, averageDuration, numberFirstBloods, numberFirstTurrets,
+AverageKda, AverageActionScore, AverageWards, AverageGoldPerMinute, AverageCsPerMinute
+FROM (SELECT teamId,
+(AVG(kills) + AVG(assists)) / GREATEST(1, AVG(deaths)) AS AverageKda,
+(SUM(kills) + SUM(deaths)) / (COUNT(*)/5) AS AverageActionScore,
+SUM(wards) / (COUNT(*)/5) AS AverageWards,	  
+(SUM(gold) / (SUM(duration)/60)) / (COUNT(*)/5) AS AverageGoldPerMinute,
+(SUM(cs) / (SUM(duration)/60)) / (COUNT(*)/5) AS AverageCsPerMinute
+FROM playerStats WHERE leagueId=$1
+GROUP BY teamId) AS t1
+INNER JOIN
+(SELECT teamid, AVG(duration) AS averageDuration,
 COUNT(*) FILTER (WHERE firstBlood) AS numberFirstBloods,
 COUNT(*) FILTER (WHERE firstTurret) AS numberFirstTurrets
 FROM teamStats WHERE leagueId = $1
-GROUP BY teamid`, leagueId)
+GROUP BY teamid) AS t2
+ON t1.teamId = t2.teamId`, leagueId)
 	if err != nil {
 		return nil, err
 	}
@@ -232,11 +252,11 @@ GROUP BY teamid`, leagueId)
 	defer rows.Close()
 
 	var allTeamStats []*TeamStats
-
 	for rows.Next() {
 		var teamStats TeamStats
-		err := rows.Scan(&teamStats.Id, &teamStats.AverageDuration,
-			&teamStats.NumberFirstBloods, &teamStats.NumberFirstTurrets)
+		err := rows.Scan(&teamStats.Id, &teamStats.AverageDuration, &teamStats.NumberFirstBloods,
+			&teamStats.NumberFirstTurrets, &teamStats.AverageKda, &teamStats.AverageActionScore,
+			&teamStats.AverageWards, &teamStats.GoldPerMinute, &teamStats.CsPerMinute)
 		if err != nil {
 			return nil, err
 		}
@@ -255,7 +275,7 @@ func (d *PgLeagueOfLegendsDAO) GetChampionStats(leagueId int) ([]*ChampionStats,
 SELECT name, bans, picks, wins, picks-wins AS losses, 
 CASE picks
    WHEN 0 THEN 0
-   ELSE wins / picks
+   ELSE wins::FLOAT / picks::FLOAT
 END AS winrate
 FROM championStats WHERE leagueId = $1`, leagueId)
 	if err != nil {

@@ -226,20 +226,40 @@ func tournamentCallback(ctx *gin.Context) {
 	// Find which team id won and which team id lost by querying a member
 	var winningId int
 	var losingId int
+	var team1Score int
+	var team2Score int
 
 	losingId = gameInfo.Team1Id
 	for _, player := range team1Info.Players {
 		if callbackInfo.WinningTeam[0].SummonerId == player.ExternalId {
 			winningId = gameInfo.Team1Id
 			losingId = gameInfo.Team2Id
+
+			team1Score = 1
+			team2Score = 0
 		}
 	}
 	if losingId == gameInfo.Team1Id {
 		winningId = gameInfo.Team2Id
+
+		team1Score = 0
+		team2Score = 1
 	}
 
 	// Report Game Complete
-	// TODO
+	if failIfGameDoesNotExist(ctx, gameInfo.LeagueId, gameInfo.Id) {
+		return
+	}
+	if failIfGameDoesNotContainWinner(ctx, gameInfo.LeagueId, gameInfo.Id, winningId) {
+		return
+	}
+
+	//report the result
+	err = GamesDAO.ReportGame(gameInfo.LeagueId, gameInfo.Id,
+		winningId, team1Score, team2Score)
+	if checkErr(ctx, err) {
+		return
+	}
 
 	// Get match stats from LoL Api
 	matchStats, err := LoLApi.GetMatchStats(callbackInfo.GameId)

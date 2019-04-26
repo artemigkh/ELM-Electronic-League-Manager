@@ -1,9 +1,5 @@
-<!--<h1>-->
-    <!--Manage Teams-->
-<!--</h1>-->
 
-<!--<mat-divider></mat-divider>-->
-
+<div class="manage-teams-table">
 <mat-table [dataSource]="teams">
     <!-- Position Column -->
     <ng-container matColumnDef="team">
@@ -45,5 +41,5 @@
     </ng-container>
     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 </mat-table>
-
+</div>
 

@@ -8,6 +8,8 @@ import {Id} from "../../../../httpServices/api-return-schemas/id";
 import {LeagueService} from "../../../../httpServices/leagues.service";
 import {TeamsService} from "../../../../httpServices/teams.service";
 
+const allPositions: string[] = ["top", "jungle", "middle", "bottom", "support"];
+
 class PlayerDataLoL extends PlayerData {
     caller: ManagePlayersTeamLeagueOfLegendsComponent;
     availablePositions: string[];
@@ -20,7 +22,6 @@ class PlayerDataLoL extends PlayerData {
     styleUrls: ['./manage-players-team-lol.scss'],
 })
 export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeamComponent{
-    availablePositions: string[] = ["top", "jungle", "middle", "bottom", "support"];
     constructor(public leagueService: LeagueService,
                 public playersService: PlayersService,
                 public teamsService: TeamsService,
@@ -28,12 +29,16 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
         super(leagueService, playersService, teamsService, dialog);
     }
 
-    ngOnInit() {
+    getAvailablePositions(currentPlayer: LeagueOfLegendsPlayer = null): string[] {
+        let availablePositions: string[] = Object.assign([], allPositions);
+
         this.team.players.forEach((player: LeagueOfLegendsPlayer) => {
-            if(player.position != "") {
-                this.availablePositions.splice(this.availablePositions.indexOf(player.position.toLowerCase()), 1 );
+            if(player.position != "" && player != currentPlayer) {
+                availablePositions.splice(availablePositions.indexOf(player.position.toLowerCase()), 1 );
             }
         });
+
+        return availablePositions;
     }
 
     newPlayerPopup(teamId: number, mainRoster: boolean): void {
@@ -46,7 +51,7 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
                     gameIdentifier: "",
                     position: ""
                 },
-                availablePositions: this.availablePositions,
+                availablePositions: this.getAvailablePositions(),
                 teamId: teamId,
                 mainRoster: mainRoster,
                 action: Action.Create,
@@ -56,17 +61,13 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
         });
     }
 
-    editPlayerPopup(player: Player, teamId: number, mainRoster: boolean): void {
-        let positions = this.availablePositions.slice();
-        if(player.position != "") {
-            positions.push(player.position.toLowerCase())
-        }
+    editPlayerPopup(player: LeagueOfLegendsPlayer, teamId: number, mainRoster: boolean): void {
         const dialogRef = this.dialog.open(ManagePlayersPopupLeagueOfLegends, {
             width: '500px',
             data: {
                 title: "Edit Player Information",
                 player: player,
-                availablePositions: positions,
+                availablePositions: this.getAvailablePositions(player),
                 teamId: teamId,
                 mainRoster: mainRoster,
                 action: Action.Edit,
@@ -85,6 +86,13 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
         console.log("component create success");
     }
 
+    movePlayerRoleLoL(player: Player, teamId: number, mainRoster: boolean): void {
+        if(!mainRoster) {
+            player.position = "";
+        }
+        this.movePlayerRole(player, teamId, mainRoster);
+    }
+
     getPositionIcon(player: LeagueOfLegendsPlayer): string {
         return "assets/leagueOfLegends/" + player.position.toLowerCase() + "_Icon.png";
     }
@@ -99,11 +107,13 @@ export class ManagePlayersPopupLeagueOfLegends {
     action: Action;
     player: LeagueOfLegendsPlayer;
     availablePositions: string[];
+    mainRoster: boolean;
 
     constructor(
         public dialogRef: MatDialogRef<ManagePlayersPopupLeagueOfLegends>,
         @Inject(MAT_DIALOG_DATA) public data: PlayerDataLoL,
         private playersService: PlayersService) {
+        this.mainRoster = data.mainRoster;
         this.action = data.action;
         this.player = data.player;
         this.availablePositions = data.availablePositions;

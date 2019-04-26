@@ -196,5 +196,43 @@
 
     <mat-tab label="Champions">
 
+        <div class="champion-categories">
+            <div class="champion-stats-container">
+                <div class="category-title">Most Picked</div>
+                <div class="category-content">
+                    <div class="champion-entry" *ngFor="let entry of getChampionStats('picks'); let i = index">
+                        <span class="ranking"> {{i+1}}. </span>
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.picks}}</span>
+                        <span class="winloss">{{entry.wins}}W{{entry.losses}}L</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="champion-stats-container">
+                <div class="category-title">Most Banned</div>
+                <div class="category-content">
+                    <div class="champion-entry" *ngFor="let entry of getChampionStats('bans'); let i = index">
+                        <span class="ranking"> {{i+1}}. </span>
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{entry.bans}}</span>
+                        <span class="winloss">{{entry.wins}}W{{entry.losses}}L</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="champion-stats-container">
+                <div class="category-title">Highest Winrate</div>
+                <div class="category-content">
+                    <div class="champion-entry" *ngFor="let entry of getChampionStats('winrate'); let i = index">
+                        <span class="ranking"> {{i+1}}. </span>
+                        <span class="name">{{entry.name}}</span>
+                        <span class="value">{{formatWinrate(entry.winrate)}}</span>
+                        <span class="winloss">{{entry.wins}}W{{entry.losses}}L</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </mat-tab>
 </mat-tab-group>

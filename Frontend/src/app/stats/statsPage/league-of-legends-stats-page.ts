@@ -129,8 +129,27 @@ export class LeagueOfLegendsStatsPage implements StatsPageInterface {
 
     getChampionStats(stat: string): ChampionStatsEntry[] {
         return this.championStats.
-        sort((a,b) => (a[stat] > b[stat]) ? -1 : ((b[stat] > a[stat]) ? 1 : 0))
+            sort((a,b) => (a[stat] > b[stat]) ? -1 : ((b[stat] > a[stat]) ? 1 : 0)).
+            filter(a => {
+                if (stat == 'winrate') {
+                    return 1;
+                } else {
+                    return a[stat] > 0;
+                }
+        });
     }
+
+    formatWinrate(winrate: number): string {
+        winrate *= 100;
+        let sn: string;
+        if(Number.isInteger(winrate)) {
+            sn = winrate.toFixed(0);
+        } else {
+            sn = winrate.toFixed(2);
+        }
+        return sn + "%";
+    }
+
 
     getTeamStats(stat: string, desc = true): TeamEntry[] {
         let comp = desc ? 1 : -1;

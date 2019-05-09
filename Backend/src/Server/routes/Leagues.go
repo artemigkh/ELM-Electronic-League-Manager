@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"Server/databaseAccess"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -150,16 +151,19 @@ func updateLeagueInfo(ctx *gin.Context) {
 	}
 
 	err = LeaguesDAO.UpdateLeague(
-		ctx.GetInt("leagueId"),
-		lgRequest.Name,
-		lgRequest.Description,
-		lgRequest.Game,
-		lgRequest.PublicView,
-		lgRequest.PublicJoin,
-		lgRequest.SignupStart,
-		lgRequest.SignupEnd,
-		lgRequest.LeagueStart,
-		lgRequest.LeagueEnd)
+		databaseAccess.LeagueInformationDTO{
+			Id:          ctx.GetInt("leagueId"),
+			Name:        lgRequest.Name,
+			Description: lgRequest.Description,
+			Game:        lgRequest.Game,
+			PublicView:  lgRequest.PublicView,
+			PublicJoin:  lgRequest.PublicJoin,
+			SignupStart: lgRequest.SignupStart,
+			SignupEnd:   lgRequest.SignupEnd,
+			LeagueStart: lgRequest.LeagueStart,
+			LeagueEnd:   lgRequest.LeagueEnd,
+		})
+
 	if checkErr(ctx, err) {
 		return
 	}

@@ -46,7 +46,7 @@ type PgLeagueOfLegendsDAO struct{}
 func (d *PgLeagueOfLegendsDAO) createChampionStatsIfNotExist(leagueId int, champion string) error {
 	// check if exists
 	var id int
-	err := psql.Select("leagueId").
+	err := psql.Select("league_id").
 		From("championStats").
 		Where("leagueId = ? AND name = ?", leagueId, champion).
 		RunWith(db).QueryRow().
@@ -54,7 +54,7 @@ func (d *PgLeagueOfLegendsDAO) createChampionStatsIfNotExist(leagueId int, champ
 	if err == sql.ErrNoRows {
 		// does not exist, so create
 		_, err := psql.Insert("championStats").
-			Columns("leagueId", "name", "picks", "wins", "bans").
+			Columns("league_id", "name", "picks", "wins", "bans").
 			Values(leagueId, champion, 0, 0, 0).RunWith(db).Exec()
 		if err != nil {
 			return err
@@ -131,7 +131,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 	// Create League Game Entry
 	var leagueGameId int
 	err = psql.Insert("leagueGame").
-		Columns("gameId", "leagueId", "winTeamId", "loseTeamId", "timestamp", "duration").
+		Columns("gameId", "league_id", "winTeamId", "loseTeamId", "timestamp", "duration").
 		Values(gameId, leagueId, winTeamId, loseTeamId, match.Timestamp, match.Duration).
 		Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&leagueGameId)
@@ -141,7 +141,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 
 	// Create Winning Team Stats Entry for this game
 	_, err = psql.Insert("teamStats").
-		Columns("teamId", "gameId", "leagueId", "duration", "side", "firstBlood", "firstTurret", "win").
+		Columns("teamId", "gameId", "league_id", "duration", "side", "firstBlood", "firstTurret", "win").
 		Values(winTeamId, leagueGameId, leagueId, match.Duration, match.WinningTeamStats.Side,
 			match.WinningTeamStats.FirstBlood, match.WinningTeamStats.FirstTower, true).RunWith(db).Exec()
 	if err != nil {
@@ -150,7 +150,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 
 	// Create Losing Team Stats Entry for this game
 	_, err = psql.Insert("teamStats").
-		Columns("teamId", "gameId", "leagueId", "duration", "side", "firstBlood", "firstTurret", "win").
+		Columns("teamId", "gameId", "league_id", "duration", "side", "firstBlood", "firstTurret", "win").
 		Values(loseTeamId, leagueGameId, leagueId, match.Duration, match.LosingTeamStats.Side,
 			match.LosingTeamStats.FirstBlood, match.LosingTeamStats.FirstTower, false).RunWith(db).Exec()
 	if err != nil {
@@ -166,7 +166,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 			teamId = loseTeamId
 		}
 		_, err = psql.Insert("playerStats").
-			Columns("id", "name", "gameId", "teamId", "leagueId", "duration", "championPicked",
+			Columns("id", "name", "gameId", "teamId", "league_id", "duration", "championPicked",
 				"gold", "cs", "damage", "kills", "deaths", "assists", "wards", "win").
 			Values(player.Id, player.Name, leagueGameId, teamId, leagueId, match.Duration,
 				player.ChampionPicked, player.Gold, player.Cs, player.Damage,

@@ -1,59 +1,37 @@
-CREATE SEQUENCE leaguesIdSeq;
-CREATE SEQUENCE usersIdSeq;
-CREATE SEQUENCE playersIdSeq;
-CREATE SEQUENCE teamsIdSeq;
-CREATE SEQUENCE gamesIdSeq;
-CREATE SEQUENCE leagueRecurringAvailabilitiesIdSeq;
-CREATE SEQUENCE leagueOneTimeAvailabilitiesIdSeq;
+CREATE SEQUENCE league_id_seq;
+CREATE SEQUENCE user_id_seq;
+CREATE SEQUENCE player_id_seq;
+CREATE SEQUENCE team_id_seq;
+CREATE SEQUENCE game_id_seq;
+CREATE SEQUENCE league_recurring_availability_id_seq;
+CREATE SEQUENCE league_one_time_availability_id_seq;
 
-CREATE TABLE leagues (
-  id              INT           PRIMARY KEY DEFAULT nextval('leaguesIdSeq'),
+CREATE TABLE league (
+  id              INT           PRIMARY KEY DEFAULT nextval('league_id_seq'),
   name            VARCHAR(50)   UNIQUE NOT NULL         ,
   description     VARCHAR(500)                          ,
-  markdownLoc     VARCHAR(20)   NOT NULL                ,
-  publicView      BOOLEAN       NOT NULL                ,
-  publicJoin      BOOLEAN       NOT NULL                ,
-  signupStart     INT           NOT NULL                ,
-  signupEnd       INT           NOT NULL                ,
-  leagueStart     INT           NOT NULL                ,
-  leagueEnd       INT           NOT NULL                ,
+  markdown_path   VARCHAR(20)   UNIQUE NOT NULL         ,
+  public_view     BOOLEAN       NOT NULL                ,
+  public_join     BOOLEAN       NOT NULL                ,
+  signup_start    INT           NOT NULL                ,
+  signup_end      INT           NOT NULL                ,
+  league_start    INT           NOT NULL                ,
+  league_end      INT           NOT NULL                ,
   game            VARCHAR(30)   NOT NULL
 );
-ALTER SEQUENCE leaguesIdSeq OWNED BY leagues.id;
+ALTER SEQUENCE league_id_seq OWNED BY league.id;
 
-CREATE TABLE leagueRecurringAvailabilities (
-  id              INT           PRIMARY KEY DEFAULT nextval('leagueRecurringAvailabilitiesIdSeq'),
-  leagueId        INT           NOT NULL                ,
-  weekday         SMALLINT      NOT NULL                ,
-  timezone        INT           NOT NULL                ,
-  hour            SMALLINT      NOT NULL                ,
-  minute          SMALLINT      NOT NULL                ,
-  duration        SMALLINT      NOT NULL                ,
-  constrained     BOOLEAN       NOT NULL                ,
-  startUnixTime   INT                                   ,
-  endUnixTime     INT
-);
-ALTER SEQUENCE leagueRecurringAvailabilitiesIdSeq OWNED BY leagueRecurringAvailabilities.id;
-
-CREATE TABLE leagueOneTimeAvailabilities (
-  id              INT           PRIMARY KEY DEFAULT nextval('leagueOneTimeAvailabilitiesIdSeq'),
-  leagueId        INT           NOT NULL                ,
-  start           INT                                   ,
-  end             INT
-);
-ALTER SEQUENCE leagueOneTimeAvailabilitiesIdSeq OWNED BY leagueOneTimeAvailabilities.id;
-
-CREATE TABLE users (
-  id              INT           PRIMARY KEY DEFAULT nextval('usersIdSeq'),
+CREATE TABLE user_ (
+  id              INT           PRIMARY KEY DEFAULT nextval('user_id_seq'),
   email           VARCHAR(256)  UNIQUE NOT NULL  ,
   salt            CHAR(64)      NOT NULL         ,
   hash            CHAR(128)     NOT NULL
 );
-ALTER SEQUENCE usersIdSeq OWNED BY users.id;
+ALTER SEQUENCE user_id_seq OWNED BY user_.id;
 
-CREATE TABLE players (
-  id              INT           PRIMARY KEY DEFAULT nextval('playersIdSeq'),
-  teamId          INT           NOT NULL         ,
+CREATE TABLE player (
+  id              INT           PRIMARY KEY DEFAULT nextval('player_id_seq'),
+  team_Id         INT           NOT NULL         ,
   userId          INT           UNIQUE           ,
   gameIdentifier  VARCHAR(50)   NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
@@ -61,10 +39,10 @@ CREATE TABLE players (
   mainRoster      BOOLEAN       NOT NULL         ,
   position        VARCHAR(20)
 );
-ALTER SEQUENCE playersIdSeq OWNED BY players.id;
+ALTER SEQUENCE player_id_seq OWNED BY players.id;
 
-CREATE TABLE teams (
-  id              INT           PRIMARY KEY DEFAULT nextval('teamsIdSeq'),
+CREATE TABLE team (
+  id              INT           PRIMARY KEY DEFAULT nextval('team_id_seq'),
   leagueId        INT           NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
   tag             VARCHAR(5)    NOT NULL         ,
@@ -74,9 +52,9 @@ CREATE TABLE teams (
   iconSmall       VARCHAR(20)   NOT NULL         ,
   iconLarge       VARCHAR(20)   NOT NULL
 );
-ALTER SEQUENCE teamsIdSeq OWNED BY teams.id;
+ALTER SEQUENCE team_id_seq OWNED BY team.id;
 
-CREATE TABLE leaguePermissions (
+CREATE TABLE league_permissions (
   userId          INT           NOT NULL         ,
   leagueId        INT           NOT NULL         ,
   administrator   BOOLEAN       NOT NULL         ,
@@ -85,8 +63,7 @@ CREATE TABLE leaguePermissions (
   editGames       BOOLEAN       NOT NULL
 );
 
--- TODO: if efficiency a problem, add leagueID for faster filter
-CREATE TABLE teamPermissions (
+CREATE TABLE team_permissions (
   userId          INT           NOT NULL         ,
   teamId          INT           NOT NULL         ,
   administrator   BOOLEAN       NOT NULL         ,
@@ -95,8 +72,8 @@ CREATE TABLE teamPermissions (
   reportResults   BOOLEAN       NOT NULL
 );
 
-CREATE TABLE games (
-  id              INT           PRIMARY KEY DEFAULT nextval('gamesIdSeq'),
+CREATE TABLE game (
+  id              INT           PRIMARY KEY DEFAULT nextval('game_id_seq'),
   externalId      VARCHAR(50)              NOT NULL      ,
   leagueId        INT                      NOT NULL      ,
   team1Id         INT                      NOT NULL      ,
@@ -107,4 +84,26 @@ CREATE TABLE games (
   scoreteam1      INT                      NOT NULL      ,
   scoreteam2      INT                      NOT NULL
 );
-ALTER SEQUENCE gamesIdSeq OWNED BY games.id;
+
+ALTER SEQUENCE game_id_seq OWNED BY game.id;
+CREATE TABLE league_recurring_availability (
+  id              INT           PRIMARY KEY DEFAULT nextval('league_recurring_availability_id_seq'),
+  league_id       INT           NOT NULL REFERENCES league(id)   ,
+  weekday         SMALLINT      NOT NULL                ,
+  timezone        INT           NOT NULL                ,
+  hour            SMALLINT      NOT NULL                ,
+  minute          SMALLINT      NOT NULL                ,
+  duration        SMALLINT      NOT NULL                ,
+  constrained     BOOLEAN       NOT NULL                ,
+  start_time      INT                                   ,
+  end_time        INT
+);
+ALTER SEQUENCE league_recurring_availability_id_seq OWNED BY league_recurring_availability.id;
+
+CREATE TABLE league_one_time_availability (
+  id              INT           PRIMARY KEY DEFAULT nextval('league_one_time_availability_id_seq'),
+  leagueId        INT           NOT NULL                ,
+  start           INT                                   ,
+  end             INT
+);
+ALTER SEQUENCE league_one_time_availability_id_seq OWNED BY leagueOneTimeAvailabilities.id;

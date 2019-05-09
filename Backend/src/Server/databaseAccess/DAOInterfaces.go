@@ -24,10 +24,9 @@ type LeaguesDAO interface {
 	GetPublicLeagueList() ([]PublicLeagueInformation, error)
 	CreateLeague(userId int, name, description, game string, publicView, publicJoin bool,
 		signupStart, signupEnd, leagueStart, leagueEnd int) (int, error)
-	UpdateLeague(leagueId int, name, description, game string, publicView, publicJoin bool,
-		signupStart, signupEnd, leagueStart, leagueEnd int) error
-	GetLeagueInformation(leagueId int) (*LeagueInformation, error)
-	GetTeamSummary(leagueId int) ([]TeamSummaryInformation, error)
+	UpdateLeague(leagueInfo LeagueInformationDTO) error
+	GetLeagueInformation(leagueId int) (*LeagueInformationDTO, error)
+	GetTeamSummary(leagueId int) ([]*TeamSummaryInformationDTO, error)
 	GetGameSummary(leagueId int) ([]GameSummaryInformation, error)
 	JoinLeague(leagueId, userId int) error
 	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)

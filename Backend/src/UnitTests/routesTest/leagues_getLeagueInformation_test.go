@@ -15,7 +15,7 @@ import (
 func createLeagueInfoBody(id int, name, description, game string, publicView, publicJoin bool,
 	signupStart, signupEnd, leagueStart, leagueEnd int) *bytes.Buffer {
 
-	reqBody := databaseAccess.LeagueInformation{
+	reqBody := databaseAccess.LeagueInformationDTO{
 		Id:          id,
 		Name:        name,
 		Description: description,
@@ -61,7 +61,7 @@ func testGetLeagueDataDatabaseError(t *testing.T) {
 		Return(2, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("GetLeagueInformation", 2).Return(&databaseAccess.LeagueInformation{
+	mockLeaguesDao.On("GetLeagueInformation", 2).Return(&databaseAccess.LeagueInformationDTO{
 		Id: 2,
 	}, errors.New("Fake db error"))
 
@@ -79,7 +79,7 @@ func testCorrectGetLeagueData(t *testing.T) {
 		Return(2, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("GetLeagueInformation", 2).Return(&databaseAccess.LeagueInformation{
+	mockLeaguesDao.On("GetLeagueInformation", 2).Return(&databaseAccess.LeagueInformationDTO{
 		Id:          2,
 		Name:        "testName",
 		Description: "testDescription",

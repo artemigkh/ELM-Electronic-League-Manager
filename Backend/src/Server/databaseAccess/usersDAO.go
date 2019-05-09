@@ -24,14 +24,14 @@ type UserPermissions struct {
 }
 
 func (d *PgUsersDAO) CreateUser(email, salt, hash string) error {
-	_, err := psql.Insert("users").Columns("email", "salt", "hash").
+	_, err := psql.Insert("user_").Columns("email", "salt", "hash").
 		Values(email, salt, hash).RunWith(db).Exec()
 	return err
 }
 
 func (d *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
 	err := psql.Select("email").
-		From("users").
+		From("user_").
 		Where("email = ?", email).
 		RunWith(db).QueryRow().Scan(&email)
 	if err == sql.ErrNoRows {
@@ -48,7 +48,7 @@ func (d *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, st
 	var salt string
 	var storedHash string
 
-	err := psql.Select("id", "salt", "hash").From("users").Where("email = ?", email).
+	err := psql.Select("id", "salt", "hash").From("user_").Where("email = ?", email).
 		RunWith(db).QueryRow().Scan(&id, &salt, &storedHash)
 	if err != nil {
 		return 0, "", "", err
@@ -60,7 +60,7 @@ func (d *PgUsersDAO) GetAuthenticationInformation(email string) (int, string, st
 func (d *PgUsersDAO) GetUserProfile(userId int) (*UserInformation, error) {
 	var profile UserInformation
 
-	err := psql.Select("email").From("users").Where("id = ?", userId).
+	err := psql.Select("email").From("user_").Where("id = ?", userId).
 		RunWith(db).QueryRow().Scan(&profile.Email)
 	if err != nil {
 		return nil, err
@@ -81,9 +81,9 @@ func (d *PgUsersDAO) GetPermissions(leagueId, userId int) (*UserPermissions, err
 
 	// get permissions from teams in league this user has entries for
 	rows, err := db.Query(`
-SELECT teamId, administrator, information, players, reportResults FROM teamPermissions
+SELECT teamId, administrator, information, players, reportResults FROM team_permissions
 WHERE userId = $1
-AND teamId IN (SELECT id FROM teams WHERE leagueId = $2)
+AND teamId IN (SELECT id FROM team WHERE leagueId = $2)
 	`, userId, leagueId)
 
 	if err != nil {

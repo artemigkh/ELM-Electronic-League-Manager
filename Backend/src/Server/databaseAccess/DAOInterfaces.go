@@ -89,17 +89,6 @@ type GamesDAO interface {
 	HasReportResultPermissions(leagueId, gameId, userId int) (bool, error)
 }
 
-type InviteCodesDAO interface {
-	//leagues
-
-	//teams
-	CreateTeamManagerInviteCode(leagueId, teamId int, administrator, information, players, reportResults bool) (string, error)
-	UseTeamManagerInviteCode(userId int, code string) error
-
-	GetTeamManagerInviteCodeInformation(code string) (*TeamManagerInviteCode, error)
-	IsTeamManagerInviteCodeValid(code string) (bool, string, error)
-}
-
 type LeagueOfLegendsDAO interface {
 	ReportEndGameStats(leagueId, gameId, winTeamId, loseTeamId int, match *lolApi.MatchInformation) error
 

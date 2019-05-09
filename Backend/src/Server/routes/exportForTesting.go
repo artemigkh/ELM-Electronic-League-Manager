@@ -48,8 +48,3 @@ var Testing_Export_getGameInformation = getGameInformation
 var Testing_Export_reportGameResult = reportGameResult
 var Testing_Export_deleteGame = deleteGame
 var Testing_Export_rescheduleGame = rescheduleGame
-
-// InviteCodes
-var Testing_Export_createTeamManagerInviteCode = createTeamManagerInviteCode
-var Testing_Export_getTeamManagerInviteCodeInformation = getTeamManagerInviteCodeInformation
-var Testing_Export_useTeamManagerInviteCode = useTeamManagerInviteCode

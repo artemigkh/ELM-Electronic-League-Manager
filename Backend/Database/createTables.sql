@@ -108,36 +108,3 @@ CREATE TABLE games (
   scoreteam2      INT                      NOT NULL
 );
 ALTER SEQUENCE gamesIdSeq OWNED BY games.id;
-
-CREATE TABLE teamManagerInviteCodes (
-  code            CHAR(16)      UNIQUE NOT NULL   ,
-  creationTime    INT           NOT NULL          ,
-  leagueId        INT           NOT NULL          ,
-  teamId          INT           NOT NULL          ,
-  administrator   BOOLEAN       NOT NULL          ,
-  information     BOOLEAN       NOT NULL          ,
-  players         BOOLEAN       NOT NULL          ,
-  reportResults   BOOLEAN       NOT NULL
-);
-
-CREATE TABLE leagueManagerInviteCodes (
-  code            CHAR(16)      UNIQUE NOT NULL  ,
-  creationTime    INT           NOT NULL         ,
-  leagueId        INT           NOT NULL         ,
-  editPermissions BOOLEAN       NOT NULL         ,
-  createTeams     BOOLEAN       NOT NULL         ,
-  editTeams       BOOLEAN       NOT NULL         ,
-  editUsers       BOOLEAN       NOT NULL         ,
-  editSchedule    BOOLEAN       NOT NULL         ,
-  editResults     BOOLEAN       NOT NULL
-);
-
-CREATE TABLE teamManagerJoinRequests (
-  userId          INT           NOT NULL          ,
-  teamId          INT           NOT NULL
-);
-
-CREATE TABLE leagueManagerJoinRequests (
-  userId          INT           NOT NULL          ,
-  leagueId        INT           NOT NULL
-);

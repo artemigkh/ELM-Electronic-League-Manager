@@ -33,7 +33,6 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()
 	routes.TeamsDAO = databaseAccess.CreateTeamsDAO()
 	routes.GamesDAO = databaseAccess.CreateGamesDAO()
-	routes.InviteCodesDAO = databaseAccess.CreateInviteCodesDAO()
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 	routes.IconManager = icons.CreateGoIconManager(conf)
 	routes.MarkdownManager = markdown.CreateGoMarkdownManager(conf)
@@ -46,7 +45,6 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.RegisterTeamHandlers(app.Group("/api/teams"))
 	routes.RegisterGameHandlers(app.Group("/api/games"))
 	routes.RegisterSchedulingHandlers(app.Group("/api/scheduling"))
-	routes.RegisterInviteCodeHandlers(app.Group("/api/inviteCodes"))
 
 	routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/league-of-legends"), conf)
 

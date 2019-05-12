@@ -48,7 +48,7 @@ func (d *PgLeagueOfLegendsDAO) createChampionStatsIfNotExist(leagueId int, champ
 	var id int
 	err := psql.Select("league_id").
 		From("championStats").
-		Where("leagueId = ? AND name = ?", leagueId, champion).
+		Where("league_id = ? AND name = ?", leagueId, champion).
 		RunWith(db).QueryRow().
 		Scan(&id)
 	if err == sql.ErrNoRows {
@@ -78,7 +78,7 @@ func (d *PgLeagueOfLegendsDAO) updateChampionStats(leagueId int, match *lolApi.M
 		_, err = db.Exec(
 			`
 		UPDATE championStats SET bans = bans + 1
-		WHERE leagueId = $1 AND name = $2
+		WHERE league_id = $1 AND name = $2
 		`, leagueId, champion)
 		if err != nil {
 			return err
@@ -94,7 +94,7 @@ func (d *PgLeagueOfLegendsDAO) updateChampionStats(leagueId int, match *lolApi.M
 		_, err = db.Exec(
 			`
 		UPDATE championStats SET picks = picks + 1, wins = wins + 1
-		WHERE leagueId = $1 AND name = $2
+		WHERE league_id = $1 AND name = $2
 		`, leagueId, champion)
 		if err != nil {
 			return err
@@ -110,7 +110,7 @@ func (d *PgLeagueOfLegendsDAO) updateChampionStats(leagueId int, match *lolApi.M
 		_, err = db.Exec(
 			`
 		UPDATE championStats SET picks = picks + 1
-		WHERE leagueId = $1 AND name = $2
+		WHERE league_id = $1 AND name = $2
 		`, leagueId, champion)
 		if err != nil {
 			return err
@@ -141,7 +141,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 
 	// Create Winning Team Stats Entry for this game
 	_, err = psql.Insert("teamStats").
-		Columns("teamId", "gameId", "league_id", "duration", "side", "firstBlood", "firstTurret", "win").
+		Columns("team_id", "gameId", "league_id", "duration", "side", "firstBlood", "firstTurret", "win").
 		Values(winTeamId, leagueGameId, leagueId, match.Duration, match.WinningTeamStats.Side,
 			match.WinningTeamStats.FirstBlood, match.WinningTeamStats.FirstTower, true).RunWith(db).Exec()
 	if err != nil {
@@ -150,7 +150,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 
 	// Create Losing Team Stats Entry for this game
 	_, err = psql.Insert("teamStats").
-		Columns("teamId", "gameId", "league_id", "duration", "side", "firstBlood", "firstTurret", "win").
+		Columns("team_id", "gameId", "league_id", "duration", "side", "firstBlood", "firstTurret", "win").
 		Values(loseTeamId, leagueGameId, leagueId, match.Duration, match.LosingTeamStats.Side,
 			match.LosingTeamStats.FirstBlood, match.LosingTeamStats.FirstTower, false).RunWith(db).Exec()
 	if err != nil {
@@ -166,7 +166,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 			teamId = loseTeamId
 		}
 		_, err = psql.Insert("playerStats").
-			Columns("id", "name", "gameId", "teamId", "league_id", "duration", "championPicked",
+			Columns("id", "name", "gameId", "team_id", "league_id", "duration", "championPicked",
 				"gold", "cs", "damage", "kills", "deaths", "assists", "wards", "win").
 			Values(player.Id, player.Name, leagueGameId, teamId, leagueId, match.Duration,
 				player.ChampionPicked, player.Gold, player.Cs, player.Damage,
@@ -181,7 +181,7 @@ func (d *PgLeagueOfLegendsDAO) ReportEndGameStats(leagueId, gameId,
 
 func (d *PgLeagueOfLegendsDAO) GetPlayerStats(leagueId int) ([]*PlayerStats, error) {
 	rows, err := db.Query(`
-SELECT id, (array_agg(name ORDER BY name))[1] as name, (array_agg(teamId ORDER BY teamId))[1] as teamId,
+SELECT id, (array_agg(name ORDER BY name))[1] as name, (array_agg(team_id ORDER BY team_id))[1] as team_id,
 SUM(damage) / (SUM(duration) / 60) AS DPM,
 SUM(gold) / (SUM(duration) / 60) AS GPM,
 SUM(cs) / (SUM(duration) / 60) AS CSPM,
@@ -191,7 +191,7 @@ AVG(deaths) AS AverageDeaths,
 AVG(assists) AS AverageAssists,
 AVG(wards) AS AverageWards,
 (AVG(kills) + AVG(assists)) / GREATEST(1, AVG(deaths)) AS AverageKda
-FROM playerStats WHERE leagueId = $1
+FROM playerStats WHERE league_id = $1
 GROUP BY id`, leagueId)
 	if err != nil {
 		return nil, err
@@ -228,23 +228,23 @@ GROUP BY id`, leagueId)
 //}
 func (d *PgLeagueOfLegendsDAO) GetTeamStats(leagueId int) ([]*TeamStats, error) {
 	rows, err := db.Query(`
-SELECT t1.teamId, averageDuration, numberFirstBloods, numberFirstTurrets,
+SELECT t1.team_id, averageDuration, numberFirstBloods, numberFirstTurrets,
 AverageKda, AverageActionScore, AverageWards, AverageGoldPerMinute, AverageCsPerMinute
-FROM (SELECT teamId,
+FROM (SELECT team_id,
 (AVG(kills) + AVG(assists)) / GREATEST(1, AVG(deaths)) AS AverageKda,
 (SUM(kills) + SUM(deaths)) / (COUNT(*)/5) AS AverageActionScore,
 SUM(wards) / (COUNT(*)/5) AS AverageWards,	  
 (SUM(gold) / (SUM(duration)/60)) / (COUNT(*)/5) AS AverageGoldPerMinute,
 (SUM(cs) / (SUM(duration)/60)) / (COUNT(*)/5) AS AverageCsPerMinute
-FROM playerStats WHERE leagueId=$1
-GROUP BY teamId) AS t1
+FROM playerStats WHERE league_id=$1
+GROUP BY team_id) AS t1
 INNER JOIN
-(SELECT teamid, AVG(duration) AS averageDuration,
+(SELECT team_id, AVG(duration) AS averageDuration,
 COUNT(*) FILTER (WHERE firstBlood) AS numberFirstBloods,
 COUNT(*) FILTER (WHERE firstTurret) AS numberFirstTurrets
-FROM teamStats WHERE leagueId = $1
-GROUP BY teamid) AS t2
-ON t1.teamId = t2.teamId`, leagueId)
+FROM teamStats WHERE league_id = $1
+GROUP BY team_id) AS t2
+ON t1.team_id = t2.team_id`, leagueId)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +277,7 @@ CASE picks
    WHEN 0 THEN 0
    ELSE wins::FLOAT / picks::FLOAT
 END AS winrate
-FROM championStats WHERE leagueId = $1`, leagueId)
+FROM championStats WHERE league_id = $1`, leagueId)
 	if err != nil {
 		return nil, err
 	}

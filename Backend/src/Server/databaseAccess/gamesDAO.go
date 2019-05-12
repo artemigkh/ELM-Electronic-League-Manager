@@ -27,9 +27,9 @@ type GameInformation struct {
 type PgGamesDAO struct{}
 
 func getGamesOfTeam(teamId int) ([]GameInformation, error) {
-	rows, err := psql.Select("id", "externalId", "league_id", "team1Id", "team2Id",
-		"gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").From("game").
-		Where(squirrel.Or{squirrel.Eq{"team1Id": teamId}, squirrel.Eq{"team2Id": teamId}}).
+	rows, err := psql.Select("id", "external_id", "league_id", "team1_id", "team2_id",
+		"game_time", "complete", "winner_id", "score_team1", "score_team2").From("game").
+		Where(squirrel.Or{squirrel.Eq{"team1_id": teamId}, squirrel.Eq{"team2_id": teamId}}).
 		RunWith(db).Query()
 
 	if err != nil {
@@ -62,9 +62,9 @@ func getTeamsInGame(gameId, leagueId int) (int, int, error) {
 		team2 int
 	)
 
-	err := psql.Select("team1Id", "team2Id").
+	err := psql.Select("team1_id", "team2_id").
 		From("game").
-		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		Where("id = ? AND league_id = ?", gameId, leagueId).
 		RunWith(db).QueryRow().Scan(&team1, &team2)
 	if err != nil {
 		return -1, -1, err
@@ -79,9 +79,9 @@ func getLosingTeamId(gameId, leagueId, winnerId int) (int, error) {
 		team2 int
 	)
 
-	err := psql.Select("team1Id", "team2Id").
+	err := psql.Select("team1_id", "team2_id").
 		From("game").
-		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		Where("id = ? AND league_id = ?", gameId, leagueId).
 		RunWith(db).QueryRow().Scan(&team1, &team2)
 	if err != nil {
 		return -1, err
@@ -100,7 +100,7 @@ func getLosingTeamId(gameId, leagueId, winnerId int) (int, error) {
 func (d *PgGamesDAO) CreateGame(leagueId, team1Id, team2Id, gameTime int, externalId string) (int, error) {
 	var gameId int
 	err := psql.Insert("game").
-		Columns("league_id", "externalId", "team1Id", "team2Id", "gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
+		Columns("league_id", "external_id", "team1_id", "team2_id", "game_time", "complete", "winner_id", "scoreteam_1", "scoreteam_2").
 		Values(leagueId, externalId, team1Id, team2Id, gameTime, false, -1, 0, 0).Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&gameId)
 	if err != nil {
@@ -139,10 +139,10 @@ func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, er
 func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameInformation, error) {
 	var gameInformation GameInformation
 
-	err := psql.Select("id", "externalId", "league_id", "team1Id", "team2Id",
-		"gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
+	err := psql.Select("id", "external_id", "league_id", "team1_id", "team2_id",
+		"game_time", "complete", "winner_id", "score_team1", "score_team2").
 		From("game").
-		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		Where("id = ? AND league_id = ?", gameId, leagueId).
 		RunWith(db).QueryRow().
 		Scan(&gameInformation.Id, &gameInformation.ExternalId, &gameInformation.LeagueId, &gameInformation.Team1Id, &gameInformation.Team2Id,
 			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerId,
@@ -159,9 +159,9 @@ func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameInformation,
 func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (bool, error) {
 	//check if user has league editResults permission
 	var canReport bool
-	err := psql.Select("editGames").
+	err := psql.Select("edit_games").
 		From("league_permissions").
-		Where("userId = ? AND leagueId = ?", userId, leagueId).
+		Where("user_id = ? AND league_id = ?", userId, leagueId).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -175,9 +175,9 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	team1Id, team2Id, err := getTeamsInGame(gameId, leagueId)
 
 	//check for team 1
-	err = psql.Select("reportResults").
+	err = psql.Select("report_results").
 		From("team_permissions").
-		Where("userId = ? AND teamId = ?", userId, team1Id).
+		Where("user_id = ? AND team_id = ?", userId, team1Id).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -188,9 +188,9 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	}
 
 	//check for team 2
-	err = psql.Select("reportResults").
+	err = psql.Select("report_results").
 		From("team_permissions").
-		Where("userId = ? AND teamId = ?", userId, team2Id).
+		Where("user_id = ? AND team_id = ?", userId, team2Id).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -208,7 +208,7 @@ func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTea
 	var complete bool
 	err := psql.Select("complete").
 		From("game").
-		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		Where("id = ? AND league_id = ?", gameId, leagueId).
 		RunWith(db).QueryRow().Scan(&complete)
 	if err != nil {
 		return err
@@ -217,10 +217,10 @@ func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTea
 	//update game entry
 	_, err = psql.Update("game").
 		Set("complete", true).
-		Set("winnerId", winnerId).
-		Set("scoreteam1", scoreTeam1).
-		Set("scoreteam2", scoreTeam2).
-		Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
+		Set("winner_id", winnerId).
+		Set("score_team1", scoreTeam1).
+		Set("score_team2", scoreTeam2).
+		Where("id = ? AND league_id = ?", gameId, leagueId).RunWith(db).Exec()
 	if err != nil {
 		return err
 	}
@@ -261,25 +261,25 @@ func (d *PgGamesDAO) ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTea
 
 func (d *PgGamesDAO) DeleteGame(leagueId, gameId int) error {
 	_, err := psql.Delete("game").
-		Where("id = ? AND leagueId = ?", gameId, leagueId).
+		Where("id = ? AND league_id = ?", gameId, leagueId).
 		RunWith(db).Exec()
 	return err
 }
 
 func (d *PgGamesDAO) RescheduleGame(leagueId, gameId, gameTime int) error {
 	_, err := psql.Update("game").
-		Set("gametime", gameTime).
-		Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
+		Set("game_time", gameTime).
+		Where("id = ? AND league_id = ?", gameId, leagueId).RunWith(db).Exec()
 	return err
 }
 
 func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*GameInformation, error) {
 	var gameInformation GameInformation
 
-	err := psql.Select("id", "externalId", "league_id", "team1Id", "team2Id",
-		"gametime", "complete", "winnerId", "scoreteam1", "scoreteam2").
+	err := psql.Select("id", "external_id", "league_id", "team1_id", "team2_id",
+		"game_time", "complete", "winner_id", "score_team1", "score_team2").
 		From("game").
-		Where("externalId = ?", externalId).
+		Where("external_id = ?", externalId).
 		RunWith(db).QueryRow().
 		Scan(&gameInformation.Id, &gameInformation.ExternalId, &gameInformation.LeagueId, &gameInformation.Team1Id, &gameInformation.Team2Id,
 			&gameInformation.GameTime, &gameInformation.Complete, &gameInformation.WinnerId,
@@ -294,8 +294,8 @@ func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*GameI
 func (d *PgGamesDAO) AddExternalId(leagueId, gameId int, externalId string) error {
 	_, err := db.Exec(
 		`
-		UPDATE game SET externalId = $1
-		WHERE id = $2 AND leagueId = $3
+		UPDATE game SET external_id = $1
+		WHERE id = $2 AND league_id = $3
 		`, externalId, gameId, leagueId)
 	if err != nil {
 		return err

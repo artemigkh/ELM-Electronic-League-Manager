@@ -81,9 +81,9 @@ func (d *PgUsersDAO) GetPermissions(leagueId, userId int) (*UserPermissions, err
 
 	// get permissions from teams in league this user has entries for
 	rows, err := db.Query(`
-SELECT teamId, administrator, information, players, reportResults FROM team_permissions
-WHERE userId = $1
-AND teamId IN (SELECT id FROM team WHERE leagueId = $2)
+SELECT team_id, administrator, information, players, report_results FROM team_permissions
+WHERE user_id = $1
+AND team_id IN (SELECT id FROM team WHERE league_id = $2)
 	`, userId, leagueId)
 
 	if err != nil {

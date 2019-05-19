@@ -176,7 +176,7 @@ func testReportGameDoesNotContainWinner(t *testing.T) {
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
 	mockGamesDao.On("GetGameInformation", 14, 16).
-		Return(&databaseAccess.GameInformation{
+		Return(&databaseAccess.GameDTO{
 			Team1Id:  3,
 			Team2Id:  3,
 			GameTime: 1545613928,
@@ -202,7 +202,7 @@ func testReportGameResultCorrectReportDatabaseError(t *testing.T) {
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
 	mockGamesDao.On("GetGameInformation", 14, 16).
-		Return(&databaseAccess.GameInformation{
+		Return(&databaseAccess.GameDTO{
 			Team1Id:  5,
 			Team2Id:  6,
 			GameTime: 1545613928,
@@ -230,7 +230,7 @@ func testReportGameResultCorrectReport(t *testing.T) {
 	mockGamesDao.On("HasReportResultPermissions", 14, 16, 15).
 		Return(true, nil)
 	mockGamesDao.On("GetGameInformation", 14, 16).
-		Return(&databaseAccess.GameInformation{
+		Return(&databaseAccess.GameDTO{
 			Team1Id:  5,
 			Team2Id:  6,
 			GameTime: 1545613928,

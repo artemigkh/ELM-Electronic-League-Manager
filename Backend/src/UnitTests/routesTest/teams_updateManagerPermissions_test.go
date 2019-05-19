@@ -86,7 +86,7 @@ func testChangeManagerPermissionsTeamDoesNotExist(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 12).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 12).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
@@ -106,7 +106,7 @@ func testChangeManagerPermissionsManagerDoesNotExist(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 12).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 12).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 12, 15).
 		Return(TeamPermissions(false, false, false, false), nil)
@@ -128,7 +128,7 @@ func testChangeManagerPermissionsNotAdmin(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 12).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 12).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 12, 15).
 		Return(TeamPermissions(false, false, false, true), nil)
@@ -156,7 +156,7 @@ func testChangeManagerPermissionsDatabaseError(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 12).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 12).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 12, 15).
 		Return(TeamPermissions(false, false, false, true), nil)
@@ -186,7 +186,7 @@ func testChangeManagerPermissionsCorrectChangePermissions(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 12).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 12).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 12, 15).
 		Return(TeamPermissions(false, false, false, true), nil)

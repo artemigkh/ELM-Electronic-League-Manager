@@ -81,15 +81,15 @@ func (_m *GamesDAO) DoesExistConflict(team1Id int, team2Id int, gameTime int) (b
 }
 
 // GetGameInformation provides a mock function with given fields: leagueId, gameId
-func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAccess.GameInformation, error) {
+func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAccess.GameDTO, error) {
 	ret := _m.Called(leagueId, gameId)
 
-	var r0 *databaseAccess.GameInformation
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.GameInformation); ok {
+	var r0 *databaseAccess.GameDTO
+	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.GameDTO); ok {
 		r0 = rf(leagueId, gameId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.GameInformation)
+			r0 = ret.Get(0).(*databaseAccess.GameDTO)
 		}
 	}
 
@@ -104,15 +104,15 @@ func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAcces
 }
 
 // GetGameInformationFromExternalId provides a mock function with given fields: externalId
-func (_m *GamesDAO) GetGameInformationFromExternalId(externalId string) (*databaseAccess.GameInformation, error) {
+func (_m *GamesDAO) GetGameInformationFromExternalId(externalId string) (*databaseAccess.GameDTO, error) {
 	ret := _m.Called(externalId)
 
-	var r0 *databaseAccess.GameInformation
-	if rf, ok := ret.Get(0).(func(string) *databaseAccess.GameInformation); ok {
+	var r0 *databaseAccess.GameDTO
+	if rf, ok := ret.Get(0).(func(string) *databaseAccess.GameDTO); ok {
 		r0 = rf(externalId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.GameInformation)
+			r0 = ret.Get(0).(*databaseAccess.GameDTO)
 		}
 	}
 

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Server/config"
+	"Server/databaseAccess"
 	"fmt"
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-gonic/gin"
@@ -145,7 +146,7 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 		return
 	}
 
-	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -197,7 +198,7 @@ func leagueOfLegendsGetTeamInformation(ctx *gin.Context) {
 func getTournamentCodeForGame(ctx *gin.Context) {
 	// mocked for testing: when complete, should get a tournament code from LoL tournament api
 	tournamentCode := randomdata.RandStringRunes(10)
-	err := GamesDAO.AddExternalId(ctx.GetInt("leagueId"), ctx.GetInt("urlId"), tournamentCode)
+	err := GamesDAO.AddExternalId(ctx.GetInt("urlId"), tournamentCode)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -218,7 +219,7 @@ func tournamentCallback(ctx *gin.Context) {
 		return
 	}
 
-	team1Info, err := TeamsDAO.GetTeamInformation(gameInfo.LeagueId, gameInfo.Team1Id)
+	team1Info, err := TeamsDAO.GetTeamInformation(gameInfo.Team1Id)
 	if checkJsonErr(ctx, err) {
 		return
 	}
@@ -247,16 +248,24 @@ func tournamentCallback(ctx *gin.Context) {
 	}
 
 	// Report Game Complete
-	if failIfGameDoesNotExist(ctx, gameInfo.LeagueId, gameInfo.Id) {
+	if failIfGameDoesNotExist(ctx, gameInfo.Id) {
 		return
 	}
-	if failIfGameDoesNotContainWinner(ctx, gameInfo.LeagueId, gameInfo.Id, winningId) {
+	if failIfGameDoesNotContainWinner(ctx, gameInfo.Id, winningId) {
 		return
 	}
 
 	//report the result
-	err = GamesDAO.ReportGame(gameInfo.LeagueId, gameInfo.Id,
-		winningId, team1Score, team2Score)
+	err = GamesDAO.ReportGame(
+		databaseAccess.GameDTO{
+			Id:         gameInfo.Id,
+			LeagueId:   gameInfo.LeagueId,
+			Complete:   false,
+			WinnerId:   winningId,
+			LoserId:    losingId,
+			ScoreTeam1: team1Score,
+			ScoreTeam2: team2Score,
+		})
 	if checkErr(ctx, err) {
 		return
 	}

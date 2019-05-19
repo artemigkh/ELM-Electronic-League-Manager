@@ -130,7 +130,7 @@ func testDeleteGameDbError(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
-		Return(&databaseAccess.GameInformation{}, nil)
+		Return(&databaseAccess.GameDTO{}, nil)
 	mockGamesDao.On("DeleteGame", 2, 16).
 		Return(errors.New("fake db error"))
 
@@ -156,7 +156,7 @@ func testDeleteGameCorrectDeleteGame(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
-		Return(&databaseAccess.GameInformation{}, nil)
+		Return(&databaseAccess.GameDTO{}, nil)
 	mockGamesDao.On("DeleteGame", 2, 16).
 		Return(nil)
 

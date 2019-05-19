@@ -123,7 +123,7 @@ func testDeleteTeamInformationTeamDoesNotExist(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
-	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(false, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 7).Return(false, nil)
 	mockTeamsDao.On("GetTeamPermissions", 7, 2).
 		Return(TeamPermissions(true, true, true, true), nil)
 
@@ -149,7 +149,7 @@ func testDeleteTeamInformationDbError(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
-	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 7).Return(true, nil)
 	mockTeamsDao.On("DeleteTeam", 5, 7).Return(errors.New("fake db error"))
 	mockTeamsDao.On("GetTeamPermissions", 7, 2).
 		Return(TeamPermissions(true, true, true, true), nil)
@@ -176,7 +176,7 @@ func testDeleteTeamInformationCorrectDeleteTeam(t *testing.T) {
 
 	mockTeamsDao := new(mocks.TeamsDAO)
 	mockTeamsDao.On("IsTeamActive", 5, 7).Return(false, nil)
-	mockTeamsDao.On("DoesTeamExist", 5, 7).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 7).Return(true, nil)
 	mockTeamsDao.On("DeleteTeam", 5, 7).Return(nil)
 	mockTeamsDao.On("GetTeamPermissions", 7, 2).
 		Return(TeamPermissions(true, true, true, true), nil)

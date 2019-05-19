@@ -32,7 +32,7 @@ func (d *PgUsersDAO) IsEmailInUse(email string) (bool, error) {
 
 func (d *PgUsersDAO) GetAuthenticationInformation(email string) (*UserAuthenticationDTO, error) {
 	return GetScannedUserAuthenticationDTO(psql.Select(
-		"id",
+		"user_id",
 		"salt",
 		"hash").
 		From("user_").
@@ -69,6 +69,6 @@ func (d *PgUsersDAO) GetUserProfile(userId int) (*UserDTO, error) {
 	return GetScannedUserDTO(psql.Select(
 		"id, email").
 		From("user_").
-		Where("id = ?", userId).
+		Where("user_id = ?", userId).
 		RunWith(db).QueryRow())
 }

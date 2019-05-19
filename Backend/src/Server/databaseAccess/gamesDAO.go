@@ -57,24 +57,25 @@ func (d *PgGamesDAO) ReportGame(gameInfo GameDTO) error {
 	return err
 }
 
-func (d *PgGamesDAO) DeleteGame(leagueId, gameId int) error {
+func (d *PgGamesDAO) DeleteGame(gameId int) error {
 	_, err := psql.Delete("game").
-		Where("id = ? AND league_id = ?", gameId, leagueId).
+		Where("game_id = ?", gameId).
 		RunWith(db).Exec()
 	return err
 }
 
-func (d *PgGamesDAO) RescheduleGame(leagueId, gameId, gameTime int) error {
+func (d *PgGamesDAO) RescheduleGame(gameId, gameTime int) error {
 	_, err := psql.Update("game").
 		Set("game_time", gameTime).
-		Where("id = ? AND league_id = ?", gameId, leagueId).RunWith(db).Exec()
+		Where("game_id = ?", gameId).
+		RunWith(db).Exec()
 	return err
 }
 
-func (d *PgGamesDAO) AddExternalId(leagueId, gameId int, externalId string) error {
+func (d *PgGamesDAO) AddExternalId(gameId int, externalId string) error {
 	_, err := psql.Update("game").
 		Set("external_id", externalId).
-		Where("id = ? AND league_id", gameId, leagueId).
+		Where("game_id = ?", gameId).
 		RunWith(db).Exec()
 
 	return err
@@ -84,7 +85,7 @@ func (d *PgGamesDAO) AddExternalId(leagueId, gameId int, externalId string) erro
 
 func getGameInformationBuilder() squirrel.SelectBuilder {
 	return psql.Select(
-		"id",
+		"game_id",
 		"external_id",
 		"league_id",
 		"team1_id",
@@ -98,9 +99,9 @@ func getGameInformationBuilder() squirrel.SelectBuilder {
 	).From("game")
 }
 
-func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameDTO, error) {
+func (d *PgGamesDAO) GetGameInformation(gameId int) (*GameDTO, error) {
 	return GetScannedGameDTO(getGameInformationBuilder().
-		Where("id = ? AND league_id = ?", gameId, leagueId).
+		Where("game_id = ?", gameId).
 		RunWith(db).QueryRow())
 }
 
@@ -111,6 +112,29 @@ func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*GameD
 }
 
 // Get Information for Games Management
+
+func getGamesOfTeam(teamId int) ([]*GameDTO, error) {
+	var games GameDTOArray
+	if err := ScanRows(psql.Select(
+		"game_id",
+		"external_id",
+		"league_id",
+		"team1_id",
+		"team2_id",
+		"game_time",
+		"complete",
+		"winner_id",
+		"loser_id",
+		"score_team1",
+		"score_team2",
+	).
+		From("game").
+		Where("team1_id = ? OR team2_id = ?", teamId, teamId), &games); err != nil {
+		return nil, err
+	}
+
+	return games.rows, nil
+}
 
 func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error) {
 	//check if any game of each team is within the threshold of another scheduled game
@@ -139,13 +163,13 @@ func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, er
 	return false, nil
 }
 
-func getTeamsInGame(gameId, leagueId int) (int, int, error) {
+func getTeamsInGame(gameId int) (int, int, error) {
 	team1 := -1
 	team2 := -1
 
 	err := psql.Select("team1_id", "team2_id").
 		From("game").
-		Where("id = ? AND league_id = ?", gameId, leagueId).
+		Where("game_id = ?", gameId).
 		RunWith(db).QueryRow().Scan(&team1, &team2)
 	return team1, team2, err
 }
@@ -155,7 +179,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	canReport := false
 	err := psql.Select("edit_games").
 		From("league_permissions").
-		Where("user_id = ? AND league_id = ?", userId, leagueId).
+		Where("league_id = ? AND user_id = ?", leagueId, userId).
 		RunWith(db).QueryRow().Scan(&canReport)
 	if err != nil {
 		return false, err
@@ -166,7 +190,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	}
 
 	//check if user has team reportResult permissions on one of the two teams
-	team1Id, team2Id, err := getTeamsInGame(gameId, leagueId)
+	team1Id, team2Id, err := getTeamsInGame(gameId)
 
 	err = psql.Select("report_results").
 		From("team_permissions").
@@ -174,27 +198,4 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 		RunWith(db).QueryRow().Scan(&canReport)
 
 	return canReport, err
-}
-
-func getGamesOfTeam(teamId int) ([]*GameDTO, error) {
-	var games GameDTOArray
-	if err := ScanRows(psql.Select(
-		"id",
-		"external_id",
-		"league_id",
-		"team1_id",
-		"team2_id",
-		"game_time",
-		"complete",
-		"winner_id",
-		"loser_id",
-		"score_team1",
-		"score_team2",
-	).
-		From("game").
-		Where("team1_id = ? OR team2_id = ?", teamId, teamId), &games); err != nil {
-		return nil, err
-	}
-
-	return games.rows, nil
 }

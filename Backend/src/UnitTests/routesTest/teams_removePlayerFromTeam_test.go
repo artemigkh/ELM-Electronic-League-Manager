@@ -82,7 +82,7 @@ func testRemovePlayerFromTeamTeamDoesNotExist(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 24).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 24).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
@@ -106,7 +106,7 @@ func testRemovePlayerFromTeamCannotEditPlayersOnTeam(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 24).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 24).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 24, 4).
 		Return(TeamPermissions(false, false, false, false), nil)
@@ -133,11 +133,11 @@ func testRemovePlayerFromTeamPlayerDoesNotExist(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 24).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 24).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 24, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
-	mockTeamsDao.On("DoesPlayerExist", 24, 31).
+	mockTeamsDao.On("DoesPlayerExistInTeam", 24, 31).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
@@ -162,11 +162,11 @@ func testRemovePlayerFromTeamDatabaseError(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 24).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 24).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 24, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
-	mockTeamsDao.On("DoesPlayerExist", 24, 31).
+	mockTeamsDao.On("DoesPlayerExistInTeam", 24, 31).
 		Return(true, nil)
 	mockTeamsDao.On("RemovePlayer", 24, 31).
 		Return(errors.New("fake db error"))
@@ -193,11 +193,11 @@ func testRemovePlayerFromTeamCorrectRemovePlayer(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 24).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 24).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 24, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
-	mockTeamsDao.On("DoesPlayerExist", 24, 31).
+	mockTeamsDao.On("DoesPlayerExistInTeam", 24, 31).
 		Return(true, nil)
 	mockTeamsDao.On("RemovePlayer", 24, 31).
 		Return(nil)

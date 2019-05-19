@@ -101,7 +101,7 @@ func (_m *TeamsDAO) DeleteTeam(leagueId int, teamId int) error {
 	return r0
 }
 
-// DoesPlayerExist provides a mock function with given fields: teamId, playerId
+// DoesPlayerExistInTeam provides a mock function with given fields: teamId, playerId
 func (_m *TeamsDAO) DoesPlayerExist(teamId int, playerId int) (bool, error) {
 	ret := _m.Called(teamId, playerId)
 
@@ -122,7 +122,7 @@ func (_m *TeamsDAO) DoesPlayerExist(teamId int, playerId int) (bool, error) {
 	return r0, r1
 }
 
-// DoesTeamExist provides a mock function with given fields: leagueId, teamId
+// DoesTeamExistInLeague provides a mock function with given fields: leagueId, teamId
 func (_m *TeamsDAO) DoesTeamExist(leagueId int, teamId int) (bool, error) {
 	ret := _m.Called(leagueId, teamId)
 

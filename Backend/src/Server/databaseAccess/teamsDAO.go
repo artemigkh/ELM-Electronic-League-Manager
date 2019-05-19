@@ -95,7 +95,7 @@ func (d *PgTeamsDAO) CreateTeamWithIcon(leagueId, userId int, teamInfo TeamDTO) 
 	return teamId, err
 }
 
-func (d *PgTeamsDAO) DeleteTeam(leagueId, teamId int) error {
+func (d *PgTeamsDAO) DeleteTeam(teamId int) error {
 	//remove players from team
 	_, err := psql.Delete("player").
 		Where("team_id = ?", teamId).
@@ -106,35 +106,35 @@ func (d *PgTeamsDAO) DeleteTeam(leagueId, teamId int) error {
 
 	//remove team
 	_, err = psql.Delete("team").
-		Where("id = ? AND league_id = ?", teamId, leagueId).
+		Where("team_id = ?", teamId).
 		RunWith(db).Exec()
 	return err
 }
 
-func (d *PgTeamsDAO) UpdateTeam(leagueId, teamInformation TeamDTO) error {
+func (d *PgTeamsDAO) UpdateTeam(teamInformation TeamDTO) error {
 	_, err := psql.Update("team").
 		Set("name", teamInformation.Name).
 		Set("tag", teamInformation.Tag).
 		Set("description", teamInformation.Description).
-		Where("league_id = ? AND id = ?", leagueId, teamInformation.Id).
+		Where("team_id = ?", teamInformation.Id).
 		RunWith(db).Exec()
 
 	return err
 }
 
-func (d *PgTeamsDAO) UpdateTeamIcon(leagueId, teamId int, small, large string) error {
+func (d *PgTeamsDAO) UpdateTeamIcon(teamId int, small, large string) error {
 	_, err := psql.Update("team").
 		Set("icon_small", small).
 		Set("icon_large", large).
-		Where("id = ? AND league_id = ?", teamId, leagueId).
+		Where("team_id = ?", teamId).
 		RunWith(db).Exec()
 
 	return err
 }
 
-func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamDTO, error) {
+func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamDTO, error) {
 	teamInformation, err := GetScannedTeamDTO(psql.Select(
-		"id",
+		"team_id",
 		"name",
 		"tag",
 		"description",
@@ -143,7 +143,7 @@ func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamDTO, error) 
 		"icon_small",
 		"icon_large").
 		From("team").
-		Where("id = ? AND league_id = ?", teamId, leagueId).
+		Where("team_id = ?", teamId).
 		RunWith(db).QueryRow())
 
 	if err != nil {
@@ -153,7 +153,7 @@ func (d *PgTeamsDAO) GetTeamInformation(leagueId, teamId int) (*TeamDTO, error) 
 	//get players of team
 	var players PlayerDTOArray
 	if err := ScanRows(psql.Select(
-		"id",
+		"player_id",
 		"teamId",
 		"name",
 		"game_identifier",
@@ -198,9 +198,9 @@ func (d *PgTeamsDAO) AddNewPlayer(playerInfo PlayerDTO) (int, error) {
 	return playerId, nil
 }
 
-func (d *PgTeamsDAO) RemovePlayer(teamId, playerId int) error {
+func (d *PgTeamsDAO) RemovePlayer(playerId int) error {
 	_, err := psql.Delete("player").
-		Where("id = ? AND team_id = ?", playerId, teamId).
+		Where("player_id = ?", playerId).
 		RunWith(db).Exec()
 	return err
 }
@@ -212,7 +212,7 @@ func (d *PgTeamsDAO) UpdatePlayer(playerInfo PlayerDTO) error {
 		Set("external_id", playerInfo.ExternalId).
 		Set("position", playerInfo.Position).
 		Set("main_roster", playerInfo.MainRoster).
-		Where("id = ? AND team_id = ?", playerInfo.Id, playerInfo.TeamId).
+		Where("player_id = ?", playerInfo.Id).
 		RunWith(db).Exec()
 
 	return err
@@ -250,7 +250,7 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 
 	if err := psql.Select("count(name)", "count(tag)").
 		From("team").
-		Where("name = ? AND teamId != ? AND leagueId = ?", name, teamId, leagueId).
+		Where("league_id = ? AND team_id != ? AND name = ?", leagueId, teamId, name).
 		RunWith(db).QueryRow().Scan(&nameCount, &tagCount); err != nil {
 		return false, "", err
 	} else if nameCount > 0 {
@@ -262,11 +262,11 @@ func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, 
 	}
 }
 
-func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
+func (d *PgTeamsDAO) DoesTeamExistInLeague(leagueId, teamId int) (bool, error) {
 	var count int
 	if err := psql.Select("count(*)").
 		From("team").
-		Where("id = ? AND league_id = ?", teamId, leagueId).
+		Where("league_id = ? AND team_id = ?", leagueId, teamId).
 		RunWith(db).QueryRow().Scan(&count); err != nil {
 		return false, err
 	} else {
@@ -274,11 +274,11 @@ func (d *PgTeamsDAO) DoesTeamExist(leagueId, teamId int) (bool, error) {
 	}
 }
 
-func (d *PgTeamsDAO) DoesPlayerExist(teamId, playerId int) (bool, error) {
+func (d *PgTeamsDAO) DoesPlayerExistInTeam(teamId, playerId int) (bool, error) {
 	var count int
 	if err := psql.Select("count(name)").
 		From("player").
-		Where("id = ? AND team_id = ?", playerId, teamId).
+		Where("team_id = ? AND player_id = ?", teamId, playerId).
 		RunWith(db).QueryRow().Scan(&count); err != nil {
 		return false, err
 	} else {

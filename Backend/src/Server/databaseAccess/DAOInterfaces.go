@@ -61,9 +61,9 @@ type LeaguesDAO interface {
 
 	// Availabilities
 	AddRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) (int, error)
-	EditRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) error
-	RemoveRecurringAvailabilities(leagueId, availabilityId int) error
-	GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailabilityDTO, error)
+	EditRecurringAvailability(availability SchedulingAvailabilityDTO) error
+	RemoveRecurringAvailabilities(availabilityId int) error
+	GetSchedulingAvailability(availabilityId int) (*SchedulingAvailabilityDTO, error)
 	GetSchedulingAvailabilities(leagueId int) ([]*SchedulingAvailabilityDTO, error)
 }
 
@@ -71,21 +71,21 @@ type TeamsDAO interface {
 	// Teams
 	CreateTeam(leagueId, userId int, teamInfo TeamDTO) (int, error)
 	CreateTeamWithIcon(leagueId, userId int, teamInfo TeamDTO) (int, error)
-	DeleteTeam(leagueId, teamId int) error
-	UpdateTeam(leagueId, teamInformation TeamDTO) error
-	UpdateTeamIcon(leagueId, teamId int, small, large string) error
-	GetTeamInformation(leagueId, teamId int) (*TeamDTO, error)
+	DeleteTeam(teamId int) error
+	UpdateTeam(teamInformation TeamDTO) error
+	UpdateTeamIcon(teamId int, small, large string) error
+	GetTeamInformation(teamId int) (*TeamDTO, error)
 
 	// Players
 	AddNewPlayer(playerInfo PlayerDTO) (int, error)
-	RemovePlayer(teamId, playerId int) error
+	RemovePlayer(playerId int) error
 	UpdatePlayer(playerInfo PlayerDTO) error
 
 	// Get Information For Team and Player Management
 	GetTeamPermissions(teamId, userId int) (*TeamPermissionsDTO, error)
 	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
-	DoesTeamExist(leagueId, teamId int) (bool, error)
-	DoesPlayerExist(teamId, playerId int) (bool, error)
+	DoesTeamExistInLeague(leagueId, teamId int) (bool, error)
+	DoesPlayerExistInTeam(teamId, playerId int) (bool, error)
 	IsTeamActive(leagueId, teamId int) (bool, error)
 
 	// Managers
@@ -96,12 +96,12 @@ type GamesDAO interface {
 	// Modify Games
 	CreateGame(gameInformation GameDTO) (int, error)
 	ReportGame(gameInfo GameDTO) error
-	DeleteGame(leagueId, gameId int) error
-	RescheduleGame(leagueId, gameId, gameTime int) error
-	AddExternalId(leagueId, gameId int, externalId string) error
+	DeleteGame(gameId int) error
+	RescheduleGame(gameId, gameTime int) error
+	AddExternalId(gameId int, externalId string) error
 
 	// Get Game Information
-	GetGameInformation(leagueId, gameId int) (*GameDTO, error)
+	GetGameInformation(gameId int) (*GameDTO, error)
 	GetGameInformationFromExternalId(externalId string) (*GameDTO, error)
 
 	// Get Information for Games Management

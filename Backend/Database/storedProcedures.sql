@@ -127,15 +127,15 @@ RETURNS VOID AS $$
       loser_id = loser_id,
       score_team1 = score_team1,
       score_team2 = score_team2
-    WHERE id = game_id;
+    WHERE game_id = game_id;
 
     UPDATE team
       SET wins = wins + 1
-    WHERE id = winner_id;
+    WHERE team_id = winner_id;
 
     UPDATE team
       SET losses = losses + 1
-    WHERE id = loser_id;
+    WHERE team_id = loser_id;
   END;
 $$ LANGUAGE plpgsql;
 

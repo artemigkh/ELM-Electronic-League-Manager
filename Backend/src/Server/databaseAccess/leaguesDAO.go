@@ -34,7 +34,7 @@ func (d *PgLeaguesDAO) UpdateLeague(leagueInfo LeagueDTO) error {
 		Set("signup_end", leagueInfo.SignupEnd).
 		Set("league_start", leagueInfo.LeagueStart).
 		Set("league_end", leagueInfo.LeagueEnd).
-		Where("id = ?", leagueInfo.Id).
+		Where("league_id = ?", leagueInfo.Id).
 		RunWith(db).Exec()
 
 	return err
@@ -85,7 +85,7 @@ func getLeaguePermissions(leagueId, userId int) (*LeaguePermissionsDTO, error) {
 		"edit_games",
 	).
 		From("league_permissions").
-		Where("user_id = ? AND league_id = ?", userId, leagueId).
+		Where("league_id = ? AND user_id = ?", leagueId, userId).
 		RunWith(db).QueryRow())
 }
 
@@ -123,7 +123,7 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 	var publicView bool
 	err := psql.Select("public_view").
 		From("league").
-		Where("id = ?", leagueId).
+		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&publicView)
 	if err != nil {
 		return false, err
@@ -138,7 +138,7 @@ func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
 	var uid int
 	err = psql.Select("user_id").
 		From("league_permissions").
-		Where("user_id = ? AND league_id = ?", userId, leagueId).
+		Where("league_id = ? AND user_id = ?", leagueId, userId).
 		RunWith(db).QueryRow().Scan(&uid)
 	if err == sql.ErrNoRows {
 		return false, nil
@@ -155,7 +155,7 @@ func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
 	var canJoin = false
 	err := psql.Select("public_join").
 		From("league").
-		Where("id = ?", leagueId).
+		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&canJoin)
 
 	return canJoin, err
@@ -165,7 +165,7 @@ func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueDTO, error) {
 	row := psql.Select(
-		"id",
+		"league_id",
 		"name",
 		"description",
 		"game",
@@ -177,7 +177,7 @@ func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueDTO, error) {
 		"league_end",
 	).
 		From("league").
-		Where("id = ?", leagueId).
+		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow()
 
 	return GetScannedLeagueDTO(row)
@@ -187,7 +187,7 @@ func (d *PgLeaguesDAO) IsNameInUse(leagueId int, name string) (bool, error) {
 	var count int
 	if err := psql.Select("count(name)").
 		From("league").
-		Where("name = ? AND id != ?", name, leagueId).
+		Where("league_id != ? AND name = ?", leagueId, name).
 		RunWith(db).QueryRow().Scan(&count); err != nil {
 		return false, err
 	} else {
@@ -198,7 +198,7 @@ func (d *PgLeaguesDAO) IsNameInUse(leagueId int, name string) (bool, error) {
 func (d *PgLeaguesDAO) GetPublicLeagueList() ([]*LeagueDTO, error) {
 	var leagueSummary LeagueDTOArray
 	if err := ScanRows(psql.Select(
-		"id",
+		"league_id",
 		"name",
 		"description",
 		"public_view",
@@ -222,7 +222,7 @@ func (d *PgLeaguesDAO) GetPublicLeagueList() ([]*LeagueDTO, error) {
 func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]*TeamDTO, error) {
 	var teamSummary TeamDTOArray
 	if err := ScanRows(psql.Select(
-		"id",
+		"team_id",
 		"name",
 		"tag",
 		"description",
@@ -243,7 +243,7 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]*TeamDTO, error) {
 func (d *PgLeaguesDAO) GetGameSummary(leagueId int) ([]*GameDTO, error) {
 	var games GameDTOArray
 	if err := ScanRows(psql.Select(
-		"id",
+		"game_id",
 		"external_id",
 		"team1_id",
 		"team2_id",
@@ -269,7 +269,7 @@ func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
 	var markdownFile = ""
 	err := psql.Select("markdown_path").
 		From("league").
-		Where("id = ?", leagueId).
+		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&markdownFile)
 	return markdownFile, err
 }
@@ -277,7 +277,7 @@ func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
 func (d *PgLeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
 	_, err := psql.Update("league").
 		Set("markdown_path", fileName).
-		Where("id = ?", leagueId).
+		Where("league_id = ?", leagueId).
 		RunWith(db).Exec()
 
 	return err
@@ -316,7 +316,7 @@ func (d *PgLeaguesDAO) AddRecurringAvailability(leagueId int, availability Sched
 	return availabilityId, err
 }
 
-func (d *PgLeaguesDAO) EditRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) error {
+func (d *PgLeaguesDAO) EditRecurringAvailability(availability SchedulingAvailabilityDTO) error {
 	_, err := psql.Update("league_recurring_availability").
 		Set("weekday", availability.Weekday).
 		Set("timezone", availability.Timezone).
@@ -326,23 +326,23 @@ func (d *PgLeaguesDAO) EditRecurringAvailability(leagueId int, availability Sche
 		Set("constrained", availability.Constrained).
 		Set("start_time", availability.Start).
 		Set("end_time", availability.End).
-		Where("league_id = ? AND id = ?", leagueId, availability.Id).
+		Where("recurring_availability_id = ?", availability.Id).
 		RunWith(db).Exec()
 
 	return err
 }
 
-func (d *PgLeaguesDAO) RemoveRecurringAvailabilities(leagueId, availabilityId int) error {
+func (d *PgLeaguesDAO) RemoveRecurringAvailabilities(availabilityId int) error {
 	_, err := psql.Delete("league_recurring_availability").
-		Where("id = ? AND league_id = ?", availabilityId, leagueId).
+		Where("recurring_availability_id = ?", availabilityId).
 		RunWith(db).Exec()
 	return err
 }
 
-func (d *PgLeaguesDAO) GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailabilityDTO, error) {
+func (d *PgLeaguesDAO) GetSchedulingAvailability(availabilityId int) (*SchedulingAvailabilityDTO, error) {
 	return GetScannedSchedulingAvailabilityDTO(
 		psql.Select(
-			"id",
+			"recurring_availability_id",
 			"weekday",
 			"timezone",
 			"hour",
@@ -353,14 +353,14 @@ func (d *PgLeaguesDAO) GetSchedulingAvailability(leagueId, availabilityId int) (
 			"end_time",
 		).
 			From("league_recurring_availability").
-			Where("league_id = ? AND id = ?", leagueId, availabilityId).
+			Where("recurring_availability_id = ?", availabilityId).
 			RunWith(db).QueryRow())
 }
 
 func (d *PgLeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]*SchedulingAvailabilityDTO, error) {
 	var availabilities SchedulingAvailabilityArray
 	if err := ScanRows(psql.Select(
-		"id",
+		"recurring_availability_id",
 		"weekday",
 		"timezone",
 		"hour",

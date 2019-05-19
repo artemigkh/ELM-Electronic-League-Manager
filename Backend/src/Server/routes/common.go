@@ -30,7 +30,7 @@ type userInfo struct {
 
 // Functions
 func getLeagueAndTeamPermissions(leagueId, teamId, userId int) (
-	*databaseAccess.LeaguePermissions, *databaseAccess.TeamPermissions, error) {
+	*databaseAccess.LeaguePermissionsDTO, *databaseAccess.TeamPermissionsDTO, error) {
 	leaguePermissions, err := LeaguesDAO.GetLeaguePermissions(leagueId, userId)
 	if err != nil {
 		return nil, nil, err

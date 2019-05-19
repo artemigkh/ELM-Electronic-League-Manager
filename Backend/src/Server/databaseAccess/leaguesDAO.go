@@ -65,13 +65,13 @@ func (d *PgLeaguesDAO) JoinLeague(leagueId, userId int) error {
 
 // Permissions
 
-func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId, userId int, permissions LeaguePermissionsDTO) error {
+func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId int, permissions UserPermissionsDTO) error {
 	_, err := psql.Update("league_permissions").
-		Set("administrator", permissions.Administrator).
-		Set("create_teams", permissions.CreateTeams).
-		Set("edit_teams", permissions.EditTeams).
-		Set("edit_games", permissions.EditGames).
-		Where("league_id = ? AND user_id = ?", leagueId, userId).
+		Set("administrator", permissions.LeaguePermissions.Administrator).
+		Set("create_teams", permissions.LeaguePermissions.CreateTeams).
+		Set("edit_teams", permissions.LeaguePermissions.EditTeams).
+		Set("edit_games", permissions.LeaguePermissions.EditGames).
+		Where("league_id = ? AND user_id = ?", leagueId, permissions.UserId).
 		RunWith(db).Exec()
 
 	return err

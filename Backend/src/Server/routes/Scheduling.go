@@ -10,18 +10,8 @@ import (
 	"time"
 )
 
+//TODO: check availabilities in league for relevant endpoins
 type recurringAvailability struct {
-	Weekday     string `json:"weekday"`
-	Timezone    int    `json:"timezone"`
-	Hour        int    `json:"hour"`
-	Minute      int    `json:"minute"`
-	Duration    int    `json:"duration"`
-	Constrained bool   `json:"constrained"`
-	Start       int    `json:"start"`
-	End         int    `json:"end"`
-}
-
-type recurringAvailabilityWithId struct {
 	Id          int    `json:"id"`
 	Weekday     string `json:"weekday"`
 	Timezone    int    `json:"timezone"`
@@ -162,13 +152,13 @@ func addRecurringAvailability(ctx *gin.Context) {
 * @apiError notAdmin Currently logged in user is not a league administrator
  */
 func editRecurringAvailability(ctx *gin.Context) {
-	var availability recurringAvailabilityWithId
+	var availability recurringAvailability
 	err := ctx.ShouldBindJSON(&availability)
 	if checkJsonErr(ctx, err) {
 		return
 	}
 
-	if failIfAvailabilityDoesNotExist(ctx, ctx.GetInt("leagueId"), availability.Id) {
+	if failIfAvailabilityDoesNotExist(ctx, availability.Id) {
 		return
 	}
 
@@ -191,7 +181,7 @@ func editRecurringAvailability(ctx *gin.Context) {
 		return
 	}
 
-	err = LeaguesDAO.EditRecurringAvailability(ctx.GetInt("leagueId"),
+	err = LeaguesDAO.EditRecurringAvailability(
 		databaseAccess.SchedulingAvailabilityDTO{
 			Id:          availability.Id,
 			Weekday:     int(day),
@@ -221,11 +211,11 @@ func editRecurringAvailability(ctx *gin.Context) {
 * @apiError notAdmin Currently logged in user is not a league administrator
  */
 func deleteRecurringAvailability(ctx *gin.Context) {
-	if failIfAvailabilityDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+	if failIfAvailabilityDoesNotExist(ctx, ctx.GetInt("urlId")) {
 		return
 	}
 
-	err := LeaguesDAO.RemoveRecurringAvailabilities(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	err := LeaguesDAO.RemoveRecurringAvailabilities(ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}

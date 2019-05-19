@@ -1,22 +1,12 @@
 package routes
 
 import (
+	"Server/databaseAccess"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-type GameInformation struct {
-	Team1Id  int `json:"team1Id"`
-	Team2Id  int `json:"team2Id"`
-	GameTime int `json:"gameTime"`
-}
-
-type GameReportInformation struct {
-	WinnerId   int `json:"winnerId"`
-	ScoreTeam1 int `json:"scoreTeam1"`
-	ScoreTeam2 int `json:"scoreTeam2"`
-}
-
+//TODO: check if game exists in league in relevant endpoints
 type GameRescheduleInformation struct {
 	Id       int `json:"id"`
 	GameTime int `json:"gameTime"`
@@ -41,28 +31,29 @@ type GameRescheduleInformation struct {
  */
 func createNewGame(ctx *gin.Context) {
 	//get parameters
-	var gameInfo GameInformation
+	var gameInfo databaseAccess.GameDTO
 	err := ctx.ShouldBindJSON(&gameInfo)
 	if checkJsonErr(ctx, err) {
 		return
 	}
 
+	gameInfo.LeagueId = ctx.GetInt("leagueId")
+
 	if gameInfo.Team1Id == gameInfo.Team2Id {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "teamsAreSame"})
 		return
 	}
-	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Team1Id) {
+	if failIfTeamDoesNotExist(ctx, gameInfo.LeagueId, gameInfo.Team1Id) {
 		return
 	}
-	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Team2Id) {
+	if failIfTeamDoesNotExist(ctx, gameInfo.LeagueId, gameInfo.Team2Id) {
 		return
 	}
 	if failIfConflictExists(ctx, gameInfo.Team1Id, gameInfo.Team2Id, gameInfo.GameTime) {
 		return
 	}
 
-	gameId, err := GamesDAO.CreateGame(ctx.GetInt("leagueId"), gameInfo.Team1Id, gameInfo.Team2Id,
-		gameInfo.GameTime, ctx.GetString("externalId"))
+	gameId, err := GamesDAO.CreateGame(gameInfo)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -92,7 +83,7 @@ func createNewGame(ctx *gin.Context) {
  * @apiError gameDoesNotExist The game with specified id does not exist
  */
 func getGameInformation(ctx *gin.Context) {
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -124,23 +115,23 @@ func getGameInformation(ctx *gin.Context) {
  */
 func reportGameResult(ctx *gin.Context) {
 	//get parameters
-	var gameInfo GameReportInformation
+	var gameInfo databaseAccess.GameDTO
 	err := ctx.ShouldBindJSON(&gameInfo)
 	if checkJsonErr(ctx, err) {
 		return
 	}
 
 	//TODO: fail if game complete
-	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+	if failIfGameDoesNotExist(ctx, gameInfo.Id) {
 		return
 	}
-	if failIfGameDoesNotContainWinner(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId"), gameInfo.WinnerId) {
+	//TODO: check if game contains loser
+	if failIfGameDoesNotContainWinner(ctx, gameInfo.Id, gameInfo.WinnerId) {
 		return
 	}
 
 	//report the result
-	err = GamesDAO.ReportGame(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
-		gameInfo.WinnerId, gameInfo.ScoreTeam1, gameInfo.ScoreTeam2)
+	err = GamesDAO.ReportGame(gameInfo)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -162,11 +153,11 @@ func reportGameResult(ctx *gin.Context) {
  * @apiError gameDoesNotExist The game with specified id does not exist in this league
  */
 func deleteGame(ctx *gin.Context) {
-	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
+	if failIfGameDoesNotExist(ctx, ctx.GetInt("urlId")) {
 		return
 	}
 
-	err := GamesDAO.DeleteGame(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	err := GamesDAO.DeleteGame(ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -195,12 +186,12 @@ func rescheduleGame(ctx *gin.Context) {
 		return
 	}
 
-	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), gameInfo.Id) {
+	if failIfGameDoesNotExist(ctx, gameInfo.Id) {
 		return
 	}
 
 	// get the game information to get the two team Ids to check for conflicts
-	gameInformation, err := GamesDAO.GetGameInformation(ctx.GetInt("leagueId"), gameInfo.Id)
+	gameInformation, err := GamesDAO.GetGameInformation(gameInfo.Id)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -214,7 +205,7 @@ func rescheduleGame(ctx *gin.Context) {
 		return
 	}
 
-	err = GamesDAO.RescheduleGame(ctx.GetInt("leagueId"), gameInfo.Id, gameInfo.GameTime)
+	err = GamesDAO.RescheduleGame(gameInfo.Id, gameInfo.GameTime)
 	if checkErr(ctx, err) {
 		return
 	}

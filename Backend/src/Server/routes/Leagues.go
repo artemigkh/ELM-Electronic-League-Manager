@@ -342,16 +342,14 @@ func getPublicLeagues(ctx *gin.Context) {
  */
 func setLeaguePermissions(ctx *gin.Context) {
 	//get parameters
-	var permissionChange LeaguePermissionChange
+	var permissionChange databaseAccess.UserPermissionsDTO
 	err := ctx.ShouldBindJSON(&permissionChange)
 	if checkJsonErr(ctx, err) {
 		return
 	}
 
 	err = LeaguesDAO.SetLeaguePermissions(
-		ctx.GetInt("leagueId"), ctx.GetInt("userId"),
-		permissionChange.Administrator, permissionChange.CreateTeams,
-		permissionChange.EditTeams, permissionChange.EditGames)
+		ctx.GetInt("leagueId"), permissionChange)
 
 	if checkErr(ctx, err) {
 		return

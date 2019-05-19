@@ -40,7 +40,7 @@ type LeaguesDAO interface {
 	JoinLeague(leagueId, userId int) error
 
 	// Permissions
-	SetLeaguePermissions(leagueId, userId int, permissions LeaguePermissionsDTO) error
+	SetLeaguePermissions(leagueId int, permissions UserPermissionsDTO) error
 	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissionsDTO, error)
 	GetTeamManagerInformation(leagueId int) ([]*TeamManagerDTO, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)

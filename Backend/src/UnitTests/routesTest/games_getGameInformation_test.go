@@ -14,7 +14,7 @@ import (
 
 func createGameInfoBody(id int, leagueId, team1Id, team2Id, gameTime,
 	winnerId, scoreTeam1, scoreTeam2 int, complete bool) *bytes.Buffer {
-	body := databaseAccess.GameInformation{
+	body := databaseAccess.GameDTO{
 		Id:         id,
 		LeagueId:   leagueId,
 		Team1Id:    team1Id,
@@ -118,7 +118,7 @@ func testGetGameInformationCorrectGetInfo(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 1).
-		Return(&databaseAccess.GameInformation{
+		Return(&databaseAccess.GameDTO{
 			Id:         1,
 			LeagueId:   2,
 			Team1Id:    4,

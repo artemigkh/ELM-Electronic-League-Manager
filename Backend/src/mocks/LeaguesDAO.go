@@ -111,15 +111,15 @@ func (_m *LeaguesDAO) GetGameSummary(leagueId int) ([]databaseAccess.GameSummary
 }
 
 // GetLeagueInformation provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetLeagueInformation(leagueId int) (*databaseAccess.LeagueInformation, error) {
+func (_m *LeaguesDAO) GetLeagueInformation(leagueId int) (*databaseAccess.LeagueDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 *databaseAccess.LeagueInformation
-	if rf, ok := ret.Get(0).(func(int) *databaseAccess.LeagueInformation); ok {
+	var r0 *databaseAccess.LeagueDTO
+	if rf, ok := ret.Get(0).(func(int) *databaseAccess.LeagueDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.LeagueInformation)
+			r0 = ret.Get(0).(*databaseAccess.LeagueDTO)
 		}
 	}
 
@@ -247,15 +247,15 @@ func (_m *LeaguesDAO) GetSchedulingAvailability(leagueId int, availabilityId int
 }
 
 // GetTeamManagerInformation provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.TeamManagerInformation, error) {
+func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.TeamManagerDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.TeamManagerInformation
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamManagerInformation); ok {
+	var r0 []databaseAccess.TeamManagerDTO
+	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamManagerDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.TeamManagerInformation)
+			r0 = ret.Get(0).([]databaseAccess.TeamManagerDTO)
 		}
 	}
 
@@ -270,15 +270,15 @@ func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.
 }
 
 // GetTeamSummary provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamSummaryInformation, error) {
+func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.TeamSummaryInformation
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamSummaryInformation); ok {
+	var r0 []databaseAccess.TeamDTO
+	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.TeamSummaryInformation)
+			r0 = ret.Get(0).([]databaseAccess.TeamDTO)
 		}
 	}
 

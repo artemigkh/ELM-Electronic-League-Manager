@@ -78,7 +78,7 @@ func testGetTeamInformationTeamDoesNotExist(t *testing.T) {
 		Return(2, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(false, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 2, 1).Return(false, nil)
 
 	routes.ElmSessions = mockSession
 	routes.TeamsDAO = mockTeamsDao
@@ -94,7 +94,7 @@ func testGetTeamInformationDbError(t *testing.T) {
 		Return(2, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 2, 1).Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 2, 1).
 		Return(nil, errors.New("fake db error"))
 
@@ -112,7 +112,7 @@ func testCorrectGetTeamInformationOneMember(t *testing.T) {
 		Return(2, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 2, 1).Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 2, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",
@@ -152,7 +152,7 @@ func testCorrectGetTeamInformationManyPlayers(t *testing.T) {
 		Return(2, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 2, 1).Return(true, nil)
+	mockTeamsDao.On("DoesTeamExistInLeague", 2, 1).Return(true, nil)
 	mockTeamsDao.On("GetTeamInformation", 2, 1).
 		Return(&databaseAccess.TeamInformation{
 			Name:   "sampleName",

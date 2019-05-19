@@ -47,18 +47,18 @@ func login(ctx *gin.Context) {
 		return
 	}
 
-	id, salt, storedHash, err := UsersDAO.GetAuthenticationInformation(request.Email)
+	authInfo, err := UsersDAO.GetAuthenticationInformation(request.Email)
 	if checkErr(ctx, err) {
 		return
 	}
 
 	//check if password matches
-	saltBin, err := hex.DecodeString(salt)
+	saltBin, err := hex.DecodeString(authInfo.Salt)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	storedHashBin, err := hex.DecodeString(storedHash)
+	storedHashBin, err := hex.DecodeString(authInfo.Hash)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -74,12 +74,12 @@ func login(ctx *gin.Context) {
 		return
 	}
 
-	err = ElmSessions.LogIn(ctx, id)
+	err = ElmSessions.LogIn(ctx, authInfo.UserId)
 	if checkErr(ctx, err) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"id": id})
+	ctx.JSON(http.StatusOK, gin.H{"id": authInfo.UserId})
 }
 
 /**

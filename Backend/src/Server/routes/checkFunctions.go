@@ -168,7 +168,7 @@ func failIfTeamInfoInUse(ctx *gin.Context, leagueId, teamId int, name, tag strin
 }
 
 func failIfTeamDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
-	exists, err := TeamsDAO.DoesTeamExist(leagueId, teamId)
+	exists, err := TeamsDAO.DoesTeamExistInLeague(leagueId, teamId)
 	return failIfBooleanConditionTrue(ctx, !exists, err, http.StatusBadRequest, "teamDoesNotExist")
 }
 
@@ -183,18 +183,18 @@ func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool
 	return failIfBooleanConditionTrue(ctx, conflictExists, err, http.StatusBadRequest, "conflictExists")
 }
 
-func failIfGameDoesNotExist(ctx *gin.Context, leagueId, gameId int) bool {
-	gameInformation, err := GamesDAO.GetGameInformation(leagueId, gameId)
+func failIfGameDoesNotExist(ctx *gin.Context, gameId int) bool {
+	gameInformation, err := GamesDAO.GetGameInformation(gameId)
 	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
 }
 
-func failIfAvailabilityDoesNotExist(ctx *gin.Context, leagueId, availabilityId int) bool {
-	availability, err := LeaguesDAO.GetSchedulingAvailability(leagueId, availabilityId)
+func failIfAvailabilityDoesNotExist(ctx *gin.Context, availabilityId int) bool {
+	availability, err := LeaguesDAO.GetSchedulingAvailability(availabilityId)
 	return failIfBooleanConditionTrue(ctx, availability == nil, err, http.StatusBadRequest, "AvailabilityDoesNotExist")
 }
 
-func failIfGameDoesNotContainWinner(ctx *gin.Context, leagueId, gameId, winnerId int) bool {
-	gi, err := GamesDAO.GetGameInformation(leagueId, gameId)
+func failIfGameDoesNotContainWinner(ctx *gin.Context, gameId, winnerId int) bool {
+	gi, err := GamesDAO.GetGameInformation(gameId)
 	return failIfBooleanConditionTrue(ctx,
 		!(gi.Team1Id == winnerId || gi.Team2Id == winnerId), err, http.StatusBadRequest, "gameDoesNotContainWinner")
 }
@@ -212,7 +212,7 @@ func failIfNotTeamAdmin(ctx *gin.Context, leagueId, teamId, userId int) bool {
 }
 
 func failIfPlayerDoesNotExist(ctx *gin.Context, teamId, playerId int) bool {
-	playerExists, err := TeamsDAO.DoesPlayerExist(teamId, playerId)
+	playerExists, err := TeamsDAO.DoesPlayerExistInTeam(teamId, playerId)
 	return failIfBooleanConditionTrue(ctx, !playerExists, err, http.StatusBadRequest, "playerDoesNotExist")
 }
 
@@ -227,8 +227,8 @@ func failIfEmailMalformed(ctx *gin.Context, email string) bool {
 	}
 }
 
-func failIfGameIdentifierInUse(ctx *gin.Context, leagueId, teamId, playerId int, gameIdentifier string) bool {
-	teamInfo, err := TeamsDAO.GetTeamInformation(leagueId, teamId)
+func failIfGameIdentifierInUse(ctx *gin.Context, teamId, playerId int, gameIdentifier string) bool {
+	teamInfo, err := TeamsDAO.GetTeamInformation(teamId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, nil)
 		return true

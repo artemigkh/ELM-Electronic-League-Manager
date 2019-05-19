@@ -24,3 +24,28 @@ func Init(conf config.Config) {
 	openDB(conf)
 	psql = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 }
+
+type RowArr interface {
+	Scan(*sql.Rows) error
+}
+
+func ScanRows(statement squirrel.SelectBuilder, out RowArr) error {
+	rows, err := statement.RunWith(db).Query()
+	if err != nil {
+		return nil
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := out.Scan(rows); err != nil {
+			return err
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}

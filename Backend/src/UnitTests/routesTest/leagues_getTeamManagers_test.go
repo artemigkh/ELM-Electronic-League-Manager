@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func createTeamManagersBody(body []databaseAccess.TeamManagerInformation) *bytes.Buffer {
+func createTeamManagersBody(body []databaseAccess.TeamManagerDTO) *bytes.Buffer {
 	bodyB, _ := json.Marshal(&body)
 	return bytes.NewBuffer(bodyB)
 }
@@ -95,7 +95,7 @@ func testGetTeamManagersDatabaseError(t *testing.T) {
 }
 
 func testCorrectGetManagers(t *testing.T) {
-	teamManagerSummary := []databaseAccess.TeamManagerInformation{
+	teamManagerSummary := []databaseAccess.TeamManagerDTO{
 		{
 			TeamId:   15,
 			TeamName: "team1",

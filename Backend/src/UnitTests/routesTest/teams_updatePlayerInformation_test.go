@@ -86,7 +86,7 @@ func testUpdatePlayerTeamDoesNotExist(t *testing.T) {
 		Return(4, nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(false, nil)
 
 	routes.ElmSessions = mockSession
@@ -110,7 +110,7 @@ func testUpdatePlayerCannotEditPlayersOnTeam(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 1, 4).
 		Return(TeamPermissions(false, false, false, false), nil)
@@ -137,7 +137,7 @@ func testUpdatePlayerGameIdentifierTooLong(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 1, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
@@ -165,7 +165,7 @@ func testUpdatePlayerNameTooLong(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 1, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
@@ -193,7 +193,7 @@ func testUpdatePlayerGameIdentifierInUse(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 1, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
@@ -247,7 +247,7 @@ func testUpdatePlayerDatabaseError(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 1, 4).
 		Return(TeamPermissions(false, false, true, false), nil)
@@ -303,7 +303,7 @@ func testUpdatePlayerCorrectUpdatePlayer(t *testing.T) {
 		Return(LeaguePermissions(false, false, false, false), nil)
 
 	mockTeamsDao := new(mocks.TeamsDAO)
-	mockTeamsDao.On("DoesTeamExist", 5, 1).
+	mockTeamsDao.On("DoesTeamExistInLeague", 5, 1).
 		Return(true, nil)
 	mockTeamsDao.On("GetTeamPermissions", 1, 4).
 		Return(TeamPermissions(false, false, true, false), nil)

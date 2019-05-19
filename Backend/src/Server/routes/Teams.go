@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"Server/databaseAccess"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"net/http"
@@ -68,7 +69,7 @@ type TeamManagerPermissionChange struct {
  */
 func createNewTeam(ctx *gin.Context) {
 	//get parameters
-	var teamInfo TeamInformation
+	var teamInfo databaseAccess.TeamDTO
 	err := ctx.ShouldBindJSON(&teamInfo)
 	if checkJsonErr(ctx, err) {
 		return
@@ -93,8 +94,8 @@ func createNewTeam(ctx *gin.Context) {
 		return
 	}
 
-	teamId, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
-		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
+	teamId, err := TeamsDAO.CreateTeam(
+		ctx.GetInt("leagueId"), ctx.GetInt("userId"), teamInfo)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -128,7 +129,7 @@ func createNewTeam(ctx *gin.Context) {
  */
 func createNewTeamWithIcon(ctx *gin.Context) {
 	//get parameters
-	var teamInfo TeamInformation
+	var teamInfo databaseAccess.TeamDTO
 	teamInfo.Name = ctx.PostForm("name")
 	teamInfo.Tag = ctx.PostForm("tag")
 	teamInfo.Description = ctx.PostForm("description")
@@ -165,16 +166,19 @@ func createNewTeamWithIcon(ctx *gin.Context) {
 			return
 		}
 
+		teamInfo.IconSmall = smallIcon
+		teamInfo.IconLarge = largeIcon
+
 		teamId, err := TeamsDAO.CreateTeamWithIcon(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
-			teamInfo.Name, teamInfo.Tag, teamInfo.Description, smallIcon, largeIcon)
+			teamInfo)
 		if checkErr(ctx, err) {
 			return
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{"id": teamId})
 	} else {
-		teamId, err := TeamsDAO.CreateTeam(ctx.GetInt("leagueId"), ctx.GetInt("userId"),
-			teamInfo.Name, teamInfo.Tag, teamInfo.Description)
+		teamId, err := TeamsDAO.CreateTeam(
+			ctx.GetInt("leagueId"), ctx.GetInt("userId"), teamInfo)
 		if checkErr(ctx, err) {
 			return
 		}
@@ -208,7 +212,7 @@ func createNewTeamWithIcon(ctx *gin.Context) {
  */
 func updateTeamWithIcon(ctx *gin.Context) {
 	//get parameters
-	var teamInfo TeamInformation
+	var teamInfo databaseAccess.TeamDTO
 	teamInfo.Name = ctx.PostForm("name")
 	teamInfo.Tag = ctx.PostForm("tag")
 	teamInfo.Description = ctx.PostForm("description")
@@ -248,15 +252,13 @@ func updateTeamWithIcon(ctx *gin.Context) {
 			return
 		}
 
-		err = TeamsDAO.UpdateTeamIcon(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
-			smallIcon, largeIcon)
+		err = TeamsDAO.UpdateTeamIcon(ctx.GetInt("urlId"), smallIcon, largeIcon)
 		if checkErr(ctx, err) {
 			return
 		}
 	}
 
-	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
-		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
+	err = TeamsDAO.UpdateTeam(teamInfo)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -287,7 +289,7 @@ func updateTeamWithIcon(ctx *gin.Context) {
  */
 func updateTeam(ctx *gin.Context) {
 	//get parameters
-	var teamInfo TeamInformation
+	var teamInfo databaseAccess.TeamDTO
 	err := ctx.ShouldBindJSON(&teamInfo)
 	if checkJsonErr(ctx, err) {
 		return
@@ -315,8 +317,7 @@ func updateTeam(ctx *gin.Context) {
 		return
 	}
 
-	err = TeamsDAO.UpdateTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
-		teamInfo.Name, teamInfo.Tag, teamInfo.Description)
+	err = TeamsDAO.UpdateTeam(teamInfo)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -351,8 +352,7 @@ func updateTeamIcon(ctx *gin.Context) {
 		return
 	}
 
-	err = TeamsDAO.UpdateTeamIcon(ctx.GetInt("leagueId"), ctx.GetInt("urlId"),
-		smallIcon, largeIcon)
+	err = TeamsDAO.UpdateTeamIcon(ctx.GetInt("urlId"), smallIcon, largeIcon)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -380,7 +380,7 @@ func deleteTeam(ctx *gin.Context) {
 		return
 	}
 
-	err := TeamsDAO.DeleteTeam(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	err := TeamsDAO.DeleteTeam(ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -417,7 +417,7 @@ func getTeamInformation(ctx *gin.Context) {
 		return
 	}
 
-	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("leagueId"), ctx.GetInt("urlId"))
+	teamInfo, err := TeamsDAO.GetTeamInformation(ctx.GetInt("urlId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -449,7 +449,7 @@ func getTeamInformation(ctx *gin.Context) {
 //TODO: add length check for position
 func addPlayerToTeam(ctx *gin.Context) {
 	//get parameters
-	var playerInfo PlayerInformation
+	var playerInfo databaseAccess.PlayerDTO
 	err := ctx.ShouldBindBodyWith(&playerInfo, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
@@ -470,12 +470,12 @@ func addPlayerToTeam(ctx *gin.Context) {
 	if failIfGameIdentifierTooShort(ctx, playerInfo.GameIdentifier) {
 		return
 	}
-	if failIfGameIdentifierInUse(ctx, ctx.GetInt("leagueId"), playerInfo.TeamId, -1, playerInfo.GameIdentifier) {
+	//TODO: check about game identifier league wide
+	if failIfGameIdentifierInUse(ctx, playerInfo.TeamId, -1, playerInfo.GameIdentifier) {
 		return
 	}
 
-	playerId, err := TeamsDAO.AddNewPlayer(playerInfo.TeamId, playerInfo.GameIdentifier,
-		playerInfo.Name, ctx.GetString("externalId"), playerInfo.Position, playerInfo.MainRoster)
+	playerId, err := TeamsDAO.AddNewPlayer(playerInfo)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -513,7 +513,8 @@ func removePlayerFromTeam(ctx *gin.Context) {
 	if failIfPlayerDoesNotExist(ctx, playerRemoveInfo.TeamId, playerRemoveInfo.PlayerId) {
 		return
 	}
-	err = TeamsDAO.RemovePlayer(playerRemoveInfo.TeamId, playerRemoveInfo.PlayerId)
+	//TODO: check if player on team
+	err = TeamsDAO.RemovePlayer(playerRemoveInfo.PlayerId)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -544,7 +545,7 @@ func removePlayerFromTeam(ctx *gin.Context) {
 //TODO: add length check for position
 func updatePlayer(ctx *gin.Context) {
 	//get parameters
-	var playerInfoChange PlayerInformationChange
+	var playerInfoChange databaseAccess.PlayerDTO
 	err := ctx.ShouldBindBodyWith(&playerInfoChange, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
@@ -566,13 +567,12 @@ func updatePlayer(ctx *gin.Context) {
 		return
 	}
 	if failIfGameIdentifierInUse(
-		ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId,
-		playerInfoChange.PlayerId, playerInfoChange.GameIdentifier) {
+		ctx, playerInfoChange.TeamId,
+		playerInfoChange.Id, playerInfoChange.GameIdentifier) {
 		return
 	}
 
-	err = TeamsDAO.UpdatePlayer(playerInfoChange.TeamId, playerInfoChange.PlayerId, playerInfoChange.GameIdentifier,
-		playerInfoChange.Name, ctx.GetString("externalId"), playerInfoChange.Position, playerInfoChange.MainRoster)
+	err = TeamsDAO.UpdatePlayer(playerInfoChange)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -617,7 +617,12 @@ func updateManagerPermissions(ctx *gin.Context) {
 	}
 
 	err = TeamsDAO.ChangeManagerPermissions(permissionChange.TeamId, permissionChange.UserId,
-		permissionChange.Administrator, permissionChange.Information, permissionChange.Players, permissionChange.ReportResults)
+		databaseAccess.TeamPermissionsDTO{
+			Administrator: permissionChange.Administrator,
+			Information:   permissionChange.Information,
+			Players:       permissionChange.Players,
+			ReportResults: permissionChange.ReportResults,
+		})
 	if checkErr(ctx, err) {
 		return
 	}

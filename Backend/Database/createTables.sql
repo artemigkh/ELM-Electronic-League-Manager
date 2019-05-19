@@ -10,7 +10,7 @@ CREATE TABLE league (
   id              INT           PRIMARY KEY DEFAULT nextval('league_id_seq'),
   name            VARCHAR(50)   UNIQUE NOT NULL         ,
   description     VARCHAR(500)                          ,
-  markdown_path   VARCHAR(20)   UNIQUE NOT NULL         ,
+  markdown_path   VARCHAR(20)   NOT NULL                ,
   public_view     BOOLEAN       NOT NULL                ,
   public_join     BOOLEAN       NOT NULL                ,
   signup_start    INT           NOT NULL                ,
@@ -29,18 +29,6 @@ CREATE TABLE user_ (
 );
 ALTER SEQUENCE user_id_seq OWNED BY user_.id;
 
-CREATE TABLE player (
-  id              INT           PRIMARY KEY DEFAULT nextval('player_id_seq'),
-  team_id         INT           NOT NULL REFERENCES team(id),
-  user_id         INT           UNIQUE           ,
-  game_identifier VARCHAR(50)   NOT NULL         ,
-  name            VARCHAR(50)   NOT NULL         ,
-  external_id     VARCHAR(50)                    ,
-  main_roster     BOOLEAN       NOT NULL         ,
-  position        VARCHAR(20)
-);
-ALTER SEQUENCE player_id_seq OWNED BY players.id;
-
 CREATE TABLE team (
   id              INT           PRIMARY KEY DEFAULT nextval('team_id_seq'),
   league_id       INT           NOT NULL REFERENCES league(id),
@@ -53,6 +41,18 @@ CREATE TABLE team (
   icon_large      VARCHAR(20)   NOT NULL
 );
 ALTER SEQUENCE team_id_seq OWNED BY team.id;
+
+CREATE TABLE player (
+  id              INT           PRIMARY KEY DEFAULT nextval('player_id_seq'),
+  team_id         INT           NOT NULL REFERENCES team(id),
+  user_id         INT           UNIQUE           ,
+  game_identifier VARCHAR(50)   NOT NULL         ,
+  name            VARCHAR(50)   NOT NULL         ,
+  external_id     VARCHAR(50)                    ,
+  main_roster     BOOLEAN       NOT NULL         ,
+  position        VARCHAR(20)
+);
+ALTER SEQUENCE player_id_seq OWNED BY player.id;
 
 CREATE TABLE league_permissions (
   user_id         INT           NOT NULL REFERENCES user_(id),
@@ -103,7 +103,7 @@ ALTER SEQUENCE league_recurring_availability_id_seq OWNED BY league_recurring_av
 CREATE TABLE league_one_time_availability (
   id              INT           PRIMARY KEY DEFAULT nextval('league_one_time_availability_id_seq'),
   league_id       INT           NOT NULL REFERENCES league(id),
-  start           INT                                   ,
-  end             INT
+  start_time      INT                                   ,
+  end_time        INT
 );
-ALTER SEQUENCE league_one_time_availability_id_seq OWNED BY leagueOneTimeAvailabilities.id;
+ALTER SEQUENCE league_one_time_availability_id_seq OWNED BY league_one_time_availability.id;

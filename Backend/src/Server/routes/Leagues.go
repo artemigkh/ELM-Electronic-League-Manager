@@ -6,18 +6,6 @@ import (
 	"net/http"
 )
 
-type LeagueRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Game        string `json:"game"`
-	PublicView  bool   `json:"publicView"`
-	PublicJoin  bool   `json:"publicJoin"`
-	SignupStart int    `json:"signupStart"`
-	SignupEnd   int    `json:"signupEnd"`
-	LeagueStart int    `json:"leagueStart"`
-	LeagueEnd   int    `json:"leagueEnd"`
-}
-
 type LeaguePermissionChange struct {
 	Id            int  `json:"id"`
 	Administrator bool `json:"administrator"`
@@ -59,12 +47,11 @@ type LeagueMarkdown struct {
 */
 func createNewLeague(ctx *gin.Context) {
 	//TODO: here and in update, check that competition period after signup period
-	var lgRequest LeagueRequest
+	var lgRequest databaseAccess.LeagueInformationDTO
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
 		return
 	}
-
 	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
 		return
 	}
@@ -82,16 +69,7 @@ func createNewLeague(ctx *gin.Context) {
 	}
 
 	leagueId, err := LeaguesDAO.CreateLeague(
-		ctx.GetInt("userId"),
-		lgRequest.Name,
-		lgRequest.Description,
-		lgRequest.Game,
-		lgRequest.PublicView,
-		lgRequest.PublicJoin,
-		lgRequest.SignupStart,
-		lgRequest.SignupEnd,
-		lgRequest.LeagueStart,
-		lgRequest.LeagueEnd)
+		ctx.GetInt("userId"), lgRequest)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -128,11 +106,12 @@ func createNewLeague(ctx *gin.Context) {
 * @apiError nameInUse The league name is currently in use
 */
 func updateLeagueInfo(ctx *gin.Context) {
-	var lgRequest LeagueRequest
+	var lgRequest databaseAccess.LeagueInformationDTO
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
 		return
 	}
+	lgRequest.Id = ctx.GetInt("leagueId")
 
 	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
 		return
@@ -146,23 +125,11 @@ func updateLeagueInfo(ctx *gin.Context) {
 	if failIfNameTooShort(ctx, lgRequest.Name) {
 		return
 	}
-	if failIfLeagueNameInUse(ctx, ctx.GetInt("leagueId"), lgRequest.Name) {
+	if failIfLeagueNameInUse(ctx, lgRequest.Id, lgRequest.Name) {
 		return
 	}
 
-	err = LeaguesDAO.UpdateLeague(
-		databaseAccess.LeagueInformationDTO{
-			Id:          ctx.GetInt("leagueId"),
-			Name:        lgRequest.Name,
-			Description: lgRequest.Description,
-			Game:        lgRequest.Game,
-			PublicView:  lgRequest.PublicView,
-			PublicJoin:  lgRequest.PublicJoin,
-			SignupStart: lgRequest.SignupStart,
-			SignupEnd:   lgRequest.SignupEnd,
-			LeagueStart: lgRequest.LeagueStart,
-			LeagueEnd:   lgRequest.LeagueEnd,
-		})
+	err = LeaguesDAO.UpdateLeague(lgRequest)
 
 	if checkErr(ctx, err) {
 		return

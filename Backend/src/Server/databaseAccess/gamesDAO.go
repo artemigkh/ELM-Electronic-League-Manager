@@ -11,22 +11,9 @@ const (
 	SCHEDULING_CONFLICT_THRESHOLD_SECONDS = 120
 )
 
-type GameInformation struct {
-	Id         int    `json:"id"`
-	ExternalId string `json:"externalId"`
-	LeagueId   int    `json:"leagueId"`
-	Team1Id    int    `json:"team1Id"`
-	Team2Id    int    `json:"team2Id"`
-	GameTime   int    `json:"gameTime"`
-	Complete   bool   `json:"complete"`
-	WinnerId   int    `json:"winnerId"`
-	ScoreTeam1 int    `json:"scoreTeam1"`
-	ScoreTeam2 int    `json:"scoreTeam2"`
-}
-
 type PgGamesDAO struct{}
 
-func getGamesOfTeam(teamId int) ([]GameInformation, error) {
+func getGamesOfTeam(teamId int) ([]GameDTO, error) {
 	rows, err := psql.Select("id", "external_id", "league_id", "team1_id", "team2_id",
 		"game_time", "complete", "winner_id", "score_team1", "score_team2").From("game").
 		Where(squirrel.Or{squirrel.Eq{"team1_id": teamId}, squirrel.Eq{"team2_id": teamId}}).
@@ -37,8 +24,8 @@ func getGamesOfTeam(teamId int) ([]GameInformation, error) {
 	}
 	defer rows.Close()
 
-	var games []GameInformation
-	var game GameInformation
+	var games []GameDTO
+	var game GameDTO
 
 	for rows.Next() {
 		err := rows.Scan(&game.Id, &game.ExternalId, &game.LeagueId, &game.Team1Id, &game.Team2Id, &game.GameTime,
@@ -136,8 +123,8 @@ func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, er
 	return false, nil
 }
 
-func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameInformation, error) {
-	var gameInformation GameInformation
+func (d *PgGamesDAO) GetGameInformation(leagueId, gameId int) (*GameDTO, error) {
+	var gameInformation GameDTO
 
 	err := psql.Select("id", "external_id", "league_id", "team1_id", "team2_id",
 		"game_time", "complete", "winner_id", "score_team1", "score_team2").
@@ -273,8 +260,8 @@ func (d *PgGamesDAO) RescheduleGame(leagueId, gameId, gameTime int) error {
 	return err
 }
 
-func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*GameInformation, error) {
-	var gameInformation GameInformation
+func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*GameDTO, error) {
+	var gameInformation GameDTO
 
 	err := psql.Select("id", "external_id", "league_id", "team1_id", "team2_id",
 		"game_time", "complete", "winner_id", "score_team1", "score_team2").

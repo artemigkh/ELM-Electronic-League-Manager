@@ -4,24 +4,6 @@ import (
 	"database/sql"
 )
 
-type LeaguePermissions struct {
-	Administrator bool `json:"administrator"`
-	CreateTeams   bool `json:"createTeams"`
-	EditTeams     bool `json:"editTeams"`
-	EditGames     bool `json:"editGames"`
-}
-
-type GameSummaryInformation struct {
-	Id         int  `json:"id"`
-	Team1Id    int  `json:"team1Id"`
-	Team2Id    int  `json:"team2Id"`
-	GameTime   int  `json:"gameTime"`
-	Complete   bool `json:"complete"`
-	WinnerId   int  `json:"winnerId"`
-	ScoreTeam1 int  `json:"scoreTeam1"`
-	ScoreTeam2 int  `json:"scoreTeam2"`
-}
-
 type TeamManagerInformation struct {
 	TeamId   int                  `json:"teamId"`
 	TeamName string               `json:"teamName"`
@@ -38,160 +20,111 @@ type ManagerInformation struct {
 	ReportResults bool   `json:"reportResults"`
 }
 
-type PublicLeagueInformation struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	PublicJoin  bool   `json:"publicJoin"`
-	SignupStart int    `json:"signupStart"`
-	SignupEnd   int    `json:"signupEnd"`
-	LeagueStart int    `json:"leagueStart"`
-	LeagueEnd   int    `json:"leagueEnd"`
-	Game        string `json:"game"`
-}
-
-type SchedulingAvailability struct {
-	Id          int  `json:"id"`
-	Weekday     int  `json:"weekday"`
-	Timezone    int  `json:"timezone"`
-	Hour        int  `json:"hour"`
-	Minute      int  `json:"minute"`
-	Duration    int  `json:"duration"`
-	Constrained bool `json:"constrained"`
-	Start       int  `json:"start"`
-	End         int  `json:"end"`
-}
-
 type PgLeaguesDAO struct{}
 
-func (d *PgLeaguesDAO) CreateLeague(userId int, name, description, game string, publicView, publicJoin bool,
-	signupStart, signupEnd, leagueStart, leagueEnd int) (int, error) {
+func (d *PgLeaguesDAO) CreateLeague(userId int, leagueInfo LeagueInformationDTO) (int, error) {
+	var leagueId = -1
+	err := db.QueryRow("SELECT create_league($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
+		leagueInfo.Name,
+		leagueInfo.Description,
+		leagueInfo.PublicView,
+		leagueInfo.PublicJoin,
+		leagueInfo.SignupStart,
+		leagueInfo.SignupEnd,
+		leagueInfo.LeagueStart,
+		leagueInfo.LeagueEnd,
+		leagueInfo.Game,
+		userId,
+	).Scan(&leagueId)
 
-	var leagueId int
-	err := psql.Insert("league").
-		Columns("name", "description", "markdown_path", "game", "public_view", "public_join",
-			"signup_start", "signup_end", "league_start", "league_end").
-		Values(name, description, "", game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd).
-		Suffix("RETURNING \"id\"").
-		RunWith(db).QueryRow().Scan(&leagueId)
-	if err != nil {
-		return -1, err
-	}
-
-	//create permissions entry linking current user Id as the league creator
-	_, err = psql.Insert("league_permissions").
-		Columns("user_id", "league_id",
-			"administrator", "create_teams", "edit_teams", "edit_games").
-		Values(userId, leagueId, true, true, true, true).
-		RunWith(db).Exec()
-	if err != nil {
-		return -1, err
-	}
-
-	return leagueId, nil
+	return leagueId, err
 }
 
 func (d *PgLeaguesDAO) UpdateLeague(leagueInfo LeagueInformationDTO) error {
-	//_, err := psql.Update("league").
-	//	Set("complete", true).
-	//	Set("winnerId", winnerId).
-	//	Set("scoreteam1", scoreTeam1).
-	//	Set("scoreteam2", scoreTeam2).
-	//	Where("id = ? AND leagueId = ?", gameId, leagueId).RunWith(db).Exec()
-	//if err != nil {
-	//	return err
-	//}
-	//_, err := db.Exec(
-	//	`
-	//	UPDATE leagues SET name = $1, description = $2, game = $3, publicView = $4, publicJoin = $5,
-	//		signupStart = $6, signupEnd = $7, leagueStart = $8, leagueEnd = $9
-	//	WHERE id = $10
-	//	`, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd, leagueId)
-	//return err
-	return nil
+	_, err := psql.Update("league").
+		Set("name", leagueInfo.Name).
+		Set("description", leagueInfo.Description).
+		Set("game", leagueInfo.Game).
+		Set("public_view", leagueInfo.PublicView).
+		Set("public_join", leagueInfo.PublicJoin).
+		Set("signup_start", leagueInfo.SignupStart).
+		Set("signup_end", leagueInfo.SignupEnd).
+		Set("league_start", leagueInfo.LeagueStart).
+		Set("league_end", leagueInfo.LeagueEnd).
+		Where("id = ?", leagueInfo.Id).
+		RunWith(db).Exec()
+
+	return err
 }
 
 func (d *PgLeaguesDAO) JoinLeague(leagueId, userId int) error {
 	_, err := psql.Insert("league_permissions").
-		Columns("user_id", "league_id",
-			"administrator", "create_teams", "edit_teams", "edit_games").
-		Values(userId, leagueId, false, true, false, false).
+		Columns(
+			"user_id",
+			"league_id",
+			"administrator",
+			"create_teams",
+			"edit_teams",
+			"edit_games",
+		).
+		Values(
+			userId,
+			leagueId,
+			false,
+			true,
+			false,
+			false,
+		).
 		RunWith(db).Exec()
-	if err != nil {
-		return err
-	} else {
-		return nil
-	}
+
+	return err
 }
 
 func (d *PgLeaguesDAO) IsNameInUse(leagueId int, name string) (bool, error) {
-	var leagueIdOfMatch int
-	err := psql.Select("name, id").
+	var count int
+	if err := psql.Select("count(name)").
 		From("league").
-		Where("name = ?", name).
-		RunWith(db).QueryRow().Scan(&name, &leagueIdOfMatch)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
+		Where("name = ? AND id != ?", name, leagueId).
+		RunWith(db).QueryRow().Scan(&count); err != nil {
 		return false, err
-	} else if leagueIdOfMatch != leagueId {
-		return true, nil
 	} else {
-		return false, nil
+		return count > 0, nil
 	}
-}
-
-func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
-	//check if publicly viewable
-	var publicView bool
-	err := psql.Select("public_view").
-		From("league").
-		Where("id = ?", leagueId).
-		RunWith(db).QueryRow().Scan(&publicView)
-	if err != nil {
-		return false, err
-	}
-
-	if publicView {
-		return true, nil
-	}
-
-	//if not publicly viewable, see if user has permission to view it. This is checked by seeing if there is a
-	//leaguePermissions row with that userId and leagueId, if there is they have at least the base (viewing) privileges
-	var uid int
-	err = psql.Select("user_id").
-		From("league_permissions").
-		Where("user_id = ? AND league_id = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&uid)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	return true, nil
 }
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueInformationDTO, error) {
-	var leagueInfo LeagueInformationDTO
-	err := psql.Select("id", "name", "description", "game", "public_view", "public_join",
-		"signup_start", "signup_end", "league_start", "league_end").
+	row := psql.Select(
+		"id",
+		"name",
+		"description",
+		"game",
+		"public_view",
+		"public_join",
+		"signup_start",
+		"signup_end",
+		"league_start",
+		"league_end",
+	).
 		From("league").
 		Where("id = ?", leagueId).
-		RunWith(db).QueryRow().Scan(&leagueInfo.Id, &leagueInfo.Name, &leagueInfo.Description, &leagueInfo.Game,
-		&leagueInfo.PublicView, &leagueInfo.PublicJoin, &leagueInfo.SignupStart, &leagueInfo.SignupEnd,
-		&leagueInfo.LeagueStart, &leagueInfo.LeagueEnd)
-	if err != nil {
-		return nil, err
-	}
+		RunWith(db).QueryRow()
 
-	return &leagueInfo, err
+	return GetScannedLeagueInformationDTO(row)
 }
 
-//ScanRows(statement *squirrel.SelectBuilder, out RowArr)
-func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]*TeamSummaryInformationDTO, error) {
-	var teamSummary TeamSummaryInformationArray
-	if err := ScanRows(psql.Select("id", "name", "tag", "wins", "losses", "icon_small", "icon_large").From("teams").
+func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]*TeamDTO, error) {
+	var teamSummary TeamDTOArray
+	if err := ScanRows(psql.Select(
+		"id",
+		"name",
+		"tag",
+		"description",
+		"wins",
+		"losses",
+		"icon_small",
+		"icon_large",
+	).
+		From("team").
 		Where("league_id = ?", leagueId).
 		OrderBy("wins DESC, losses ASC"), &teamSummary); err != nil {
 		return nil, err
@@ -200,50 +133,38 @@ func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]*TeamSummaryInformationDT
 	return teamSummary.rows, nil
 }
 
-func (d *PgLeaguesDAO) GetGameSummary(leagueId int) ([]GameSummaryInformation, error) {
-	rows, err := psql.Select("id", "team1_id", "team2_id", "game_time", "complete", "winner_id",
-		"score_team1", "score_team2").From("game").
+func (d *PgLeaguesDAO) GetGameSummary(leagueId int) ([]*GameDTO, error) {
+	var games GameDTOArray
+	if err := ScanRows(psql.Select(
+		"id",
+		"external_id",
+		"team1_id",
+		"team2_id",
+		"game_time",
+		"complete",
+		"winner_id",
+		"score_team1",
+		"score_team2",
+	).
+		From("game").
 		Where("league_id = ?", leagueId).
-		OrderBy("game_time DESC").
-		RunWith(db).Query()
-
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var games []GameSummaryInformation
-	var game GameSummaryInformation
-
-	for rows.Next() {
-		err := rows.Scan(&game.Id, &game.Team1Id, &game.Team2Id, &game.GameTime, &game.Complete, &game.WinnerId,
-			&game.ScoreTeam1, &game.ScoreTeam2)
-		if err != nil {
-			return nil, err
-		}
-		games = append(games, game)
-	}
-	err = rows.Err()
-	if err != nil {
+		OrderBy("game_time DESC"), &games); err != nil {
 		return nil, err
 	}
 
-	return games, nil
+	return games.rows, nil
 }
 
 //TODO: make invite system for private leagues, check if user invited in this function
 //TODO: make ordering consistent
 func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
-	var canJoin bool
+	var canJoin = false
 	err := psql.Select("public_join").
 		From("league").
 		Where("id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&canJoin)
-	if err != nil {
-		return false, err
-	}
 
-	return canJoin, nil
+	return canJoin, err
 }
 
 func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error) {
@@ -316,107 +237,99 @@ func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]TeamManagerInf
 	return teamsReps, nil
 }
 
-func (d *PgLeaguesDAO) GetPublicLeagueList() ([]PublicLeagueInformation, error) {
-	rows, err := psql.Select("id", "name", "description", "public_join", "signup_start",
-		"signup_end", "league_start", "league_end", "game").
+func (d *PgLeaguesDAO) GetPublicLeagueList() ([]*LeagueInformationDTO, error) {
+	var leagueSummary LeagueInformationArray
+	if err := ScanRows(psql.Select(
+		"id",
+		"name",
+		"description",
+		"public_view",
+		"public_join",
+		"signup_start",
+		"signup_end",
+		"league_start",
+		"league_end",
+		"game",
+	).
 		From("league").
-		Where("public_view = true").
-		RunWith(db).Query()
-
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var leagues []PublicLeagueInformation
-	var league PublicLeagueInformation
-
-	for rows.Next() {
-		err := rows.Scan(&league.Id, &league.Name, &league.Description, &league.PublicJoin, &league.SignupStart,
-			&league.SignupEnd, &league.LeagueStart, &league.LeagueEnd, &league.Game)
-		if err != nil {
-			return nil, err
-		}
-		leagues = append(leagues, league)
-	}
-	err = rows.Err()
-	if err != nil {
+		Where("public_view = true"), &leagueSummary); err != nil {
 		return nil, err
 	}
 
-	return leagues, nil
+	return leagueSummary.rows, nil
 }
 
-func getLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
-	var lp LeaguePermissions
-	err := psql.Select("administrator", "create_teams", "edit_teams", "edit_games").
+func GetLeaguePermissions(leagueId, userId int) (*LeaguePermissionsDTO, error) {
+	return GetScannedLeaguePermissionsDTO(psql.Select(
+		"administrator",
+		"create_teams",
+		"edit_teams",
+		"edit_games",
+	).
 		From("league_permissions").
 		Where("user_id = ? AND league_id = ?", userId, leagueId).
-		RunWith(db).QueryRow().Scan(&lp.Administrator, &lp.CreateTeams, &lp.EditTeams, &lp.EditGames)
-	if err == sql.ErrNoRows {
-		return &LeaguePermissions{
-			Administrator: false,
-			CreateTeams:   false,
-			EditTeams:     false,
-			EditGames:     false,
-		}, nil
-	} else if err != nil {
-		return nil, err
-	}
-	return &lp, nil
+		RunWith(db).QueryRow())
 }
 
-func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error) {
-	return getLeaguePermissions(leagueId, userId)
-}
+func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId, userId int, permissions LeaguePermissionsDTO) error {
+	_, err := psql.Update("league_permissions").
+		Set("administrator", permissions.Administrator).
+		Set("create_teams", permissions.CreateTeams).
+		Set("edit_teams", permissions.EditTeams).
+		Set("edit_games", permissions.EditGames).
+		Where("league_id = ? AND user_id = ?", leagueId, userId).
+		RunWith(db).Exec()
 
-func (d *PgLeaguesDAO) SetLeaguePermissions(leagueId, userId int,
-	administrator, createTeams, editTeams, editGames bool) error {
-
-	_, err := db.Exec(
-		`
-		UPDATE league_permissions SET administrator = $1, create_teams = $2, edit_teams = $3, edit_games = $4
-		WHERE league_id = $5 AND user_id = $6
-		`, administrator, createTeams, editTeams, editGames, leagueId, userId)
 	return err
 }
 
 func (d *PgLeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
-	_, err := db.Exec(
-		`
-		UPDATE leagues SET markdown_path = $1
-		WHERE id = $2
-		`, fileName, leagueId)
+	_, err := psql.Update("league").
+		Set("markdown_path", fileName).
+		Where("id = ?", leagueId).
+		RunWith(db).Exec()
+
 	return err
 }
 
 func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
-	var markdownFile string
+	var markdownFile = ""
 	err := psql.Select("markdown_path").
 		From("league").
 		Where("id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&markdownFile)
-	if err != nil {
-		return "", err
-	}
-	return markdownFile, nil
+	return markdownFile, err
 }
 
-func (d *PgLeaguesDAO) AddRecurringAvailability(leagueId int, weekday int, timezone int,
-	hour, minute, duration int, constrained bool, start, end int) (int, error) {
-
-	var availabilityId int
+func (d *PgLeaguesDAO) AddRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) (int, error) {
+	var availabilityId = -1
 	err := psql.Insert("league_recurring_availability").
-		Columns("league_id", "weekday", "timezone", "hour", "minute", "duration",
-			"constrained", "start_time", "end_time").
-		Values(leagueId, weekday, timezone, hour, minute, duration, constrained, start, end).
+		Columns(
+			"league_id",
+			"weekday",
+			"timezone",
+			"hour",
+			"minute",
+			"duration",
+			"constrained",
+			"start_time",
+			"end_time",
+		).
+		Values(
+			leagueId,
+			availability.Weekday,
+			availability.Timezone,
+			availability.Hour,
+			availability.Minute,
+			availability.Duration,
+			availability.Constrained,
+			availability.Start,
+			availability.End,
+		).
 		Suffix("RETURNING \"id\"").
 		RunWith(db).QueryRow().Scan(&availabilityId)
-	if err != nil {
-		return -1, err
-	}
 
-	return availabilityId, nil
+	return availabilityId, err
 }
 
 func (d *PgLeaguesDAO) RemoveRecurringAvailabilities(leagueId, availabilityId int) error {
@@ -426,64 +339,88 @@ func (d *PgLeaguesDAO) RemoveRecurringAvailabilities(leagueId, availabilityId in
 	return err
 }
 
-func (d *PgLeaguesDAO) GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailability, error) {
-	var availability SchedulingAvailability
-	err := psql.Select("id", "weekday", "timezone", "hour", "minute", "duration",
-		"constrained", "start_time", "end_time").
-		From("league_recurring_availability").
-		Where("league_id = ? AND id = ?", leagueId, availabilityId).
-		RunWith(db).QueryRow().Scan(&availability.Id, &availability.Weekday, &availability.Timezone,
-		&availability.Hour, &availability.Minute, &availability.Duration, &availability.Constrained,
-		&availability.Start, &availability.End)
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		} else {
-			return nil, err
-		}
-	}
-	return &availability, nil
+func (d *PgLeaguesDAO) GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailabilityDTO, error) {
+	return GetScannedSchedulingAvailabilityDTO(
+		psql.Select(
+			"id",
+			"weekday",
+			"timezone",
+			"hour",
+			"minute",
+			"duration",
+			"constrained",
+			"start_time",
+			"end_time",
+		).
+			From("league_recurring_availability").
+			Where("league_id = ? AND id = ?", leagueId, availabilityId).
+			RunWith(db).QueryRow())
 }
 
-func (d *PgLeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]SchedulingAvailability, error) {
-	rows, err := psql.Select("id", "weekday", "timezone", "hour", "minute", "duration",
-		"constrained", "start_time", "end_time").
+func (d *PgLeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]*SchedulingAvailabilityDTO, error) {
+	var availabilities SchedulingAvailabilityArray
+	if err := ScanRows(psql.Select(
+		"id",
+		"weekday",
+		"timezone",
+		"hour",
+		"minute",
+		"duration",
+		"constrained",
+		"start_time",
+		"end_time",
+	).
 		From("league_recurring_availability").
-		Where("league_id = ?", leagueId).
-		RunWith(db).Query()
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var availabilities []SchedulingAvailability
-	var availability SchedulingAvailability
-
-	for rows.Next() {
-		err := rows.Scan(&availability.Id, &availability.Weekday, &availability.Timezone,
-			&availability.Hour, &availability.Minute, &availability.Duration, &availability.Constrained,
-			&availability.Start, &availability.End)
-		if err != nil {
-			return nil, err
-		}
-		availabilities = append(availabilities, availability)
-	}
-	err = rows.Err()
-	if err != nil {
+		Where("league_id = ?", leagueId), &availabilities); err != nil {
 		return nil, err
 	}
 
-	return availabilities, nil
+	return availabilities.rows, nil
 }
 
-func (d *PgLeaguesDAO) EditRecurringAvailability(leagueId, availabilityId int, weekday int, timezone int,
-	hour, minute, duration int, constrained bool, start, end int) error {
-	_, err := db.Exec(
-		`
-		UPDATE league_recurring_availability SET weekday = $1, timezone = $2, hour = $3, minute = $4,
-		duration = $5, constrained = $6, start_time = $7, end_time = $8
-		WHERE league_id = $9 AND id = $10
-		`, weekday, timezone, hour, minute, duration, constrained, start, end, leagueId, availabilityId)
+func (d *PgLeaguesDAO) EditRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) error {
+	_, err := psql.Update("league_recurring_availability").
+		Set("weekday", availability.Weekday).
+		Set("timezone", availability.Timezone).
+		Set("hour", availability.Hour).
+		Set("minute", availability.Minute).
+		Set("duration", availability.Duration).
+		Set("constrained", availability.Constrained).
+		Set("start_time", availability.Start).
+		Set("end_time", availability.End).
+		Where("league_id = ? AND id = ?", leagueId, availability.Id).
+		RunWith(db).Exec()
+
 	return err
+}
+
+func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
+	//check if publicly viewable
+	var publicView bool
+	err := psql.Select("public_view").
+		From("league").
+		Where("id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&publicView)
+	if err != nil {
+		return false, err
+	}
+
+	if publicView {
+		return true, nil
+	}
+
+	//if not publicly viewable, see if user has permission to view it. This is checked by seeing if there is a
+	//leaguePermissions row with that userId and leagueId, if there is they have at least the base (viewing) privileges
+	var uid int
+	err = psql.Select("user_id").
+		From("league_permissions").
+		Where("user_id = ? AND league_id = ?", userId, leagueId).
+		RunWith(db).QueryRow().Scan(&uid)
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

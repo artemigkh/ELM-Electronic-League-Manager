@@ -270,15 +270,15 @@ func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.
 }
 
 // GetTeamSummary provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamSummaryInformationDTO, error) {
+func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.TeamSummaryInformationDTO
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamSummaryInformationDTO); ok {
+	var r0 []databaseAccess.TeamDTO
+	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.TeamSummaryInformationDTO)
+			r0 = ret.Get(0).([]databaseAccess.TeamDTO)
 		}
 	}
 

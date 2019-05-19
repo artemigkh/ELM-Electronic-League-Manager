@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"Server/databaseAccess"
 	"Server/scheduler"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -119,9 +120,18 @@ func addRecurringAvailability(ctx *gin.Context) {
 		return
 	}
 
-	id, err := LeaguesDAO.AddRecurringAvailability(ctx.GetInt("leagueId"), int(day),
-		availability.Timezone, availability.Hour, availability.Minute, availability.Duration,
-		availability.Constrained, availability.Start, availability.End)
+	id, err := LeaguesDAO.AddRecurringAvailability(ctx.GetInt("leagueId"),
+		databaseAccess.SchedulingAvailabilityDTO{
+			Id:          0,
+			Weekday:     int(day),
+			Timezone:    availability.Timezone,
+			Hour:        availability.Hour,
+			Minute:      availability.Minute,
+			Duration:    availability.Duration,
+			Constrained: false,
+			Start:       availability.Start,
+			End:         availability.End,
+		})
 	if checkErr(ctx, err) {
 		return
 	}
@@ -181,9 +191,18 @@ func editRecurringAvailability(ctx *gin.Context) {
 		return
 	}
 
-	err = LeaguesDAO.EditRecurringAvailability(ctx.GetInt("leagueId"), availability.Id, int(day),
-		availability.Timezone, availability.Hour, availability.Minute, availability.Duration,
-		availability.Constrained, availability.Start, availability.End)
+	err = LeaguesDAO.EditRecurringAvailability(ctx.GetInt("leagueId"),
+		databaseAccess.SchedulingAvailabilityDTO{
+			Id:          availability.Id,
+			Weekday:     int(day),
+			Timezone:    availability.Timezone,
+			Hour:        availability.Hour,
+			Minute:      availability.Minute,
+			Duration:    availability.Duration,
+			Constrained: availability.Constrained,
+			Start:       availability.Start,
+			End:         availability.End,
+		})
 	if checkErr(ctx, err) {
 		return
 	}

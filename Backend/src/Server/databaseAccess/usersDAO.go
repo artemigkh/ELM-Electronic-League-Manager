@@ -19,13 +19,22 @@ type TeamPermissionsInformation struct {
 }
 
 type UserPermissions struct {
-	LeaguePermissions LeaguePermissions            `json:"leaguePermissions"`
+	LeaguePermissions LeaguePermissionsDTO         `json:"leaguePermissions"`
 	TeamPermissions   []TeamPermissionsInformation `json:"teamPermissions"`
 }
 
 func (d *PgUsersDAO) CreateUser(email, salt, hash string) error {
-	_, err := psql.Insert("user_").Columns("email", "salt", "hash").
-		Values(email, salt, hash).RunWith(db).Exec()
+	_, err := psql.Insert("user_").
+		Columns(
+			"email",
+			"salt",
+			"hash",
+		).
+		Values(
+			email,
+			salt,
+			hash,
+		).RunWith(db).Exec()
 	return err
 }
 

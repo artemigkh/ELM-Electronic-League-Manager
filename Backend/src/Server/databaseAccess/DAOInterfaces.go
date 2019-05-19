@@ -11,6 +11,20 @@ import (
  * and all Ids should be parameters before any others
  */
 
+//type ElmDAO interface {
+//	CreateLeague(userId int, leagueInfo LeagueInformationDTO) (int, error)
+//
+//	GetLeagueInformation(leagueId int) (*LeagueInformationDTO, error)
+//	GetPublicLeagueList() ([]*LeagueInformationDTO, error)
+//	GetTeamSummary(leagueId int) ([]*TeamDTO, error)
+//	GetGameSummary(leagueId int) ([]*GameSummaryInformationDTO, error)
+//	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
+//
+//	UpdateLeague(leagueInfo LeagueInformationDTO) error
+//
+//	JoinLeague(leagueId, userId int) error
+//}
+
 type UsersDAO interface {
 	CreateUser(email, salt, hash string) error
 	IsEmailInUse(email string) (bool, error)
@@ -21,67 +35,66 @@ type UsersDAO interface {
 
 type LeaguesDAO interface {
 	// Leagues
-	GetPublicLeagueList() ([]PublicLeagueInformation, error)
-	CreateLeague(userId int, name, description, game string, publicView, publicJoin bool,
-		signupStart, signupEnd, leagueStart, leagueEnd int) (int, error)
+	GetPublicLeagueList() ([]*LeagueInformationDTO, error)
+	CreateLeague(userId int, leagueInfo LeagueInformationDTO) (int, error)
 	UpdateLeague(leagueInfo LeagueInformationDTO) error
 	GetLeagueInformation(leagueId int) (*LeagueInformationDTO, error)
-	GetTeamSummary(leagueId int) ([]*TeamSummaryInformationDTO, error)
-	GetGameSummary(leagueId int) ([]GameSummaryInformation, error)
+	GetTeamSummary(leagueId int) ([]*TeamDTO, error)
+	GetGameSummary(leagueId int) ([]*GameDTO, error)
 	JoinLeague(leagueId, userId int) error
 	GetTeamManagerInformation(leagueId int) ([]TeamManagerInformation, error)
-	SetLeaguePermissions(leagueId, userId int, administrator, createTeams, editTeams, editGames bool) error
+	SetLeaguePermissions(leagueId, userId int, permissions LeaguePermissionsDTO) error
 	GetMarkdownFile(leagueId int) (string, error)
 	SetMarkdownFile(leagueId int, fileName string) error
-	AddRecurringAvailability(leagueId int, weekday int, timezone int,
-		hour, minute, duration int, constrained bool, start, end int) (int, error)
-	EditRecurringAvailability(leagueId, availabilityId int, weekday int, timezone int,
-		hour, minute, duration int, constrained bool, start, end int) error
+
+	// Availabilities
+	AddRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) (int, error)
+	EditRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) error
 	RemoveRecurringAvailabilities(leagueId, availabilityId int) error
+	GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailabilityDTO, error)
+	GetSchedulingAvailabilities(leagueId int) ([]*SchedulingAvailabilityDTO, error)
 
 	// Get Information
 	IsNameInUse(leagueId int, name string) (bool, error)
 	IsLeagueViewable(leagueId, userId int) (bool, error)
-	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissions, error)
+	GetLeaguePermissions(leagueId, userId int) (*LeaguePermissionsDTO, error)
 	CanJoinLeague(leagueId, userId int) (bool, error)
-	GetSchedulingAvailability(leagueId, availabilityId int) (*SchedulingAvailability, error)
-	GetSchedulingAvailabilities(leagueId int) ([]SchedulingAvailability, error)
 }
 
 type TeamsDAO interface {
 	// Teams
-	CreateTeam(leagueId, userId int, name, tag, description string) (int, error)
-	CreateTeamWithIcon(leagueId, userId int, name, tag, description, small, large string) (int, error)
+	CreateTeam(leagueId, userId int, teamInfo TeamDTO) (int, error)
+	CreateTeamWithIcon(leagueId, userId int, teamInfo TeamDTO) (int, error)
 	DeleteTeam(leagueId, teamId int) error
-	UpdateTeam(leagueId, teamId int, name, tag, description string) error
+	UpdateTeam(leagueId, teamInformation TeamDTO) error
 	UpdateTeamIcon(leagueId, teamId int, small, large string) error
-	GetTeamInformation(leagueId, teamId int) (*TeamInformation, error)
+	GetTeamInformation(leagueId, teamId int) (*TeamDTO, error)
 
 	// Get Information
-	GetTeamPermissions(teamId, userId int) (*TeamPermissions, error)
+	GetTeamPermissions(teamId, userId int) (*TeamPermissionsDTO, error)
 	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
 	DoesTeamExist(leagueId, teamId int) (bool, error)
 	DoesPlayerExist(teamId, playerId int) (bool, error)
 	IsTeamActive(leagueId, teamId int) (bool, error)
 
 	// Players
-	AddNewPlayer(teamId int, gameIdentifier, name, externalId, position string, mainRoster bool) (int, error)
+	AddNewPlayer(playerInfo PlayerDTO) (int, error)
 	RemovePlayer(teamId, playerId int) error
-	UpdatePlayer(teamId, playerId int, gameIdentifier, name, externalId, position string, mainRoster bool) error
+	UpdatePlayer(playerInfo PlayerDTO) error
 
 	// Managers
-	ChangeManagerPermissions(teamId, userId int, administrator, information, players, reportResults bool) error
+	ChangeManagerPermissions(teamId, userId int, teamPermissionInformation TeamPermissionsDTO) error
 }
 
 type GamesDAO interface {
 	// Games
 	CreateGame(leagueId, team1Id, team2Id, gameTime int, externalId string) (int, error)
-	GetGameInformation(leagueId, gameId int) (*GameInformation, error)
+	GetGameInformation(leagueId, gameId int) (*GameDTO, error)
 	ReportGame(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2 int) error
 	DeleteGame(leagueId, gameId int) error
 	RescheduleGame(leagueId, gameId, gameTime int) error
 	AddExternalId(leagueId, gameId int, externalId string) error
-	GetGameInformationFromExternalId(externalId string) (*GameInformation, error)
+	GetGameInformationFromExternalId(externalId string) (*GameDTO, error)
 
 	// Get Information
 	DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error)

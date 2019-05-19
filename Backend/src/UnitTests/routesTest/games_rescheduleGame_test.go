@@ -117,7 +117,7 @@ func testRescheduleGameGameComplete(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
-		Return(&databaseAccess.GameInformation{Team1Id: 7, Team2Id: 8, Complete: true}, nil)
+		Return(&databaseAccess.GameDTO{Team1Id: 7, Team2Id: 8, Complete: true}, nil)
 
 	routes.ElmSessions = mockSession
 	routes.LeaguesDAO = mockLeaguesDao
@@ -142,7 +142,7 @@ func testRescheduleGameConflictExists(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
-		Return(&databaseAccess.GameInformation{Team1Id: 7, Team2Id: 8, Complete: false}, nil)
+		Return(&databaseAccess.GameDTO{Team1Id: 7, Team2Id: 8, Complete: false}, nil)
 	mockGamesDao.On("DoesExistConflict", 7, 8, 1532913359).
 		Return(true, nil)
 
@@ -169,7 +169,7 @@ func testRescheduleGameDbError(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
-		Return(&databaseAccess.GameInformation{Team1Id: 7, Team2Id: 8, Complete: false}, nil)
+		Return(&databaseAccess.GameDTO{Team1Id: 7, Team2Id: 8, Complete: false}, nil)
 	mockGamesDao.On("DoesExistConflict", 7, 8, 1532913359).
 		Return(false, nil)
 	mockGamesDao.On("RescheduleGame", 2, 16, 1532913359).
@@ -198,7 +198,7 @@ func testRescheduleGameCorrectReschedule(t *testing.T) {
 
 	mockGamesDao := new(mocks.GamesDAO)
 	mockGamesDao.On("GetGameInformation", 2, 16).
-		Return(&databaseAccess.GameInformation{Team1Id: 7, Team2Id: 8, Complete: false}, nil)
+		Return(&databaseAccess.GameDTO{Team1Id: 7, Team2Id: 8, Complete: false}, nil)
 	mockGamesDao.On("DoesExistConflict", 7, 8, 1532913359).
 		Return(false, nil)
 	mockGamesDao.On("RescheduleGame", 2, 16, 1532913359).Return(nil)

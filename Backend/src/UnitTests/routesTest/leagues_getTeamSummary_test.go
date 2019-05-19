@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func createTeamSummaryBody(body []databaseAccess.TeamSummaryInformationDTO) *bytes.Buffer {
+func createTeamSummaryBody(body []databaseAccess.TeamDTO) *bytes.Buffer {
 	bodyB, _ := json.Marshal(&body)
 	return bytes.NewBuffer(bodyB)
 }
@@ -47,7 +47,7 @@ func testGetTeamSummaryDatabaseError(t *testing.T) {
 		Return(2, nil)
 
 	mockLeaguesDao := new(mocks.LeaguesDAO)
-	mockLeaguesDao.On("GetTeamSummary", 2).Return([]databaseAccess.TeamSummaryInformationDTO{},
+	mockLeaguesDao.On("GetTeamSummary", 2).Return([]databaseAccess.TeamDTO{},
 		errors.New("Fake db error"))
 
 	routes.ElmSessions = mockSession
@@ -59,22 +59,22 @@ func testGetTeamSummaryDatabaseError(t *testing.T) {
 }
 
 func testCorrectGetTeamSummary(t *testing.T) {
-	var teamSummary []databaseAccess.TeamSummaryInformationDTO
-	teamSummary = append(teamSummary, databaseAccess.TeamSummaryInformationDTO{
+	var teamSummary []databaseAccess.TeamDTO
+	teamSummary = append(teamSummary, databaseAccess.TeamDTO{
 		Id:     1,
 		Name:   "team1",
 		Tag:    "T1",
 		Wins:   2,
 		Losses: 0,
 	})
-	teamSummary = append(teamSummary, databaseAccess.TeamSummaryInformationDTO{
+	teamSummary = append(teamSummary, databaseAccess.TeamDTO{
 		Id:     2,
 		Name:   "team2",
 		Tag:    "T2",
 		Wins:   1,
 		Losses: 1,
 	})
-	teamSummary = append(teamSummary, databaseAccess.TeamSummaryInformationDTO{
+	teamSummary = append(teamSummary, databaseAccess.TeamDTO{
 		Id:     3,
 		Name:   "team3",
 		Tag:    "T3",

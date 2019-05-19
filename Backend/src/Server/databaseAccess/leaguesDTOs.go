@@ -5,9 +5,7 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-// In and out of DAO
-
-type LeagueInformationDTO struct {
+type LeagueDTO struct {
 	Id          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -20,12 +18,12 @@ type LeagueInformationDTO struct {
 	LeagueEnd   int    `json:"leagueEnd"`
 }
 
-type LeagueInformationArray struct {
-	rows []*LeagueInformationDTO
+type LeagueDTOArray struct {
+	rows []*LeagueDTO
 }
 
-func GetScannedLeagueInformationDTO(rows squirrel.RowScanner) (*LeagueInformationDTO, error) {
-	var leagueInformation LeagueInformationDTO
+func GetScannedLeagueDTO(rows squirrel.RowScanner) (*LeagueDTO, error) {
+	var leagueInformation LeagueDTO
 	if err := rows.Scan(
 		&leagueInformation.Id,
 		&leagueInformation.Name,
@@ -44,8 +42,8 @@ func GetScannedLeagueInformationDTO(rows squirrel.RowScanner) (*LeagueInformatio
 	}
 }
 
-func (r *LeagueInformationArray) Scan(rows *sql.Rows) error {
-	row, err := GetScannedLeagueInformationDTO(rows)
+func (r *LeagueDTOArray) Scan(rows *sql.Rows) error {
+	row, err := GetScannedLeagueDTO(rows)
 	if err != nil {
 		return err
 	} else {
@@ -118,4 +116,63 @@ func GetScannedLeaguePermissionsDTO(rows squirrel.RowScanner) (*LeaguePermission
 	} else {
 		return &leaguePermissions, nil
 	}
+}
+
+type ManagerDTO struct {
+	User        UserDTO            `json:"user"`
+	Permissions TeamPermissionsDTO `json:"permissions"`
+}
+
+type TeamManagerDTO struct {
+	Team     *TeamDTO      `json:"team"`
+	Managers []*ManagerDTO `json:"managers"`
+}
+
+type TeamManagerDTOArray struct {
+	rows []*TeamManagerDTO
+}
+
+func (r *TeamManagerDTOArray) Scan(rows *sql.Rows) error {
+	var user UserDTO
+	var team TeamDTO
+	var teamPermissions TeamPermissionsDTO
+
+	if err := rows.Scan(
+		&user.UserId,
+		&user.Email,
+		&team.Id,
+		&team.Name,
+		&team.Tag,
+		&team.Description,
+		&team.IconSmall,
+		&teamPermissions.Administrator,
+		&teamPermissions.Information,
+		&teamPermissions.Players,
+		&teamPermissions.ReportResults,
+	); err != nil {
+		return err
+	}
+
+	var teamManagerInstance *TeamManagerDTO
+	exists := false
+	// get TeamManagerDTO instance to insert into if exists
+	for _, teamManager := range r.rows {
+		if teamManager.Team.Id == team.Id {
+			teamManagerInstance = teamManager
+			exists = true
+		}
+	}
+
+	if !exists {
+		teamManagerInstance.Team = &team
+		r.rows = append(r.rows, teamManagerInstance)
+	}
+
+	teamManagerInstance.Managers = append(teamManagerInstance.Managers,
+		&ManagerDTO{
+			User:        user,
+			Permissions: teamPermissions,
+		})
+
+	return nil
 }

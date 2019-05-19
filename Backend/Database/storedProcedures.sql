@@ -111,6 +111,34 @@ RETURNS INT AS $$
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION
+report_game(
+  game_id         INT,
+  winner_id       INT,
+  loser_id        INT,
+  score_team1     INT,
+  score_team2     INT
+)
+RETURNS VOID AS $$
+  BEGIN
+    UPDATE game SET
+      complete = TRUE,
+      winner_id = winner_id,
+      loser_id = loser_id,
+      score_team1 = score_team1,
+      score_team2 = score_team2
+    WHERE id = game_id;
+
+    UPDATE team
+      SET wins = wins + 1
+    WHERE id = winner_id;
+
+    UPDATE team
+      SET losses = losses + 1
+    WHERE id = loser_id;
+  END;
+$$ LANGUAGE plpgsql;
+
 
 SELECT create_team(
   8,

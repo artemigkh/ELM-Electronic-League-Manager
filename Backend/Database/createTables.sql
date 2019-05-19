@@ -81,6 +81,7 @@ CREATE TABLE game (
   game_time       INT                      NOT NULL      ,
   complete        BOOLEAN                  NOT NULL      ,
   winner_id       INT                      NOT NULL      ,
+  loser_id        INT                      NOT NULL      ,
   score_team1     INT                      NOT NULL      ,
   score_team2     INT                      NOT NULL
 );

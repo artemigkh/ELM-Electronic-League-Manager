@@ -47,7 +47,7 @@ type LeagueMarkdown struct {
 */
 func createNewLeague(ctx *gin.Context) {
 	//TODO: here and in update, check that competition period after signup period
-	var lgRequest databaseAccess.LeagueInformationDTO
+	var lgRequest databaseAccess.LeagueDTO
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
 		return
@@ -106,7 +106,7 @@ func createNewLeague(ctx *gin.Context) {
 * @apiError nameInUse The league name is currently in use
 */
 func updateLeagueInfo(ctx *gin.Context) {
-	var lgRequest databaseAccess.LeagueInformationDTO
+	var lgRequest databaseAccess.LeagueDTO
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
 		return

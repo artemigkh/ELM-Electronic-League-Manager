@@ -130,6 +130,7 @@ func reportGameResult(ctx *gin.Context) {
 		return
 	}
 
+	//TODO: fail if game complete
 	if failIfGameDoesNotExist(ctx, ctx.GetInt("leagueId"), ctx.GetInt("urlId")) {
 		return
 	}

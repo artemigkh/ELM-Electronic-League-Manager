@@ -14,6 +14,7 @@ type GameDTO struct {
 	GameTime   int    `json:"gameTime"`
 	Complete   bool   `json:"complete"`
 	WinnerId   int    `json:"winnerId"`
+	LoserId    int    `json:"loserId"`
 	ScoreTeam1 int    `json:"scoreTeam1"`
 	ScoreTeam2 int    `json:"scoreTeam2"`
 }
@@ -33,6 +34,7 @@ func GetScannedGameDTO(rows squirrel.RowScanner) (*GameDTO, error) {
 		&game.GameTime,
 		&game.Complete,
 		&game.WinnerId,
+		&game.LoserId,
 		&game.ScoreTeam1,
 		&game.ScoreTeam2,
 	); err != nil {

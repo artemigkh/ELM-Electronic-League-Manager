@@ -20,10 +20,6 @@ func (s *Scheduler) InitScheduler(tournamentType, roundsPerWeek, concurrentGameN
 	s.teams = teams
 }
 
-func (s *Scheduler) AddDailyAvailability(hour, minute int, duration time.Duration) {
-
-}
-
 func leq(t1, t2 time.Time) bool {
 	return t1.Before(t2) || t1.Equal(t2)
 }

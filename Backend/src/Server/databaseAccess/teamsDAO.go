@@ -154,7 +154,7 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamDTO, error) {
 	var players PlayerDTOArray
 	if err := ScanRows(psql.Select(
 		"player_id",
-		"teamId",
+		"team_id",
 		"name",
 		"game_identifier",
 		"external_id",
@@ -171,10 +171,11 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamDTO, error) {
 
 // Players
 
-func (d *PgTeamsDAO) AddNewPlayer(playerInfo PlayerDTO) (int, error) {
+func (d *PgTeamsDAO) AddNewPlayer(leagueId int, playerInfo PlayerDTO) (int, error) {
 	var playerId int
 	if err := psql.Insert("player").
 		Columns(
+			"league_id",
 			"team_id",
 			"game_identifier",
 			"name",
@@ -183,6 +184,7 @@ func (d *PgTeamsDAO) AddNewPlayer(playerInfo PlayerDTO) (int, error) {
 			"main_roster",
 		).
 		Values(
+			leagueId,
 			playerInfo.TeamId,
 			playerInfo.GameIdentifier,
 			playerInfo.Name,

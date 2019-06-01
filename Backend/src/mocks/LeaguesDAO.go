@@ -10,20 +10,20 @@ type LeaguesDAO struct {
 	mock.Mock
 }
 
-// AddRecurringAvailability provides a mock function with given fields: leagueId, weekday, timezone, hour, minute, duration, constrained, start, end
-func (_m *LeaguesDAO) AddRecurringAvailability(leagueId int, weekday int, timezone int, hour int, minute int, duration int, constrained bool, start int, end int) (int, error) {
-	ret := _m.Called(leagueId, weekday, timezone, hour, minute, duration, constrained, start, end)
+// AddRecurringAvailability provides a mock function with given fields: leagueId, availability
+func (_m *LeaguesDAO) AddRecurringAvailability(leagueId int, availability databaseAccess.SchedulingAvailabilityDTO) (int, error) {
+	ret := _m.Called(leagueId, availability)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, int, int, int, int, bool, int, int) int); ok {
-		r0 = rf(leagueId, weekday, timezone, hour, minute, duration, constrained, start, end)
+	if rf, ok := ret.Get(0).(func(int, databaseAccess.SchedulingAvailabilityDTO) int); ok {
+		r0 = rf(leagueId, availability)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, int, int, int, int, bool, int, int) error); ok {
-		r1 = rf(leagueId, weekday, timezone, hour, minute, duration, constrained, start, end)
+	if rf, ok := ret.Get(1).(func(int, databaseAccess.SchedulingAvailabilityDTO) error); ok {
+		r1 = rf(leagueId, availability)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -52,20 +52,20 @@ func (_m *LeaguesDAO) CanJoinLeague(leagueId int, userId int) (bool, error) {
 	return r0, r1
 }
 
-// CreateLeague provides a mock function with given fields: userId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd
-func (_m *LeaguesDAO) CreateLeague(userId int, name string, description string, game string, publicView bool, publicJoin bool, signupStart int, signupEnd int, leagueStart int, leagueEnd int) (int, error) {
-	ret := _m.Called(userId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd)
+// CreateLeague provides a mock function with given fields: userId, leagueInfo
+func (_m *LeaguesDAO) CreateLeague(userId int, leagueInfo databaseAccess.LeagueDTO) (int, error) {
+	ret := _m.Called(userId, leagueInfo)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, string, string, string, bool, bool, int, int, int, int) int); ok {
-		r0 = rf(userId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd)
+	if rf, ok := ret.Get(0).(func(int, databaseAccess.LeagueDTO) int); ok {
+		r0 = rf(userId, leagueInfo)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, string, string, string, bool, bool, int, int, int, int) error); ok {
-		r1 = rf(userId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd)
+	if rf, ok := ret.Get(1).(func(int, databaseAccess.LeagueDTO) error); ok {
+		r1 = rf(userId, leagueInfo)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,13 +73,13 @@ func (_m *LeaguesDAO) CreateLeague(userId int, name string, description string, 
 	return r0, r1
 }
 
-// EditRecurringAvailability provides a mock function with given fields: leagueId, availabilityId, weekday, timezone, hour, minute, duration, constrained, start, end
-func (_m *LeaguesDAO) EditRecurringAvailability(leagueId int, availabilityId int, weekday int, timezone int, hour int, minute int, duration int, constrained bool, start int, end int) error {
-	ret := _m.Called(leagueId, availabilityId, weekday, timezone, hour, minute, duration, constrained, start, end)
+// EditRecurringAvailability provides a mock function with given fields: availability
+func (_m *LeaguesDAO) EditRecurringAvailability(availability databaseAccess.SchedulingAvailabilityDTO) error {
+	ret := _m.Called(availability)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, int, int, int, int, int, bool, int, int) error); ok {
-		r0 = rf(leagueId, availabilityId, weekday, timezone, hour, minute, duration, constrained, start, end)
+	if rf, ok := ret.Get(0).(func(databaseAccess.SchedulingAvailabilityDTO) error); ok {
+		r0 = rf(availability)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -88,15 +88,15 @@ func (_m *LeaguesDAO) EditRecurringAvailability(leagueId int, availabilityId int
 }
 
 // GetGameSummary provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetGameSummary(leagueId int) ([]databaseAccess.GameSummaryInformation, error) {
+func (_m *LeaguesDAO) GetGameSummary(leagueId int) ([]*databaseAccess.GameDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.GameSummaryInformation
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.GameSummaryInformation); ok {
+	var r0 []*databaseAccess.GameDTO
+	if rf, ok := ret.Get(0).(func(int) []*databaseAccess.GameDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.GameSummaryInformation)
+			r0 = ret.Get(0).([]*databaseAccess.GameDTO)
 		}
 	}
 
@@ -134,15 +134,15 @@ func (_m *LeaguesDAO) GetLeagueInformation(leagueId int) (*databaseAccess.League
 }
 
 // GetLeaguePermissions provides a mock function with given fields: leagueId, userId
-func (_m *LeaguesDAO) GetLeaguePermissions(leagueId int, userId int) (*databaseAccess.LeaguePermissions, error) {
+func (_m *LeaguesDAO) GetLeaguePermissions(leagueId int, userId int) (*databaseAccess.LeaguePermissionsDTO, error) {
 	ret := _m.Called(leagueId, userId)
 
-	var r0 *databaseAccess.LeaguePermissions
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.LeaguePermissions); ok {
+	var r0 *databaseAccess.LeaguePermissionsDTO
+	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.LeaguePermissionsDTO); ok {
 		r0 = rf(leagueId, userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.LeaguePermissions)
+			r0 = ret.Get(0).(*databaseAccess.LeaguePermissionsDTO)
 		}
 	}
 
@@ -178,15 +178,15 @@ func (_m *LeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
 }
 
 // GetPublicLeagueList provides a mock function with given fields:
-func (_m *LeaguesDAO) GetPublicLeagueList() ([]databaseAccess.PublicLeagueInformation, error) {
+func (_m *LeaguesDAO) GetPublicLeagueList() ([]*databaseAccess.LeagueDTO, error) {
 	ret := _m.Called()
 
-	var r0 []databaseAccess.PublicLeagueInformation
-	if rf, ok := ret.Get(0).(func() []databaseAccess.PublicLeagueInformation); ok {
+	var r0 []*databaseAccess.LeagueDTO
+	if rf, ok := ret.Get(0).(func() []*databaseAccess.LeagueDTO); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.PublicLeagueInformation)
+			r0 = ret.Get(0).([]*databaseAccess.LeagueDTO)
 		}
 	}
 
@@ -201,15 +201,15 @@ func (_m *LeaguesDAO) GetPublicLeagueList() ([]databaseAccess.PublicLeagueInform
 }
 
 // GetSchedulingAvailabilities provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]databaseAccess.SchedulingAvailability, error) {
+func (_m *LeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]*databaseAccess.SchedulingAvailabilityDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.SchedulingAvailability
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.SchedulingAvailability); ok {
+	var r0 []*databaseAccess.SchedulingAvailabilityDTO
+	if rf, ok := ret.Get(0).(func(int) []*databaseAccess.SchedulingAvailabilityDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.SchedulingAvailability)
+			r0 = ret.Get(0).([]*databaseAccess.SchedulingAvailabilityDTO)
 		}
 	}
 
@@ -223,22 +223,22 @@ func (_m *LeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]databaseAcces
 	return r0, r1
 }
 
-// GetSchedulingAvailability provides a mock function with given fields: leagueId, availabilityId
-func (_m *LeaguesDAO) GetSchedulingAvailability(leagueId int, availabilityId int) (*databaseAccess.SchedulingAvailability, error) {
-	ret := _m.Called(leagueId, availabilityId)
+// GetSchedulingAvailability provides a mock function with given fields: availabilityId
+func (_m *LeaguesDAO) GetSchedulingAvailability(availabilityId int) (*databaseAccess.SchedulingAvailabilityDTO, error) {
+	ret := _m.Called(availabilityId)
 
-	var r0 *databaseAccess.SchedulingAvailability
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.SchedulingAvailability); ok {
-		r0 = rf(leagueId, availabilityId)
+	var r0 *databaseAccess.SchedulingAvailabilityDTO
+	if rf, ok := ret.Get(0).(func(int) *databaseAccess.SchedulingAvailabilityDTO); ok {
+		r0 = rf(availabilityId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.SchedulingAvailability)
+			r0 = ret.Get(0).(*databaseAccess.SchedulingAvailabilityDTO)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(leagueId, availabilityId)
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(availabilityId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -247,15 +247,15 @@ func (_m *LeaguesDAO) GetSchedulingAvailability(leagueId int, availabilityId int
 }
 
 // GetTeamManagerInformation provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.TeamManagerDTO, error) {
+func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]*databaseAccess.TeamManagerDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.TeamManagerDTO
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamManagerDTO); ok {
+	var r0 []*databaseAccess.TeamManagerDTO
+	if rf, ok := ret.Get(0).(func(int) []*databaseAccess.TeamManagerDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.TeamManagerDTO)
+			r0 = ret.Get(0).([]*databaseAccess.TeamManagerDTO)
 		}
 	}
 
@@ -270,15 +270,15 @@ func (_m *LeaguesDAO) GetTeamManagerInformation(leagueId int) ([]databaseAccess.
 }
 
 // GetTeamSummary provides a mock function with given fields: leagueId
-func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]databaseAccess.TeamDTO, error) {
+func (_m *LeaguesDAO) GetTeamSummary(leagueId int) ([]*databaseAccess.TeamDTO, error) {
 	ret := _m.Called(leagueId)
 
-	var r0 []databaseAccess.TeamDTO
-	if rf, ok := ret.Get(0).(func(int) []databaseAccess.TeamDTO); ok {
+	var r0 []*databaseAccess.TeamDTO
+	if rf, ok := ret.Get(0).(func(int) []*databaseAccess.TeamDTO); ok {
 		r0 = rf(leagueId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]databaseAccess.TeamDTO)
+			r0 = ret.Get(0).([]*databaseAccess.TeamDTO)
 		}
 	}
 
@@ -348,13 +348,13 @@ func (_m *LeaguesDAO) JoinLeague(leagueId int, userId int) error {
 	return r0
 }
 
-// RemoveRecurringAvailabilities provides a mock function with given fields: leagueId, availabilityId
-func (_m *LeaguesDAO) RemoveRecurringAvailabilities(leagueId int, availabilityId int) error {
-	ret := _m.Called(leagueId, availabilityId)
+// RemoveRecurringAvailabilities provides a mock function with given fields: availabilityId
+func (_m *LeaguesDAO) RemoveRecurringAvailabilities(availabilityId int) error {
+	ret := _m.Called(availabilityId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(leagueId, availabilityId)
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(availabilityId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -362,13 +362,13 @@ func (_m *LeaguesDAO) RemoveRecurringAvailabilities(leagueId int, availabilityId
 	return r0
 }
 
-// SetLeaguePermissions provides a mock function with given fields: leagueId, userId, administrator, createTeams, editTeams, editGames
-func (_m *LeaguesDAO) SetLeaguePermissions(leagueId int, userId int, administrator bool, createTeams bool, editTeams bool, editGames bool) error {
-	ret := _m.Called(leagueId, userId, administrator, createTeams, editTeams, editGames)
+// SetLeaguePermissions provides a mock function with given fields: leagueId, permissions
+func (_m *LeaguesDAO) SetLeaguePermissions(leagueId int, permissions databaseAccess.UserPermissionsDTO) error {
+	ret := _m.Called(leagueId, permissions)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, bool, bool, bool, bool) error); ok {
-		r0 = rf(leagueId, userId, administrator, createTeams, editTeams, editGames)
+	if rf, ok := ret.Get(0).(func(int, databaseAccess.UserPermissionsDTO) error); ok {
+		r0 = rf(leagueId, permissions)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -390,13 +390,13 @@ func (_m *LeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
 	return r0
 }
 
-// UpdateLeague provides a mock function with given fields: leagueId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd
-func (_m *LeaguesDAO) UpdateLeague(leagueId int, name string, description string, game string, publicView bool, publicJoin bool, signupStart int, signupEnd int, leagueStart int, leagueEnd int) error {
-	ret := _m.Called(leagueId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd)
+// UpdateLeague provides a mock function with given fields: leagueInfo
+func (_m *LeaguesDAO) UpdateLeague(leagueInfo databaseAccess.LeagueDTO) error {
+	ret := _m.Called(leagueInfo)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, string, string, string, bool, bool, int, int, int, int) error); ok {
-		r0 = rf(leagueId, name, description, game, publicView, publicJoin, signupStart, signupEnd, leagueStart, leagueEnd)
+	if rf, ok := ret.Get(0).(func(databaseAccess.LeagueDTO) error); ok {
+		r0 = rf(leagueInfo)
 	} else {
 		r0 = ret.Error(0)
 	}

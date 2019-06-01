@@ -545,34 +545,35 @@ func removePlayerFromTeam(ctx *gin.Context) {
 //TODO: add length check for position
 func updatePlayer(ctx *gin.Context) {
 	//get parameters
-	var playerInfoChange databaseAccess.PlayerDTO
-	err := ctx.ShouldBindBodyWith(&playerInfoChange, binding.JSON)
+	var player databaseAccess.PlayerDTO
+	err := ctx.ShouldBindBodyWith(&player, binding.JSON)
 	if checkJsonErr(ctx, err) {
 		return
 	}
 
-	if failIfTeamDoesNotExist(ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId) {
+	allowedAccess, err := Access.Team(
+		databaseAccess.Edit,
+		ctx.GetInt("leagueId"),
+		player.TeamId,
+		ctx.GetInt("userId"))
+	if checkErr(ctx, err) {
 		return
 	}
-	if failIfCannotEditPlayersOnTeam(ctx, ctx.GetInt("leagueId"), playerInfoChange.TeamId, ctx.GetInt("userId")) {
-		return
-	}
-	if failIfGameIdentifierTooLong(ctx, playerInfoChange.GameIdentifier) {
-		return
-	}
-	if failIfNameTooLong(ctx, playerInfoChange.Name) {
-		return
-	}
-	if failIfGameIdentifierTooShort(ctx, playerInfoChange.GameIdentifier) {
-		return
-	}
-	if failIfGameIdentifierInUse(
-		ctx, playerInfoChange.TeamId,
-		playerInfoChange.Id, playerInfoChange.GameIdentifier) {
+	if !allowedAccess {
+		ctx.Status(http.StatusForbidden)
 		return
 	}
 
-	err = TeamsDAO.UpdatePlayer(playerInfoChange)
+	valid, problem, err := DataValidator.ValidatePlayerDTO(ctx.GetInt("leagueId"), player)
+	if checkErr(ctx, err) {
+		return
+	}
+	if !valid {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": problem})
+		return
+	}
+
+	err = TeamsDAO.UpdatePlayer(player)
 	if checkErr(ctx, err) {
 		return
 	}

@@ -1,0 +1,332 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "An application to easily manage and view multi-week sports leagues",
+    "version": "1.0.0",
+    "title": "ELM - Electronic League Manager",
+    "license": {
+      "name": "GPL v3.0",
+      "url": "http://www.gnu.org/licenses/gpl-3.0.html"
+    }
+  },
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "league",
+      "description": "Manage leagues and get league wide information"
+    },
+    {
+      "name": "game",
+      "description": "Manage and get information about games"
+    }
+  ],
+  "paths": {
+    "/league": {
+      "post": {
+        "tags": [
+          "league"
+        ],
+        "summary": "Create a new league",
+        "description": "",
+        "operationId": "createLeague",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "League object to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LeagueMeta"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Insufficient permissions for this action"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/league/teamSummary": {
+      "get": {
+        "tags": [
+          "league"
+        ],
+        "summary": "Get summary of teams in current league",
+        "description": "",
+        "operationId": "getTeamSummary",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/FullTeamInfo"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Insufficient permissions for this action"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/league/gameSummary": {
+      "get": {
+        "tags": [
+          "league"
+        ],
+        "summary": "Get summary of games in current league",
+        "description": "",
+        "operationId": "getGameSummary",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/FullGameInfo"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Insufficient permissions for this action"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LeagueMeta": {
+      "type": "object",
+      "required": [
+        "name",
+        "game",
+        "publicView",
+        "publicJoin",
+        "signupStart",
+        "signupEnd",
+        "leagueStart",
+        "leagueEnd"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "game": {
+          "type": "string"
+        },
+        "publicView": {
+          "type": "boolean"
+        },
+        "publicJoin": {
+          "type": "boolean"
+        },
+        "signupStart": {
+          "type": "integer"
+        },
+        "signupEnd": {
+          "type": "integer"
+        },
+        "leagueStart": {
+          "type": "integer"
+        },
+        "leagueEnd": {
+          "type": "integer"
+        }
+      }
+    },
+    "League": {
+      "allOf": {
+        "$ref": "#/definitions/LeagueMeta",
+        "type": "object",
+        "required": ["leagueId"],
+        "properties": {
+          "leagueId": "integer"
+        }
+      }
+    },
+    "Player": {
+      "type": "object",
+      "required": [
+        "gameIdentifier",
+        "mainRoster"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "gameIdentifier": {
+          "type": "string"
+        },
+        "mainRoster": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PlayerWithId": {
+      "type": "object",
+      "required": [
+        "playerId",
+        "gameIdentifier",
+        "mainRoster"
+      ],
+      "properties": {
+        "playerId": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "gameIdentifier": {
+          "type": "string"
+        },
+        "mainRoster": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Team": {
+      "type": "object",
+      "required": [
+        "name",
+        "tag"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "TeamInfo": {
+      "type": "object",
+      "required": [
+        "name",
+        "tag"
+      ],
+      "properties": {
+        "teamId": {
+          "type": "integer"
+        },
+        "wins": {
+          "type": "integer"
+        },
+        "losses": {
+          "type": "integer"
+        },
+        "iconSmall": {
+          "type": "string"
+        },
+        "iconLarge": {
+          "type": "string"
+        }
+      }
+    },
+    "TeamWithInfo": {
+      "type": "object",
+      "properties": {
+        "team": {
+          "$ref": "#/definitions/Team"
+        },
+        "teamInfo": {
+          "$ref": "#/definitions/TeamInfo"
+        }
+      }
+    },
+    "FullTeamInfo": {
+      "type": "object",
+      "properties": {
+        "team": {
+          "$ref": "#/definitions/Team"
+        },
+        "teamInfo": {
+          "$ref": "#/definitions/TeamInfo"
+        },
+        "players": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PlayerWithId"
+          }
+        }
+      }
+    },
+    "FullGameInfo": {
+      "type": "object",
+      "properties": {
+        "gameId": {
+          "type": "integer"
+        },
+        "team1": {
+          "$ref": "#/definitions/TeamWithInfo"
+        },
+        "team2": {
+          "$ref": "#/definitions/TeamWithInfo"
+        },
+        "gameTime": {
+          "type": "integer"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "winnerId": {
+          "type": "integer"
+        },
+        "scoreTeam1": {
+          "type": "integer"
+        },
+        "scoreTeam2": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "github",
+    "url": "https://github.com/artemigkh/ELM-Electronic-League-Manager"
+  }
+}

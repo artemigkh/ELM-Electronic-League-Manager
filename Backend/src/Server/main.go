@@ -8,9 +8,11 @@ import (
 	"Server/markdown"
 	"Server/routes"
 	"Server/sessionManager"
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/stdlib"
+	"net/http"
 )
 
 type Configuration struct {
@@ -33,6 +35,8 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()
 	routes.TeamsDAO = databaseAccess.CreateTeamsDAO()
 	routes.GamesDAO = databaseAccess.CreateGamesDAO()
+	routes.DataValidator = &databaseAccess.DTOValidator{}
+	routes.Access = &databaseAccess.AccessChecker{}
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 	routes.IconManager = icons.CreateGoIconManager(conf)
 	routes.MarkdownManager = markdown.CreateGoMarkdownManager(conf)
@@ -40,13 +44,24 @@ func NewApp(conf config.Config) *gin.Engine {
 	routes.LeagueOfLegendsDAO = databaseAccess.CreateLeagueOfLegendsDAO()
 
 	routes.RegisterLoginHandlers(app.Group("/"))
-	routes.RegisterUserHandlers(app.Group("/api/users"))
-	routes.RegisterLeagueHandlers(app.Group("/api/leagues"))
-	routes.RegisterTeamHandlers(app.Group("/api/teams"))
-	routes.RegisterGameHandlers(app.Group("/api/games"))
-	routes.RegisterSchedulingHandlers(app.Group("/api/scheduling"))
+	routes.RegisterUserHandlers(app.Group("/api/v1/users"))
+	routes.RegisterLeagueHandlers(app.Group("/api/v1/leagues"))
+	routes.RegisterTeamHandlers(app.Group("/api/v1/teams"))
+	routes.RegisterGameHandlers(app.Group("/api/v1/games"))
+	routes.RegisterSchedulingHandlers(app.Group("/api/v1/scheduling"))
 
-	routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/league-of-legends"), conf)
+	routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/v1/league-of-legends"), conf)
+
+	app.GET("/test", func(ctx *gin.Context) {
+		var err2 error
+		var gameInfo databaseAccess.GameDTO
+		err := ctx.ShouldBindJSON(&gameInfo)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		}
+		fmt.Printf("%+v\n", gameInfo)
+		fmt.Printf("%+v\n", err2)
+	})
 
 	// should probably be replaced with apache or nginx in production
 	app.Static("/icons", conf.GetIconsDir())

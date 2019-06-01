@@ -6,6 +6,7 @@ import (
 	"Server/lolApi"
 	"Server/markdown"
 	"Server/sessionManager"
+	"github.com/gin-gonic/gin"
 )
 
 // Objects
@@ -14,6 +15,8 @@ var LeaguesDAO databaseAccess.LeaguesDAO
 var TeamsDAO databaseAccess.TeamsDAO
 var GamesDAO databaseAccess.GamesDAO
 var LeagueOfLegendsDAO databaseAccess.LeagueOfLegendsDAO
+var DataValidator databaseAccess.DataValidator
+var Access databaseAccess.Access
 
 var ElmSessions sessionManager.SessionManager
 
@@ -43,3 +46,19 @@ func getLeagueAndTeamPermissions(leagueId, teamId, userId int) (
 
 	return leaguePermissions, teamPermissions, nil
 }
+
+// context helpers
+
+func leagueId(ctx *gin.Context) int {
+	return ctx.GetInt("leagueId")
+}
+
+func userId(ctx *gin.Context) int {
+	return ctx.GetInt("userId")
+}
+
+//type Context gin.Context
+//
+//func (ctx *Context) LeagueId() int {
+//	return 0
+//}

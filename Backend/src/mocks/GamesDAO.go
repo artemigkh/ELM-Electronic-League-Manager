@@ -10,13 +10,13 @@ type GamesDAO struct {
 	mock.Mock
 }
 
-// AddExternalId provides a mock function with given fields: leagueId, gameId, externalId
-func (_m *GamesDAO) AddExternalId(leagueId int, gameId int, externalId string) error {
-	ret := _m.Called(leagueId, gameId, externalId)
+// AddExternalId provides a mock function with given fields: gameId, externalId
+func (_m *GamesDAO) AddExternalId(gameId int, externalId string) error {
+	ret := _m.Called(gameId, externalId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, string) error); ok {
-		r0 = rf(leagueId, gameId, externalId)
+	if rf, ok := ret.Get(0).(func(int, string) error); ok {
+		r0 = rf(gameId, externalId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -24,20 +24,20 @@ func (_m *GamesDAO) AddExternalId(leagueId int, gameId int, externalId string) e
 	return r0
 }
 
-// CreateGame provides a mock function with given fields: leagueId, team1Id, team2Id, gameTime, externalId
-func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime int, externalId string) (int, error) {
-	ret := _m.Called(leagueId, team1Id, team2Id, gameTime, externalId)
+// CreateGame provides a mock function with given fields: gameInformation
+func (_m *GamesDAO) CreateGame(gameInformation databaseAccess.GameDTO) (int, error) {
+	ret := _m.Called(gameInformation)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, int, int, string) int); ok {
-		r0 = rf(leagueId, team1Id, team2Id, gameTime, externalId)
+	if rf, ok := ret.Get(0).(func(databaseAccess.GameDTO) int); ok {
+		r0 = rf(gameInformation)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, int, int, string) error); ok {
-		r1 = rf(leagueId, team1Id, team2Id, gameTime, externalId)
+	if rf, ok := ret.Get(1).(func(databaseAccess.GameDTO) error); ok {
+		r1 = rf(gameInformation)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -45,13 +45,13 @@ func (_m *GamesDAO) CreateGame(leagueId int, team1Id int, team2Id int, gameTime 
 	return r0, r1
 }
 
-// DeleteGame provides a mock function with given fields: leagueId, gameId
-func (_m *GamesDAO) DeleteGame(leagueId int, gameId int) error {
-	ret := _m.Called(leagueId, gameId)
+// DeleteGame provides a mock function with given fields: gameId
+func (_m *GamesDAO) DeleteGame(gameId int) error {
+	ret := _m.Called(gameId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(leagueId, gameId)
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(gameId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -80,13 +80,13 @@ func (_m *GamesDAO) DoesExistConflict(team1Id int, team2Id int, gameTime int) (b
 	return r0, r1
 }
 
-// GetGameInformation provides a mock function with given fields: leagueId, gameId
-func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAccess.GameDTO, error) {
-	ret := _m.Called(leagueId, gameId)
+// GetGameInformation provides a mock function with given fields: gameId
+func (_m *GamesDAO) GetGameInformation(gameId int) (*databaseAccess.GameDTO, error) {
+	ret := _m.Called(gameId)
 
 	var r0 *databaseAccess.GameDTO
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.GameDTO); ok {
-		r0 = rf(leagueId, gameId)
+	if rf, ok := ret.Get(0).(func(int) *databaseAccess.GameDTO); ok {
+		r0 = rf(gameId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*databaseAccess.GameDTO)
@@ -94,8 +94,8 @@ func (_m *GamesDAO) GetGameInformation(leagueId int, gameId int) (*databaseAcces
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(leagueId, gameId)
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(gameId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -147,13 +147,13 @@ func (_m *GamesDAO) HasReportResultPermissions(leagueId int, gameId int, userId 
 	return r0, r1
 }
 
-// ReportGame provides a mock function with given fields: leagueId, gameId, winnerId, scoreTeam1, scoreTeam2
-func (_m *GamesDAO) ReportGame(leagueId int, gameId int, winnerId int, scoreTeam1 int, scoreTeam2 int) error {
-	ret := _m.Called(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2)
+// ReportGame provides a mock function with given fields: gameInfo
+func (_m *GamesDAO) ReportGame(gameInfo databaseAccess.GameDTO) error {
+	ret := _m.Called(gameInfo)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, int, int, int) error); ok {
-		r0 = rf(leagueId, gameId, winnerId, scoreTeam1, scoreTeam2)
+	if rf, ok := ret.Get(0).(func(databaseAccess.GameDTO) error); ok {
+		r0 = rf(gameInfo)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -161,13 +161,13 @@ func (_m *GamesDAO) ReportGame(leagueId int, gameId int, winnerId int, scoreTeam
 	return r0
 }
 
-// RescheduleGame provides a mock function with given fields: leagueId, gameId, gameTime
-func (_m *GamesDAO) RescheduleGame(leagueId int, gameId int, gameTime int) error {
-	ret := _m.Called(leagueId, gameId, gameTime)
+// RescheduleGame provides a mock function with given fields: gameId, gameTime
+func (_m *GamesDAO) RescheduleGame(gameId int, gameTime int) error {
+	ret := _m.Called(gameId, gameTime)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, int) error); ok {
-		r0 = rf(leagueId, gameId, gameTime)
+	if rf, ok := ret.Get(0).(func(int, int) error); ok {
+		r0 = rf(gameId, gameTime)
 	} else {
 		r0 = ret.Error(0)
 	}

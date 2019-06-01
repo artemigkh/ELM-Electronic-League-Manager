@@ -77,7 +77,7 @@ type TeamsDAO interface {
 	GetTeamInformation(teamId int) (*TeamDTO, error)
 
 	// Players
-	AddNewPlayer(playerInfo PlayerDTO) (int, error)
+	AddNewPlayer(leagueId int, playerInfo PlayerDTO) (int, error)
 	RemovePlayer(playerId int) error
 	UpdatePlayer(playerInfo PlayerDTO) error
 

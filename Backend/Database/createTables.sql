@@ -51,12 +51,15 @@ DROP TABLE IF EXISTS player CASCADE;
 CREATE TABLE player (
   player_id       INT           PRIMARY KEY DEFAULT nextval('player_id_seq'),
   team_id         INT           NOT NULL REFERENCES team(team_id),
+  league_id       INT           NOT NULL REFERENCES league(league_id),
   user_id         INT           UNIQUE           ,
   game_identifier VARCHAR(50)   NOT NULL         ,
   name            VARCHAR(50)   NOT NULL         ,
   external_id     VARCHAR(50)                    ,
   main_roster     BOOLEAN       NOT NULL         ,
-  position        VARCHAR(20)
+  position        VARCHAR(20)                    ,
+  UNIQUE (league_id, game_identifier)            ,
+  UNIQUE (league_id, external_id)
 );
 ALTER SEQUENCE player_id_seq OWNED BY player.player_id;
 
@@ -99,30 +102,24 @@ CREATE TABLE game (
 );
 ALTER SEQUENCE game_id_seq OWNED BY game.game_id;
 
-DROP SEQUENCE IF EXISTS league_recurring_availability_id_seq CASCADE;
-CREATE SEQUENCE league_recurring_availability_id_seq;
-DROP TABLE IF EXISTS league_recurring_availability CASCADE;
-CREATE TABLE league_recurring_availability (
-  recurring_availability_id INT           PRIMARY KEY DEFAULT nextval('league_recurring_availability_id_seq'),
+DROP SEQUENCE IF EXISTS availability_id_seq CASCADE;
+CREATE SEQUENCE availability_id_seq;
+DROP TABLE IF EXISTS availability CASCADE;
+CREATE TABLE availability (
+  availability_id           INT           PRIMARY KEY DEFAULT nextval('availability_id_seq'),
   league_id                 INT           NOT NULL REFERENCES league(league_id),
+  start_time                INT           NOT NULL                ,
+  end_time                  INT           NOT NULL                ,
+  is_recurring_weekly       BOOLEAN       NOT NULL
+);
+ALTER SEQUENCE availability_id_seq OWNED BY availability.availability_id;
+
+DROP TABLE IF EXISTS weekly_recurrence CASCADE;
+CREATE TABLE weekly_recurrence (
+  availability_id           INT           NOT NULL REFERENCES availability(availability_id),
   weekday                   SMALLINT      NOT NULL                ,
   timezone                  INT           NOT NULL                ,
   hour                      SMALLINT      NOT NULL                ,
   minute                    SMALLINT      NOT NULL                ,
-  duration                  SMALLINT      NOT NULL                ,
-  constrained               BOOLEAN       NOT NULL                ,
-  start_time                INT                                   ,
-  end_time                  INT
+  duration                  SMALLINT      NOT NULL
 );
-ALTER SEQUENCE league_recurring_availability_id_seq OWNED BY league_recurring_availability.recurring_availability_id;
-
-DROP SEQUENCE IF EXISTS league_one_time_availability_id_seq CASCADE;
-CREATE SEQUENCE league_one_time_availability_id_seq;
-DROP TABLE IF EXISTS league_one_time_availability CASCADE;
-CREATE TABLE league_one_time_availability (
-  one_time_availability_id INT           PRIMARY KEY DEFAULT nextval('league_one_time_availability_id_seq'),
-  league_id                INT           NOT NULL REFERENCES league(league_id),
-  start_time               INT                                   ,
-  end_time                 INT
-);
-ALTER SEQUENCE league_one_time_availability_id_seq OWNED BY league_one_time_availability.one_time_availability_id;

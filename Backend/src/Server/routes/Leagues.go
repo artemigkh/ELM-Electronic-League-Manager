@@ -37,39 +37,26 @@ type LeagueMarkdown struct {
 * @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
 *
 * @apiSuccess {int} id the primary id of the created league
-*
-* @apiError notLoggedIn No user is logged in
-* @apiError nameTooLong The league name has exceeded 50 characters
-* @apiError nameTooShort The league name is shorter than 2 characters
-* @apiError descriptionTooLong The description has exceeded 500 characters
-* @apiError gameStringNotValid The game string is not one of the allowed values
-* @apiError nameInUse The league name is currently in use
 */
 func createNewLeague(ctx *gin.Context) {
-	//TODO: here and in update, check that competition period after signup period
 	var lgRequest databaseAccess.LeagueDTO
+
 	err := ctx.ShouldBindJSON(&lgRequest)
 	if checkJsonErr(ctx, err) {
 		return
 	}
-	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
-		return
-	}
-	if failIfDescriptionTooLong(ctx, lgRequest.Description) {
-		return
-	}
-	if failIfNameTooLong(ctx, lgRequest.Name) {
-		return
-	}
-	if failIfNameTooShort(ctx, lgRequest.Name) {
-		return
-	}
-	if failIfLeagueNameInUse(ctx, -1, lgRequest.Name) {
+
+	valid, problem, err := DataValidator.ValidateLeagueDTO(lgRequest)
+	if checkErr(ctx, err) {
 		return
 	}
 
-	leagueId, err := LeaguesDAO.CreateLeague(
-		ctx.GetInt("userId"), lgRequest)
+	if !valid {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": problem})
+		return
+	}
+
+	leagueId, err := LeaguesDAO.CreateLeague(userId(ctx), lgRequest)
 	if checkErr(ctx, err) {
 		return
 	}
@@ -96,14 +83,6 @@ func createNewLeague(ctx *gin.Context) {
 * @apiParam {number} leagueEnd The unix timestamp of the end of the competition period
 *
 * @apiSuccess {int} id the primary id of the created league
-*
-* @apiError notLoggedIn No user is logged in
-* @apiError notAdmin Currently logged in user is not a league administrator
-* @apiError nameTooLong The league name has exceeded 50 characters
-* @apiError nameTooShort The league name is shorter than 2 characters
-* @apiError descriptionTooLong The description has exceeded 500 characters
-* @apiError gameStringNotValid The game string is not one of the allowed values
-* @apiError nameInUse The league name is currently in use
 */
 func updateLeagueInfo(ctx *gin.Context) {
 	var lgRequest databaseAccess.LeagueDTO
@@ -113,24 +92,17 @@ func updateLeagueInfo(ctx *gin.Context) {
 	}
 	lgRequest.Id = ctx.GetInt("leagueId")
 
-	if failIfGameStringtNotValid(ctx, lgRequest.Game) {
+	valid, problem, err := DataValidator.ValidateLeagueDTO(lgRequest)
+	if checkErr(ctx, err) {
 		return
 	}
-	if failIfDescriptionTooLong(ctx, lgRequest.Description) {
-		return
-	}
-	if failIfNameTooLong(ctx, lgRequest.Name) {
-		return
-	}
-	if failIfNameTooShort(ctx, lgRequest.Name) {
-		return
-	}
-	if failIfLeagueNameInUse(ctx, lgRequest.Id, lgRequest.Name) {
+
+	if !valid {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": problem})
 		return
 	}
 
 	err = LeaguesDAO.UpdateLeague(lgRequest)
-
 	if checkErr(ctx, err) {
 		return
 	}
@@ -426,17 +398,26 @@ func getLeagueMarkdown(ctx *gin.Context) {
 }
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
+	// modify league
 	g.POST("/", authenticate(), createNewLeague)
 	g.PUT("/", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), updateLeagueInfo)
+	g.POST("/setLeaguePermissions",
+		authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), setLeaguePermissions)
+
+	// modify context/user in relation to league
 	g.POST("/setActiveLeague/:id", getUrlId(), failIfLeagueDoesNotExist(), setActiveLeague)
 	g.POST("/join", authenticate(), getActiveLeague(), failIfCannotJoinLeague(), joinActiveLeague)
-	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
+
+	// Get Information About Leagues
 	g.GET("/publicLeagues", getPublicLeagues)
+	g.GET("/", getActiveLeague(), getActiveLeagueInformation)
+
+	// Get Information About Entities in a League
 	g.GET("/teamSummary", getActiveLeague(), getTeamSummary)
 	g.GET("/gameSummary", getActiveLeague(), getGameSummary)
 	g.GET("/teamManagers", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), getTeamManagers)
-	g.POST("/setLeaguePermissions",
-		authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), setLeaguePermissions)
+
+	// Markdown
 	g.POST("/markdown", authenticate(), getActiveLeague(), failIfNotLeagueAdmin(), setLeagueMarkdown)
 	g.GET("/markdown", getActiveLeague(), getLeagueMarkdown)
 }

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"Server/databaseAccess"
 	"github.com/badoux/checkmail"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -252,4 +253,55 @@ func failIfGameStringtNotValid(ctx *gin.Context, game string) bool {
 	}
 	ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameStringNotValid"})
 	return true
+}
+
+func failWithError(ctx *gin.Context, error string) bool {
+	ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameStringNotValid"})
+	return true
+}
+
+func booleanConditionFailed(ctx *gin.Context, cond bool, err error, errorString string) bool {
+	if checkErr(ctx, err) {
+		return true
+	}
+	if cond {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": errorString})
+	}
+	return cond
+}
+
+func gameStringFailed(ctx *gin.Context, game string) bool {
+	for _, g := range ValidGameStrings {
+		if g == game {
+			return false
+		}
+	}
+	return failWithError(ctx, "invalid game string")
+}
+
+func nameStringFailed(ctx *gin.Context, name string) bool {
+	if len(name) < MinInformationLength {
+		return failWithError(ctx, "name too short")
+	} else if len(name) > MaxNameLength {
+		return failWithError(ctx, "name too long")
+	} else {
+		return false
+	}
+}
+
+func descriptionStringFailed(ctx *gin.Context, description string) bool {
+	if len(description) > MaxDescriptionLength {
+		return failWithError(ctx, "description too long")
+	} else {
+		return false
+	}
+}
+
+func failIfLeagueDTOInvalid(ctx *gin.Context, league databaseAccess.LeagueDTO) bool {
+	// check name
+	inUse, err := LeaguesDAO.IsNameInUse(-1, league.Name)
+	return nameStringFailed(ctx, league.Name) ||
+		booleanConditionFailed(ctx, inUse, err, "league name is taken") ||
+		descriptionStringFailed(ctx, league.Description)
+
 }

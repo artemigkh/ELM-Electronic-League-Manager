@@ -40,6 +40,20 @@ func (d *PgUsersDAO) GetAuthenticationInformation(email string) (*UserAuthentica
 		RunWith(db).QueryRow())
 }
 
+func getLeagueAndTeamPermissions(leagueId, teamId, userId int) (*LeaguePermissionsDTO, *TeamPermissionsDTO, error) {
+	leaguePermissions, err := getLeaguePermissions(leagueId, userId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	teamPermissions, err := teamsDAO.GetTeamPermissions(teamId, userId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return leaguePermissions, teamPermissions, nil
+}
+
 func (d *PgUsersDAO) GetPermissions(leagueId, userId int) (*UserPermissionsDTO, error) {
 	var userPermissions UserPermissionsDTO
 

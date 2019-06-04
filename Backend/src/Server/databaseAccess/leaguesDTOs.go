@@ -5,53 +5,6 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-type LeagueDTO struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Game        string `json:"game"`
-	PublicView  bool   `json:"publicView"`
-	PublicJoin  bool   `json:"publicJoin"`
-	SignupStart int    `json:"signupStart"`
-	SignupEnd   int    `json:"signupEnd"`
-	LeagueStart int    `json:"leagueStart"`
-	LeagueEnd   int    `json:"leagueEnd"`
-}
-
-type LeagueDTOArray struct {
-	rows []*LeagueDTO
-}
-
-func GetScannedLeagueDTO(rows squirrel.RowScanner) (*LeagueDTO, error) {
-	var leagueInformation LeagueDTO
-	if err := rows.Scan(
-		&leagueInformation.Id,
-		&leagueInformation.Name,
-		&leagueInformation.Description,
-		&leagueInformation.Game,
-		&leagueInformation.PublicView,
-		&leagueInformation.PublicJoin,
-		&leagueInformation.SignupStart,
-		&leagueInformation.SignupEnd,
-		&leagueInformation.LeagueStart,
-		&leagueInformation.LeagueEnd,
-	); err != nil {
-		return nil, err
-	} else {
-		return &leagueInformation, nil
-	}
-}
-
-func (r *LeagueDTOArray) Scan(rows *sql.Rows) error {
-	row, err := GetScannedLeagueDTO(rows)
-	if err != nil {
-		return err
-	} else {
-		r.rows = append(r.rows, row)
-		return nil
-	}
-}
-
 type SchedulingAvailabilityDTO struct {
 	Id          int  `json:"id"`
 	Weekday     int  `json:"weekday"`

@@ -145,6 +145,18 @@ type GameResult struct {
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
 
+type Game struct {
+	GameId     int32       `json:"gameId"`
+	GameTime   int32       `json:"gameTime"`
+	Team1      TeamDisplay `json:"team1"`
+	Team2      TeamDisplay `json:"team2"`
+	WinnerId   int32       `json:"winnerId"`
+	LoserId    int32       `json:"loserId"`
+	ScoreTeam1 int32       `json:"scoreTeam1"`
+	ScoreTeam2 int32       `json:"scoreTeam2"`
+	Complete   bool        `json:"complete"`
+}
+
 // Scheduling
 type AvailabilityCore struct {
 	StartTime int `json:"startTime"`

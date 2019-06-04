@@ -1,8 +1,15 @@
 package databaseAccess
 
-import "github.com/Masterminds/squirrel"
+import (
+	"database/sql"
+	"github.com/Masterminds/squirrel"
+)
 
 // League
+type LeagueArray struct {
+	rows []*League
+}
+
 func getLeagueSelector() squirrel.SelectBuilder {
 	return psql.Select(
 		"league_id",
@@ -16,6 +23,36 @@ func getLeagueSelector() squirrel.SelectBuilder {
 		"league_start",
 		"league_end",
 	).From("league")
+}
+
+func GetScannedLeague(rows squirrel.RowScanner) (*League, error) {
+	var league League
+	if err := rows.Scan(
+		&league.LeagueId,
+		&league.Name,
+		&league.Description,
+		&league.Game,
+		&league.PublicView,
+		&league.PublicJoin,
+		&league.SignupStart,
+		&league.SignupEnd,
+		&league.LeagueStart,
+		&league.LeagueEnd,
+	); err != nil {
+		return nil, err
+	} else {
+		return &league, nil
+	}
+}
+
+func (r *LeagueArray) Scan(rows *sql.Rows) error {
+	row, err := GetScannedLeague(rows)
+	if err != nil {
+		return err
+	} else {
+		r.rows = append(r.rows, row)
+		return nil
+	}
 }
 
 // LeagueCore

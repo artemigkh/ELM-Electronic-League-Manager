@@ -11,20 +11,6 @@ import (
  * and all Ids should be parameters before any others
  */
 
-//type ElmDAO interface {
-//	CreateLeague(userId int, leagueInfo LeagueDTO) (int, error)
-//
-//	GetLeagueInformation(leagueId int) (*LeagueDTO, error)
-//	GetPublicLeagueList() ([]*LeagueDTO, error)
-//	GetTeamSummary(leagueId int) ([]*TeamDTO, error)
-//	GetGameSummary(leagueId int) ([]*GameSummaryInformationDTO, error)
-//	GetTeamManagerInformation(leagueId int) ([]TeamManagerDTO, error)
-//
-//	UpdateLeague(leagueInfo LeagueDTO) error
-//
-//	JoinLeague(leagueId, userId int) error
-//}
-
 type UsersDAO interface {
 	CreateUser(email, salt, hash string) error
 	IsEmailInUse(email string) (bool, error)

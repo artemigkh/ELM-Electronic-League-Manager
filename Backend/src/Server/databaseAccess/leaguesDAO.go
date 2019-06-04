@@ -164,19 +164,7 @@ func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
 // Get Information About Leagues
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*LeagueDTO, error) {
-	row := psql.Select(
-		"league_id",
-		"name",
-		"description",
-		"game",
-		"public_view",
-		"public_join",
-		"signup_start",
-		"signup_end",
-		"league_start",
-		"league_end",
-	).
-		From("league").
+	row := getLeagueSelector().
 		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow()
 

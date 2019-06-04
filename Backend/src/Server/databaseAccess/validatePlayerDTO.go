@@ -47,14 +47,3 @@ func gameIdentifierStringValid(gameIdentifier string, problem *string) bool {
 	}
 	return valid
 }
-
-func (d *DTOValidator) ValidatePlayerDTO(leagueId int, player PlayerDTO) (bool, string, error) {
-	var err error
-	problem := ""
-
-	return nameStringValid(player.Name, &problem) &&
-			gameIdentifierStringValid(player.GameIdentifier, &problem) &&
-			playerGameIdentifierUniquenessValid(leagueId, player.Id, player.GameIdentifier, &problem, &err) &&
-			playerExternalIdentifierUniquenessValid(leagueId, player.Id, player.ExternalId, &problem, &err),
-		problem, err
-}

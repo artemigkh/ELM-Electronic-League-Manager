@@ -547,7 +547,7 @@ paths:
           required: true
           description: Numeric ID of the team that the manager belongs to
         - in: path
-          name: playerId
+          name: userId
           schema:
             type: integer
           required: true
@@ -1127,7 +1127,8 @@ components:
     ##### Users #####
     UserId:
       type: object
-      required: userId
+      required:
+        - userId
       properties:
         userId:
           type: integer
@@ -1188,7 +1189,8 @@ components:
     ##### Leagues #####
     LeagueId:
       type: object
-      required: leagueId
+      required:
+        - leagueId
       properties:
         leagueId:
           type: integer
@@ -1211,6 +1213,7 @@ components:
           maxLength: 50
         description:
           type: string
+          maxLength: 500
         game:
           type: string
           enum:
@@ -1259,7 +1262,8 @@ components:
     ##### Teams #####
     TeamId:
       type: object
-      required: teamId
+      required:
+        - teamId
       properties:
         teamId:
           type: integer
@@ -1272,10 +1276,15 @@ components:
       properties:
         name:
           type: string
+          minLength: 2
+          maxLength: 50
         description:
           type: string
+          maxLength: 500
         tag:
           type: string
+          minLength: 2
+          maxLength: 5
 
     TeamDisplay:
       type: object
@@ -1332,7 +1341,8 @@ components:
     ##### Players #####
     PlayerId:
       type: object
-      required: playerId
+      required:
+       - playerId
       properties:
         playerId:
           type: integer
@@ -1345,8 +1355,12 @@ components:
       properties:
         name:
           type: string
+          minLength: 2
+          maxLength: 50
         gameIdentifier:
           type: string
+          minLength: 2
+          maxLength: 50
         mainRoster:
           type: boolean
 
@@ -1363,7 +1377,8 @@ components:
     ##### Games #####
     GameId:
       type: object
-      required: gameId
+      required:
+        - gameId
       properties:
         gameId:
           type: integer
@@ -1381,6 +1396,7 @@ components:
           type: integer
         gameTime:
           type: integer
+          description: The start time of the game in seconds since unix epoch
 
     GameResult:
       type: object
@@ -1404,6 +1420,7 @@ components:
       properties:
         gameTime:
           type: integer
+          description: The start time of the game in seconds since unix epoch
         team1:
           $ref: '#/components/schemas/TeamDisplay'
         team2:
@@ -1432,7 +1449,8 @@ components:
     ##### Scheduling #####
     AvailabilityId:
       type: object
-      required: availabilityId
+      required:
+        - availabilityId
       properties:
         availabilityId:
           type: integer
@@ -1445,8 +1463,10 @@ components:
       properties:
         startTime:
           type: integer
+          description: The start time of the availability in seconds since unix epoch
         endTime:
           type: integer
+          description: The end time of the availability in seconds since unix epoch
 
     Availability:
       allOf:
@@ -1471,7 +1491,14 @@ components:
           properties:
             weekday:
               type: string
-              description: TODO add enum for sunday monday etc
+              enum:
+                - sunday
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
             timezone:
               type: integer
               description: timezone as offset in seconds east from UTC
@@ -1502,7 +1529,9 @@ components:
       properties:
         tournamentType:
           type: string
-          description: TODO add enum for roundrobin etc
+          enum:
+            - roundrobin
+            - doubleroundrobin
         roundsPerWeek:
           type: integer
           description: Where a round is when each team plays exactly once (or gets a bye)
@@ -1534,3 +1563,4 @@ components:
       properties:
         gameTime:
           type: integer
+          description: The start time of the game in seconds since unix epoch

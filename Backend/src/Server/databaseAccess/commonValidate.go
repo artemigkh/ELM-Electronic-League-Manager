@@ -18,26 +18,3 @@ type Access interface {
 	Report(leagueId, gameId, userId int) (bool, error)
 }
 type AccessChecker struct{}
-
-// checks data to be within valid bounds and logically consistent
-type DataValidator interface {
-	ValidateLeagueDTO(league LeagueDTO) (bool, string, error)
-	ValidatePlayerDTO(leagueId int, player PlayerDTO) (bool, string, error)
-}
-
-type DTOValidator struct{}
-
-const (
-	MaxNameLength        = 50
-	MinInformationLength = 2
-)
-
-func nameStringValid(name string, problem *string) bool {
-	valid := false
-	if len(name) > MaxNameLength {
-		*problem = "name too long"
-	} else {
-		valid = true
-	}
-	return valid
-}

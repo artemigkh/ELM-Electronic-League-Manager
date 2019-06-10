@@ -123,11 +123,11 @@ RETURNS VOID AS $$
   BEGIN
     UPDATE game SET
       complete = TRUE,
-      winner_id = winner_id,
-      loser_id = loser_id,
-      score_team1 = score_team1,
-      score_team2 = score_team2
-    WHERE game_id = game_id;
+      winner_id = report_game.winner_id,
+      loser_id = report_game.loser_id,
+      score_team1 = report_game.score_team1,
+      score_team2 = report_game.score_team2
+    WHERE game.game_id = report_game.game_id;
 
     UPDATE team
       SET wins = wins + 1

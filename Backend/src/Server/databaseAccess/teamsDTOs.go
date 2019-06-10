@@ -49,41 +49,6 @@ func (r *TeamDTOArray) Scan(rows *sql.Rows) error {
 	}
 }
 
-type TeamPermissionsDTO struct {
-	Administrator bool
-	Information   bool
-	Players       bool
-	ReportResults bool
-}
-
-type TeamPermissionsDTOArray struct {
-	rows []*TeamPermissionsDTO
-}
-
-func GetScannedTeamPermissionsDTO(rows squirrel.RowScanner) (*TeamPermissionsDTO, error) {
-	var teamPermissions TeamPermissionsDTO
-	if err := rows.Scan(
-		&teamPermissions.Administrator,
-		&teamPermissions.Information,
-		&teamPermissions.Players,
-		&teamPermissions.ReportResults,
-	); err != nil {
-		return nil, err
-	} else {
-		return &teamPermissions, nil
-	}
-}
-
-func (r *TeamPermissionsDTOArray) Scan(rows *sql.Rows) error {
-	row, err := GetScannedTeamPermissionsDTO(rows)
-	if err != nil {
-		return err
-	} else {
-		r.rows = append(r.rows, row)
-		return nil
-	}
-}
-
 type PlayerDTO struct {
 	Id             int    `json:"id"`
 	TeamId         int    `json:"teamId"`

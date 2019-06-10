@@ -50,30 +50,9 @@ func (r *SchedulingAvailabilityArray) Scan(rows *sql.Rows) error {
 	}
 }
 
-type LeaguePermissionsDTO struct {
-	Administrator bool `json:"administrator"`
-	CreateTeams   bool `json:"createTeams"`
-	EditTeams     bool `json:"editTeams"`
-	EditGames     bool `json:"editGames"`
-}
-
-func GetScannedLeaguePermissionsDTO(rows squirrel.RowScanner) (*LeaguePermissionsDTO, error) {
-	var leaguePermissions LeaguePermissionsDTO
-	if err := rows.Scan(
-		&leaguePermissions.Administrator,
-		&leaguePermissions.CreateTeams,
-		&leaguePermissions.EditTeams,
-		leaguePermissions.EditGames,
-	); err != nil {
-		return nil, err
-	} else {
-		return &leaguePermissions, nil
-	}
-}
-
 type ManagerDTO struct {
-	User        UserDTO            `json:"user"`
-	Permissions TeamPermissionsDTO `json:"permissions"`
+	User        UserDTO             `json:"user"`
+	Permissions TeamPermissionsCore `json:"permissions"`
 }
 
 type TeamManagerDTO struct {
@@ -88,7 +67,7 @@ type TeamManagerDTOArray struct {
 func (r *TeamManagerDTOArray) Scan(rows *sql.Rows) error {
 	var user UserDTO
 	var team TeamDTO
-	var teamPermissions TeamPermissionsDTO
+	var teamPermissions TeamPermissionsCore
 
 	if err := rows.Scan(
 		&user.UserId,

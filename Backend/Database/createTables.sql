@@ -88,7 +88,7 @@ CREATE SEQUENCE game_id_seq;
 DROP TABLE IF EXISTS game CASCADE;
 CREATE TABLE game (
   game_id         INT           PRIMARY KEY DEFAULT nextval('game_id_seq'),
-  external_id     VARCHAR(50)              NOT NULL      ,
+  external_id     VARCHAR(50)                           ,
   league_id       INT                      NOT NULL REFERENCES league(league_id),
   team1_id        INT                      NOT NULL REFERENCES team(team_id),
   team2_id        INT                      NOT NULL REFERENCES team(team_id),

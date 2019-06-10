@@ -2,24 +2,6 @@ package databaseAccess
 
 // Each incoming data structure should implement this to check data correctness
 type ValidateFunc func(*string, *error) bool
-type Validator interface {
-	Validate(int) (bool, string, error)
-}
-
-// checks data to be within valid bounds and logically consistent
-// wraps each structs validate() method so that it can be mocked
-// during unit testing
-type StructValidatorWrapper interface {
-	ValidateData(s Validator) (bool, string, error)
-}
-type StructValidator struct{}
-
-func (v *StructValidator) ValidateNew(s Validator) (bool, string, error) {
-	return s.Validate(0)
-}
-func (v *StructValidator) ValidateEdit(s Validator, id int) (bool, string, error) {
-	return s.Validate(id)
-}
 
 func validate(validators ...ValidateFunc) (bool, string, error) {
 	valid := true
@@ -32,22 +14,35 @@ func validate(validators ...ValidateFunc) (bool, string, error) {
 }
 
 const (
+	MaxTagLength         = 5
 	MaxNameLength        = 50
 	MaxDescriptionLength = 500
+	MaxMdLength          = 50000
+	MaxPasswordLength    = 64
 	MinInformationLength = 2
+	MinPasswordLength    = 8
 )
 
 type DataProblem string
 
 const (
-	NameTooLong            = "Name too long"
-	NameTooShort           = "Name too short"
-	DescriptionTooLong     = "Description too long"
-	LeagueNameInUse        = "League name already in use"
-	InvalidGame            = "Game string not valid"
-	LeaguePermissionsWrong = "League cannot be invisible but have public join enabled"
-	TimeOutOfOrder         = "Start time before end time"
-	PeriodOutOfOrder       = "League starts before signup ends"
+	NameTooLong             = "Name too long"
+	TagTooLong              = "Tag too long"
+	NameTooShort            = "Name too short"
+	TagTooShort             = "Tag too short"
+	PasswordTooLong         = "Password too long"
+	PasswordTooShort        = "Password too short"
+	DescriptionTooLong      = "Description too long"
+	MarkdownTooLong         = "Markdown too long"
+	LeagueNameInUse         = "League name already in use"
+	EmailInUse              = "Email in use"
+	InvalidGame             = "Game string not valid"
+	LeaguePermissionsWrong  = "League cannot be invisible but have public join enabled"
+	TimeOutOfOrder          = "Start time before end time"
+	PeriodOutOfOrder        = "League starts before signup ends"
+	AdminLackingPermissions = "Administrator must have all permissions enabled"
+	TeamsMustBeDifferent    = "The two teams in game must be different"
+	TeamInGameDoesNotExist  = "A team in this game does not exist in this league"
 )
 
 var ValidGameStrings = [...]string{

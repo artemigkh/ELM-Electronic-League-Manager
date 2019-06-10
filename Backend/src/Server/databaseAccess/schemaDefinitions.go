@@ -28,8 +28,8 @@ type TeamPermissions struct {
 
 // Users
 type UserCreationInformation struct {
-	email    string
-	password string
+	Email    string
+	Password string
 }
 
 type User struct {
@@ -146,14 +146,14 @@ type GameResult struct {
 }
 
 type Game struct {
-	GameId     int32       `json:"gameId"`
-	GameTime   int32       `json:"gameTime"`
+	GameId     int         `json:"gameId"`
+	GameTime   int         `json:"gameTime"`
 	Team1      TeamDisplay `json:"team1"`
 	Team2      TeamDisplay `json:"team2"`
-	WinnerId   int32       `json:"winnerId"`
-	LoserId    int32       `json:"loserId"`
-	ScoreTeam1 int32       `json:"scoreTeam1"`
-	ScoreTeam2 int32       `json:"scoreTeam2"`
+	WinnerId   int         `json:"winnerId"`
+	LoserId    int         `json:"loserId"`
+	ScoreTeam1 int         `json:"scoreTeam1"`
+	ScoreTeam2 int         `json:"scoreTeam2"`
 	Complete   bool        `json:"complete"`
 }
 

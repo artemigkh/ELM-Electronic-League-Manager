@@ -56,7 +56,7 @@ func (r *LeagueArray) Scan(rows *sql.Rows) error {
 }
 
 // LeagueCore
-func (league *LeagueCore) Validate(leagueId int) (bool, string, error) {
+func (league *LeagueCore) validate(leagueId int) (bool, string, error) {
 	return validate(
 		league.name(),
 		league.uniqueness(leagueId),
@@ -64,6 +64,14 @@ func (league *LeagueCore) Validate(leagueId int) (bool, string, error) {
 		league.game(),
 		league.permissions(),
 		league.timestamps())
+}
+
+func (league *LeagueCore) ValidateNew() (bool, string, error) {
+	return league.validate(0)
+}
+
+func (league *LeagueCore) ValidateEdit(leagueId int) (bool, string, error) {
+	return league.validate(leagueId)
 }
 
 func (league *LeagueCore) name() ValidateFunc {
@@ -84,7 +92,6 @@ func (league *LeagueCore) uniqueness(leagueId int) ValidateFunc {
 	return func(problemDest *string, errorDest *error) bool {
 		valid := false
 		inUse, err := Leagues.IsNameInUse(leagueId, league.Name)
-		*errorDest = err
 		if err != nil {
 			*errorDest = err
 		} else if inUse {
@@ -142,5 +149,51 @@ func (league *LeagueCore) timestamps() ValidateFunc {
 			valid = true
 		}
 		return valid
+	}
+}
+
+// Markdown
+func (md *Markdown) Validate() (bool, string, error) {
+	return validate(md.markdown())
+}
+
+func (md *Markdown) markdown() ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		if len(md.Markdown) > MaxMdLength {
+			*problemDest = MarkdownTooLong
+			return false
+		} else {
+			return true
+		}
+	}
+}
+
+// LeaguePermissionsCore
+func GetScannedLeaguePermissionsCore(rows squirrel.RowScanner) (*LeaguePermissionsCore, error) {
+	var leaguePermissions LeaguePermissionsCore
+	if err := rows.Scan(
+		&leaguePermissions.Administrator,
+		&leaguePermissions.CreateTeams,
+		&leaguePermissions.EditTeams,
+		&leaguePermissions.EditGames,
+	); err != nil {
+		return nil, err
+	} else {
+		return &leaguePermissions, nil
+	}
+}
+
+func (p *LeaguePermissionsCore) Validate() (bool, string, error) {
+	return validate(p.consistent())
+}
+
+func (p *LeaguePermissionsCore) consistent() ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		if (p.CreateTeams || p.EditGames || p.EditTeams) && p.Administrator {
+			*problemDest = AdminLackingPermissions
+			return false
+		} else {
+			return true
+		}
 	}
 }

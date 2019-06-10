@@ -3,10 +3,10 @@ package databaseAccess
 import "errors"
 
 func (a *AccessChecker) Game(accessType AccessType, leagueId, gameId, userId int) (bool, error) {
+	//TODO: team permissions checks here too
 	if accessType == Create && gameId > 0 {
 		return false, errors.New("can't check create permissions for an existing game")
 	}
-
 	// check if game exists in league
 	var count int
 	if err := psql.Select("count(*)").

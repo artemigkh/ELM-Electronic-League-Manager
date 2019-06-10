@@ -65,7 +65,6 @@ func (s *createNewLeague) SetupTest() {
 	routes.DataValidator = s.mockValidator
 	routes.LeaguesDAO = s.mockLeaguesDao
 }
-
 func (s *createNewLeague) SetDefaultMockValues() {
 	s.mockSession.On("AuthenticateAndGetUserId", mock.Anything).
 		Return(1, nil)

@@ -17,12 +17,12 @@ func (s *CookieSessionManager) AuthenticateAndGetUserId(ctx *gin.Context) (int, 
 
 	authValue := session.Values["authenticated"]
 	if authValue == nil {
-		return -1, nil
+		return 0, nil
 	}
 
 	authenticated := authValue.(bool)
 	if !authenticated {
-		return -1, nil
+		return 0, nil
 	}
 
 	IdValue := session.Values["userId"]
@@ -79,10 +79,8 @@ func (s *CookieSessionManager) GetActiveLeague(ctx *gin.Context) (int, error) {
 	IdValue := session.Values["leagueId"]
 
 	if IdValue == nil {
-		return -1, nil
+		return 0, nil
 	}
 
-	leagueId := IdValue.(int)
-
-	return leagueId, nil
+	return IdValue.(int), nil
 }

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"Server/databaseAccess"
 	"github.com/badoux/checkmail"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -58,6 +57,38 @@ func ge(x, y int) bool {
 }
 
 // General Cases
+func bindAndCheckErr(ctx *gin.Context, obj interface{}) bool {
+	if err := ctx.ShouldBindJSON(&obj); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func dataInvalid(
+	ctx *gin.Context, valid bool, problem string, err error) bool {
+	if checkErr(ctx, err) {
+		return true
+	} else if !valid {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": problem})
+		return true
+	} else {
+		return false
+	}
+}
+
+func accessForbidden(ctx *gin.Context, allowed bool, err error) bool {
+	if checkErr(ctx, err) {
+		return true
+	} else if !allowed {
+		ctx.Status(http.StatusForbidden)
+		return true
+	} else {
+		return false
+	}
+}
+
 func checkJsonErr(ctx *gin.Context, err error) bool {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
@@ -189,29 +220,16 @@ func failIfGameDoesNotExist(ctx *gin.Context, gameId int) bool {
 	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
 }
 
-func failIfAvailabilityDoesNotExist(ctx *gin.Context, availabilityId int) bool {
-	availability, err := LeaguesDAO.GetSchedulingAvailability(availabilityId)
-	return failIfBooleanConditionTrue(ctx, availability == nil, err, http.StatusBadRequest, "AvailabilityDoesNotExist")
-}
-
-func failIfGameDoesNotContainWinner(ctx *gin.Context, gameId, winnerId int) bool {
-	gi, err := GamesDAO.GetGameInformation(gameId)
-	return failIfBooleanConditionTrue(ctx,
-		!(gi.Team1Id == winnerId || gi.Team2Id == winnerId), err, http.StatusBadRequest, "gameDoesNotContainWinner")
-}
-
-func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
-	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || lp.EditTeams || tp.Administrator || tp.Players),
-		err, http.StatusForbidden, "canNotEditPlayers")
-}
-
-func failIfNotTeamAdmin(ctx *gin.Context, leagueId, teamId, userId int) bool {
-	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || tp.Administrator),
-		err, http.StatusForbidden, "notAdmin")
-}
-
+//func failIfAvailabilityDoesNotExist(ctx *gin.Context, availabilityId int) bool {
+//	availability, err := LeaguesDAO.GetSchedulingAvailability(availabilityId)
+//	return failIfBooleanConditionTrue(ctx, availability == nil, err, http.StatusBadRequest, "AvailabilityDoesNotExist")
+//}
+//
+//func failIfGameDoesNotContainWinner(ctx *gin.Context, gameId, winnerId int) bool {
+//	gi, err := GamesDAO.GetGameInformation(gameId)
+//	return failIfBooleanConditionTrue(ctx,
+//		!(gi.Team1Id == winnerId || gi.Team2Id == winnerId), err, http.StatusBadRequest, "gameDoesNotContainWinner")
+//}
 func failIfPlayerDoesNotExist(ctx *gin.Context, teamId, playerId int) bool {
 	playerExists, err := TeamsDAO.DoesPlayerExistInTeam(teamId, playerId)
 	return failIfBooleanConditionTrue(ctx, !playerExists, err, http.StatusBadRequest, "playerDoesNotExist")
@@ -226,23 +244,6 @@ func failIfEmailMalformed(ctx *gin.Context, email string) bool {
 	} else {
 		return false
 	}
-}
-
-func failIfGameIdentifierInUse(ctx *gin.Context, teamId, playerId int, gameIdentifier string) bool {
-	teamInfo, err := TeamsDAO.GetTeamInformation(teamId)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, nil)
-		return true
-	}
-
-	for _, player := range teamInfo.Players {
-		if player.GameIdentifier == gameIdentifier && player.Id != playerId {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameIdentifierInUse"})
-			return true
-		}
-	}
-
-	return false
 }
 
 func failIfGameStringtNotValid(ctx *gin.Context, game string) bool {
@@ -295,13 +296,4 @@ func descriptionStringFailed(ctx *gin.Context, description string) bool {
 	} else {
 		return false
 	}
-}
-
-func failIfLeagueDTOInvalid(ctx *gin.Context, league databaseAccess.LeagueDTO) bool {
-	// check name
-	inUse, err := LeaguesDAO.IsNameInUse(-1, league.Name)
-	return nameStringFailed(ctx, league.Name) ||
-		booleanConditionFailed(ctx, inUse, err, "league name is taken") ||
-		descriptionStringFailed(ctx, league.Description)
-
 }

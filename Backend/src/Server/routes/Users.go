@@ -68,7 +68,7 @@ func createNewUser(ctx *gin.Context) {
  * @apiError notLoggedIn 403 No user is currently logged in
  */
 func getProfile(ctx *gin.Context) {
-	profile, err := UsersDAO.GetUserProfile(ctx.GetInt("userId"))
+	profile, err := UsersDAO.GetUserProfile(ctx.GetInt("getUserId"))
 	if checkErr(ctx, err) {
 		return
 	}
@@ -96,18 +96,18 @@ func getProfile(ctx *gin.Context) {
  * @apiError notLoggedIn No user is logged in
  * @apiError noActiveLeague There is no active league selected
  */
-func getUserPermissions(ctx *gin.Context) {
-	userPermissions, err := UsersDAO.GetPermissions(
-		ctx.GetInt("leagueId"), ctx.GetInt("userId"))
-
-	if checkErr(ctx, err) {
-		return
-	}
-	ctx.JSON(http.StatusOK, userPermissions)
-}
+//func getUserPermissions(ctx *gin.Context) {
+//	userPermissions, err := UsersDAO.GetPermissions(
+//		ctx.GetInt("getLeagueId"), ctx.GetInt("getUserId"))
+//
+//	if checkErr(ctx, err) {
+//		return
+//	}
+//	ctx.JSON(http.StatusOK, userPermissions)
+//}
 
 func RegisterUserHandlers(g *gin.RouterGroup) {
 	g.POST("/", createNewUser)
-	g.GET("/profile", authenticate(), getProfile)
-	g.GET("/permissions", authenticate(), getActiveLeague(), getUserPermissions)
+	g.GET("/profile", getProfile)
+	//g.GET("/permissions", authenticate(), getActiveLeague(), getUserPermissions)
 }

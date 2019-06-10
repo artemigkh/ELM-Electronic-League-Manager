@@ -15,7 +15,6 @@ var LeaguesDAO databaseAccess.LeaguesDAO
 var TeamsDAO databaseAccess.TeamsDAO
 var GamesDAO databaseAccess.GamesDAO
 var LeagueOfLegendsDAO databaseAccess.LeagueOfLegendsDAO
-var DataValidator databaseAccess.DataValidator
 var Access databaseAccess.Access
 
 var ElmSessions sessionManager.SessionManager
@@ -31,34 +30,30 @@ type userInfo struct {
 	Password string `json:"password"`
 }
 
-// Functions
-func getLeagueAndTeamPermissions(leagueId, teamId, userId int) (
-	*databaseAccess.LeaguePermissionsDTO, *databaseAccess.TeamPermissionsDTO, error) {
-	leaguePermissions, err := LeaguesDAO.GetLeaguePermissions(leagueId, userId)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	teamPermissions, err := TeamsDAO.GetTeamPermissions(teamId, userId)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return leaguePermissions, teamPermissions, nil
-}
-
 // context helpers
-
-func leagueId(ctx *gin.Context) int {
+func getLeagueId(ctx *gin.Context) int {
 	return ctx.GetInt("leagueId")
 }
 
-func userId(ctx *gin.Context) int {
+func getTargetLeagueId(ctx *gin.Context) int {
+	return ctx.GetInt("targetLeagueId")
+}
+
+func getUserId(ctx *gin.Context) int {
 	return ctx.GetInt("userId")
 }
 
-//type Context gin.Context
-//
-//func (ctx *Context) LeagueId() int {
-//	return 0
-//}
+func getGameId(ctx *gin.Context) int {
+	return ctx.GetInt("gameId")
+}
+func getTargetUserId(ctx *gin.Context) int {
+	return ctx.GetInt("targetUserId")
+}
+
+func getTeamId(ctx *gin.Context) int {
+	return ctx.GetInt("teamId")
+}
+
+func getPlayerId(ctx *gin.Context) int {
+	return ctx.GetInt("playerId")
+}

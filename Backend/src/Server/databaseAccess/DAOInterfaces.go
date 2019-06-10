@@ -37,8 +37,7 @@ type LeaguesDAO interface {
 	GetPublicLeagueList() ([]*League, error)
 
 	// Get Information About Entities in a League
-	GetTeamSummary(leagueId int) ([]*TeamWithPlayers, error)
-	GetGameSummary(leagueId int) ([]*Game, error)
+	//GetTeamSummary(leagueId int) ([]*TeamWithPlayers, error)
 
 	// Markdown
 	GetMarkdownFile(leagueId int) (string, error)
@@ -58,37 +57,38 @@ type LeaguesDAO interface {
 type TeamsDAO interface {
 	// Teams
 	CreateTeam(leagueId, userId int, teamInfo TeamCore) (int, error)
-	CreateTeamWithIcon(leagueId, userId int, teamInfo TeamDTO) (int, error)
+	CreateTeamWithIcon(leagueId, userId int, teamInfo TeamCore, iconSmall, iconLarge string) (int, error)
 	DeleteTeam(teamId int) error
-	UpdateTeam(teamInformation TeamDTO) error
+	UpdateTeam(teamId int, teamInformation TeamCore) error
 	UpdateTeamIcon(teamId int, small, large string) error
-	GetTeamInformation(teamId int) (*TeamDTO, error)
+	GetTeamInformation(teamId int) (*TeamWithPlayers, error)
 
 	// Players
-	AddNewPlayer(leagueId int, playerInfo PlayerDTO) (int, error)
+	AddNewPlayer(leagueId int, playerInfo PlayerCore) (int, error)
 	RemovePlayer(playerId int) error
-	UpdatePlayer(playerInfo PlayerDTO) error
+	UpdatePlayer(playerId int, playerInfo PlayerCore) error
 
 	// Get Information For Team and Player Management
-	GetTeamPermissions(teamId, userId int) (*TeamPermissionsDTO, error)
+	GetTeamPermissions(teamId, userId int) (*TeamPermissionsCore, error)
 	IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error)
 	DoesTeamExistInLeague(leagueId, teamId int) (bool, error)
 	DoesPlayerExistInTeam(teamId, playerId int) (bool, error)
 	IsTeamActive(leagueId, teamId int) (bool, error)
 
 	// Managers
-	ChangeManagerPermissions(teamId, userId int, teamPermissionInformation TeamPermissionsDTO) error
+	ChangeManagerPermissions(teamId, userId int, teamPermissionInformation TeamPermissionsCore) error
 }
 
 type GamesDAO interface {
 	// Modify Games
-	CreateGame(gameInformation GameCreationInformation) (int, error)
-	ReportGame(gameInfo GameResult) error
+	CreateGame(leagueId int, gameInformation GameCreationInformation) (int, error)
+	ReportGame(gameId int, gameResult GameResult) error
 	DeleteGame(gameId int) error
 	RescheduleGame(gameId, gameTime int) error
 	AddExternalId(gameId int, externalId string) error
 
 	// Get Game Information
+	GetAllGamesInLeague(leagueId int) ([]*Game, error)
 	GetGameInformation(gameId int) (*Game, error)
 	GetGameInformationFromExternalId(externalId string) (*Game, error)
 

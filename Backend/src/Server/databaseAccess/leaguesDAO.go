@@ -34,7 +34,7 @@ func (d *PgLeaguesDAO) UpdateLeague(leagueId int, leagueInfo LeagueCore) error {
 		Set("signup_end", leagueInfo.SignupEnd).
 		Set("league_start", leagueInfo.LeagueStart).
 		Set("league_end", leagueInfo.LeagueEnd).
-		Where("league_id = ?").
+		Where("league_id = ?", leagueId).
 		RunWith(db).Exec()
 
 	return err
@@ -225,7 +225,11 @@ func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
 		From("league").
 		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&markdownFile)
-	return markdownFile, err
+	if err == sql.ErrNoRows {
+		return "", nil
+	} else {
+		return markdownFile, err
+	}
 }
 
 func (d *PgLeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {

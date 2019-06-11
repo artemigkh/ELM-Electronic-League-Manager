@@ -97,6 +97,22 @@ func (s *games) setSessionFail() {
 	ElmSessions = s.mockSession
 }
 
+func (s *games) setDataValid() {
+	s.mockValidator = new(mocks.Validator)
+	s.mockValidator.On("DataInvalid", mock.Anything, mock.Anything).Return(false)
+	validator = s.mockValidator
+}
+
+func (s *games) setDataInvalid() {
+	s.mockValidator = new(mocks.Validator)
+	s.mockValidator.On("DataInvalid", mock.Anything, mock.Anything).Return(true).
+		Run(func(args mock.Arguments) {
+			ctx := args.Get(0).(*gin.Context)
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": testValidatorErrMsg})
+		})
+	validator = s.mockValidator
+}
+
 func (s *games) setGameCreateAccessTrue() {
 	s.mockAccess = new(mocks.Access)
 	s.mockAccess.On("Game", databaseAccess.Create, testLeagueId, 0, testUserId).Return(true, nil)
@@ -131,22 +147,6 @@ func (s *games) setGameAccessFail() {
 	s.mockAccess = new(mocks.Access)
 	s.mockAccess.On("Game", mock.Anything, testLeagueId, mock.AnythingOfType("int"), testUserId).Return(false, testPermissionsErr)
 	Access = s.mockAccess
-}
-
-func (s *games) setDataValid() {
-	s.mockValidator = new(mocks.Validator)
-	s.mockValidator.On("DataInvalid", mock.Anything, mock.Anything).Return(false)
-	validator = s.mockValidator
-}
-
-func (s *games) setDataInvalid() {
-	s.mockValidator = new(mocks.Validator)
-	s.mockValidator.On("DataInvalid", mock.Anything, mock.Anything).Return(true).
-		Run(func(args mock.Arguments) {
-			ctx := args.Get(0).(*gin.Context)
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": testValidatorErrMsg})
-		})
-	validator = s.mockValidator
 }
 
 func (s *games) setCreateGameSuccess() {

@@ -13,14 +13,6 @@ import (
 
 var router *gin.Engine
 
-const (
-	testUserId   int = iota
-	testLeagueId int = iota
-	testTeamId   int = iota
-	testPlayerId int = iota
-	testGameId   int = iota
-)
-
 var testSessionErrMsg = "Session Test Error"
 var testSessionErr = errors.New(testSessionErrMsg)
 

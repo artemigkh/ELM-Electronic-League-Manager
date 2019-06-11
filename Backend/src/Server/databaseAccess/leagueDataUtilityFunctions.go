@@ -2,6 +2,7 @@ package databaseAccess
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Masterminds/squirrel"
 )
 
@@ -57,6 +58,7 @@ func (r *LeagueArray) Scan(rows *sql.Rows) error {
 
 // LeagueCore
 func (league *LeagueCore) validate(leagueId int) (bool, string, error) {
+	fmt.Printf("league is %+v\n", league)
 	return validate(
 		league.name(),
 		league.uniqueness(leagueId),

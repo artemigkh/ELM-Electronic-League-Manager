@@ -16,115 +16,78 @@ func getAllGamesInLeague(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, games)
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createGame
-func createNewGame(ctx *gin.Context) {
-	hasPermissions, err := Access.Game(databaseAccess.Create, getLeagueId(ctx), 0, getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	var game databaseAccess.GameCreationInformation
-	if bindAndCheckErr(ctx, &game) {
-		return
-	}
-
-	if validator.DataInvalid(ctx, func() (bool, string, error) { return game.Validate(getLeagueId(ctx)) }) {
-		return
-	}
-
-	gameId, err := GamesDAO.CreateGame(getLeagueId(ctx), game)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, gin.H{"gameId": gameId})
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getGameInfo
+func getGameInformation() gin.HandlerFunc {
+	return endpoint{
+		Entity:     Game,
+		AccessType: View,
+		Core:       func(ctx *gin.Context) (interface{}, error) { return GamesDAO.GetGameInformation(getGameId(ctx)) },
+	}.createEndpointHandler()
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getGameInfo
-func getGameInformation(ctx *gin.Context) {
-	hasPermissions, err := Access.Game(databaseAccess.View, getLeagueId(ctx), getGameId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	gameInfo, err := GamesDAO.GetGameInformation(getGameId(ctx))
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gameInfo)
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createGame
+func createNewGame() gin.HandlerFunc {
+	var game databaseAccess.GameCreationInformation
+	return endpoint{
+		Entity:        Game,
+		AccessType:    Create,
+		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &game) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return game.Validate(getLeagueId(ctx)) },
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			gameId, err := GamesDAO.CreateGame(getLeagueId(ctx), game)
+			return gin.H{"gameId": gameId}, err
+		},
+	}.createEndpointHandler()
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/deleteGame
-func deleteGame(ctx *gin.Context) {
-	hasPermissions, err := Access.Game(databaseAccess.Delete, getLeagueId(ctx), getGameId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	err = GamesDAO.DeleteGame(getGameId(ctx))
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.Status(http.StatusOK)
+func deleteGame() gin.HandlerFunc {
+	return endpoint{
+		Entity:     Game,
+		AccessType: Delete,
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return nil, GamesDAO.DeleteGame(getGameId(ctx))
+		},
+	}.createEndpointHandler()
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/rescheduleGame
-func rescheduleGame(ctx *gin.Context) {
-	hasPermissions, err := Access.Game(databaseAccess.Edit, getLeagueId(ctx), getGameId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
+func rescheduleGame() gin.HandlerFunc {
 	var gameTime databaseAccess.GameTime
-	if bindAndCheckErr(ctx, &gameTime) {
-		return
-	}
-
-	if validator.DataInvalid(ctx, func() (bool, string, error) { return gameTime.Validate(getLeagueId(ctx), getGameId(ctx)) }) {
-		return
-	}
-
-	err = GamesDAO.RescheduleGame(getGameId(ctx), gameTime.GameTime)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.Status(http.StatusOK)
+	return endpoint{
+		Entity:     Game,
+		AccessType: Edit,
+		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameTime) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return gameTime.Validate(getLeagueId(ctx), getGameId(ctx))
+		},
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return nil, GamesDAO.RescheduleGame(getGameId(ctx), gameTime.GameTime)
+		},
+	}.createEndpointHandler()
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/reportGame
-func reportGameResult(ctx *gin.Context) {
-	hasPermissions, err := Access.Game(databaseAccess.Edit, getLeagueId(ctx), getGameId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
+func reportGameResult() gin.HandlerFunc {
 	var gameResult databaseAccess.GameResult
-	if bindAndCheckErr(ctx, &gameResult) {
-		return
-	}
-
-	if validator.DataInvalid(ctx, func() (bool, string, error) { return gameResult.Validate(getLeagueId(ctx)) }) {
-		return
-	}
-
-	err = GamesDAO.ReportGame(getGameId(ctx), gameResult)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.Status(http.StatusOK)
+	return endpoint{
+		Entity:        Game,
+		AccessType:    Edit,
+		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameResult) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return gameResult.Validate(getLeagueId(ctx)) },
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return nil, GamesDAO.ReportGame(getGameId(ctx), gameResult)
+		},
+	}.createEndpointHandler()
 }
 
 func RegisterGameHandlers(g *gin.RouterGroup) {
-	g.GET("/", getAllGamesInLeague)
-	g.GET("/:gameId", storeGameId(), getGameInformation)
-	g.POST("/", createNewGame)
+	g.GET("", getAllGamesInLeague)
+	g.GET("/:gameId", storeGameId(), getGameInformation())
+	g.POST("", createNewGame())
 
 	withId := g.Group("/:gameId").Use(storeGameId())
-	withId.DELETE("", deleteGame)
-	withId.POST("/reschedule", rescheduleGame)
-	withId.POST("/report", reportGameResult)
+	withId.DELETE("", deleteGame())
+	withId.POST("/reschedule", rescheduleGame())
+	withId.POST("/report", reportGameResult())
 }

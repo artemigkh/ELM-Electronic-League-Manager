@@ -79,8 +79,7 @@ func (r *TeamManagerDTOArray) Scan(rows *sql.Rows) error {
 		&team.IconSmall,
 		&teamPermissions.Administrator,
 		&teamPermissions.Information,
-		&teamPermissions.Players,
-		&teamPermissions.ReportResults,
+		&teamPermissions.Games,
 	); err != nil {
 		return err
 	}

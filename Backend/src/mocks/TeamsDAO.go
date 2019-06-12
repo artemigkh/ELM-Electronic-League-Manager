@@ -10,7 +10,7 @@ type TeamsDAO struct {
 	mock.Mock
 }
 
-// AddNewPlayer provides a mock function with given fields: leagueId, playerInfo
+// CreatePlayer provides a mock function with given fields: leagueId, playerInfo
 func (_m *TeamsDAO) AddNewPlayer(leagueId int, playerInfo databaseAccess.PlayerCore) (int, error) {
 	ret := _m.Called(leagueId, playerInfo)
 
@@ -238,7 +238,7 @@ func (_m *TeamsDAO) IsTeamActive(leagueId int, teamId int) (bool, error) {
 	return r0, r1
 }
 
-// RemovePlayer provides a mock function with given fields: playerId
+// DeletePlayer provides a mock function with given fields: playerId
 func (_m *TeamsDAO) RemovePlayer(playerId int) error {
 	ret := _m.Called(playerId)
 

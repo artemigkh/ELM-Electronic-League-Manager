@@ -1111,21 +1111,17 @@ components:
       required:
         - administrator
         - information
-        - players
-        - reportResults
+        - games
       properties:
         administrator:
           type: boolean
           description: True if this user has administrator priviliges in the team
         information:
           type: boolean
-          description: True if this user has permissions to change information about the team
-        players:
+          description: True if this user has permissions to change information and players of the team
+        games:
           type: boolean
-          description: True if this user has permissions to create, edit, and remove players on this team
-        reportResults:
-          type: boolean
-          description: True if this user has permissions to report games involving this team
+          description: True if this user has permissions to schedule, reschedule, and report games of this team
 
     ##### Users #####
     UserId:
@@ -1303,6 +1299,7 @@ components:
 
     Team:
       allOf:
+        - $ref: '#/components/schemas/TeamId'
         - $ref: '#/components/schemas/TeamCore'
         - type: object
           properties:

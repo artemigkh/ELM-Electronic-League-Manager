@@ -169,7 +169,7 @@ package routesTest
 //		Return(TeamPermissions(false, false, true, false), nil)
 //	mockTeamsDao.On("DoesPlayerExistInTeam", 24, 31).
 //		Return(true, nil)
-//	mockTeamsDao.On("RemovePlayer", 24, 31).
+//	mockTeamsDao.On("DeletePlayer", 24, 31).
 //		Return(errors.New("fake db error"))
 //
 //	routes.ElmSessions = mockSession
@@ -200,7 +200,7 @@ package routesTest
 //		Return(TeamPermissions(false, false, true, false), nil)
 //	mockTeamsDao.On("DoesPlayerExistInTeam", 24, 31).
 //		Return(true, nil)
-//	mockTeamsDao.On("RemovePlayer", 24, 31).
+//	mockTeamsDao.On("DeletePlayer", 24, 31).
 //		Return(nil)
 //
 //	routes.ElmSessions = mockSession

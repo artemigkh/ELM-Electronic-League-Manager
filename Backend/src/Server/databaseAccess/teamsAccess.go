@@ -6,7 +6,6 @@ func (a *AccessChecker) Team(accessType AccessType, leagueId, teamId, userId int
 	if accessType == Create && teamId > 0 {
 		return false, errors.New("can't check create permissions for an existing team")
 	}
-
 	// check if team exists in league
 	var count int
 	if err := psql.Select("count(*)").
@@ -17,7 +16,6 @@ func (a *AccessChecker) Team(accessType AccessType, leagueId, teamId, userId int
 	} else if count == 0 && accessType != Create {
 		return false, nil
 	}
-
 	// if team exists in this league, it is viewable
 	if accessType == View {
 		return true, nil

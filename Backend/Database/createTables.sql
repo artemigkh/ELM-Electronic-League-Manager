@@ -79,8 +79,7 @@ CREATE TABLE team_permissions (
   team_id         INT           NOT NULL REFERENCES team(team_id),
   administrator   BOOLEAN       NOT NULL         ,
   information     BOOLEAN       NOT NULL         ,
-  players         BOOLEAN       NOT NULL         ,
-  report_results  BOOLEAN       NOT NULL
+  games           BOOLEAN       NOT NULL
 );
 
 DROP SEQUENCE IF EXISTS game_id_seq CASCADE;

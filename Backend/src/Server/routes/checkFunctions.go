@@ -189,37 +189,6 @@ func failIfEmailNotInUse(ctx *gin.Context, emailToCheck string) bool {
 	return failIfBooleanConditionTrue(ctx, !inUse, err, http.StatusBadRequest, "invalidLogin")
 }
 
-func failIfLeagueNameInUse(ctx *gin.Context, leagueId int, name string) bool {
-	inUse, err := LeaguesDAO.IsNameInUse(leagueId, name)
-	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, "nameInUse")
-}
-
-func failIfTeamInfoInUse(ctx *gin.Context, leagueId, teamId int, name, tag string) bool {
-	inUse, errorMsg, err := TeamsDAO.IsInfoInUse(leagueId, teamId, name, tag)
-	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, errorMsg)
-}
-
-func failIfTeamDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
-	exists, err := TeamsDAO.DoesTeamExistInLeague(leagueId, teamId)
-	return failIfBooleanConditionTrue(ctx, !exists, err, http.StatusBadRequest, "teamDoesNotExist")
-}
-
-func failIfManagerDoesNotExist(ctx *gin.Context, teamId, userId int) bool {
-	tp, err := TeamsDAO.GetTeamPermissions(teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !(tp.Administrator || tp.ReportResults || tp.Players || tp.Information),
-		err, http.StatusBadRequest, "managerDoesNotExist")
-}
-
-func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool {
-	conflictExists, err := GamesDAO.DoesExistConflict(team1Id, team2Id, gameTime)
-	return failIfBooleanConditionTrue(ctx, conflictExists, err, http.StatusBadRequest, "conflictExists")
-}
-
-func failIfGameDoesNotExist(ctx *gin.Context, gameId int) bool {
-	gameInformation, err := GamesDAO.GetGameInformation(gameId)
-	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
-}
-
 //func failIfAvailabilityDoesNotExist(ctx *gin.Context, availabilityId int) bool {
 //	availability, err := LeaguesDAO.GetSchedulingAvailability(availabilityId)
 //	return failIfBooleanConditionTrue(ctx, availability == nil, err, http.StatusBadRequest, "AvailabilityDoesNotExist")

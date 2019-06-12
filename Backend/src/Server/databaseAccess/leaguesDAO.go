@@ -194,30 +194,6 @@ func (d *PgLeaguesDAO) GetPublicLeagueList() ([]*League, error) {
 	return leagueSummary.rows, nil
 }
 
-// Get Information About Entities in a League
-
-func (d *PgLeaguesDAO) GetTeamSummary(leagueId int) ([]*TeamWithPlayers, error) {
-	return nil, nil
-	//var teamSummary TeamDTOArray
-	//if err := ScanRows(psql.Select(
-	//	"team_id",
-	//	"name",
-	//	"tag",
-	//	"description",
-	//	"wins",
-	//	"losses",
-	//	"icon_small",
-	//	"icon_large",
-	//).
-	//	From("team").
-	//	Where("league_id = ?", leagueId).
-	//	OrderBy("wins DESC, losses ASC"), &teamSummary); err != nil {
-	//	return nil, err
-	//}
-	//
-	//return teamSummary.rows, nil
-}
-
 // Markdown
 func (d *PgLeaguesDAO) GetMarkdownFile(leagueId int) (string, error) {
 	var markdownFile = ""

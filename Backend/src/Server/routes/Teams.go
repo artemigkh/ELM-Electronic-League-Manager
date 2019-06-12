@@ -6,75 +6,81 @@ import (
 	"net/http"
 )
 
-//
-//import (
-//	"Server/databaseAccess"
-//	"github.com/gin-gonic/gin"
-//	"github.com/gin-gonic/gin/binding"
-//	"net/http"
-//)
-//
-//type TeamInformation struct {
-//	Name        string `json:"name"`
-//	Description string `json:"description"`
-//	Tag         string `json:"tag"`
-//}
-//
-//type PlayerInformation struct {
-//	TeamId         int    `json:"getTeamId"`
-//	Name           string `json:"name"`
-//	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
-//	Position       string `json:"position"`
-//	MainRoster     bool   `json:"mainRoster"`
-//}
-//
-//type PlayerInformationChange struct {
-//	TeamId         int    `json:"getTeamId"`
-//	PlayerId       int    `json:"getPlayerId"`
-//	Name           string `json:"name"`
-//	GameIdentifier string `json:"gameIdentifier"` // Jersey Number, IGN, etc.
-//	Position       string `json:"position"`
-//	MainRoster     bool   `json:"mainRoster"`
-//}
-//
-//type PlayerRemoveInformation struct {
-//	TeamId   int `json:"getTeamId"`
-//	PlayerId int `json:"getPlayerId"`
-//}
-//
-//type TeamManagerPermissionChange struct {
-//	TeamId        int  `json:"getTeamId"`
-//	UserId        int  `json:"getUserId"`
-//	Administrator bool `json:"administrator"`
-//	Information   bool `json:"information"`
-//	Players       bool `json:"players"`
-//	ReportResults bool `json:"reportResults"`
-//}
-
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createTeam
-func createNewTeam(ctx *gin.Context) {
+func createNewTeam() gin.HandlerFunc {
 	var team databaseAccess.TeamCore
-	if bindAndCheckErr(ctx, &team) {
-		return
-	}
-
-	valid, problem, err := team.ValidateNew(getLeagueId(ctx))
-	if dataInvalid(ctx, valid, problem, err) {
-		return
-	}
-
-	hasPermissions, err := Access.Team(databaseAccess.Create, getLeagueId(ctx), 0, getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	teamId, err := TeamsDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, gin.H{"teamId": teamId})
+	return endpoint{
+		Entity:        Team,
+		AccessType:    Create,
+		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &team) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return team.ValidateNew(getLeagueId(ctx)) },
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			teamId, err := TeamsDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
+			return gin.H{"teamId": teamId}, err
+		},
+	}.createEndpointHandler()
 }
+
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueTeams
+func getAllTeams() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		games, err := TeamsDAO.GetAllTeamsInLeague(getLeagueId(ctx))
+		if checkErr(ctx, err) {
+			return
+		}
+
+		ctx.JSON(http.StatusOK, games)
+	}
+}
+
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setTeamPermissions
+func getTeamInfo() gin.HandlerFunc {
+	return endpoint{
+		Entity:     Team,
+		AccessType: View,
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return TeamsDAO.GetTeamInformation(getTeamId(ctx))
+		},
+	}.createEndpointHandler()
+}
+
+//
+//func editTeam() gin.HandlerFunc {
+//
+//}
+//
+//func deleteTeam() gin.HandlerFunc {
+//
+//}
+//
+//func editTeamManagerPermissions() gin.HandlerFunc {
+//
+//}
+
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createPlayer
+func createNewPlayer() gin.HandlerFunc {
+	var player databaseAccess.PlayerCore
+	return endpoint{
+		Entity:     Player,
+		AccessType: Create,
+		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &player) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return player.ValidateNew(getLeagueId(ctx), getTeamId(ctx))
+		},
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			playerId, err := TeamsDAO.CreatePlayer(getLeagueId(ctx), getTeamId(ctx), player)
+			return gin.H{"playerId": playerId}, err
+		},
+	}.createEndpointHandler()
+}
+
+//func editPlayer() gin.HandlerFunc {
+//
+//}
+//
+//func deletePlayer() gin.HandlerFunc {
+//
+//}
 
 //
 ///**
@@ -449,7 +455,7 @@ func createNewTeam(ctx *gin.Context) {
 //		return
 //	}
 //
-//	getPlayerId, err := TeamsDAO.AddNewPlayer(playerInfo)
+//	getPlayerId, err := TeamsDAO.CreatePlayer(playerInfo)
 //	if checkErr(ctx, err) {
 //		return
 //	}
@@ -488,7 +494,7 @@ func createNewTeam(ctx *gin.Context) {
 //		return
 //	}
 //	//TODO: check if player on team
-//	err = TeamsDAO.RemovePlayer(playerRemoveInfo.PlayerId)
+//	err = TeamsDAO.DeletePlayer(playerRemoveInfo.PlayerId)
 //	if checkErr(ctx, err) {
 //		return
 //	}
@@ -607,15 +613,18 @@ func createNewTeam(ctx *gin.Context) {
 //
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 
-	g.POST("/", createNewTeam)
-	//g.POST("/withIcon", authenticate(), failIfNoTeamCreatePermissions(), createNewTeamWithIcon)
-	//g.POST("/addPlayer", authenticate(), addPlayerToTeam)
-	//g.DELETE("/removePlayer", authenticate(), removePlayerFromTeam)
-	//g.PUT("/updatePlayer", authenticate(), updatePlayer)
-	//g.GET("/:id", storeUrlId(), getTeamInformation)
-	//g.DELETE("/removeTeam/:id", storeUrlId(), authenticate(), failIfTeamActive(), failIfNotTeamAdministrator(), deleteTeam)
-	//g.PUT("/updateTeam/:id", storeUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeam)
-	//g.PUT("/updateTeamWithIcon/:id", storeUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeamWithIcon)
-	//g.PUT("/updateTeamIcon/:id", storeUrlId(), authenticate(), failIfCanNotEditTeamInformation(), updateTeamIcon)
-	//g.PUT("/updatePermissions", authenticate(), updateManagerPermissions)
+	g.POST("", createNewTeam())
+	g.GET("", getAllTeams())
+
+	withTeamId := g.Group("/:teamId", storeTeamId())
+	withTeamId.GET("", getTeamInfo())
+	//withTeamId.PUT("", editTeam())
+	//withTeamId.DELETE("", deleteTeam())
+	//
+	//withTeamId.PUT("/permissions/:userId", storeTargetUserId(), editTeamManagerPermissions())
+	//
+	withTeamId.POST("/players", createNewPlayer())
+	//withPlayerId := withTeamId.Group("/players/:playerId", storePlayerId())
+	//withPlayerId.PUT("", editPlayer())
+	//withPlayerId.DELETE("", deletePlayer())
 }

@@ -12,7 +12,6 @@ func (a *AccessChecker) League(accessType AccessType, leagueId, userId int) (boo
 		From("league").
 		Where("league_id = ?", leagueId).
 		RunWith(db).QueryRow().Scan(&count); err != nil {
-		println("2")
 		return false, err
 	} else if count == 0 && accessType != Create {
 		return false, nil

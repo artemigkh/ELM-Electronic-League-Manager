@@ -11,8 +11,7 @@ type LeaguePermissionsCore struct {
 type TeamPermissionsCore struct {
 	Administrator bool `json:"administrator"`
 	Information   bool `json:"information"`
-	Players       bool `json:"players"`
-	ReportResults bool `json:"reportResults"`
+	Games         bool `json:"games"`
 }
 
 type TeamPermissions struct {
@@ -22,8 +21,7 @@ type TeamPermissions struct {
 	IconSmall     string `json:"iconSmall"`
 	Administrator bool   `json:"administrator"`
 	Information   bool   `json:"information"`
-	Players       bool   `json:"players"`
-	ReportResults bool   `json:"reportResults"`
+	Games         bool   `json:"games"`
 }
 
 // Users
@@ -44,8 +42,7 @@ type TeamManager struct {
 	Email         string `json:"email"`
 	Administrator bool   `json:"administrator"`
 	Information   bool   `json:"information"`
-	Players       bool   `json:"players"`
-	ReportResults bool   `json:"reportResults"`
+	Games         bool   `json:"games"`
 }
 
 // Leagues
@@ -82,22 +79,23 @@ type TeamCore struct {
 }
 
 type TeamWithPlayers struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Tag         string   `json:"tag"`
-	IconSmall   string   `json:"iconSmall"`
-	IconLarge   string   `json:"iconLarge"`
-	Wins        int      `json:"wins"`
-	Losses      int      `json:"losses"`
-	Players     []Player `json:"players"`
+	TeamId      int       `json:"teamId"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Tag         string    `json:"tag"`
+	IconSmall   string    `json:"iconSmall"`
+	IconLarge   string    `json:"iconLarge"`
+	Wins        int       `json:"wins"`
+	Losses      int       `json:"losses"`
+	Players     []*Player `json:"players"`
 }
 
 type TeamWithManagers struct {
-	TeamId    int           `json:"teamId"`
-	Name      string        `json:"name"`
-	Tag       string        `json:"tag"`
-	IconSmall string        `json:"iconSmall"`
-	Managers  []TeamManager `json:"managers"`
+	TeamId    int            `json:"teamId"`
+	Name      string         `json:"name"`
+	Tag       string         `json:"tag"`
+	IconSmall string         `json:"iconSmall"`
+	Managers  []*TeamManager `json:"managers"`
 }
 
 type TeamDisplay struct {

@@ -204,7 +204,7 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 	//check if user has team reportResult permissions on one of the two teams
 	team1Id, team2Id, err := getTeamsInGame(gameId)
 
-	err = psql.Select("report_results").
+	err = psql.Select("games").
 		From("team_permissions").
 		Where("user_id = ? AND (team_id = ? OR team_id = ?)", userId, team1Id, team2Id).
 		RunWith(db).QueryRow().Scan(&canReport)

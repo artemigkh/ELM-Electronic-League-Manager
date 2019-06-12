@@ -148,7 +148,6 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 		if accessForbidden(ctx, hasPermissions, err) {
 			return
 		}
-
 		// Binds input data
 		if e.BindData != nil && e.BindData(ctx) {
 			return
@@ -161,7 +160,6 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 				return
 			}
 		}
-
 		// Perform the core action of the endpoint
 		returnData, err := e.Core(ctx)
 		if checkErr(ctx, err) {

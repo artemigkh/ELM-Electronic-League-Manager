@@ -130,76 +130,53 @@ func (d *PgTeamsDAO) UpdateTeamIcon(teamId int, small, large string) error {
 }
 
 func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamWithPlayers, error) {
-	//teamInformation, err := GetScannedTeamDTO(psql.Select(
-	//	"team_id",
-	//	"name",
-	//	"tag",
-	//	"description",
-	//	"wins",
-	//	"losses",
-	//	"icon_small",
-	//	"icon_large").
-	//	From("team").
-	//	Where("team_id = ?", teamId).
-	//	RunWith(db).QueryRow())
-	//
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	////get players of team
-	//var players PlayerDTOArray
-	//if err := ScanRows(psql.Select(
-	//	"player_id",
-	//	"team_id",
-	//	"name",
-	//	"game_identifier",
-	//	"external_id",
-	//	"position",
-	//	"main_roster").
-	//	From("player").
-	//	Where("team_id = ?", teamId), &players); err != nil {
-	//	return nil, err
-	//}
+	rows, err := getTeamWithPlayersSelector().
+		Where("team.team_id = ?", teamId).
+		RunWith(db).Query()
+	if err != nil {
+		println("fail here")
+		return nil, err
+	}
+	return GetScannedTeamWithPlayers(rows)
+}
 
-	//teamInformation.Players = players.rows
-	//return teamInformation, nil
-	return nil, nil
+func (d *PgTeamsDAO) GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error) {
+	var teams TeamWithPlayersArray
+	if err := ScanRows(getTeamWithPlayersSelector(), &teams); err != nil {
+		return nil, err
+	}
+
+	return teams.rows, nil
 }
 
 // Players
 
-func (d *PgTeamsDAO) AddNewPlayer(leagueId int, playerInfo PlayerCore) (int, error) {
-	//var playerId int
-	//if err := psql.Insert("player").
-	//	Columns(
-	//		"league_id",
-	//		"team_id",
-	//		"game_identifier",
-	//		"name",
-	//		"external_id",
-	//		"position",
-	//		"main_roster",
-	//	).
-	//	Values(
-	//		leagueId,
-	//		playerInfo.TeamId,
-	//		playerInfo.GameIdentifier,
-	//		playerInfo.Name,
-	//		playerInfo.ExternalId,
-	//		playerInfo.Position,
-	//		playerInfo.MainRoster,
-	//	).
-	//	Suffix("RETURNING \"id\"").
-	//	RunWith(db).QueryRow().Scan(&playerId); err != nil {
-	//	return -1, err
-	//}
-	//
-	//return playerId, nil
-	return 0, nil
+func (d *PgTeamsDAO) CreatePlayer(leagueId, teamId int, playerInfo PlayerCore) (int, error) {
+	var playerId int
+	if err := psql.Insert("player").
+		Columns(
+			"team_id",
+			"league_id",
+			"game_identifier",
+			"name",
+			"main_roster",
+		).
+		Values(
+			teamId,
+			leagueId,
+			playerInfo.GameIdentifier,
+			playerInfo.Name,
+			playerInfo.MainRoster,
+		).
+		Suffix("RETURNING \"player_id\"").
+		RunWith(db).QueryRow().Scan(&playerId); err != nil {
+		return -1, err
+	}
+
+	return playerId, nil
 }
 
-func (d *PgTeamsDAO) RemovePlayer(playerId int) error {
+func (d *PgTeamsDAO) DeletePlayer(playerId int) error {
 	_, err := psql.Delete("player").
 		Where("player_id = ?", playerId).
 		RunWith(db).Exec()
@@ -226,8 +203,7 @@ func (d *PgTeamsDAO) GetTeamPermissions(teamId, userId int) (*TeamPermissionsCor
 	teamPermissions, err := GetScannedTeamPermissionsCore(psql.Select(
 		"administrator",
 		"information",
-		"players",
-		"report_results").
+		"games").
 		From("team_permissions").
 		Where("user_id = ? AND team_id = ?", userId, teamId).
 		RunWith(db).QueryRow())
@@ -236,8 +212,7 @@ func (d *PgTeamsDAO) GetTeamPermissions(teamId, userId int) (*TeamPermissionsCor
 		return &TeamPermissionsCore{
 			Administrator: false,
 			Information:   false,
-			Players:       false,
-			ReportResults: false,
+			Games:         false,
 		}, nil
 	} else if err != nil {
 		return nil, err
@@ -306,8 +281,7 @@ func (d *PgTeamsDAO) ChangeManagerPermissions(teamId, userId int, teamPermission
 	_, err := psql.Update("team_permissions").
 		Set("administrator", teamPermissionInformation.Administrator).
 		Set("information", teamPermissionInformation.Information).
-		Set("players", teamPermissionInformation.Players).
-		Set("report_results", teamPermissionInformation.ReportResults).
+		Set("games", teamPermissionInformation.Games).
 		Where("team_id = ? AND user_id = ?", teamId, userId).
 		RunWith(db).Exec()
 

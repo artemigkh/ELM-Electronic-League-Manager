@@ -86,7 +86,7 @@ func RegisterGameHandlers(g *gin.RouterGroup) {
 	g.GET("/:gameId", storeGameId(), getGameInformation())
 	g.POST("", createNewGame())
 
-	withId := g.Group("/:gameId").Use(storeGameId())
+	withId := g.Group("/:gameId", storeGameId())
 	withId.DELETE("", deleteGame())
 	withId.POST("/reschedule", rescheduleGame())
 	withId.POST("/report", reportGameResult())

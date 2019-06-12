@@ -95,13 +95,11 @@ RETURNS INT AS $$
       team_id,
 			administrator,
 			information,
-			players,
-			report_results
+			games
     )
     VALUES(
       user_id,
       currval('team_id_seq'),
-      true,
       true,
       true,
       true
@@ -139,26 +137,3 @@ RETURNS VOID AS $$
   END;
 $$ LANGUAGE plpgsql;
 
-
-SELECT create_team(
-  8,
-  'test team name',
-  'tag',
-  'test description',
-  'smallabc',
-  'largeabc',
-  1
-);
-
-
-SELECT create_league(
-  'new_league_name_2',
-  'description',
-  true,
-  true,
-  0,
-  0,
-  0,
-  0,
-  'genericsport'
-);

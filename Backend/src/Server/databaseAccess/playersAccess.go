@@ -13,7 +13,7 @@ func (a *AccessChecker) Player(accessType AccessType, leagueId, teamId, playerId
 		From("team").
 		Join("player ON player.team_id = team.team_id").
 		Join("league ON team.league_id = team.league_id").
-		Where("team.league_id = ? AND player.team_id = ? AND player.player_id = ", leagueId, teamId, playerId).
+		Where("team.league_id = ? AND player.team_id = ? AND player.player_id = ?", leagueId, teamId, playerId).
 		RunWith(db).QueryRow().Scan(&count); err != nil {
 		return false, err
 	} else if count == 0 && accessType != Create {
@@ -34,9 +34,9 @@ func (a *AccessChecker) Player(accessType AccessType, leagueId, teamId, playerId
 		// go through all cases to catch unsupported access types
 		switch accessType {
 		case Edit:
-			return admin || leaguePermissions.EditTeams || teamPermissions.Players, nil
+			return admin || leaguePermissions.EditTeams || teamPermissions.Information, nil
 		case Create:
-			return admin || leaguePermissions.EditTeams || teamPermissions.Players, nil
+			return admin || leaguePermissions.EditTeams || teamPermissions.Information, nil
 		case Delete:
 			return admin, nil
 		default:

@@ -36,9 +36,6 @@ type LeaguesDAO interface {
 	IsNameInUse(leagueId int, name string) (bool, error)
 	GetPublicLeagueList() ([]*League, error)
 
-	// Get Information About Entities in a League
-	//GetTeamSummary(leagueId int) ([]*TeamWithPlayers, error)
-
 	// Markdown
 	GetMarkdownFile(leagueId int) (string, error)
 	SetMarkdownFile(leagueId int, fileName string) error
@@ -62,10 +59,11 @@ type TeamsDAO interface {
 	UpdateTeam(teamId int, teamInformation TeamCore) error
 	UpdateTeamIcon(teamId int, small, large string) error
 	GetTeamInformation(teamId int) (*TeamWithPlayers, error)
+	GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error)
 
 	// Players
-	AddNewPlayer(leagueId int, playerInfo PlayerCore) (int, error)
-	RemovePlayer(playerId int) error
+	CreatePlayer(leagueId, teamId int, playerInfo PlayerCore) (int, error)
+	DeletePlayer(playerId int) error
 	UpdatePlayer(playerId int, playerInfo PlayerCore) error
 
 	// Get Information For Team and Player Management

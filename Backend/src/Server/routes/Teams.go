@@ -33,7 +33,7 @@ func getAllTeams() gin.HandlerFunc {
 	}
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setTeamPermissions
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getTeam
 func getTeamInfo() gin.HandlerFunc {
 	return endpoint{
 		Entity:     Team,

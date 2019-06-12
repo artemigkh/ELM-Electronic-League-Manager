@@ -134,19 +134,17 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamWithPlayers, error) {
 		Where("team.team_id = ?", teamId).
 		RunWith(db).Query()
 	if err != nil {
-		println("fail here")
 		return nil, err
 	}
 	return GetScannedTeamWithPlayers(rows)
 }
 
 func (d *PgTeamsDAO) GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error) {
-	var teams TeamWithPlayersArray
-	if err := ScanRows(getTeamWithPlayersSelector(), &teams); err != nil {
+	rows, err := getTeamWithPlayersSelector().RunWith(db).Query()
+	if err != nil {
 		return nil, err
 	}
-
-	return teams.rows, nil
+	return GetScannedAllTeamWithPlayers(rows)
 }
 
 // Players

@@ -16,7 +16,7 @@ func getAllGamesInLeague(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, games)
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getGameInfo
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getGame
 func getGameInformation() gin.HandlerFunc {
 	return endpoint{
 		Entity:     Game,

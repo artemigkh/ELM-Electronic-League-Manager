@@ -39,7 +39,7 @@ func storeUrlId(urlParam, storedName string) gin.HandlerFunc {
 }
 
 func storeTargetLeagueId() gin.HandlerFunc {
-	return storeUrlId("leagueId", "targetLeagueId")
+	return storeUrlId("leagueId", "leagueId")
 }
 
 func storeTargetUserId() gin.HandlerFunc {

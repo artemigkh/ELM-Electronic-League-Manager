@@ -106,7 +106,7 @@ paths:
     get:
       summary: Get User Information
       description: Get the information of the currently logged in user
-      operationId: getUserInfo
+      operationId: getUser
       tags:
         - user
       responses:
@@ -183,7 +183,7 @@ paths:
           description: Internal Server Error
     get:
       summary: Get League Information
-      operationId: getLeagueInfo
+      operationId: getLeague
       description: Get the information of the currently active league
       tags:
         - league-information
@@ -207,10 +207,10 @@ paths:
 
   /api/v1/leagues/markdown:
     put:
-      summary: Set League Markdown
+      summary: Update League Markdown
       description: Provide markdown as a string that describes the information
         and rules of the current league
-      operationId: setLeagueMd
+      operationId: updateLeagueMd
       tags:
         - league-manage
       requestBody:
@@ -286,9 +286,9 @@ paths:
 
   /api/v1/leagues/permissions/{userId}:
     put:
-      summary: Set League Permissions
+      summary: UPdate League Permissions
       description: Set specified users permissions in the active league
-      operationId: setLeaguePermissions
+      operationId: updateLeaguePermissions
       tags:
         - league-manage
       parameters:
@@ -448,7 +448,7 @@ paths:
   /api/v1/teams/{teamId}:
     get:
       summary: Get Team Info
-      operationId: getTeamInfo
+      operationId: getTeam
       description: returns the information of the team and all players on that team
       tags:
         - team
@@ -537,9 +537,9 @@ paths:
 
   /api/v1/teams/{teamId}/permissions/{userId}:
     put:
-      summary: Set Team Manager Permissions
-      description: Set specified users permissions in the specified team
-      operationId: setTeamPermissions
+      summary: Update Team Manager Permissions
+      description: Update specified users permissions in the specified team
+      operationId: updateTeamPermissions
       tags:
         - team
       parameters:
@@ -739,7 +739,7 @@ paths:
   /api/v1/games/{gameId}:
     get:
       summary: Get Game Info
-      operationId: getGameInfo
+      operationId: getGame
       tags:
         - game
       parameters:
@@ -1019,8 +1019,8 @@ paths:
         '500':
           description: Internal Server Error
     put:
-      summary: Edit Weekly Availability
-      operationId: editWeeklyAvailability
+      summary: Update Weekly Availability
+      operationId: updateWeeklyAvailability
       tags:
         - scheduling
       parameters:

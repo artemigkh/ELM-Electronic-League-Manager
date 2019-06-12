@@ -186,12 +186,20 @@ func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
 }
 
 func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
+	var teams []*TeamWithPlayers
+	getUniqueTeam := func(newTeam *TeamWithPlayers) *TeamWithPlayers {
+		for _, team := range teams {
+			if newTeam.TeamId == team.TeamId {
+				return team
+			}
+		}
+		teams = append(teams, newTeam)
+		return newTeam
+	}
+
 	defer rows.Close()
-
-	var teams []TeamWithPlayers
-	var team TeamWithPlayers
-
 	for rows.Next() {
+		var team TeamWithPlayers
 		var player Player
 		if err := rows.Scan(
 			&team.TeamId,
@@ -209,14 +217,16 @@ func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
 		); err != nil {
 			return nil, err
 		}
-		team.Players = append(team.Players, &player)
+
+		uniqueTeam := getUniqueTeam(&team)
+		uniqueTeam.Players = append(uniqueTeam.Players, &player)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return &team, nil
+	return teams, nil
 }
 
 func (r *TeamWithPlayersArray) Scan(rows *sql.Rows) error {

@@ -66,7 +66,7 @@ func updateLeagueInfo() gin.HandlerFunc {
 	}.createEndpointHandler()
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setLeagueMd
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateLeagueMd
 func setLeagueMarkdown() gin.HandlerFunc {
 	var markdown databaseAccess.Markdown
 	return endpoint{
@@ -132,31 +132,18 @@ func setActiveLeague() gin.HandlerFunc {
 		Entity:     League,
 		AccessType: View,
 		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, ElmSessions.SetActiveLeague(ctx, getTargetLeagueId(ctx))
+			return nil, ElmSessions.SetActiveLeague(ctx, getLeagueId(ctx))
 		},
 	}.createEndpointHandler()
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueInfo
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeague
 func getActiveLeagueInformation() gin.HandlerFunc {
 	return endpoint{
 		Entity:     League,
 		AccessType: View,
 		Core:       func(ctx *gin.Context) (interface{}, error) { return LeaguesDAO.GetLeagueInformation(getLeagueId(ctx)) },
 	}.createEndpointHandler()
-}
-func getActiveLeagueInformation_(ctx *gin.Context) {
-	hasPermissions, err := Access.League(databaseAccess.View, getLeagueId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	leagueInfo, err := LeaguesDAO.GetLeagueInformation(getLeagueId(ctx))
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.JSON(http.StatusOK, leagueInfo)
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/joinLeague
@@ -199,7 +186,7 @@ func getPublicLeagues(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, leagueList)
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setLeaguePermissions
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateLeaguePermissions
 func setLeaguePermissions() gin.HandlerFunc {
 	var permissions databaseAccess.LeaguePermissionsCore
 	return endpoint{
@@ -211,31 +198,6 @@ func setLeaguePermissions() gin.HandlerFunc {
 			return nil, LeaguesDAO.SetLeaguePermissions(getLeagueId(ctx), getTargetUserId(ctx), permissions)
 		},
 	}.createEndpointHandler()
-}
-
-func setLeaguePermissions_(ctx *gin.Context) {
-	hasPermissions, err := Access.League(databaseAccess.Edit, getLeagueId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	var permissions databaseAccess.LeaguePermissionsCore
-	if bindAndCheckErr(ctx, &permissions) {
-		return
-	}
-
-	valid, problem, err := permissions.Validate()
-	if dataInvalid(ctx, valid, problem, err) {
-		return
-	}
-
-	err = LeaguesDAO.SetLeaguePermissions(
-		getLeagueId(ctx), getTargetUserId(ctx), permissions)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.Status(http.StatusOK)
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueMd

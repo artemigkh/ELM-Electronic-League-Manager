@@ -1,0 +1,1582 @@
+openapi: 3.0.0
+
+info:
+  version: 1.0.0
+  title: ELM - Electronic League Manager
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: login
+    description: Endpoints for logging in and out
+
+  - name: user
+    description: Creation and information of users
+
+  - name: league-manage
+    description: Management of leagues
+
+  - name: league-interact
+    description: User interaction with leagues
+
+  - name: league-information
+    description: Get information about leagues
+
+  - name: team
+    description: Information about and management of teams and players
+
+  - name: game
+    description: Information about and management of games
+
+  - name: scheduling
+    description: Endpoints to manage availabilities and automatic schedule generation
+
+
+paths:
+  ##### login #####
+  /login:
+    post:
+      summary: Log in
+      operationId: login
+      tags:
+        - login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreationInformation'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+
+  /logout:
+    post:
+      summary: Log out
+      operationId: logout
+      tags:
+        - login
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+
+  ##### users #####
+  /api/v1/users:
+    post:
+      summary: Create a New User
+      operationId: createUser
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreationInformation'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get User Information
+      description: Get the information of the currently logged in user
+      operationId: getUser
+      tags:
+        - user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+  ##### leagues #####
+  /api/v1/leagues:
+    post:
+      summary: Create a New League
+      operationId: createLeague
+      tags:
+        - league-manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeagueCore'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeagueId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Update League Information
+      operationId: updateLeague
+      description: Updated the information of the currently active league
+      tags:
+        - league-manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeagueCore'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get League Information
+      operationId: getLeague
+      description: Get the information of the currently active league
+      tags:
+        - league-information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/League'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/leagues/markdown:
+    put:
+      summary: Update League Markdown
+      description: Provide markdown as a string that describes the information
+        and rules of the current league
+      operationId: updateLeagueMd
+      tags:
+        - league-manage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Markdown'
+      responses:
+        '200':
+          description: OK
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get League Markdown
+      operationId: getLeagueMd
+      description: Get the HTTP URL to the markdown with information
+        and rules for the currently active league
+      tags:
+        - league-information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Markdown'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/leagues/teamManagers:
+    get:
+      summary: Get League Team Managers
+      operationId: getLeagueTeamManagers
+      description: Get information about the managers of teams in this league
+      tags:
+        - league-manage
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfTeamsWithManagers'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/leagues/permissions/{userId}:
+    put:
+      summary: UPdate League Permissions
+      description: Set specified users permissions in the active league
+      operationId: updateLeaguePermissions
+      tags:
+        - league-manage
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user that permission change applies to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaguePermissionsCore'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/leagues/setActiveLeague/{leagueId}:
+    post:
+      summary: Set Active League
+      operationId: setActiveLeague
+      tags:
+        - league-interact
+      parameters:
+        - in: path
+          name: leagueId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the league to set as active
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/leagues/join:
+    post:
+      summary: Join League
+      operationId: joinLeague
+      description: Join the current active league as a manager
+      tags:
+        - league-interact
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/leagues/publicLeagues:
+    get:
+      summary: Get Public Leagues
+      operationId: getPublicLeagues
+      description: Get a list of publically viewable leagues
+      tags:
+        - league-information
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfLeagues'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  ##### teams #####
+  /api/v1/teams:
+    post:
+      summary: Create a New Team
+      operationId: createTeam
+      tags:
+        - team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamCore'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeamCoreWithIcon'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get All Teams in League
+      operationId: getLeagueTeams
+      description: Get a list of teams in the active league
+      tags:
+        - team
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfTeamsWithPlayers'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/teams/{teamId}:
+    get:
+      summary: Get Team Info
+      operationId: getTeam
+      description: returns the information of the team and all players on that team
+      tags:
+        - team
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team whos information to get
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamWithPlayers'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Update Team Information
+      operationId: updateTeam
+      tags:
+        - team
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team whos information to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamCore'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeamCoreWithIcon'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    delete:
+      summary: Delete Team
+      operationId: deleteTeam
+      description: Delete team with specified ID and all of its players.
+        Cannot be done if team has played games.
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team to delete
+      tags:
+        - team
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/teams/{teamId}/permissions/{userId}:
+    put:
+      summary: Update Team Manager Permissions
+      description: Update specified users permissions in the specified team
+      operationId: updateTeamPermissions
+      tags:
+        - team
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team that the manager belongs to
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the user whos permissions will be changed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamPermissionsCore'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/teams/{teamId}/players:
+    post:
+      summary: Create a New Player
+      operationId: createPlayer
+      tags:
+        - team
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team that the player will belong to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayerCore'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/teams/{teamId}/players/{playerId}:
+    put:
+      summary: Update Player Information
+      operationId: updatePlayer
+      tags:
+        - team
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team that the player belongs to
+        - in: path
+          name: playerId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the player whos information to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayerCore'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    delete:
+      summary: Delete Player
+      operationId: deletePlayer
+      tags:
+        - team
+      parameters:
+        - in: path
+          name: teamId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the team that the player belongs to
+        - in: path
+          name: playerId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the player to delete
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  ##### games #####
+  /api/v1/games:
+    post:
+      summary: Create a New Game
+      operationId: createGame
+      tags:
+        - game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCreationInformation'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get All Games in League
+      operationId: getLeagueGames
+      description: Get a list of games in the active league
+      tags:
+        - game
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfGames'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/games/{gameId}:
+    get:
+      summary: Get Game Info
+      operationId: getGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: gameId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the game whos information to get
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    delete:
+      summary: Delete a game
+      operationId: deleteGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: gameId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the game whos information to get
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/games/{gameId}/reschedule:
+    post:
+      summary: Reschedule Game
+      operationId: rescheduleGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: gameId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the game to reschedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameTime'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/games/{gameId}/report:
+    post:
+      summary: Report Game Outcome
+      operationId: reportGame
+      tags:
+        - game
+      parameters:
+        - in: path
+          name: gameId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the game whos outcome is being reported
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameResult'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  ##### Scheduling #####
+  /api/v1/availabilities:
+    post:
+      summary: New Availability
+      operationId: createAvailability
+      tags:
+        - scheduling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailabilityCore'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get Availabilities
+      operationId: getAvailabilities
+      description: Get all one time availabilities in this league
+      tags:
+        - scheduling
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfAvailabilities'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/availabilities/{availabilityId}:
+    delete:
+      summary: Delete Availability
+      operationId: deleteAvailability
+      tags:
+        - scheduling
+      parameters:
+        - in: path
+          name: availabilityId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the availability to delete
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/weeklyAvailabilities:
+    post:
+      summary: New Weekly Availability
+      operationId: createWeeklyAvailability
+      tags:
+        - scheduling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeeklyAvailabilityCore'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityId'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get WeeklyAvailabilities
+      operationId: getWeeklyAvailabilities
+      description: Get all one weekly availabilities in this league
+      tags:
+        - scheduling
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfWeeklyAvailabilities'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/weeklyAvailabilities/{availabilityId}:
+    delete:
+      summary: Delete Weekly Availability
+      operationId: deleteWeeklyAvailability
+      tags:
+        - scheduling
+      parameters:
+        - in: path
+          name: availabilityId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the availability to delete
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Update Weekly Availability
+      operationId: updateWeeklyAvailability
+      tags:
+        - scheduling
+      parameters:
+        - in: path
+          name: availabilityId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the availability to edit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeeklyAvailabilityCore'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/schedule:
+    post:
+      summary: Generate Schedule
+      operationId: generateSchedule
+      description: Generate a description for all the teams in this league
+        given the existing availabilities and parameters
+      tags:
+        - scheduling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchedulingParameters'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfGameCore'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    ##### Permissions #####
+    LeaguePermissionsCore:
+      type: object
+      required:
+        - administrator
+        - createTeams
+        - editTeams
+        - editGames
+      properties:
+        administrator:
+          type: boolean
+          description: True if this user has administrator priviliges in the active league
+        createTeams:
+          type: boolean
+          description: True if this user has permissions to create new teams
+        editTeams:
+          type: boolean
+          description: True if this user has permissions to edit any information in teams
+        editGames:
+          type: boolean
+          description: True if this user has permissions to reschedule games and report game results
+
+    TeamPermissionsCore:
+      type: object
+      required:
+        - administrator
+        - information
+        - games
+      properties:
+        administrator:
+          type: boolean
+          description: True if this user has administrator priviliges in the team
+        information:
+          type: boolean
+          description: True if this user has permissions to change information and players of the team
+        games:
+          type: boolean
+          description: True if this user has permissions to schedule, reschedule, and report games of this team
+
+    ##### Users #####
+    UserId:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: integer
+
+    UserCreationInformation:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+
+    UserCore:
+      type: object
+      properties:
+        userId:
+          type: integer
+        email:
+          type: string
+
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserCore'
+        - type: object
+          properties:
+            leaguePermissions:
+              $ref: '#/components/schemas/LeaguePermissionsCore'
+              description: The permissions this user has in the active league
+            teamPermissions:
+              $ref: '#/components/schemas/ArrayOfTeamPermissions'
+              description: The permissions this user has in all teams of the league
+
+    TeamManager:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/UserCore'
+        - $ref: '#/components/schemas/TeamPermissionsCore'
+
+    ArrayOfTeamManagers:
+      type: array
+      items:
+        $ref: '#/components/schemas/TeamManager'
+
+    TeamPermissions:
+      allOf:
+        - $ref: '#/components/schemas/TeamDisplay'
+        - $ref: '#/components/schemas/TeamPermissionsCore'
+
+    ArrayOfTeamPermissions:
+      type: array
+      items:
+        $ref: '#/components/schemas/TeamPermissions'
+
+    ##### Leagues #####
+    LeagueId:
+      type: object
+      required:
+        - leagueId
+      properties:
+        leagueId:
+          type: integer
+
+    LeagueCore:
+      type: object
+      required:
+        - name
+        - game
+        - publicView
+        - publicJoin
+        - signupStart
+        - signupEnd
+        - leagueStart
+        - leagueEnd
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 500
+        game:
+          type: string
+          enum:
+            - genericsport
+            - basketball
+            - curling
+            - football
+            - hockey
+            - rugby
+            - soccer
+            - volleyball
+            - waterpolo
+            - genericesport
+            - csgo
+            - leagueoflegends
+            - overwatch
+        publicView:
+          type: boolean
+          description: true if this league can be viewed by the public
+        publicJoin:
+          type: boolean
+          description: true if this league can be joined by anyone from the public
+        signupStart:
+          type: integer
+          description: Beginning of the signup period in seconds since unix epoch
+        signupEnd:
+          type: integer
+          description: End of the signup period in seconds since unix epoch
+        leagueStart:
+          type: integer
+          description: Start of the competition period in seconds since unix epoch
+        leagueEnd:
+          type: integer
+          description: End of the competition period in seconds since unix epoch
+
+    League:
+      allOf:
+        - $ref: '#/components/schemas/LeagueId'
+        - $ref: '#/components/schemas/LeagueCore'
+
+    ArrayOfLeagues:
+      type: array
+      items:
+        $ref: '#/components/schemas/League'
+
+    ##### Teams #####
+    TeamId:
+      type: object
+      required:
+        - teamId
+      properties:
+        teamId:
+          type: integer
+
+    TeamCore:
+      type: object
+      required:
+        - name
+        - tag
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        description:
+          type: string
+          maxLength: 500
+        tag:
+          type: string
+          minLength: 2
+          maxLength: 5
+
+    TeamCoreWithIcon:
+      allOf:
+        - $ref: '#/components/schemas/TeamCore'
+        - type: object
+          properties:
+            icon:
+              type: string
+              format: binary
+
+    TeamDisplay:
+      type: object
+      properties:
+        teamId:
+          type: integer
+        name:
+          type: string
+        tag:
+          type: string
+        iconSmall:
+          type: string
+
+    Team:
+      allOf:
+        - $ref: '#/components/schemas/TeamId'
+        - $ref: '#/components/schemas/TeamCore'
+        - type: object
+          properties:
+            iconSmall:
+              type: string
+            iconLarge:
+              type: string
+            wins:
+              type: integer
+            losses:
+              type: integer
+
+    TeamWithPlayers:
+      allOf:
+        - $ref: '#/components/schemas/Team'
+        - type: object
+          properties:
+            players:
+              $ref: '#/components/schemas/ArrayOfPlayers'
+
+    ArrayOfTeamsWithPlayers:
+      type: array
+      items:
+        $ref: '#/components/schemas/TeamWithPlayers'
+
+    TeamWithManagers:
+      allOf:
+        - $ref: '#/components/schemas/TeamDisplay'
+        - type: object
+          properties:
+            managers:
+              $ref: '#/components/schemas/ArrayOfTeamManagers'
+
+    ArrayOfTeamsWithManagers:
+      type: array
+      items:
+        $ref: '#/components/schemas/TeamWithManagers'
+
+    ##### Players #####
+    PlayerId:
+      type: object
+      required:
+       - playerId
+      properties:
+        playerId:
+          type: integer
+
+    PlayerCore:
+      type: object
+      required:
+        - gameIdentifier
+        - mainRoster
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        gameIdentifier:
+          type: string
+          minLength: 2
+          maxLength: 50
+        mainRoster:
+          type: boolean
+
+    Player:
+      allOf:
+        - $ref: '#/components/schemas/PlayerId'
+        - $ref: '#/components/schemas/PlayerCore'
+
+    ArrayOfPlayers:
+      type: array
+      items:
+        $ref: '#/components/schemas/Player'
+
+    ##### Games #####
+    GameId:
+      type: object
+      required:
+        - gameId
+      properties:
+        gameId:
+          type: integer
+
+    GameCreationInformation:
+      type: object
+      required:
+        - team1Id
+        - team2Id
+        - gameTime
+      properties:
+        team1Id:
+          type: integer
+        team2Id:
+          type: integer
+        gameTime:
+          type: integer
+          description: The start time of the game in seconds since unix epoch
+
+    GameResult:
+      type: object
+      required:
+        - winnerId
+        - loserId
+        - scoreTeam1
+        - scoreTeam2
+      properties:
+        winnerId:
+          type: integer
+        loserId:
+          type: integer
+        scoreTeam1:
+          type: integer
+        scoreTeam2:
+          type: integer
+
+    GameCore:
+      type: object
+      properties:
+        gameTime:
+          type: integer
+          description: The start time of the game in seconds since unix epoch
+        team1:
+          $ref: '#/components/schemas/TeamDisplay'
+        team2:
+          $ref: '#/components/schemas/TeamDisplay'
+
+    ArrayOfGameCore:
+      type: array
+      items:
+        $ref: '#/components/schemas/GameCore'
+
+    Game:
+      allOf:
+        - $ref: '#/components/schemas/GameId'
+        - type: object
+          properties:
+            complete:
+              type: boolean
+        - $ref: '#/components/schemas/GameCore'
+        - $ref: '#/components/schemas/GameResult'
+
+    ArrayOfGames:
+      type: array
+      items:
+        $ref: '#/components/schemas/Game'
+
+    ##### Scheduling #####
+    AvailabilityId:
+      type: object
+      required:
+        - availabilityId
+      properties:
+        availabilityId:
+          type: integer
+
+    AvailabilityCore:
+      type: object
+      required:
+        - startTime
+        - endTime
+      properties:
+        startTime:
+          type: integer
+          description: The start time of the availability in seconds since unix epoch
+        endTime:
+          type: integer
+          description: The end time of the availability in seconds since unix epoch
+
+    Availability:
+      allOf:
+        - $ref: '#/components/schemas/AvailabilityId'
+        - $ref: '#/components/schemas/AvailabilityCore'
+
+    ArrayOfAvailabilities:
+      type: array
+      items:
+        $ref: '#/components/schemas/Availability'
+
+    WeeklyAvailabilityCore:
+      allOf:
+        - $ref: '#/components/schemas/AvailabilityCore'
+        - type: object
+          required:
+            - weekday
+            - timezone
+            - hour
+            - minute
+            - duration
+          properties:
+            weekday:
+              type: string
+              enum:
+                - sunday
+                - monday
+                - tuesday
+                - wednesday
+                - thursday
+                - friday
+                - saturday
+            timezone:
+              type: integer
+              description: timezone as offset in seconds east from UTC
+            hour:
+              type: integer
+            minute:
+              type: integer
+            duration:
+              type: integer
+
+    WeeklyAvailability:
+      allOf:
+        - $ref: '#/components/schemas/AvailabilityId'
+        - $ref: '#/components/schemas/WeeklyAvailabilityCore'
+
+    ArrayOfWeeklyAvailabilities:
+      type: array
+      items:
+        $ref: '#/components/schemas/WeeklyAvailability'
+
+    SchedulingParameters:
+      type: object
+      required:
+        - tournamentType
+        - roundsPerWeek
+        - concurrentGameNum
+        - gameDuration
+      properties:
+        tournamentType:
+          type: string
+          enum:
+            - roundrobin
+            - doubleroundrobin
+        roundsPerWeek:
+          type: integer
+          description: Where a round is when each team plays exactly once (or gets a bye)
+        concurrentGameNum:
+          type: integer
+          description: How many games can be scheduled that play at the same time
+        gameDuration:
+          type: integer
+          description: Duration of a game in minutes
+
+    ##### Misc #####
+    ErrorResponse:
+      type: object
+      properties:
+        errorDescription:
+          type:
+            string
+
+    Markdown:
+      type: object
+      properties:
+        markdown:
+          type: string
+          maxLength: 50000
+
+    GameTime:
+      type: object
+      required:
+        - gameTime
+      properties:
+        gameTime:
+          type: integer
+          description: The start time of the game in seconds since unix epoch

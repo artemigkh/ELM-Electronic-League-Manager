@@ -40,35 +40,64 @@ func (d *PgUsersDAO) GetAuthenticationInformation(email string) (*UserAuthentica
 		RunWith(db).QueryRow())
 }
 
-func (d *PgUsersDAO) GetPermissions(leagueId, userId int) (*UserPermissionsDTO, error) {
-	var userPermissions UserPermissionsDTO
-
+func getLeagueAndTeamPermissions(leagueId, teamId, userId int) (*LeaguePermissionsCore, *TeamPermissionsCore, error) {
 	leaguePermissions, err := getLeaguePermissions(leagueId, userId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	teamPermissions, err := teamsDAO.GetTeamPermissions(teamId, userId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return leaguePermissions, teamPermissions, nil
+}
+
+//
+//func (d *PgUsersDAO) GetPermissions(leagueId, userId int) (*UserPermissionsDTO, error) {
+//	var userPermissions UserPermissionsDTO
+//
+//	leaguePermissions, err := getLeaguePermissions(leagueId, userId)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	var teamPermissions TeamPermissionsDTOArray
+//	if err := ScanRows(psql.Select(
+//		"administrator",
+//		"information",
+//		"players",
+//		"report_results",
+//	).
+//		From("team_permissions").
+//		Where("user_id = ?", userId), &teamPermissions); err != nil {
+//		return nil, err
+//	}
+//
+//	userPermissions.LeaguePermissions = leaguePermissions
+//	userPermissions.TeamPermissions = teamPermissions.rows
+//	return &userPermissions, nil
+//}
+
+func (d *PgUsersDAO) GetUserProfile(leagueId, userId int) (*User, error) {
+	user, err := GetScannedUser(getUserSelector().
+		Where("league_id = ? AND user_.user_id = ?", leagueId, userId).RunWith(db).QueryRow())
 	if err != nil {
 		return nil, err
 	}
 
-	var teamPermissions TeamPermissionsDTOArray
-	if err := ScanRows(psql.Select(
-		"administrator",
-		"information",
-		"players",
-		"report_results",
-	).
-		From("team_permissions").
-		Where("user_id = ?", userId), &teamPermissions); err != nil {
+	var teamPermissions TeamPermissionsArray
+	if err := ScanRows(getTeamPermissionsSelector().
+		Where("team.league_id = ? AND user_.user_id = ", leagueId, userId), &teamPermissions); err != nil {
 		return nil, err
 	}
+	user.TeamPermissions = teamPermissions.rows
 
-	userPermissions.LeaguePermissions = leaguePermissions
-	userPermissions.TeamPermissions = teamPermissions.rows
-	return &userPermissions, nil
-}
-
-func (d *PgUsersDAO) GetUserProfile(userId int) (*UserDTO, error) {
-	return GetScannedUserDTO(psql.Select(
-		"id, email").
-		From("user_").
-		Where("user_id = ?", userId).
-		RunWith(db).QueryRow())
+	return &User{
+		UserId:            userId,
+		Email:             "",
+		LeaguePermissions: LeaguePermissionsCore{},
+		TeamPermissions:   nil,
+	}, nil
 }

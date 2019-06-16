@@ -95,13 +95,11 @@ RETURNS INT AS $$
       team_id,
 			administrator,
 			information,
-			players,
-			report_results
+			games
     )
     VALUES(
       user_id,
       currval('team_id_seq'),
-      true,
       true,
       true,
       true
@@ -123,11 +121,11 @@ RETURNS VOID AS $$
   BEGIN
     UPDATE game SET
       complete = TRUE,
-      winner_id = winner_id,
-      loser_id = loser_id,
-      score_team1 = score_team1,
-      score_team2 = score_team2
-    WHERE game_id = game_id;
+      winner_id = report_game.winner_id,
+      loser_id = report_game.loser_id,
+      score_team1 = report_game.score_team1,
+      score_team2 = report_game.score_team2
+    WHERE game.game_id = report_game.game_id;
 
     UPDATE team
       SET wins = wins + 1
@@ -139,26 +137,3 @@ RETURNS VOID AS $$
   END;
 $$ LANGUAGE plpgsql;
 
-
-SELECT create_team(
-  8,
-  'test team name',
-  'tag',
-  'test description',
-  'smallabc',
-  'largeabc',
-  1
-);
-
-
-SELECT create_league(
-  'new_league_name_2',
-  'description',
-  true,
-  true,
-  0,
-  0,
-  0,
-  0,
-  'genericsport'
-);

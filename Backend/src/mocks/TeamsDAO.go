@@ -10,20 +10,20 @@ type TeamsDAO struct {
 	mock.Mock
 }
 
-// AddNewPlayer provides a mock function with given fields: teamId, gameIdentifier, name, externalId, position, mainRoster
-func (_m *TeamsDAO) AddNewPlayer(teamId int, gameIdentifier string, name string, externalId string, position string, mainRoster bool) (int, error) {
-	ret := _m.Called(teamId, gameIdentifier, name, externalId, position, mainRoster)
+// CreatePlayer provides a mock function with given fields: leagueId, playerInfo
+func (_m *TeamsDAO) AddNewPlayer(leagueId int, playerInfo databaseAccess.PlayerCore) (int, error) {
+	ret := _m.Called(leagueId, playerInfo)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, string, string, string, string, bool) int); ok {
-		r0 = rf(teamId, gameIdentifier, name, externalId, position, mainRoster)
+	if rf, ok := ret.Get(0).(func(int, databaseAccess.PlayerCore) int); ok {
+		r0 = rf(leagueId, playerInfo)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, string, string, string, string, bool) error); ok {
-		r1 = rf(teamId, gameIdentifier, name, externalId, position, mainRoster)
+	if rf, ok := ret.Get(1).(func(int, databaseAccess.PlayerCore) error); ok {
+		r1 = rf(leagueId, playerInfo)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -31,13 +31,13 @@ func (_m *TeamsDAO) AddNewPlayer(teamId int, gameIdentifier string, name string,
 	return r0, r1
 }
 
-// ChangeManagerPermissions provides a mock function with given fields: teamId, userId, administrator, information, players, reportResults
-func (_m *TeamsDAO) ChangeManagerPermissions(teamId int, userId int, administrator bool, information bool, players bool, reportResults bool) error {
-	ret := _m.Called(teamId, userId, administrator, information, players, reportResults)
+// ChangeManagerPermissions provides a mock function with given fields: teamId, userId, teamPermissionInformation
+func (_m *TeamsDAO) ChangeManagerPermissions(teamId int, userId int, teamPermissionInformation databaseAccess.TeamPermissionsCore) error {
+	ret := _m.Called(teamId, userId, teamPermissionInformation)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, bool, bool, bool, bool) error); ok {
-		r0 = rf(teamId, userId, administrator, information, players, reportResults)
+	if rf, ok := ret.Get(0).(func(int, int, databaseAccess.TeamPermissionsCore) error); ok {
+		r0 = rf(teamId, userId, teamPermissionInformation)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -45,20 +45,20 @@ func (_m *TeamsDAO) ChangeManagerPermissions(teamId int, userId int, administrat
 	return r0
 }
 
-// CreateTeam provides a mock function with given fields: leagueId, userId, name, tag, description
-func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, name string, tag string, description string) (int, error) {
-	ret := _m.Called(leagueId, userId, name, tag, description)
+// CreateTeam provides a mock function with given fields: leagueId, userId, teamInfo
+func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, teamInfo databaseAccess.TeamCore) (int, error) {
+	ret := _m.Called(leagueId, userId, teamInfo)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, string, string, string) int); ok {
-		r0 = rf(leagueId, userId, name, tag, description)
+	if rf, ok := ret.Get(0).(func(int, int, databaseAccess.TeamCore) int); ok {
+		r0 = rf(leagueId, userId, teamInfo)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, string, string, string) error); ok {
-		r1 = rf(leagueId, userId, name, tag, description)
+	if rf, ok := ret.Get(1).(func(int, int, databaseAccess.TeamCore) error); ok {
+		r1 = rf(leagueId, userId, teamInfo)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -66,20 +66,20 @@ func (_m *TeamsDAO) CreateTeam(leagueId int, userId int, name string, tag string
 	return r0, r1
 }
 
-// CreateTeamWithIcon provides a mock function with given fields: leagueId, userId, name, tag, description, small, large
-func (_m *TeamsDAO) CreateTeamWithIcon(leagueId int, userId int, name string, tag string, description string, small string, large string) (int, error) {
-	ret := _m.Called(leagueId, userId, name, tag, description, small, large)
+// CreateTeamWithIcon provides a mock function with given fields: leagueId, userId, teamInfo, iconSmall, iconLarge
+func (_m *TeamsDAO) CreateTeamWithIcon(leagueId int, userId int, teamInfo databaseAccess.TeamCore, iconSmall string, iconLarge string) (int, error) {
+	ret := _m.Called(leagueId, userId, teamInfo, iconSmall, iconLarge)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(int, int, string, string, string, string, string) int); ok {
-		r0 = rf(leagueId, userId, name, tag, description, small, large)
+	if rf, ok := ret.Get(0).(func(int, int, databaseAccess.TeamCore, string, string) int); ok {
+		r0 = rf(leagueId, userId, teamInfo, iconSmall, iconLarge)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int, string, string, string, string, string) error); ok {
-		r1 = rf(leagueId, userId, name, tag, description, small, large)
+	if rf, ok := ret.Get(1).(func(int, int, databaseAccess.TeamCore, string, string) error); ok {
+		r1 = rf(leagueId, userId, teamInfo, iconSmall, iconLarge)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -87,13 +87,13 @@ func (_m *TeamsDAO) CreateTeamWithIcon(leagueId int, userId int, name string, ta
 	return r0, r1
 }
 
-// DeleteTeam provides a mock function with given fields: leagueId, teamId
-func (_m *TeamsDAO) DeleteTeam(leagueId int, teamId int) error {
-	ret := _m.Called(leagueId, teamId)
+// DeleteTeam provides a mock function with given fields: teamId
+func (_m *TeamsDAO) DeleteTeam(teamId int) error {
+	ret := _m.Called(teamId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(leagueId, teamId)
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(teamId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -102,7 +102,7 @@ func (_m *TeamsDAO) DeleteTeam(leagueId int, teamId int) error {
 }
 
 // DoesPlayerExistInTeam provides a mock function with given fields: teamId, playerId
-func (_m *TeamsDAO) DoesPlayerExist(teamId int, playerId int) (bool, error) {
+func (_m *TeamsDAO) DoesPlayerExistInTeam(teamId int, playerId int) (bool, error) {
 	ret := _m.Called(teamId, playerId)
 
 	var r0 bool
@@ -123,7 +123,7 @@ func (_m *TeamsDAO) DoesPlayerExist(teamId int, playerId int) (bool, error) {
 }
 
 // DoesTeamExistInLeague provides a mock function with given fields: leagueId, teamId
-func (_m *TeamsDAO) DoesTeamExist(leagueId int, teamId int) (bool, error) {
+func (_m *TeamsDAO) DoesTeamExistInLeague(leagueId int, teamId int) (bool, error) {
 	ret := _m.Called(leagueId, teamId)
 
 	var r0 bool
@@ -143,22 +143,22 @@ func (_m *TeamsDAO) DoesTeamExist(leagueId int, teamId int) (bool, error) {
 	return r0, r1
 }
 
-// GetTeamInformation provides a mock function with given fields: leagueId, teamId
-func (_m *TeamsDAO) GetTeamInformation(leagueId int, teamId int) (*databaseAccess.TeamInformation, error) {
-	ret := _m.Called(leagueId, teamId)
+// GetTeamInformation provides a mock function with given fields: teamId
+func (_m *TeamsDAO) GetTeamInformation(teamId int) (*databaseAccess.TeamWithPlayers, error) {
+	ret := _m.Called(teamId)
 
-	var r0 *databaseAccess.TeamInformation
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.TeamInformation); ok {
-		r0 = rf(leagueId, teamId)
+	var r0 *databaseAccess.TeamWithPlayers
+	if rf, ok := ret.Get(0).(func(int) *databaseAccess.TeamWithPlayers); ok {
+		r0 = rf(teamId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.TeamInformation)
+			r0 = ret.Get(0).(*databaseAccess.TeamWithPlayers)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(leagueId, teamId)
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(teamId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -167,15 +167,15 @@ func (_m *TeamsDAO) GetTeamInformation(leagueId int, teamId int) (*databaseAcces
 }
 
 // GetTeamPermissions provides a mock function with given fields: teamId, userId
-func (_m *TeamsDAO) GetTeamPermissions(teamId int, userId int) (*databaseAccess.TeamPermissions, error) {
+func (_m *TeamsDAO) GetTeamPermissions(teamId int, userId int) (*databaseAccess.TeamPermissionsCore, error) {
 	ret := _m.Called(teamId, userId)
 
-	var r0 *databaseAccess.TeamPermissions
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.TeamPermissions); ok {
+	var r0 *databaseAccess.TeamPermissionsCore
+	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.TeamPermissionsCore); ok {
 		r0 = rf(teamId, userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.TeamPermissions)
+			r0 = ret.Get(0).(*databaseAccess.TeamPermissionsCore)
 		}
 	}
 
@@ -238,13 +238,13 @@ func (_m *TeamsDAO) IsTeamActive(leagueId int, teamId int) (bool, error) {
 	return r0, r1
 }
 
-// RemovePlayer provides a mock function with given fields: teamId, playerId
-func (_m *TeamsDAO) RemovePlayer(teamId int, playerId int) error {
-	ret := _m.Called(teamId, playerId)
+// DeletePlayer provides a mock function with given fields: playerId
+func (_m *TeamsDAO) RemovePlayer(playerId int) error {
+	ret := _m.Called(playerId)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(teamId, playerId)
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(playerId)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -252,13 +252,13 @@ func (_m *TeamsDAO) RemovePlayer(teamId int, playerId int) error {
 	return r0
 }
 
-// UpdatePlayer provides a mock function with given fields: teamId, playerId, gameIdentifier, name, externalId, position, mainRoster
-func (_m *TeamsDAO) UpdatePlayer(teamId int, playerId int, gameIdentifier string, name string, externalId string, position string, mainRoster bool) error {
-	ret := _m.Called(teamId, playerId, gameIdentifier, name, externalId, position, mainRoster)
+// UpdatePlayer provides a mock function with given fields: playerId, playerInfo
+func (_m *TeamsDAO) UpdatePlayer(playerId int, playerInfo databaseAccess.PlayerCore) error {
+	ret := _m.Called(playerId, playerInfo)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, string, string, string, string, bool) error); ok {
-		r0 = rf(teamId, playerId, gameIdentifier, name, externalId, position, mainRoster)
+	if rf, ok := ret.Get(0).(func(int, databaseAccess.PlayerCore) error); ok {
+		r0 = rf(playerId, playerInfo)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -266,13 +266,13 @@ func (_m *TeamsDAO) UpdatePlayer(teamId int, playerId int, gameIdentifier string
 	return r0
 }
 
-// UpdateTeam provides a mock function with given fields: leagueId, teamId, name, tag, description
-func (_m *TeamsDAO) UpdateTeam(leagueId int, teamId int, name string, tag string, description string) error {
-	ret := _m.Called(leagueId, teamId, name, tag, description)
+// UpdateTeam provides a mock function with given fields: teamId, teamInformation
+func (_m *TeamsDAO) UpdateTeam(teamId int, teamInformation databaseAccess.TeamCore) error {
+	ret := _m.Called(teamId, teamInformation)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, string, string, string) error); ok {
-		r0 = rf(leagueId, teamId, name, tag, description)
+	if rf, ok := ret.Get(0).(func(int, databaseAccess.TeamCore) error); ok {
+		r0 = rf(teamId, teamInformation)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -280,13 +280,13 @@ func (_m *TeamsDAO) UpdateTeam(leagueId int, teamId int, name string, tag string
 	return r0
 }
 
-// UpdateTeamIcon provides a mock function with given fields: leagueId, teamId, small, large
-func (_m *TeamsDAO) UpdateTeamIcon(leagueId int, teamId int, small string, large string) error {
-	ret := _m.Called(leagueId, teamId, small, large)
+// UpdateTeamIcon provides a mock function with given fields: teamId, small, large
+func (_m *TeamsDAO) UpdateTeamIcon(teamId int, small string, large string) error {
+	ret := _m.Called(teamId, small, large)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, string, string) error); ok {
-		r0 = rf(leagueId, teamId, small, large)
+	if rf, ok := ret.Get(0).(func(int, string, string) error); ok {
+		r0 = rf(teamId, small, large)
 	} else {
 		r0 = ret.Error(0)
 	}

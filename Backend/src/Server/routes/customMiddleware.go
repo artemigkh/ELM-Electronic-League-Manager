@@ -57,3 +57,7 @@ func storeTeamId() gin.HandlerFunc {
 func storePlayerId() gin.HandlerFunc {
 	return storeUrlId("playerId", "playerId")
 }
+
+func storeAvailabilityId() gin.HandlerFunc {
+	return storeUrlId("availabilityId", "availabilityId")
+}

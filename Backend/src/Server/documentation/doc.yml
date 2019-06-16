@@ -404,6 +404,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TeamCore'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeamCoreWithIcon'
       responses:
         '201':
           description: Created
@@ -494,6 +497,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TeamCore'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeamCoreWithIcon'
       responses:
         '200':
           description: OK
@@ -1089,16 +1095,16 @@ components:
       type: object
       required:
         - administrator
-        - createGames
+        - createTeams
         - editTeams
         - editGames
       properties:
         administrator:
           type: boolean
           description: True if this user has administrator priviliges in the active league
-        createGames:
+        createTeams:
           type: boolean
-          description: True if this user has permissions to create new games
+          description: True if this user has permissions to create new teams
         editTeams:
           type: boolean
           description: True if this user has permissions to edit any information in teams
@@ -1284,6 +1290,15 @@ components:
           type: string
           minLength: 2
           maxLength: 5
+
+    TeamCoreWithIcon:
+      allOf:
+        - $ref: '#/components/schemas/TeamCore'
+        - type: object
+          properties:
+            icon:
+              type: string
+              format: binary
 
     TeamDisplay:
       type: object

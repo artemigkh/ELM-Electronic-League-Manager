@@ -15,7 +15,7 @@ type UsersDAO interface {
 	CreateUser(email, salt, hash string) error
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (*UserAuthenticationDTO, error)
-	GetUserProfile(userId int) (*User, error)
+	GetUserProfile(leagueId, userId int) (*User, error)
 }
 
 type LeaguesDAO interface {
@@ -43,12 +43,14 @@ type LeaguesDAO interface {
 	// Availabilities
 	AddAvailability(leagueId int, availability AvailabilityCore) (int, error)
 	GetAvailabilities(leagueId int) ([]*Availability, error)
-	DeleteAvailability(leagueId, availabilityId int) error
+	DeleteAvailability(availabilityId int) error
 
 	AddWeeklyAvailability(leagueId int, availability WeeklyAvailabilityCore) (int, error)
 	GetWeeklyAvailabilities(leagueId int) ([]*WeeklyAvailability, error)
-	EditWeeklyAvailability(leagueId, availabilityId int, availability WeeklyAvailabilityCore) (int, error)
-	DeleteWeeklyAvailability(leagueId, availabilityId int) error
+	EditWeeklyAvailability(availabilityId int, availability WeeklyAvailabilityCore) error
+	DeleteWeeklyAvailability(availabilityId int) error
+
+	GenerateSchedule(leagueId int, schedulingParameters SchedulingParameters) ([]*GameCore, error)
 }
 
 type TeamsDAO interface {
@@ -60,6 +62,7 @@ type TeamsDAO interface {
 	UpdateTeamIcon(teamId int, small, large string) error
 	GetTeamInformation(teamId int) (*TeamWithPlayers, error)
 	GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error)
+	GetAllTeamDisplaysInLeague(leagueId int) ([]*TeamDisplay, error)
 
 	// Players
 	CreatePlayer(leagueId, teamId int, playerInfo PlayerCore) (int, error)

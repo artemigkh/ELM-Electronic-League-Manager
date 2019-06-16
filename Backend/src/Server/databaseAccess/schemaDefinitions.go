@@ -34,7 +34,7 @@ type User struct {
 	UserId            int                   `json:"userId"`
 	Email             string                `json:"email"`
 	LeaguePermissions LeaguePermissionsCore `json:"leaguePermissions"`
-	TeamPermissions   []TeamPermissions     `json:"teamPermissions"`
+	TeamPermissions   []*TeamPermissions    `json:"teamPermissions"`
 }
 
 type TeamManager struct {
@@ -198,8 +198,4 @@ type SchedulingParameters struct {
 // Misc
 type Markdown struct {
 	Markdown string `json:"markdown"`
-}
-
-func thing() {
-
 }

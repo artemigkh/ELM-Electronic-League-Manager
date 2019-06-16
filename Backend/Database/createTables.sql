@@ -116,7 +116,7 @@ ALTER SEQUENCE availability_id_seq OWNED BY availability.availability_id;
 DROP TABLE IF EXISTS weekly_recurrence CASCADE;
 CREATE TABLE weekly_recurrence (
   availability_id           INT           NOT NULL REFERENCES availability(availability_id),
-  weekday                   SMALLINT      NOT NULL                ,
+  weekday                   VARCHAR(9)    NOT NULL                ,
   timezone                  INT           NOT NULL                ,
   hour                      SMALLINT      NOT NULL                ,
   minute                    SMALLINT      NOT NULL                ,

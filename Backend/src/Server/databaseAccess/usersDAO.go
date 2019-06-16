@@ -80,6 +80,24 @@ func getLeagueAndTeamPermissions(leagueId, teamId, userId int) (*LeaguePermissio
 //	return &userPermissions, nil
 //}
 
-func (d *PgUsersDAO) GetUserProfile(userId int) (*User, error) {
-	return nil, nil
+func (d *PgUsersDAO) GetUserProfile(leagueId, userId int) (*User, error) {
+	user, err := GetScannedUser(getUserSelector().
+		Where("league_id = ? AND user_.user_id = ?", leagueId, userId).RunWith(db).QueryRow())
+	if err != nil {
+		return nil, err
+	}
+
+	var teamPermissions TeamPermissionsArray
+	if err := ScanRows(getTeamPermissionsSelector().
+		Where("team.league_id = ? AND user_.user_id = ", leagueId, userId), &teamPermissions); err != nil {
+		return nil, err
+	}
+	user.TeamPermissions = teamPermissions.rows
+
+	return &User{
+		UserId:            userId,
+		Email:             "",
+		LeaguePermissions: LeaguePermissionsCore{},
+		TeamPermissions:   nil,
+	}, nil
 }

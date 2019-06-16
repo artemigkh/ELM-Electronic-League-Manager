@@ -52,23 +52,6 @@ func (user *UserCreationInformation) password() ValidateFunc {
 	}
 }
 
-type UserDTO struct {
-	UserId int    `json:"userId"`
-	Email  string `json:"email"`
-}
-
-func GetScannedUserDTO(rows squirrel.RowScanner) (*UserDTO, error) {
-	var user UserDTO
-	if err := rows.Scan(
-		&user.UserId,
-		&user.Email,
-	); err != nil {
-		return nil, err
-	} else {
-		return &user, nil
-	}
-}
-
 type UserAuthenticationDTO struct {
 	UserId int    `json:"userId"`
 	Salt   string `json:"salt"`
@@ -85,5 +68,37 @@ func GetScannedUserAuthenticationDTO(rows squirrel.RowScanner) (*UserAuthenticat
 		return nil, err
 	} else {
 		return &authenticationInformation, nil
+	}
+}
+
+// User
+func getUserSelector() squirrel.SelectBuilder {
+	return psql.Select(
+		"user_.user_id",
+		"user_.email",
+		"league_permissions.administrator",
+		"league_permissions.create_teams",
+		"league_permissions.edit_teams",
+		"league_permissions.edit_games",
+	).
+		From("user_").
+		Join("league_permissions ON user_.user_id = league_permissions.league_id")
+}
+
+func GetScannedUser(rows squirrel.RowScanner) (*User, error) {
+	var user User
+	var leaguePermissions LeaguePermissionsCore
+	if err := rows.Scan(
+		&user.UserId,
+		&user.Email,
+		&leaguePermissions.Administrator,
+		&leaguePermissions.CreateTeams,
+		&leaguePermissions.EditTeams,
+		&leaguePermissions.EditGames,
+	); err != nil {
+		return nil, err
+	} else {
+		user.LeaguePermissions = leaguePermissions
+		return &user, nil
 	}
 }

@@ -140,11 +140,22 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamWithPlayers, error) {
 }
 
 func (d *PgTeamsDAO) GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error) {
-	rows, err := getTeamWithPlayersSelector().RunWith(db).Query()
+	rows, err := getTeamWithPlayersSelector().
+		Where("team.league_id = ?", leagueId).RunWith(db).Query()
 	if err != nil {
 		return nil, err
 	}
 	return GetScannedAllTeamWithPlayers(rows)
+}
+
+func (d *PgTeamsDAO) GetAllTeamDisplaysInLeague(leagueId int) ([]*TeamDisplay, error) {
+	var teams TeamDisplayArray
+	if err := ScanRows(getTeamDisplaySelector().
+		Where("league_id = ?", leagueId), &teams); err != nil {
+		return nil, err
+	}
+
+	return teams.rows, nil
 }
 
 // Players
@@ -182,17 +193,14 @@ func (d *PgTeamsDAO) DeletePlayer(playerId int) error {
 }
 
 func (d *PgTeamsDAO) UpdatePlayer(playerId int, playerInfo PlayerCore) error {
-	//_, err := psql.Update("player").
-	//	Set("game_identifier", playerInfo.GameIdentifier).
-	//	Set("name", playerInfo.Name).
-	//	Set("external_id", playerInfo.ExternalId).
-	//	Set("position", playerInfo.Position).
-	//	Set("main_roster", playerInfo.MainRoster).
-	//	Where("player_id = ?", playerInfo.Id).
-	//	RunWith(db).Exec()
-	//
-	//return err
-	return nil
+	_, err := psql.Update("player").
+		Set("game_identifier", playerInfo.GameIdentifier).
+		Set("name", playerInfo.Name).
+		Set("main_roster", playerInfo.MainRoster).
+		Where("player_id = ?", playerId).
+		RunWith(db).Exec()
+
+	return err
 }
 
 // Get Information For Team and Player Management

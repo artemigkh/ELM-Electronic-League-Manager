@@ -128,6 +128,21 @@ func (r *TeamPermissionsCoreArray) Scan(rows *sql.Rows) error {
 	}
 }
 
+func (p *TeamPermissionsCore) Validate() (bool, string, error) {
+	return validate(p.consistent())
+}
+
+func (p *TeamPermissionsCore) consistent() ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		if (p.Information || p.Games) && p.Administrator {
+			*problemDest = AdminLackingPermissions
+			return false
+		} else {
+			return true
+		}
+	}
+}
+
 // TeamWithPlayers
 type TeamWithPlayersArray struct {
 	rows []*TeamWithPlayers
@@ -149,7 +164,7 @@ func getTeamWithPlayersSelector() squirrel.SelectBuilder {
 		"player.main_roster",
 	).
 		From("team").
-		Join("player ON team.team_id = player.team_id")
+		LeftJoin("player ON team.team_id = player.team_id")
 }
 
 func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
@@ -158,7 +173,12 @@ func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
 	var team TeamWithPlayers
 
 	for rows.Next() {
-		var player Player
+		var (
+			playerId             sql.NullInt64
+			playerName           sql.NullString
+			playerGameIdentifier sql.NullString
+			playerMainRoster     sql.NullBool
+		)
 		if err := rows.Scan(
 			&team.TeamId,
 			&team.Name,
@@ -168,14 +188,21 @@ func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
 			&team.IconLarge,
 			&team.Wins,
 			&team.Losses,
-			&player.PlayerId,
-			&player.Name,
-			&player.GameIdentifier,
-			&player.MainRoster,
+			&playerId,
+			&playerName,
+			&playerGameIdentifier,
+			&playerMainRoster,
 		); err != nil {
 			return nil, err
 		}
-		team.Players = append(team.Players, &player)
+		if playerId.Valid {
+			team.Players = append(team.Players, &Player{
+				PlayerId:       int(playerId.Int64),
+				Name:           playerName.String,
+				GameIdentifier: playerGameIdentifier.String,
+				MainRoster:     playerMainRoster.Bool,
+			})
+		}
 	}
 
 	if err := rows.Err(); err != nil {
@@ -200,7 +227,12 @@ func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var team TeamWithPlayers
-		var player Player
+		var (
+			playerId             sql.NullInt64
+			playerName           sql.NullString
+			playerGameIdentifier sql.NullString
+			playerMainRoster     sql.NullBool
+		)
 		if err := rows.Scan(
 			&team.TeamId,
 			&team.Name,
@@ -210,16 +242,23 @@ func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
 			&team.IconLarge,
 			&team.Wins,
 			&team.Losses,
-			&player.PlayerId,
-			&player.Name,
-			&player.GameIdentifier,
-			&player.MainRoster,
+			&playerId,
+			&playerName,
+			&playerGameIdentifier,
+			&playerMainRoster,
 		); err != nil {
 			return nil, err
 		}
 
 		uniqueTeam := getUniqueTeam(&team)
-		uniqueTeam.Players = append(uniqueTeam.Players, &player)
+		if playerId.Valid {
+			uniqueTeam.Players = append(uniqueTeam.Players, &Player{
+				PlayerId:       int(playerId.Int64),
+				Name:           playerName.String,
+				GameIdentifier: playerGameIdentifier.String,
+				MainRoster:     playerMainRoster.Bool,
+			}) // TODO: refactor this to not have dupe code with above
+		}
 	}
 
 	if err := rows.Err(); err != nil {
@@ -231,6 +270,90 @@ func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
 
 func (r *TeamWithPlayersArray) Scan(rows *sql.Rows) error {
 	row, err := GetScannedTeamWithPlayers(rows)
+	if err != nil {
+		return err
+	} else {
+		r.rows = append(r.rows, row)
+		return nil
+	}
+}
+
+// TeamDisplay
+type TeamDisplayArray struct {
+	rows []*TeamDisplay
+}
+
+func getTeamDisplaySelector() squirrel.SelectBuilder {
+	return psql.Select(
+		"team_id",
+		"name",
+		"tag",
+		"icon_small",
+	).From("team")
+}
+
+func GetScannedTeamDisplay(rows squirrel.RowScanner) (*TeamDisplay, error) {
+	var team TeamDisplay
+	if err := rows.Scan(
+		&team.TeamId,
+		&team.Name,
+		&team.Tag,
+		&team.IconSmall,
+	); err != nil {
+		return nil, err
+	} else {
+		return &team, nil
+	}
+}
+
+func (r *TeamDisplayArray) Scan(rows *sql.Rows) error {
+	row, err := GetScannedTeamDisplay(rows)
+	if err != nil {
+		return err
+	} else {
+		r.rows = append(r.rows, row)
+		return nil
+	}
+}
+
+// TeamPermissions
+func getTeamPermissionsSelector() squirrel.SelectBuilder {
+	return psql.Select(
+		"team.team_id",
+		"team.name",
+		"team.tag",
+		"team.icon_small",
+		"team_permissions.administrator",
+		"team_permissions.information",
+		"team_permissions.games",
+	).
+		From("team").
+		Join("team_permissions ON team.team_id = team_permissions.team_id")
+}
+
+type TeamPermissionsArray struct {
+	rows []*TeamPermissions
+}
+
+func GetScannedTeamPermissions(rows squirrel.RowScanner) (*TeamPermissions, error) {
+	var teamPermissions TeamPermissions
+	if err := rows.Scan(
+		&teamPermissions.TeamId,
+		&teamPermissions.Name,
+		&teamPermissions.Tag,
+		&teamPermissions.IconSmall,
+		&teamPermissions.Administrator,
+		&teamPermissions.Information,
+		&teamPermissions.Games,
+	); err != nil {
+		return nil, err
+	} else {
+		return &teamPermissions, nil
+	}
+}
+
+func (r *TeamPermissionsArray) Scan(rows *sql.Rows) error {
+	row, err := GetScannedTeamPermissions(rows)
 	if err != nil {
 		return err
 	} else {

@@ -36,7 +36,7 @@ func InitRoutes(conf config.Config) *gin.Engine {
 	RegisterLeagueHandlers(app.Group("/api/v1/leagues"))
 	RegisterTeamHandlers(app.Group("/api/v1/teams"))
 	RegisterGameHandlers(app.Group("/api/v1/games"))
-	//routes.RegisterSchedulingHandlers(app.Group("/api/v1/scheduling"))
+	RegisterSchedulingHandlers(app.Group("/api/v1"))
 	//
 	//routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/v1/league-of-legends"), conf)
 

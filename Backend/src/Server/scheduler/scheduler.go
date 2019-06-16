@@ -8,6 +8,14 @@ import (
 	"time"
 )
 
+func (s *Scheduler) GetTournamentFromString(tournament string) int {
+	return tournamentStringToEnum[tournament]
+}
+
+func (s *Scheduler) GetWeekdayFromString(weekday string) time.Weekday {
+	return weekdays[weekday]
+}
+
 func (s *Scheduler) InitScheduler(tournamentType, roundsPerWeek, concurrentGameNum int,
 	gameDuration time.Duration, start, end time.Time, teams []int) {
 
@@ -110,7 +118,7 @@ func (s *Scheduler) GetSchedule() ([]Game, error) {
 			for i, block := range s.gameBlocks {
 				if in(game.team1, block.teams) && in(game.team2, block.teams) {
 					scheduled = true
-					games = append(games, Game{game.team1, game.team2, block.Start.Unix()})
+					games = append(games, Game{game.team1, game.team2, int(block.Start.Unix())})
 					block.NumGames += 1
 
 					if block.NumGames >= s.concurrentGameNum {
@@ -156,7 +164,7 @@ func (s *Scheduler) GetSchedule() ([]Game, error) {
 						games = append(games, Game{
 							gameToSchedule.team1,
 							gameToSchedule.team2,
-							block.Start.Unix()})
+							int(block.Start.Unix())})
 						block.NumGames += 1
 
 						if block.NumGames >= s.concurrentGameNum {

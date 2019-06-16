@@ -59,6 +59,10 @@ func getPlayerId(ctx *gin.Context) int {
 	return ctx.GetInt("playerId")
 }
 
+func getAvailabilityId(ctx *gin.Context) int {
+	return ctx.GetInt("availabilityId")
+}
+
 // Each endpoint does a subset of the following:
 // 1. Check Permissions of logged in user against action
 // 2. Binds and validates input data
@@ -75,12 +79,13 @@ func getPlayerId(ctx *gin.Context) int {
 type Entity int
 
 const (
-	User   Entity = iota
-	League Entity = iota
-	Team   Entity = iota
-	Player Entity = iota
-	Game   Entity = iota
-	Report Entity = iota
+	User         Entity = iota
+	League       Entity = iota
+	Team         Entity = iota
+	Player       Entity = iota
+	Game         Entity = iota
+	Report       Entity = iota
+	Availability Entity = iota
 )
 
 const (
@@ -124,6 +129,11 @@ func HasPermissions(ctx *gin.Context, entity Entity, accessType databaseAccess.A
 		hasPermissions, err = Access.Game(accessType, leagueId, entityId, userId)
 	case Report:
 		hasPermissions, err = Access.Report(leagueId, getGameId(ctx), userId)
+	case Availability:
+		if accessType != Create {
+			entityId = getAvailabilityId(ctx)
+		}
+		hasPermissions, err = Access.Availability(accessType, leagueId, entityId, userId)
 	}
 
 	if err != nil {

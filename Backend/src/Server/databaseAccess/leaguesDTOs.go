@@ -50,60 +50,61 @@ func (r *SchedulingAvailabilityArray) Scan(rows *sql.Rows) error {
 	}
 }
 
-type ManagerDTO struct {
-	User        UserDTO             `json:"user"`
-	Permissions TeamPermissionsCore `json:"permissions"`
-}
-
-type TeamManagerDTO struct {
-	Team     *TeamDTO      `json:"team"`
-	Managers []*ManagerDTO `json:"managers"`
-}
-
-type TeamManagerDTOArray struct {
-	rows []*TeamManagerDTO
-}
-
-func (r *TeamManagerDTOArray) Scan(rows *sql.Rows) error {
-	var user UserDTO
-	var team TeamDTO
-	var teamPermissions TeamPermissionsCore
-
-	if err := rows.Scan(
-		&user.UserId,
-		&user.Email,
-		&team.Id,
-		&team.Name,
-		&team.Tag,
-		&team.Description,
-		&team.IconSmall,
-		&teamPermissions.Administrator,
-		&teamPermissions.Information,
-		&teamPermissions.Games,
-	); err != nil {
-		return err
-	}
-
-	var teamManagerInstance *TeamManagerDTO
-	exists := false
-	// get TeamManagerDTO instance to insert into if exists
-	for _, teamManager := range r.rows {
-		if teamManager.Team.Id == team.Id {
-			teamManagerInstance = teamManager
-			exists = true
-		}
-	}
-
-	if !exists {
-		teamManagerInstance.Team = &team
-		r.rows = append(r.rows, teamManagerInstance)
-	}
-
-	teamManagerInstance.Managers = append(teamManagerInstance.Managers,
-		&ManagerDTO{
-			User:        user,
-			Permissions: teamPermissions,
-		})
-
-	return nil
-}
+//
+//type ManagerDTO struct {
+//	User        UserDTO             `json:"user"`
+//	Permissions TeamPermissionsCore `json:"permissions"`
+//}
+//
+//type TeamManagerDTO struct {
+//	Team     *TeamDTO      `json:"team"`
+//	Managers []*ManagerDTO `json:"managers"`
+//}
+//
+//type TeamManagerDTOArray struct {
+//	rows []*TeamManagerDTO
+//}
+//
+//func (r *TeamManagerDTOArray) Scan(rows *sql.Rows) error {
+//	var user UserDTO
+//	var team TeamDTO
+//	var teamPermissions TeamPermissionsCore
+//
+//	if err := rows.Scan(
+//		&user.UserId,
+//		&user.Email,
+//		&team.Id,
+//		&team.Name,
+//		&team.Tag,
+//		&team.Description,
+//		&team.IconSmall,
+//		&teamPermissions.Administrator,
+//		&teamPermissions.Information,
+//		&teamPermissions.Games,
+//	); err != nil {
+//		return err
+//	}
+//
+//	var teamManagerInstance *TeamManagerDTO
+//	exists := false
+//	// get TeamManagerDTO instance to insert into if exists
+//	for _, teamManager := range r.rows {
+//		if teamManager.Team.Id == team.Id {
+//			teamManagerInstance = teamManager
+//			exists = true
+//		}
+//	}
+//
+//	if !exists {
+//		teamManagerInstance.Team = &team
+//		r.rows = append(r.rows, teamManagerInstance)
+//	}
+//
+//	teamManagerInstance.Managers = append(teamManagerInstance.Managers,
+//		&ManagerDTO{
+//			User:        user,
+//			Permissions: teamPermissions,
+//		})
+//
+//	return nil
+//}

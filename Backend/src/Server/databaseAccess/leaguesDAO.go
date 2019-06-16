@@ -165,11 +165,9 @@ func (d *PgLeaguesDAO) CanJoinLeague(leagueId, userId int) (bool, error) {
 // Get Information About Leagues
 
 func (d *PgLeaguesDAO) GetLeagueInformation(leagueId int) (*League, error) {
-	row := getLeagueSelector().
+	return GetScannedLeague(getLeagueSelector().
 		Where("league_id = ?", leagueId).
-		RunWith(db).QueryRow()
-
-	return GetScannedLeague(row)
+		RunWith(db).QueryRow())
 }
 
 func (d *PgLeaguesDAO) IsNameInUse(leagueId int, name string) (bool, error) {
@@ -219,118 +217,132 @@ func (d *PgLeaguesDAO) SetMarkdownFile(leagueId int, fileName string) error {
 
 // Availabilities
 func (d *PgLeaguesDAO) AddAvailability(leagueId int, availability AvailabilityCore) (int, error) {
-	return 0, nil
+	var availabilityId = -1
+	err := psql.Insert("availability").
+		Columns(
+			"league_id",
+			"start_time",
+			"end_time",
+			"is_recurring_weekly",
+		).
+		Values(
+			leagueId,
+			availability.StartTime,
+			availability.EndTime,
+			false,
+		).
+		Suffix("RETURNING \"availability_id\"").
+		RunWith(db).QueryRow().Scan(&availabilityId)
+
+	return availabilityId, err
 }
+
 func (d *PgLeaguesDAO) GetAvailabilities(leagueId int) ([]*Availability, error) {
-	return nil, nil
+	var availabilities AvailabilityArray
+	if err := ScanRows(getAvailabilitySelector(leagueId), &availabilities); err != nil {
+		return nil, err
+	}
+
+	return availabilities.rows, nil
 }
-func (d *PgLeaguesDAO) DeleteAvailability(leagueId, availabilityId int) error {
-	return nil
+func (d *PgLeaguesDAO) DeleteAvailability(availabilityId int) error {
+	_, err := psql.Delete("availability").
+		Where("availability_id = ?", availabilityId).
+		RunWith(db).Exec()
+	return err
 }
 
 func (d *PgLeaguesDAO) AddWeeklyAvailability(leagueId int, availability WeeklyAvailabilityCore) (int, error) {
-	return 0, nil
-}
-func (d *PgLeaguesDAO) GetWeeklyAvailabilities(leagueId int) ([]*WeeklyAvailability, error) {
-	return nil, nil
-}
-func (d *PgLeaguesDAO) EditWeeklyAvailability(leagueId, availabilityId int,
-	availability WeeklyAvailabilityCore) (int, error) {
-	return 0, nil
-}
-func (d *PgLeaguesDAO) DeleteWeeklyAvailability(leagueId, availabilityId int) error {
-	return nil
+	var availabilityId int
+	err := psql.Insert("availability").
+		Columns(
+			"league_id",
+			"start_time",
+			"end_time",
+			"is_recurring_weekly",
+		).
+		Values(
+			leagueId,
+			availability.StartTime,
+			availability.EndTime,
+			true,
+		).
+		Suffix("RETURNING \"availability_id\"").
+		RunWith(db).QueryRow().Scan(&availabilityId)
+	if err != nil {
+		return -1, err
+	}
+
+	_, err = psql.Insert("weekly_recurrence").
+		Columns(
+			"availability_id",
+			"weekday",
+			"timezone",
+			"hour",
+			"minute",
+			"duration",
+		).
+		Values(
+			availabilityId,
+			availability.Weekday,
+			availability.Timezone,
+			availability.Hour,
+			availability.Minute,
+			availability.Duration,
+		).
+		RunWith(db).Exec()
+	if err != nil {
+		return -1, err
+	}
+
+	return availabilityId, nil
 }
 
-//func (d *PgLeaguesDAO) AddRecurringAvailability(leagueId int, availability SchedulingAvailabilityDTO) (int, error) {
-//	var availabilityId = -1
-//	err := psql.Insert("league_recurring_availability").
-//		Columns(
-//			"league_id",
-//			"weekday",
-//			"timezone",
-//			"hour",
-//			"minute",
-//			"duration",
-//			"constrained",
-//			"start_time",
-//			"end_time",
-//		).
-//		Values(
-//			leagueId,
-//			availability.Weekday,
-//			availability.Timezone,
-//			availability.Hour,
-//			availability.Minute,
-//			availability.Duration,
-//			availability.Constrained,
-//			availability.Start,
-//			availability.End,
-//		).
-//		Suffix("RETURNING \"id\"").
-//		RunWith(db).QueryRow().Scan(&availabilityId)
-//
-//	return availabilityId, err
-//}
-//
-//func (d *PgLeaguesDAO) EditRecurringAvailability(availability SchedulingAvailabilityDTO) error {
-//	_, err := psql.Update("league_recurring_availability").
-//		Set("weekday", availability.Weekday).
-//		Set("timezone", availability.Timezone).
-//		Set("hour", availability.Hour).
-//		Set("minute", availability.Minute).
-//		Set("duration", availability.Duration).
-//		Set("constrained", availability.Constrained).
-//		Set("start_time", availability.Start).
-//		Set("end_time", availability.End).
-//		Where("recurring_availability_id = ?", availability.Id).
-//		RunWith(db).Exec()
-//
-//	return err
-//}
-//
-//func (d *PgLeaguesDAO) RemoveRecurringAvailabilities(availabilityId int) error {
-//	_, err := psql.Delete("league_recurring_availability").
-//		Where("recurring_availability_id = ?", availabilityId).
-//		RunWith(db).Exec()
-//	return err
-//}
-//
-//func (d *PgLeaguesDAO) GetSchedulingAvailability(availabilityId int) (*SchedulingAvailabilityDTO, error) {
-//	return GetScannedSchedulingAvailabilityDTO(
-//		psql.Select(
-//			"recurring_availability_id",
-//			"weekday",
-//			"timezone",
-//			"hour",
-//			"minute",
-//			"duration",
-//			"constrained",
-//			"start_time",
-//			"end_time",
-//		).
-//			From("league_recurring_availability").
-//			Where("recurring_availability_id = ?", availabilityId).
-//			RunWith(db).QueryRow())
-//}
-//
-//func (d *PgLeaguesDAO) GetSchedulingAvailabilities(leagueId int) ([]*SchedulingAvailabilityDTO, error) {
-//	var availabilities SchedulingAvailabilityArray
-//	if err := ScanRows(psql.Select(
-//		"recurring_availability_id",
-//		"weekday",
-//		"timezone",
-//		"hour",
-//		"minute",
-//		"duration",
-//		"constrained",
-//		"start_time",
-//		"end_time",
-//	).
-//		From("league_recurring_availability").
-//		Where("league_id = ?", leagueId), &availabilities); err != nil {
-//		return nil, err
-//	}
-//
-//	return availabilities.rows, nil
-//}
+func (d *PgLeaguesDAO) GetWeeklyAvailabilities(leagueId int) ([]*WeeklyAvailability, error) {
+	var availabilities WeeklyAvailabilityArray
+	if err := ScanRows(getWeeklyAvailabilitySelector(leagueId), &availabilities); err != nil {
+		return nil, err
+	}
+
+	return availabilities.rows, nil
+}
+
+func (d *PgLeaguesDAO) EditWeeklyAvailability(availabilityId int,
+	availability WeeklyAvailabilityCore) error {
+	_, err := psql.Update("availability").
+		Set("start_time", availability.StartTime).
+		Set("end_time", availability.EndTime).
+		Where("availability_id = ?", availabilityId).
+		RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
+	_, err = psql.Update("weekly_recurrence").
+		Set("weekday", availability.Weekday).
+		Set("timezone", availability.Timezone).
+		Set("hour", availability.Hour).
+		Set("minute", availability.Minute).
+		Set("duration", availability.Duration).
+		Where("availability_id = ?", availabilityId).
+		RunWith(db).Exec()
+	return err
+}
+
+func (d *PgLeaguesDAO) DeleteWeeklyAvailability(availabilityId int) error {
+	_, err := psql.Delete("weekly_recurrence").
+		Where("availability_id = ?", availabilityId).
+		RunWith(db).Exec()
+	if err != nil {
+		return err
+	}
+
+	_, err = psql.Delete("availability").
+		Where("availability_id = ?", availabilityId).
+		RunWith(db).Exec()
+	return err
+}
+
+func (d *PgLeaguesDAO) GenerateSchedule(leagueId int, schedulingParameters SchedulingParameters) ([]*GameCore, error) {
+	return nil, nil
+}

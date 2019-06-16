@@ -10,13 +10,31 @@ const (
 type Game struct {
 	Team1Id  int
 	Team2Id  int
-	GameTime int64
+	GameTime int
+}
+
+var tournamentStringToEnum = map[string]int{
+	"roundrobin":       RoundRobin,
+	"doubleroundrobin": DoubleRoundRobin,
+}
+
+var weekdays = map[string]time.Weekday{
+	"monday":    time.Monday,
+	"tuesday":   time.Tuesday,
+	"wednesday": time.Wednesday,
+	"thursday":  time.Thursday,
+	"friday":    time.Friday,
+	"saturday":  time.Saturday,
+	"sunday":    time.Sunday,
 }
 
 type IScheduler interface {
+	GetTournamentFromString(tournament string) int
+	GetWeekdayFromString(weekday string) time.Weekday
+
 	InitScheduler(tournamentType, roundsPerWeek, concurrentGameNum int, gameDuration time.Duration, start, end time.Time, teams []int)
 	AddWeeklyAvailability(dayOfWeek time.Weekday, hour, minute int, duration time.Duration)
-	GetSchedule() []Game
+	GetSchedule() ([]Game, error)
 }
 
 type GameBlock struct {

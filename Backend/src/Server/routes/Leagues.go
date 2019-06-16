@@ -6,14 +6,6 @@ import (
 	"net/http"
 )
 
-type LeaguePermissionChange struct {
-	Id            int  `json:"id"`
-	Administrator bool `json:"administrator"`
-	CreateTeams   bool `json:"createTeams"`
-	EditTeams     bool `json:"editTeams"`
-	EditGames     bool `json:"editGames"`
-}
-
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createLeague
 func createNewLeague() gin.HandlerFunc {
 	var league databaseAccess.LeagueCore
@@ -30,29 +22,6 @@ func createNewLeague() gin.HandlerFunc {
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateLeague
-func updateLeagueInfo_(ctx *gin.Context) {
-	hasPermissions, err := Access.League(databaseAccess.Edit, getLeagueId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	var league databaseAccess.LeagueCore
-	if bindAndCheckErr(ctx, &league) {
-		return
-	}
-
-	if validator.DataInvalid(ctx, func() (bool, string, error) { return league.ValidateEdit(getLeagueId(ctx)) }) {
-		return
-	}
-
-	err = LeaguesDAO.UpdateLeague(getLeagueId(ctx), league)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.Status(http.StatusOK)
-}
-
 func updateLeagueInfo() gin.HandlerFunc {
 	var league databaseAccess.LeagueCore
 	return endpoint{
@@ -88,41 +57,6 @@ func setLeagueMarkdown() gin.HandlerFunc {
 			return nil, LeaguesDAO.SetMarkdownFile(getLeagueId(ctx), fileName)
 		},
 	}.createEndpointHandler()
-}
-
-func setLeagueMarkdown_(ctx *gin.Context) {
-	hasPermissions, err := Access.League(databaseAccess.Edit, getLeagueId(ctx), getUserId(ctx))
-	if accessForbidden(ctx, hasPermissions, err) {
-		return
-	}
-
-	var md databaseAccess.Markdown
-	err = ctx.ShouldBindJSON(&md)
-	if checkJsonErr(ctx, err) {
-		return
-	}
-
-	valid, problem, err := md.Validate()
-	if dataInvalid(ctx, valid, problem, err) {
-		return
-	}
-
-	oldFile, err := LeaguesDAO.GetMarkdownFile(getLeagueId(ctx))
-	if checkErr(ctx, err) {
-		return
-	}
-
-	fileName, err := MarkdownManager.StoreMarkdown(md.Markdown, oldFile)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	err = LeaguesDAO.SetMarkdownFile(getLeagueId(ctx), fileName)
-	if checkErr(ctx, err) {
-		return
-	}
-
-	ctx.Status(http.StatusOK)
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setActiveLeague

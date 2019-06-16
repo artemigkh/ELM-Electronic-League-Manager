@@ -16,5 +16,6 @@ type Access interface {
 	Player(accessType AccessType, leagueId, teamId, playerId, userId int) (bool, error)
 	Game(accessType AccessType, leagueId, gameId, userId int) (bool, error)
 	Report(leagueId, gameId, userId int) (bool, error)
+	Availability(accessType AccessType, leagueId, availabilityId, userId int) (bool, error)
 }
 type AccessChecker struct{}

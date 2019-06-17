@@ -122,31 +122,43 @@ func (d *PgGamesDAO) GetAllGamesInLeague(leagueId int) ([]*Game, error) {
 	return games.rows, nil
 }
 
-// Get Information for Games Management
+func (d *PgGamesDAO) GetSortedGames(leagueId, teamId int) (*SortedGames, error) {
+	var games SortedGames
+	gameSelectorCompleted := getGameSelector()
+	gameSelectorUpcoming := getGameSelector()
 
-func getGamesOfTeam(teamId int) ([]*Game, error) {
-	//var games GameDTOArray
-	//if err := ScanRows(psql.Select(
-	//	"game_id",
-	//	"external_id",
-	//	"league_id",
-	//	"team1_id",
-	//	"team2_id",
-	//	"game_time",
-	//	"complete",
-	//	"winner_id",
-	//	"loser_id",
-	//	"score_team1",
-	//	"score_team2",
-	//).
-	//	From("game").
-	//	Where("team1_id = ? OR team2_id = ?", teamId, teamId), &games); err != nil {
-	//	return nil, err
-	//}
-	//
-	//return games.rows, nil
-	return nil, nil
+	if teamId == 0 {
+		gameSelectorCompleted = gameSelectorCompleted.
+			Where("game.league_id = ? AND game.complete = true", leagueId)
+		gameSelectorUpcoming = gameSelectorUpcoming.
+			Where("game.league_id = ? AND game.complete = false", leagueId)
+	} else {
+		gameSelectorCompleted = gameSelectorCompleted.
+			Where("game.league_id = ? AND game.complete = true AND "+
+				"(game.team1_id = ? OR game.team2_id = ?)", leagueId, teamId, teamId)
+		gameSelectorUpcoming = gameSelectorUpcoming.
+			Where("game.league_id = ? AND game.complete = false AND "+
+				"(game.team1_id = ? OR game.team2_id = ?)", leagueId, teamId, teamId)
+	}
+	gameSelectorCompleted = gameSelectorCompleted.OrderBy("game.game_time ASC")
+	gameSelectorUpcoming = gameSelectorUpcoming.OrderBy("game.game_time ASC")
+	var completedGames GameArray
+	if err := ScanRows(gameSelectorCompleted, &completedGames); err != nil {
+		return nil, err
+	}
+
+	var upcomingGames GameArray
+	if err := ScanRows(gameSelectorUpcoming, &upcomingGames); err != nil {
+		return nil, err
+	}
+
+	games.CompletedGames = completedGames.rows
+	games.UpcomingGames = upcomingGames.rows
+
+	return &games, nil
 }
+
+// Get Information for Games Management
 
 func (d *PgGamesDAO) DoesExistConflict(team1Id, team2Id, gameTime int) (bool, error) {
 	//check if any game of each team is within the threshold of another scheduled game

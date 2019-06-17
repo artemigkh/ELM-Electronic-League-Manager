@@ -90,6 +90,7 @@ type GamesDAO interface {
 
 	// Get Game Information
 	GetAllGamesInLeague(leagueId int) ([]*Game, error)
+	GetSortedGames(leagueId, teamId int) (*SortedGames, error)
 	GetGameInformation(gameId int) (*Game, error)
 	GetGameInformationFromExternalId(externalId string) (*Game, error)
 

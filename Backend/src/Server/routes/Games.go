@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueGames
@@ -15,6 +16,24 @@ func getAllGamesInLeague(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, games)
+}
+
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getSortedGames
+func getSortedGames() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		teamIdString := ctx.DefaultQuery("teamId", "0")
+		teamId, err := strconv.Atoi(teamIdString)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
+		}
+
+		games, err := GamesDAO.GetSortedGames(getLeagueId(ctx), teamId)
+		if checkErr(ctx, err) {
+			return
+		}
+
+		ctx.JSON(http.StatusOK, games)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getGame
@@ -84,11 +103,13 @@ func reportGameResult() gin.HandlerFunc {
 }
 
 func RegisterGameHandlers(g *gin.RouterGroup) {
-	g.GET("", getAllGamesInLeague)
-	g.GET("/:gameId", storeGameId(), getGameInformation())
-	g.POST("", createNewGame())
+	g.GET("/api/v1/sortedGames", getSortedGames())
+	games := g.Group("/api/v1/games")
+	games.GET("", getAllGamesInLeague)
+	games.GET("/:gameId", storeGameId(), getGameInformation())
+	games.POST("", createNewGame())
 
-	withId := g.Group("/:gameId", storeGameId())
+	withId := games.Group("/:gameId", storeGameId())
 	withId.DELETE("", deleteGame())
 	withId.POST("/reschedule", rescheduleGame())
 	withId.POST("/report", reportGameResult())

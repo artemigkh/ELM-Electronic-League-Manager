@@ -742,6 +742,37 @@ paths:
         '500':
           description: Internal Server Error
 
+  /api/v1/sortedGames:
+    get:
+      summary: Get Sorted Games
+      operationId: getSortedGames
+      description: Get Game Info sorted ascending by game time and split up into complete and incomplete games
+      tags:
+        - game
+      parameters:
+        - in: query
+          name: teamId
+          schema:
+            type: integer
+            description: The team id to limit games to. If not set, will return all games in league
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SortedGames'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
   /api/v1/games/{gameId}:
     get:
       summary: Get Game Info
@@ -1460,6 +1491,14 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Game'
+
+    SortedGames:
+      type: object
+      properties:
+        completeGames:
+          $ref: '#/components/schemas/ArrayOfGames'
+        upcomingGames:
+          $ref: '#/components/schemas/ArrayOfGames'
 
     ##### Scheduling #####
     AvailabilityId:

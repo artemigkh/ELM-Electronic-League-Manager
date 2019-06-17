@@ -177,7 +177,16 @@ func GetScannedLeaguePermissionsCore(rows squirrel.RowScanner) (*LeaguePermissio
 		&leaguePermissions.EditTeams,
 		&leaguePermissions.EditGames,
 	); err != nil {
-		return nil, err
+		if err == sql.ErrNoRows {
+			return &LeaguePermissionsCore{
+				Administrator: false,
+				CreateTeams:   false,
+				EditTeams:     false,
+				EditGames:     false,
+			}, nil
+		} else {
+			return nil, err
+		}
 	} else {
 		return &leaguePermissions, nil
 	}

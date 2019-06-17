@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Server/databaseAccess"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -76,6 +77,7 @@ func reportGameResult() gin.HandlerFunc {
 		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameResult) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return gameResult.Validate(getLeagueId(ctx)) },
 		Core: func(ctx *gin.Context) (interface{}, error) {
+			fmt.Printf("%+v\n", gameResult)
 			return nil, GamesDAO.ReportGame(getGameId(ctx), gameResult)
 		},
 	}.createEndpointHandler()

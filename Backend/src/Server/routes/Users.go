@@ -31,7 +31,7 @@ func createNewUser() gin.HandlerFunc {
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getUserInfo
-func getProfile() gin.HandlerFunc { //TODO: case when no active league
+func getProfile() gin.HandlerFunc {
 	return endpoint{
 		Entity:     User,
 		AccessType: View,
@@ -42,6 +42,6 @@ func getProfile() gin.HandlerFunc { //TODO: case when no active league
 }
 
 func RegisterUserHandlers(g *gin.RouterGroup) {
-	g.POST("/", createNewUser())
+	g.POST("", createNewUser())
 	g.GET("/profile", getProfile())
 }

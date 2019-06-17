@@ -31,10 +31,10 @@ type UserCreationInformation struct {
 }
 
 type User struct {
-	UserId            int                   `json:"userId"`
-	Email             string                `json:"email"`
+	UserId            int                    `json:"userId"`
+	Email             string                 `json:"email"`
 	LeaguePermissions *LeaguePermissionsCore `json:"leaguePermissions"`
-	TeamPermissions   []*TeamPermissions    `json:"teamPermissions"`
+	TeamPermissions   []*TeamPermissions     `json:"teamPermissions"`
 }
 
 type TeamManager struct {
@@ -153,6 +153,11 @@ type Game struct {
 	ScoreTeam1 int         `json:"scoreTeam1"`
 	ScoreTeam2 int         `json:"scoreTeam2"`
 	Complete   bool        `json:"complete"`
+}
+
+type SortedGames struct {
+	CompletedGames []*Game `json:"completedGames"`
+	UpcomingGames  []*Game `json:"upcomingGames"`
 }
 
 // Scheduling

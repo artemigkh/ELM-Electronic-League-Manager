@@ -103,7 +103,7 @@ func generateSchedule() gin.HandlerFunc {
 	var schedulingParameters databaseAccess.SchedulingParameters
 	return endpoint{
 		Entity:        Availability,
-		AccessType:    Create,
+		AccessType:    View,
 		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &schedulingParameters) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return schedulingParameters.Validate() },
 		Core: func(ctx *gin.Context) (interface{}, error) {

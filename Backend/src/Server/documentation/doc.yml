@@ -1523,6 +1523,7 @@ components:
               type: integer
             duration:
               type: integer
+              description: Duration of a game in minutes
 
     WeeklyAvailability:
       allOf:

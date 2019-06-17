@@ -104,9 +104,15 @@ func HasPermissions(ctx *gin.Context, entity Entity, accessType databaseAccess.A
 
 	switch entity {
 	case User:
-		//TODO: validate user access things
 		hasPermissions = true
 		err = nil
+		if accessType == View {
+			entityId, err = ElmSessions.AuthenticateAndGetUserId(ctx)
+			if entityId == 0 {
+				hasPermissions = false
+			}
+		}
+
 	case League:
 		if accessType != Create {
 			entityId = getLeagueId(ctx)
@@ -153,6 +159,9 @@ type endpoint struct {
 
 func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		//buf := make([]byte, 1024)
+		//num, _ := ctx.Request.Body.Read(buf)
+		//fmt.Printf("%+v\n", string(buf[0:num]))
 		// Check Permissions of logged in user against action
 		hasPermissions, err := HasPermissions(ctx, e.Entity, e.AccessType)
 		if accessForbidden(ctx, hasPermissions, err) {
@@ -178,7 +187,11 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 
 		// Return status and data if exists to router
 		if returnData == nil {
-			ctx.Status(http.StatusOK)
+			if e.AccessType == Create {
+				ctx.Status(http.StatusCreated)
+			} else {
+				ctx.Status(http.StatusOK)
+			}
 		} else {
 			if e.AccessType == Create {
 				ctx.JSON(http.StatusCreated, returnData)

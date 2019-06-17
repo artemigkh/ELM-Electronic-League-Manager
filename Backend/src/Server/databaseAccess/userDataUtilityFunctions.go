@@ -76,29 +76,18 @@ func getUserSelector() squirrel.SelectBuilder {
 	return psql.Select(
 		"user_.user_id",
 		"user_.email",
-		"league_permissions.administrator",
-		"league_permissions.create_teams",
-		"league_permissions.edit_teams",
-		"league_permissions.edit_games",
 	).
-		From("user_").
-		Join("league_permissions ON user_.user_id = league_permissions.league_id")
+		From("user_")
 }
 
 func GetScannedUser(rows squirrel.RowScanner) (*User, error) {
 	var user User
-	var leaguePermissions LeaguePermissionsCore
 	if err := rows.Scan(
 		&user.UserId,
 		&user.Email,
-		&leaguePermissions.Administrator,
-		&leaguePermissions.CreateTeams,
-		&leaguePermissions.EditTeams,
-		&leaguePermissions.EditGames,
 	); err != nil {
 		return nil, err
 	} else {
-		user.LeaguePermissions = leaguePermissions
 		return &user, nil
 	}
 }

@@ -78,8 +78,8 @@ func login(ctx *gin.Context) {
 	if checkErr(ctx, err) {
 		return
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"id": authInfo.UserId})
+	user, err := UsersDAO.GetUserProfile(getLeagueId(ctx), authInfo.UserId)
+	ctx.JSON(http.StatusOK, user)
 }
 
 /**

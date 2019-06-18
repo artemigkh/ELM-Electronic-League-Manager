@@ -37,7 +37,6 @@ func (s *CookieSessionManager) LogIn(ctx *gin.Context, userId int) error {
 		println(err.Error())
 		return err
 	}
-
 	session.Values["authenticated"] = true
 	session.Values["userId"] = userId
 	session.Save(ctx.Request, ctx.Writer)

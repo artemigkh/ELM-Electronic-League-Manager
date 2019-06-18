@@ -47,7 +47,7 @@ func (_m *UsersDAO) GetAuthenticationInformation(email string) (*databaseAccess.
 	return r0, r1
 }
 
-// GetUserProfile provides a mock function with given fields: userId
+// GetUserWithPermissions provides a mock function with given fields: userId
 func (_m *UsersDAO) GetUserProfile(userId int) (*databaseAccess.User, error) {
 	ret := _m.Called(userId)
 

@@ -30,18 +30,30 @@ func createNewUser() gin.HandlerFunc {
 	}.createEndpointHandler()
 }
 
-// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getUserInfo
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getUser
 func getProfile() gin.HandlerFunc {
 	return endpoint{
 		Entity:     User,
 		AccessType: View,
 		Core: func(ctx *gin.Context) (interface{}, error) {
-			return UsersDAO.GetUserProfile(getLeagueId(ctx), getUserId(ctx))
+			return UsersDAO.GetUserProfile(getUserId(ctx))
+		},
+	}.createEndpointHandler()
+}
+
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getUserLeaguePermissions
+func getUserLeaguePermissions() gin.HandlerFunc {
+	return endpoint{
+		Entity:     User,
+		AccessType: View,
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return UsersDAO.GetUserWithPermissions(getLeagueId(ctx), getUserId(ctx))
 		},
 	}.createEndpointHandler()
 }
 
 func RegisterUserHandlers(g *gin.RouterGroup) {
 	g.POST("", createNewUser())
-	g.GET("/profile", getProfile())
+	g.GET("", getProfile())
+	g.GET("leaguePermissions", getUserLeaguePermissions())
 }

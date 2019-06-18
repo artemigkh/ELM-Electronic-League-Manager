@@ -39,6 +39,7 @@ paths:
     post:
       summary: Log in
       operationId: login
+      description: Sets the secure cookie state to the specified user. On success, returns the user information.
       tags:
         - login
       requestBody:
@@ -109,7 +110,7 @@ paths:
           description: Internal Server Error
     get:
       summary: Get User Information
-      description: Get the information of the currently logged in user
+      description: Get the basic information of the currently logged in user
       operationId: getUser
       tags:
         - user
@@ -120,6 +121,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
+  /api/v1/users/leaguePermissions:
+    get:
+      summary: Get User With League Permissions
+      description: Get the active league permissions of the currently logged in user
+      operationId: getUserLeaguePermissions
+      tags:
+        - user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithPermissions'
         '400':
           description: Bad Request
           content:
@@ -326,6 +352,7 @@ paths:
     post:
       summary: Set Active League
       operationId: setActiveLeague
+      description: Sets the secure cookie state to the specified league. On success, returns the league information.
       tags:
         - league-interact
       parameters:
@@ -338,6 +365,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/League'
         '400':
           description: Bad Request
           content:
@@ -1185,7 +1216,7 @@ components:
           type: string
           format: password
 
-    UserCore:
+    User:
       type: object
       properties:
         userId:
@@ -1193,9 +1224,9 @@ components:
         email:
           type: string
 
-    User:
+    UserWithPermissions:
       allOf:
-        - $ref: '#/components/schemas/UserCore'
+        - $ref: '#/components/schemas/User'
         - type: object
           properties:
             leaguePermissions:
@@ -1208,7 +1239,7 @@ components:
     TeamManager:
       type: object
       allOf:
-        - $ref: '#/components/schemas/UserCore'
+        - $ref: '#/components/schemas/User'
         - $ref: '#/components/schemas/TeamPermissionsCore'
 
     ArrayOfTeamManagers:

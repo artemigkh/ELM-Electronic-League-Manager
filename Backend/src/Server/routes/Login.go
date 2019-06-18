@@ -78,7 +78,7 @@ func login(ctx *gin.Context) {
 	if checkErr(ctx, err) {
 		return
 	}
-	user, err := UsersDAO.GetUserProfile(getLeagueId(ctx), authInfo.UserId)
+	user, err := UsersDAO.GetUserProfile(authInfo.UserId)
 	ctx.JSON(http.StatusOK, user)
 }
 

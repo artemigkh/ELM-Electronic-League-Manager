@@ -141,7 +141,9 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamWithPlayers, error) {
 
 func (d *PgTeamsDAO) GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error) {
 	rows, err := getTeamWithPlayersSelector().
-		Where("team.league_id = ?", leagueId).RunWith(db).Query()
+		Where("team.league_id = ?", leagueId).
+		OrderBy("team.wins DESC, team.losses ASC").
+		RunWith(db).Query()
 	if err != nil {
 		return nil, err
 	}

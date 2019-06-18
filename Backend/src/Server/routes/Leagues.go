@@ -66,7 +66,11 @@ func setActiveLeague() gin.HandlerFunc {
 		Entity:     League,
 		AccessType: View,
 		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, ElmSessions.SetActiveLeague(ctx, getLeagueId(ctx))
+			err := ElmSessions.SetActiveLeague(ctx, getLeagueId(ctx))
+			if err != nil {
+				return nil, err
+			}
+			return LeaguesDAO.GetLeagueInformation(getLeagueId(ctx))
 		},
 	}.createEndpointHandler()
 }
@@ -76,7 +80,9 @@ func getActiveLeagueInformation() gin.HandlerFunc {
 	return endpoint{
 		Entity:     League,
 		AccessType: View,
-		Core:       func(ctx *gin.Context) (interface{}, error) { return LeaguesDAO.GetLeagueInformation(getLeagueId(ctx)) },
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return LeaguesDAO.GetLeagueInformation(getLeagueId(ctx))
+		},
 	}.createEndpointHandler()
 }
 

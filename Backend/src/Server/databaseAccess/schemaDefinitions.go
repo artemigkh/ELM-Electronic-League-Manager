@@ -31,6 +31,11 @@ type UserCreationInformation struct {
 }
 
 type User struct {
+	UserId int    `json:"userId"`
+	Email  string `json:"email"`
+}
+
+type UserWithPermissions struct {
 	UserId            int                    `json:"userId"`
 	Email             string                 `json:"email"`
 	LeaguePermissions *LeaguePermissionsCore `json:"leaguePermissions"`

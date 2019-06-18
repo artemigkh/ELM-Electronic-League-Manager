@@ -49,7 +49,7 @@ package routesTest
 //		Return(14, nil)
 //
 //	mockUsersDao := new(mocks.UsersDAO)
-//	mockUsersDao.On("GetUserProfile", 14).
+//	mockUsersDao.On("GetUserWithPermissions", 14).
 //		Return(&databaseAccess.UserInformation{Email: "test3@test.com"}, errors.New("fake db error"))
 //
 //	routes.ElmSessions = mockSession
@@ -66,7 +66,7 @@ package routesTest
 //		Return(14, nil)
 //
 //	mockUsersDao := new(mocks.UsersDAO)
-//	mockUsersDao.On("GetUserProfile", 14).
+//	mockUsersDao.On("GetUserWithPermissions", 14).
 //		Return(&databaseAccess.UserInformation{Email: "test3@test.com"}, nil)
 //
 //	routes.ElmSessions = mockSession

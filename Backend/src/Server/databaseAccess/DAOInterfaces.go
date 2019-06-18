@@ -15,7 +15,8 @@ type UsersDAO interface {
 	CreateUser(email, salt, hash string) error
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (*UserAuthenticationDTO, error)
-	GetUserProfile(leagueId, userId int) (*User, error)
+	GetUserProfile(userId int) (*User, error)
+	GetUserWithPermissions(leagueId, userId int) (*UserWithPermissions, error)
 }
 
 type LeaguesDAO interface {

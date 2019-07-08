@@ -1,48 +1,30 @@
-import {Component, Inject} from "@angular/core";
-import {LeagueInformation} from "../../interfaces/LeagueInformation";
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatSnackBar} from "@angular/material";
-import {LeagueService} from "../../httpServices/leagues.service";
-import {availability, schedule, scheduledGame, teamInfo} from "../../httpServices/api-return-schemas/schedule";
-import * as moment from "moment";
-import {Moment} from "moment";
-import {Game} from "../../interfaces/Game";
-import {Team} from "../../interfaces/Team";
-import {Player} from "../../interfaces/Player";
-import {Action} from "../actions";
-import {PlayersService} from "../../httpServices/players.service";
-import {Id} from "../../httpServices/api-return-schemas/id";
+import {Component, Inject, OnInit} from "@angular/core";
 import {
-    ManagePlayersPopup,
-    ManagePlayersTeamComponent,
-    PlayerData
-} from "../players/manage-players-team/manage-players-team";
-import {WarningPopup} from "../warningPopup/warning-popup";
-import {FormControl} from "@angular/forms";
+    getStartMoment,
+    updateFromMoments,
+    SchedulingParameters,
+    WeeklyAvailability,
+} from "../../interfaces/Availability";
+import {NGXLogger} from "ngx-logger";
+import {LeagueService} from "../../httpServices/leagues.service";
+import {daysOfWeekDef, physicalSportsDef, tournamentTypesDef} from "../../shared/lookup.defs";
+import {Option} from "../../interfaces/UI";
+import {Action} from "../actions";
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
+import {Moment} from "moment";
+import * as moment from "moment";
+import {EventDisplayerService} from "../../shared/eventDisplayer/event-displayer.service";
+import {League, Week} from "../../interfaces/League";
+import {ElmState} from "../../shared/state/state.service";
+import {WarningPopup, WarningPopupData} from "../warningPopup/warning-popup";
+import {Game, GameCore, GameCreationInformation} from "../../interfaces/Game";
 import {forkJoin} from "rxjs";
-import {Manager} from "../../interfaces/Manager";
-import {ConfirmationComponent} from "../../shared/confirmation/confirmation-component";
 import {GamesService} from "../../httpServices/games.service";
 
-class Availability {
-    id: number;
-    start: Moment;
-    end: Moment;
-    constrained: boolean;
-    constraintStart: Moment;
-    constraintEnd: Moment;
-}
-
-class Week {
-    start: Moment;
-    end: Moment;
-    games: Game[];
-}
-
-export class AvailabilityData {
-    title: string;
+class AvailabilityData {
     action: Action;
-    availability: Availability;
-    caller: ManageScheduleComponent;
+    availability: WeeklyAvailability;
+    onSuccess: (availability?: WeeklyAvailability) => void;
 }
 
 @Component({
@@ -50,241 +32,120 @@ export class AvailabilityData {
     templateUrl: './manage-schedule.html',
     styleUrls: ['./manage-schedule.scss'],
 })
-export class ManageScheduleComponent {
-    tournamentTypes: {display:string;value:string;}[];
-    tournamentType: string;
-    roundsPerWeek: number;
-    concurrentGameNum: number;
-    gameDuration: number;
-
-    availabilities: Availability[];
-    daysOfWeek: {display:string;value:number;}[];
-    dayLookup: { [id: number] : string; };
-
-    teamLookup: { [id: number] : teamInfo; };
-    tentativeSchedule: scheduledGame[];
-
+export class ManageScheduleComponent implements OnInit {
+    availabilities: WeeklyAvailability[];
+    schedulingParameters: SchedulingParameters;
+    tournamentTypes: Option[];
+    league: League;
+    tentativeSchedule: GameCore[];
     weeks: Week[];
-    constructor(public confirmation: MatSnackBar, private leagueService: LeagueService,
+
+    constructor(private log: NGXLogger,
+                private state: ElmState,
+                private leagueService: LeagueService,
                 private gamesService: GamesService,
-                public dialog: MatDialog) {
+                private eventDisplayer: EventDisplayerService,
+                private dialog: MatDialog) {
+        this.schedulingParameters = new SchedulingParameters();
         this.tentativeSchedule = [];
-        this.teamLookup = {};
-        this.tournamentTypes = [
-            {
-                display: "Round Robin",
-                value: "roundrobin"
-            }, {
-                display: "Double Round Robin",
-                value: "doubleroundrobin"
-            }
-        ];
-        this.tournamentType = 'doubleroundrobin';
-        this.roundsPerWeek = 2;
-        this.concurrentGameNum = 1;
-        this.gameDuration = 60;
-
-        this.availabilities = [];
-        this.leagueService.getSchedulingAvailabilities().subscribe(
-            (next: availability[]) => {
-                if(next == null) {
-                    next = [];
-                }
-                next.forEach((avail: availability) => {
-                    let startMoment = moment().
-                        milliseconds(0).
-                        seconds(0).
-                        minute(avail.minute).
-                        hour(avail.hour).
-                        day(avail.weekday).
-                        utcOffset(avail.timezone / 60);
-                    this.availabilities.push({
-                        id: avail.id,
-                        start: startMoment,
-                        end: startMoment.clone().add(avail.duration, 'm'),
-                        constrained: avail.constrained,
-                        constraintStart: moment.unix(avail.start),
-                        constraintEnd: moment.unix(avail.end)
-                    });
-                });
-            }, error => {
-                console.log(error);
-            }
-        );
-    }
-
-    processGamesIntoWeeks(): void {
         this.weeks = [];
-        let firstGame = moment.unix(this.tentativeSchedule[0].gameTime);
-        let lastGame = moment.unix(this.tentativeSchedule[this.tentativeSchedule.length-1].gameTime);
-
-        this.weeks.push({
-            start: firstGame.clone().startOf('isoWeek'),
-            end: firstGame.clone().endOf('isoWeek'),
-            games: []
-        });
-        while(!lastGame.isBetween(this.weeks[this.weeks.length-1].start, this.weeks[this.weeks.length-1].end)) {
-            this.weeks.push({
-                start: this.weeks[this.weeks.length-1].start.clone().add(1, 'w'),
-                end: this.weeks[this.weeks.length-1].end.clone().add(1, 'w'),
-                games: []
-            });
-        }
-
-        let weekIndex = 0;
-        this.tentativeSchedule.forEach((game: scheduledGame) => {
-            while(!moment.unix(game.gameTime).
-            isBetween(this.weeks[weekIndex].start, this.weeks[weekIndex].end)) {
-                weekIndex++;
-            }
-            this.weeks[weekIndex].games.push({
-                id: 0,
-                gameTime: game.gameTime,
-                complete: false,
-                winnerId: 0,
-                scoreTeam1: 0,
-                scoreTeam2: 0,
-                team1Id: game.team1Id,
-                team2Id: game.team2Id,
-                team1: {
-                    id: game.team1Id,
-                    name: this.teamLookup[game.team1Id].name,
-                    tag: this.teamLookup[game.team1Id].tag,
-                    description: "",
-                    wins: 0,
-                    losses: 0,
-                    iconSmall: this.teamLookup[game.team1Id].iconSmall,
-                    iconLarge: "",
-                    players: [],
-                    substitutes: [],
-                    visible: true
-                },
-                team2: {
-                    id: game.team2Id,
-                    name: this.teamLookup[game.team2Id].name,
-                    tag: this.teamLookup[game.team2Id].tag,
-                    description: "",
-                    wins: 0,
-                    losses: 0,
-                    iconSmall: this.teamLookup[game.team2Id].iconSmall,
-                    iconLarge: "",
-                    players: [],
-                    substitutes: [],
-                    visible: true
-                },
-            });
-        });
-
-        console.log(this.weeks);
     }
 
-    generateSchedule(): void {
-        this.leagueService.generateSchedule(this.tournamentType, this.roundsPerWeek,
-            this.concurrentGameNum, this.gameDuration).subscribe(
-            (next: schedule) => {
-                next.teams.forEach((team: teamInfo) => {
-                   this.teamLookup[team.id] = team;
-                });
-                this.tentativeSchedule = next.games;
-                this.processGamesIntoWeeks();
-            }, error => {
-                console.log(error);
-            }
+    ngOnInit(): void {
+        this.tournamentTypes = Object.entries(tournamentTypesDef).map(o => <Option>{value: o[0], display: o[1]});
+        this.state.subscribeLeague(league => this.league = league);
+        this.leagueService.getWeeklyAvailabilities().subscribe(
+            availabilities => this.availabilities = availabilities,
+            error => this.log.error(error)
         );
     }
 
-    acceptSchedule(): void {
-        forkJoin(this.tentativeSchedule.map((game: scheduledGame) => {
-            return this.gamesService.createNewGame(game.team1Id, game.team2Id, game.gameTime);
-        })).subscribe(_ => {
-            console.log("successfully updated permissions");
-            this.confirmation.openFromComponent(ConfirmationComponent, {
-                duration: 1250,
-                panelClass: ['blue-snackbar'],
-                data: {
-                    message: "Games Successfully Scheduled"
-                }
-            });
-        }, error=>{
-            console.log(error);
-            this.confirmation.openFromComponent(ConfirmationComponent, {
-                duration: 2000,
-                panelClass: ['red-snackbar'],
-                data: {
-                    message: "Scheduling Games Failed"
-                }
-            });
-        });
+    weekdayDisplay(weekday: string): string {
+        return weekday[0].toLocaleUpperCase() + weekday.substr(1);
     }
 
-    newAvailabilityPopup(): void {
-        const dialogRef = this.dialog.open(ManageAvailabilityPopup, {
-            width: '500px',
-            data: {
-                title: "Create New Availability",
-                availability: {
-                    id: 0,
-                    start: null,
-                    end: null,
-                    constrained: false,
-                    constraintStart: null,
-                    constraintEnd: null,
-                },
+    timeDisplay(a: WeeklyAvailability): string {
+        let start = getStartMoment(a);
+        return start.format("h:mm a") + " to " + start.clone().add(a.duration, 'm').format("h:mm a");
+    }
+
+    createAvailability() {
+        this.dialog.open(ManageAvailabilityPopup, {
+            data: <AvailabilityData>{
                 action: Action.Create,
-                caller: this
+                availability: new WeeklyAvailability(this.league),
+                onSuccess: availability => {
+                    this.eventDisplayer.displaySuccess("Availability Successfully Created");
+                    this.availabilities.push(availability);
+                    console.log(this.availabilities);
+                }
             },
-            autoFocus: false
+            autoFocus: false, width: '500px'
         });
     }
 
-    editAvailabilityPopup(availability: Availability): void {
-        const dialogRef = this.dialog.open(ManageAvailabilityPopup, {
-            width: '500px',
-            data: {
-                title: "Edit Availability",
-                availability: availability,
+    editAvailability(availability: WeeklyAvailability) {
+        this.dialog.open(ManageAvailabilityPopup, {
+            data: <AvailabilityData>{
                 action: Action.Edit,
-                caller: this
+                availability: availability,
+                onSuccess: () => this.eventDisplayer.displaySuccess("Availability Successfully Updated")
             },
-            autoFocus: false
+            autoFocus: false, width: '500px'
         });
     }
 
-    warningPopup(availability: Availability): void {
-        const dialogRef = this.dialog.open(WarningPopup, {
-            width: '500px',
-            data: {
-                entity: "availability",
-                name: availability.start.format("dddd") + " " +
-                    availability.start.format("h:mm a") + " to " +
-                    availability.end.format("h:mm a"),
-                caller: this,
-                Id: availability.id,
-                Id2: -1
-            },
-            autoFocus: false
-        });
-    }
-
-    notifyDelete(id: number) {
-        console.log("notify deleted with id ", id);
-        this.leagueService.deleteRecurringSchedulingAvailability(id).subscribe(
-            next => {
-                this.availabilities = this.availabilities.filter((g: Availability) => {
-                    return g.id != id;
-                });
-            }, error => {
-                console.log(error);
-            }
+    _deleteAvailability(availabilityId: number) {
+        this.leagueService.deleteWeeklyAvailability(availabilityId).subscribe(
+            () => {
+                this.eventDisplayer.displaySuccess("Availability Successfully Deleted");
+                this.availabilities = this.availabilities.filter(a => a.availabilityId != availabilityId);
+            }, error => this.eventDisplayer.displayError(error)
         );
     }
 
-    notifyCreateSuccess(availability: Availability): void {
-        this.availabilities.push(availability);
+    deleteAvailability(availability: WeeklyAvailability) {
+        this.dialog.open(WarningPopup, {
+            data: <WarningPopupData>{
+                entity: "availability",
+                name: this.timeDisplay(availability),
+                onAccept: () => this._deleteAvailability(availability.availabilityId)
+            },
+            autoFocus: false, width: '500px'
+        });
     }
 
-    notifyEditSuccess(availability: Availability): void {
-        // this.availabilities.push(availability);
+    _generateSchedule(tentativeSchedule: GameCore[]) {
+        this.tentativeSchedule = tentativeSchedule;
+        if (tentativeSchedule.length > 0) {
+            this.weeks.push(new Week(tentativeSchedule[0].gameTime));
+            tentativeSchedule.forEach(game => {
+                if (moment.unix(game.gameTime).isAfter(this.weeks[this.weeks.length - 1].end)) {
+                    this.weeks.push(new Week(game.gameTime));
+                }
+                this.weeks[this.weeks.length - 1].games.push(new Game(game));
+            })
+        }
+    }
+
+    generateSchedule() {
+        this.leagueService.generateSchedule(this.schedulingParameters).subscribe(
+            tentativeSchedule => this._generateSchedule(tentativeSchedule),
+            error => this.eventDisplayer.displayError(error)
+        );
+    }
+
+    acceptSchedule() {
+        forkJoin(this.tentativeSchedule.map(game => {
+            return this.gamesService.createGame(<GameCreationInformation>{
+                team1Id: game.team1.teamId,
+                team2Id: game.team2.teamId,
+                gameTime: game.gameTime
+            });
+        })).subscribe(
+            () => this.eventDisplayer.displaySuccess("All games successfully scheduled"),
+            error => this.log.error(error)
+        );
     }
 }
 
@@ -294,113 +155,52 @@ export class ManageScheduleComponent {
     styleUrls: ['./manage-availability-popup.scss'],
 })
 export class ManageAvailabilityPopup {
-    action: Action;
-    availability: Availability;
-    daysOfWeek: {display:string;value:number;}[];
-    dayOfWeek: number;
+    title: string;
+    daysOfWeek: Option[];
     start: Moment;
     end: Moment;
 
     constructor(
-        public dialogRef: MatDialogRef<ManageAvailabilityPopup>,
         @Inject(MAT_DIALOG_DATA) public data: AvailabilityData,
+        public dialogRef: MatDialogRef<ManageAvailabilityPopup>,
+        private log: NGXLogger,
         private leagueService: LeagueService) {
-        this.daysOfWeek = [{
-            display: "Sunday", value: 0
-        }, {
-            display: "Monday", value: 1
-        }, {
-            display: "Tuesday", value: 2
-        }, {
-            display: "Wednesday", value: 3
-        }, {
-            display: "Thursday", value: 4
-        },{
-            display: "Friday", value: 5
-        }, {
-            display: "Saturday", value: 6
-        }];
-        this.action = data.action;
-        this.availability = data.availability;
-        this.end = moment(this.availability.end);
-
-        if (this.availability.start != null) {
-            this.start = moment(this.availability.start);
-            this.end = moment(this.availability.end);
-            this.dayOfWeek = this.availability.start.weekday();
-        } else {
-            this.start = null;
-            this.end = null;
-        }
-
+        this.title = this.data.action == Action.Create ? "Create New Availability" : "Edit Availability";
+        this.daysOfWeek = Object.values(daysOfWeekDef).map(o => <Option>{value: o.toLowerCase(), display: o});
+        this.start = getStartMoment(this.data.availability);
+        this.end = this.start.clone().add(this.data.availability.duration, 'm');
     }
 
-    OnCancel(): void {
+    onCancel() {
         this.dialogRef.close();
     }
 
-    OnConfirm(): void {
-        console.log(this.start);
-        console.log(this.end);
-        if(typeof this.start == "string") {
-            this.availability.start = moment(this.start, "hh-mm a").day(this.dayOfWeek).seconds(0).milliseconds(0);
-        } else {
-            this.availability.start = this.start;
-        }
-        if(typeof this.end == "string") {
-            this.availability.end = moment(this.end, "hh-mm a").day(this.dayOfWeek).seconds(0).milliseconds(0);
-        } else {
-            this.availability.end = this.end;
-        }
-        console.log(this.availability.start);
-        console.log(this.availability.end);
+    saveAvailability() {
+        ['start', 'end'].forEach(k => {
+            if (typeof this[k] == "string") {
+                this[k] = moment(this[k], "hh-mm a").seconds(0).milliseconds(0);
+            }
+        });
+        updateFromMoments(this.data.availability, this.start, this.end);
 
-        if(this.availability.constraintStart == null) {
-            this.availability.constraintStart = moment.unix(0);
-            this.availability.constraintEnd = moment.unix(0);
-        }
-        console.log(this.availability.start.format());
-        console.log(this.availability.end.format());
-        console.log(this.availability.end.diff(this.availability.start));
-        console.log(moment.duration(this.availability.end.diff(this.availability.start)).asMinutes());
-        if(this.action == Action.Create) {
-            this.leagueService.addRecurringSchedulingAvailability(
-                this.availability.start.format("dddd").toLowerCase(), this.availability.start.utcOffset() * 60,
-                this.availability.start.hour(), this.availability.start.minute(),
-                moment.duration(this.availability.end.diff(this.availability.start)).asMinutes(),
-                this.availability.constrained, this.availability.constraintStart.unix(),
-                this.availability.constraintEnd.unix()
-            ).subscribe(
-                (next: Id) => {
-                    console.log("successfully added constraint");
-                    this.availability.id = next.id;
-                    this.data.caller.notifyCreateSuccess(
-                        this.availability
-                    );
+        if (this.data.action == Action.Create) {
+            this.leagueService.createWeeklyAvailability(this.data.availability).subscribe(
+                res => {
+                    this.data.availability.availabilityId = res.availabilityId;
+                    this.data.onSuccess(this.data.availability);
                     this.dialogRef.close();
                 }, error => {
-                    console.log("error during player creation");
-                    console.log(error);
+                    this.log.error(error);
                     this.dialogRef.close();
                 }
             );
-        } else if(this.action == Action.Edit) {
-            this.leagueService.editRecurringSchedulingAvailability(this.availability.id,
-                this.availability.start.format("dddd").toLowerCase(), this.availability.start.utcOffset() * 60,
-                this.availability.start.hour(), this.availability.start.minute(),
-                moment.duration(this.availability.end.diff(this.availability.start)).asMinutes(),
-                this.availability.constrained, this.availability.constraintStart.unix(),
-                this.availability.constraintEnd.unix()
-            ).subscribe(
-                (next: Id) => {
-                    console.log("successfully added constraint");
-                    this.data.caller.notifyEditSuccess(
-                        this.availability
-                    );
+        } else {
+            this.leagueService.updateWeeklyAvailability(this.data.availability.availabilityId, this.data.availability).subscribe(
+                () => {
+                    this.data.onSuccess();
                     this.dialogRef.close();
                 }, error => {
-                    console.log("error during player creation");
-                    console.log(error);
+                    this.log.error(error);
                     this.dialogRef.close();
                 }
             );

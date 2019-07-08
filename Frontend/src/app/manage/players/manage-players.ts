@@ -1,26 +1,11 @@
-import {Component, Inject} from "@angular/core";
-import {LeagueService} from "../../httpServices/leagues.service";
-import {Team} from "../../interfaces/Team";
-import {forkJoin} from "rxjs";
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
-import {Player} from "../../interfaces/Player";
-import {WarningPopup} from "../warningPopup/warning-popup";
-import {ManageComponentInterface} from "../manage-component-interface";
-import {Action} from "../actions";
-import {PlayersService} from "../../httpServices/players.service";
-import {Id} from "../../httpServices/api-return-schemas/id";
+import {Component} from "@angular/core";
+import {ElmState} from "../../shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
 import {TeamsService} from "../../httpServices/teams.service";
-import {UserService} from "../../httpServices/user.service";
-import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
-
-class PlayerData {
-    title: string;
-    action: Action;
-    player: Player;
-    caller: ManagePlayersComponent;
-    teamId: number;
-    mainRoster: boolean;
-}
+import {EventDisplayerService} from "../../shared/eventDisplayer/event-displayer.service";
+import {MatDialog} from "@angular/material";
+import {TeamWithRosters} from "../../interfaces/Team";
+import {UserWithPermissions} from "../../interfaces/User";
 
 @Component({
     selector: 'app-manage-players',
@@ -28,49 +13,37 @@ class PlayerData {
     styleUrls: ['./manage-players.scss'],
 })
 export class ManagePlayersComponent {
-    teams: Team[];
+    teams: TeamWithRosters[];
+    user: UserWithPermissions;
 
-    constructor(private leagueService: LeagueService,
+    constructor(private state: ElmState,
+                private log: NGXLogger,
                 private teamsService: TeamsService,
-                private userService: UserService,
-                public dialog: MatDialog) {
-        this.teams = [];
-        this.teamsService.getTeamSummary().subscribe(
-            teamSummary => {
-                let teams = teamSummary;
-                this.userService.getUserPermissions().subscribe(
-                    (next: UserPermissions) => {
-                        this.teams = [];
-                        teams.forEach((team: Team) => {
-                            if(next.leaguePermissions.administrator || next.leaguePermissions.editTeams) {
-                                this.teamsService.addPlayerInformationToTeam(team).subscribe(
-                                    (next: Team)=>{
-                                        this.teams.push(next);
-                                    },error=>{
-                                        console.log(error);
-                                    }
-                                );
-                            } else {
-                                next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
-                                    if(team.id == teamPermission.id &&
-                                        (teamPermission.administrator || teamPermission.players)) {
-                                        this.teamsService.addPlayerInformationToTeam(team).subscribe(
-                                            (next: Team)=>{
-                                                this.teams.push(next);
-                                            },error=>{
-                                                console.log(error);
-                                            }
-                                        );
-                                    }
-                                });
-                            }
-                        });
-                    }, error => {
-                        console.log(error);
-                    }
-                );
-            }, error => {
-                console.log(error);
-            });
+                private eventDisplayer: EventDisplayerService,
+                private dialog: MatDialog) {
+    }
+
+    ngOnInit(): void {
+        this.state.subscribeUser(user => {
+            this.user = user;
+            this.getEditableTeamList();
+        });
+    }
+
+    private getEditableTeamList() {
+        this.teamsService.getLeagueTeamsWithRosters().subscribe(
+            teams => {
+                if (this.user.leaguePermissions.administrator || this.user.leaguePermissions.editTeams) {
+                    this.teams = teams;
+                } else {
+                    this.teams = teams.filter(team => {
+                        this.user.teamPermissions
+                            .filter(t => t.administrator || t.information)
+                            .map(t => t.teamId)
+                            .includes(team.teamId);
+                    });
+                }
+            }, error => this.eventDisplayer.displayError(error)
+        );
     }
 }

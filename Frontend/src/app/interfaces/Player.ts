@@ -1,14 +1,17 @@
-export class Player {
-    id: number;
+export class Player implements PlayerCore{
+    playerId: number;
     name: string;
     gameIdentifier: string;
-    position: string;
+    mainRoster: boolean;
+    constructor(mainRoster: boolean) {
+        this.mainRoster = mainRoster;
+    }
 }
-
-export class LeagueOfLegendsPlayer extends Player {
-    id: number;
+export interface PlayerCore {
     name: string;
     gameIdentifier: string;
-    rank: string;
-    tier: string;
+    mainRoster: boolean;
+}
+export interface PlayerId {
+    playerId: number;
 }

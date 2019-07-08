@@ -8,12 +8,12 @@
             <ng-template matStepLabel>League Information</ng-template>
             <div class="field-container">
                 <mat-form-field hintLabel="Between 3 and 25 characters">
-                    <input matInput [(ngModel)]="leagueInformation.name" #input1 maxlength="25" placeholder="League Name" required>
+                    <input matInput [(ngModel)]="league.name" #input1 maxlength="25" placeholder="League Name" required>
                     <mat-hint align="end">{{input1.value?.length || 0}}/25</mat-hint>
                 </mat-form-field>
 
                 <mat-form-field hintLabel="Maximum 500 characters">
-                <textarea matInput #input2 [(ngModel)]="leagueInformation.description"
+                <textarea matInput #input2 [(ngModel)]="league.description"
                   placeholder="Description" [mat-autosize]="true"></textarea>
                     <mat-hint align="end">{{input2.value?.length || 0}}/500</mat-hint>
                 </mat-form-field>
@@ -21,8 +21,8 @@
                 <mat-divider></mat-divider>
 
                 <section class="visibility-section">
-                    <mat-checkbox [(ngModel)]="leagueInformation.publicView">Anyone Can View This League</mat-checkbox>
-                    <mat-checkbox [(ngModel)]="leagueInformation.publicJoin">Anyone Can Join This League</mat-checkbox>
+                    <mat-checkbox [(ngModel)]="league.publicView">Anyone Can View This League</mat-checkbox>
+                    <mat-checkbox [(ngModel)]="league.publicJoin">Anyone Can Join This League</mat-checkbox>
                 </section>
             </div>
             <div class="next-button">
@@ -80,8 +80,8 @@
                 <span>
                     <div>Physical Sports</div>
                     <mat-form-field>
-                        <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
-                            <mat-option *ngFor="let s of physicalSportsArray" [value]="s.value">
+                        <mat-select placeholder="Select Game" [(value)]="league.game">
+                            <mat-option *ngFor="let s of physicalSports" [value]="s.value">
                                 {{s.display}}
                             </mat-option>
                         </mat-select>
@@ -90,8 +90,8 @@
                 <span>
                     <div>E-Sports</div>
                     <mat-form-field>
-                        <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
-                            <mat-option *ngFor="let s of eSportsArray" [value]="s.value">
+                        <mat-select placeholder="Select Game" [(value)]="league.game">
+                            <mat-option *ngFor="let s of eSports" [value]="s.value">
                                 {{s.display}}
                             </mat-option>
                         </mat-select>

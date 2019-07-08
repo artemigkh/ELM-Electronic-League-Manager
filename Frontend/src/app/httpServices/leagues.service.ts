@@ -1,174 +1,100 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {Observable, of} from "rxjs/index";
+import {Injectable, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from "rxjs/index";
 import {httpOptions} from "./http-options";
-import {LeagueInformation} from "../interfaces/LeagueInformation";
-import {TestingConfig} from "../../../testingConfig";
-import * as moment from "moment";
-import {Moment} from "moment";
+import {ElmState} from "../shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
+import {League, LeagueCore, LeagueId, Markdown} from "../interfaces/League";
+import {GameCore, SortedGames} from "../interfaces/Game";
+import {
+    AvailabilityId,
+    SchedulingParameters,
+    WeeklyAvailability,
+    WeeklyAvailabilityCore
+} from "../interfaces/Availability";
+import {TeamWithManagers} from "../interfaces/Team";
 
 @Injectable()
-export class LeagueService {
-    game: string;
-    constructor(private http: HttpClient) {
-        this.game = 'leagueoflegends';
+export class LeagueService implements OnInit {
+    league: League;
+
+    constructor(private state: ElmState,
+                private log: NGXLogger,
+                private http: HttpClient) {
     }
 
-    public getGame(): string {
-        console.log(this.game);
-        return this.game;
+    ngOnInit(): void {
+        this.state.subscribeLeague((league: League) => this.league = league);
     }
 
-    public setActiveLeague(leagueId: number): Observable<any> {
+    public setActiveLeague(leagueId: number): Observable<League> {
         return new Observable(observer => {
-            this.http.post('http://localhost:8080/api/leagues/setActiveLeague/' + leagueId, null, httpOptions).subscribe(
-                next => {
-                    this.getLeagueInformation().subscribe(
-                        (next: LeagueInformation) => {
-                            console.log("setting active game to " + next.game);
-                            this.game = next.game;
-                            observer.next();
-                        }, error => {
-                            observer.error(error);
-                        }
-                    );
-                }, error => {
-                    observer.error(error);
-                }
+            this.http.post<League>('http://localhost:8080/api/v1/leagues/setActiveLeague/' + leagueId, null, httpOptions).subscribe(
+                league => {
+                    this.log.debug("League successfully set", league);
+                    this.state.setLeague(league);
+                    observer.next(league);
+                }, error => observer.error(error)
             )
         });
     }
 
     public joinActiveLeague(): Observable<any> {
-        return this.http.post('http://localhost:8080/api/leagues/join', null, httpOptions);
+        return this.http.post('http://localhost:8080/api/v1/leagues/join', null, httpOptions);
     }
 
-    public getLeagueInformation(): Observable<Object> {
-        return this.http.get('http://localhost:8080/api/leagues/', httpOptions);
-    }
-
-    public isLeagueRegistrationPeriod(): Observable<boolean> {
-        if(TestingConfig.testing && TestingConfig.forceRegistrationPeriod) {
-            return of(true);
-        }
+    public getLeagueInformation(): Observable<League> {
         return new Observable(observer => {
-            this.http.get('http://localhost:8080/api/leagues/', httpOptions).subscribe(
-                (next: LeagueInformation) => {
-                    let now = moment();
-                    let start = moment.unix(next.signupStart);
-                    let end = moment.unix(next.signupEnd);
-                    observer.next(now.isBetween(start, end));
-                }, error => {
-                    observer.error(error);
-                    console.log(error);
-                }
-            );
+            this.http.get<League>('http://localhost:8080/api/v1/leagues', httpOptions).subscribe(
+                league => {
+                    this.state.setLeague(league);
+                    observer.next(league);
+                }, error => observer.error(error)
+            )
         });
     }
 
-    public updateLeagueInformation(leagueInfo: LeagueInformation) {
-        return new Observable(observer => {
-            this.http.put('http://localhost:8080/api/leagues/', {
-                name: leagueInfo.name,
-                description: leagueInfo.description,
-                game: leagueInfo.game,
-                publicView: leagueInfo.publicView,
-                publicJoin: leagueInfo.publicJoin,
-                signupStart: leagueInfo.signupStart,
-                signupEnd: leagueInfo.signupEnd,
-                leagueStart: leagueInfo.leagueStart,
-                leagueEnd: leagueInfo.leagueEnd
-            }, httpOptions).subscribe(
-                next => {
-                    this.game = leagueInfo.game;
-                    observer.next();
-                }, error => {
-                    observer.error(error);
-                }
-            );
-        });
+    public getTeamManagers(): Observable<TeamWithManagers[]> {
+        return this.http.get<TeamWithManagers[]>('http://localhost:8080/api/v1/leagues/teamManagers', httpOptions);
     }
 
-    public createLeague(leagueInfo: LeagueInformation) {
-        return this.http.post('http://localhost:8080/api/leagues/', {
-            name: leagueInfo.name,
-            description: leagueInfo.description,
-            game: leagueInfo.game,
-            publicView: leagueInfo.publicView,
-            publicJoin: leagueInfo.publicJoin,
-            signupStart: leagueInfo.signupStart,
-            signupEnd: leagueInfo.signupEnd,
-            leagueStart: leagueInfo.leagueStart,
-            leagueEnd: leagueInfo.leagueEnd
-        }, httpOptions)
+    public getPublicLeagues(): Observable<League[]> {
+        return this.http.get<League[]>('http://localhost:8080/api/v1/leagues/publicLeagues', httpOptions);
     }
 
-    public getListOfLeagues(): Observable<any>  {
-        return this.http.get('http://localhost:8080/api/leagues/publicLeagues', httpOptions);
+    public createLeague(league: LeagueCore): Observable<LeagueId> {
+        return this.http.post<LeagueId>('http://localhost:8080/api/v1/leagues', league, httpOptions);
     }
 
-    public getMarkdown(): Observable<any>  {
-        return this.http.get('http://localhost:8080/api/leagues/markdown', httpOptions);
+    public updateLeagueInformation(league: LeagueCore): Observable<Object> {
+        return this.http.put('http://localhost:8080/api/v1/leagues', league, httpOptions);
     }
 
-    public setMarkdown(markdown: string): Observable<any>  {
-        return this.http.post('http://localhost:8080/api/leagues/markdown', {
-            markdown: markdown
-        }, httpOptions);
+    public getLeagueMarkdown(): Observable<Markdown> {
+        return this.http.get<Markdown>('http://localhost:8080/api/v1/leagues/markdown', httpOptions);
     }
 
-    public generateSchedule(tournamentType: string, roundsPerWeek: number, concurrentGameNum: number,
-                            gameDuration: number): Observable<any> {
-        return this.http.request('post', 'http://localhost:8080/api/scheduling/schedule', {
-            body: {
-                tournamentType: tournamentType,
-                roundsPerWeek: roundsPerWeek,
-                concurrentGameNum: concurrentGameNum,
-                gameDuration: gameDuration
-            }, withCredentials: true,
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json'
-            })
-        });
+    public setLeagueMarkdown(markdown: Markdown): Observable<Object> {
+        return this.http.put('http://localhost:8080/api/v1/leagues/markdown', markdown, httpOptions);
     }
 
-    public getSchedulingAvailabilities(): Observable<any> {
-        return this.http.get('http://localhost:8080/api/scheduling/availabilities', httpOptions);
+    public getWeeklyAvailabilities(): Observable<WeeklyAvailability[]> {
+        return this.http.get<WeeklyAvailability[]>('http://localhost:8080/api/v1/weeklyAvailabilities', httpOptions);
     }
 
-    public addRecurringSchedulingAvailability(weekday: string, timezone: number, hour: number,
-                                               minute: number, duration: number, constrained: boolean,
-                                               start: number, end: number): Observable<any> {
-        return this.http.post('http://localhost:8080/api/scheduling/recurringAvailability', {
-            weekday: weekday,
-            timezone: timezone,
-            hour: hour,
-            minute: minute,
-            duration: duration,
-            constrained: constrained,
-            start: start,
-            end: end
-        }, httpOptions);
+    public createWeeklyAvailability(availability: WeeklyAvailabilityCore): Observable<AvailabilityId> {
+        return this.http.post<AvailabilityId>('http://localhost:8080/api/v1/weeklyAvailabilities', availability, httpOptions);
     }
 
-    public editRecurringSchedulingAvailability(id: number, weekday: string, timezone: number, hour: number,
-                                              minute: number, duration: number, constrained: boolean,
-                                              start: number, end: number): Observable<any> {
-        return this.http.put('http://localhost:8080/api/scheduling/recurringAvailability', {
-            id: id,
-            weekday: weekday,
-            timezone: timezone,
-            hour: hour,
-            minute: minute,
-            duration: duration,
-            constrained: constrained,
-            start: start,
-            end: end
-        }, httpOptions);
+    public updateWeeklyAvailability(availabilityId: number, availability: WeeklyAvailabilityCore): Observable<null> {
+        return this.http.put<null>('http://localhost:8080/api/v1/weeklyAvailabilities/' + availabilityId, availability, httpOptions);
     }
 
-    public deleteRecurringSchedulingAvailability(id: number) {
-        return this.http.request('delete', 'http://localhost:8080/api/scheduling/recurringAvailability/' + id,
-            httpOptions);
+    public deleteWeeklyAvailability(availabilityId: number): Observable<null> {
+        return this.http.delete<null>('http://localhost:8080/api/v1/weeklyAvailabilities/' + availabilityId, httpOptions);
+    }
+
+    public generateSchedule(schedulingParameters: SchedulingParameters): Observable<GameCore[]> {
+        return this.http.post<GameCore[]>('http://localhost:8080/api/v1/schedule', schedulingParameters, httpOptions);
     }
 }

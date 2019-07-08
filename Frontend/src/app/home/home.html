@@ -6,9 +6,9 @@
 <div class="home-content">
     <div class="top-row">
         <span class="league-about">
-            <h2>About {{leagueInformation.name}}</h2>
+            <h2>About {{league.name}}</h2>
 
-            <div>{{leagueInformation.description}}</div>
+            <div>{{league.description}}</div>
             <div>
                 <span>Game: </span>
                 <span>{{getGameLabel()}}</span>
@@ -16,23 +16,23 @@
             <div>
                 <span>Registration Period: </span>
                 <span>
-                    {{leagueInformation.signupStart * 1000 | date:'EEEE'}} {{leagueInformation.signupStart * 1000 | date:'MMMM d'}}
+                    {{league.signupStart * 1000 | date:'EEEE'}} {{league.signupStart * 1000 | date:'MMMM d'}}
                     to
-                    {{leagueInformation.signupEnd * 1000 | date:'EEEE'}} {{leagueInformation.signupEnd * 1000 | date:'MMMM d'}}
+                    {{league.signupEnd * 1000 | date:'EEEE'}} {{league.signupEnd * 1000 | date:'MMMM d'}}
                 </span>
             </div>
             <div>
                 <span>Competition Period: </span>
                 <span>
-                    {{leagueInformation.leagueStart * 1000 | date:'EEEE'}} {{leagueInformation.leagueStart * 1000 | date:'MMMM d'}}
+                    {{league.leagueStart * 1000 | date:'EEEE'}} {{league.leagueStart * 1000 | date:'MMMM d'}}
                     to
-                    {{leagueInformation.leagueEnd * 1000 | date:'EEEE'}} {{leagueInformation.leagueEnd * 1000 | date:'MMMM d'}}
+                    {{league.leagueEnd * 1000 | date:'EEEE'}} {{league.leagueEnd * 1000 | date:'MMMM d'}}
                 </span>
             </div>
         </span>
         <span class="top-teams">
             <h2>Top Teams</h2>
-            <app-team-entry *ngFor="let team of teams; let i = index"
+            <app-team-entry *ngFor="let team of topTeams; let i = index"
                             [team]="team" [position]="i+1" [height]="80"></app-team-entry>
         </span>
     </div>
@@ -40,13 +40,13 @@
         <span class="past-games">
             <h2>Recently Completed Games</h2>
             <div class="games-list">
-                <app-game-entry *ngFor="let game of completeGames" [game]="game" [compact]="true"></app-game-entry>
+                <app-game-entry *ngFor="let game of games.completedGames" [game]="game" [compact]="true"></app-game-entry>
             </div>
         </span>
         <span class="upcoming-games">
             <h2>Upcoming Games</h2>
             <div class="games-list">
-                <app-game-entry *ngFor="let game of upcomingGames" [game]="game" [compact]="true"></app-game-entry>
+                <app-game-entry *ngFor="let game of games.upcomingGames" [game]="game" [compact]="true"></app-game-entry>
             </div>
         </span>
     </div>
@@ -56,9 +56,9 @@
 <ng-container *ngIf="signupPeriod">
     <div class="home-content signup">
         <span class="league-about">
-            <h2>About {{leagueInformation.name}}</h2>
+            <h2>About {{league.name}}</h2>
 
-            <div>{{leagueInformation.description}}</div>
+            <div>{{league.description}}</div>
             <div>
                 <span>Game: </span>
                 <span>{{getGameLabel()}}</span>
@@ -66,17 +66,17 @@
             <div>
                 <span>Registration Period: </span>
                 <span>
-                    {{leagueInformation.signupStart * 1000 | date:'EEEE'}} {{leagueInformation.signupStart * 1000 | date:'MMMM d'}}
+                    {{league.signupStart * 1000 | date:'EEEE'}} {{league.signupStart * 1000 | date:'MMMM d'}}
                     to
-                    {{leagueInformation.signupEnd * 1000 | date:'EEEE'}} {{leagueInformation.signupEnd * 1000 | date:'MMMM d'}}
+                    {{league.signupEnd * 1000 | date:'EEEE'}} {{league.signupEnd * 1000 | date:'MMMM d'}}
                 </span>
             </div>
             <div>
                 <span>Competition Period: </span>
                 <span>
-                    {{leagueInformation.leagueStart * 1000 | date:'EEEE'}} {{leagueInformation.leagueStart * 1000 | date:'MMMM d'}}
+                    {{league.leagueStart * 1000 | date:'EEEE'}} {{league.leagueStart * 1000 | date:'MMMM d'}}
                     to
-                    {{leagueInformation.leagueEnd * 1000 | date:'EEEE'}} {{leagueInformation.leagueEnd * 1000 | date:'MMMM d'}}
+                    {{league.leagueEnd * 1000 | date:'EEEE'}} {{league.leagueEnd * 1000 | date:'MMMM d'}}
                 </span>
             </div>
             <div class="signup">

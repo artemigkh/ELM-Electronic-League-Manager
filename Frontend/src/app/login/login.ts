@@ -1,31 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import {Router} from '@angular/router';
-import {MatDialog} from '@angular/material'
-import {LeagueService} from "../httpServices/leagues.service";
-import {User} from "../interfaces/User";
+import {Component} from "@angular/core";
+import {Router} from "@angular/router";
 import {UserService} from "../httpServices/user.service";
+import {NGXLogger} from "ngx-logger";
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.html',
     styleUrls: ['./login.scss']
 })
-export class LoginComponent implements OnInit {
-    constructor(private router: Router, private userService: UserService) { }
+export class LoginComponent {
     email: string;
     password: string;
-    ngOnInit() {
+
+    constructor(private log: NGXLogger,
+                private router: Router,
+                private userService: UserService) {
     }
-    login() : void {
+
+    login(): void {
         this.userService.login(this.email, this.password).subscribe(
-            (next: User) => {
-                console.log("logged in with user with id ", next.id);
-                this.router.navigate([""]);
-            }, error => {
-                console.log("error");
-                alert("Incorrect email or password");
-            }
+            () => this.router.navigate(["login"]),
+            error => this.log.error(error)
         );
     }
 }
-

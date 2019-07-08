@@ -11,26 +11,26 @@
     <a mat-button class="docs-button" routerLink="/games" aria-label="Angular Material">
         <span>Past and Upcoming Games</span>
     </a>
-    <a mat-button class="docs-button" routerLink="/register" aria-label="Angular Material">
+    <a *ngIf="isRegistrationPeriod()" mat-button class="docs-button" routerLink="/register" aria-label="Angular Material">
         <span>Tournament Registration</span>
     </a>
-    <a mat-button class="docs-button" routerLink="/stats" aria-label="Angular Material">
+    <a *ngIf="hasStatsPage()" mat-button class="docs-button" routerLink="/stats" aria-label="Angular Material">
         <span>Stats</span>
     </a>
     <div class="flex-spacer"></div>
     <a mat-button class="docs-button" routerLink="/leagues" aria-label="Angular Material">
         <span>Other Leagues</span>
     </a>
-    <a mat-button class="docs-button" routerLink="/manage" aria-label="Angular Material">
+    <a *ngIf="isManager()" mat-button class="docs-button" routerLink="/manage" aria-label="Angular Material">
         <span>Manage</span>
     </a>
-    <a *ngIf="!loggedIn" mat-button class="docs-button" routerLink="/signup" aria-label="Angular Material">
+    <a *ngIf="!loggedIn()" mat-button class="docs-button" routerLink="/signup" aria-label="Angular Material">
         <span>Sign Up</span>
     </a>
-    <a *ngIf="!loggedIn"mat-button class="docs-button" routerLink="/login" aria-label="Angular Material">
+    <a *ngIf="!loggedIn()"mat-button class="docs-button" routerLink="/login" aria-label="Angular Material">
         <span>Login</span>
     </a>
-    <a *ngIf="loggedIn"mat-button class="docs-button" routerLink="/" aria-label="Angular Material"
+    <a *ngIf="loggedIn()"mat-button class="docs-button" routerLink="/" aria-label="Angular Material"
         (click)="logout()">
         <span>Logout</span>
     </a>

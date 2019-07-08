@@ -1,31 +1,56 @@
-import {Component, Inject, ViewEncapsulation} from "@angular/core";
-import {LeagueService} from "../../httpServices/leagues.service";
-import {Team} from "../../interfaces/Team";
-import {Game, GameCollection} from "../../interfaces/Game";
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
-import {WarningPopup} from "../warningPopup/warning-popup";
-import {GamesService} from "../../httpServices/games.service";
-import {ManageComponentInterface} from "../manage-component-interface";
-import {gameSort, gameSortReverse} from "../../shared/elm-data-utils";
-import * as moment from "moment";
-import {Moment} from "moment";
-// import * as _moment from 'moment';
-// tslint:disable-next-line:no-duplicate-imports
-// import {default as _rollupMoment} from 'moment';
-import {MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
-import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
-import {FormControl} from "@angular/forms";
+// import {Component, Inject, ViewEncapsulation} from "@angular/core";
+// import {LeagueService} from "../../httpServices/leagues.service";
+// import {Team} from "../../interfaces/Team";
+// import {Game, GameCollection} from "../../interfaces/Game";
+// import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
+// import {WarningPopup} from "../warningPopup/warning-popup";
+// import {GamesService} from "../../httpServices/games.service";
+// import {ManageComponentInterface} from "../manage-component-interface";
+// import {gameSort, gameSortReverse} from "../../shared/elm-data-utils";
+// import * as moment from "moment";
+// import {Moment} from "moment";
+// // import * as _moment from 'moment';
+// // tslint:disable-next-line:no-duplicate-imports
+// // import {default as _rollupMoment} from 'moment';
+// import {MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
+// import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
+// import {FormControl} from "@angular/forms";
+// import {Action} from "../actions";
+// import {Id} from "../../httpServices/api-return-schemas/id";
+// import {TeamsService} from "../../httpServices/teams.service";
+// import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
+// import {UserService} from "../../httpServices/user.service";
+
 import {Action} from "../actions";
-import {Id} from "../../httpServices/api-return-schemas/id";
+import {Component, Inject, OnInit} from "@angular/core";
+import {MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from "@angular/material-moment-adapter";
+import {
+    DateAdapter,
+    MAT_DATE_FORMATS,
+    MAT_DATE_LOCALE,
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef
+} from "@angular/material";
+import {UserWithPermissions} from "../../interfaces/User";
+import {EmptySortedGames, Game, GameCreationInformation, SortedGames} from "../../interfaces/Game";
+import {NGXLogger} from "ngx-logger";
+import {ElmState} from "../../shared/state/state.service";
+import {GamesService} from "../../httpServices/games.service";
+import {EventDisplayerService} from "../../shared/eventDisplayer/event-displayer.service";
+import {Team} from "../../interfaces/Team";
 import {TeamsService} from "../../httpServices/teams.service";
-import {TeamPermissions, UserPermissions} from "../../httpServices/api-return-schemas/permissions";
-import {UserService} from "../../httpServices/user.service";
+import {Option} from "../../interfaces/UI";
+import {Moment} from "moment";
+import * as moment from "moment";
+import {FormControl} from "@angular/forms";
+import {WarningPopup, WarningPopupData} from "../warningPopup/warning-popup";
 
 class GameData {
-    title: string;
-    action: Action;
-    caller: ManageGamesComponent;
-    game: Game;
+    action?: Action;
+    game?: Game;
+    onSuccess: (game?: Game) => void;
+    teams?: { [teamId: number] : Team; };
 }
 
 @Component({
@@ -34,192 +59,175 @@ class GameData {
     styleUrls: ['./manage-games.scss'],
     // encapsulation: ViewEncapsulation.None
 })
-export class ManageGamesComponent implements ManageComponentInterface{
-    teams: Team[];
-    teamVisibility: {[id: number] : boolean;} = {};
-    upcomingGames: Game[];
-    completeGames: Game[];
+export class ManageGamesComponent implements OnInit{
+    user: UserWithPermissions;
+    games: SortedGames;
+    teamsMap: { [teamId: number] : Team; };
+    selectedTeamId: number;
 
-    constructor(private teamsService: TeamsService, public dialog: MatDialog,
+    constructor(private log: NGXLogger,
+                private state: ElmState,
+                private eventDisplayer: EventDisplayerService,
                 private gamesService: GamesService,
-                private userService: UserService) {
-
-        this.teamsService.getTeamSummary().subscribe(
-            teamSummary => {
-                let teams = teamSummary;
-                this.userService.getUserPermissions().subscribe(
-                    (next: UserPermissions) => {
-                        this.teams = [];
-                        teams.forEach((team: Team) => {
-                            if(next.leaguePermissions.administrator || next.leaguePermissions.editGames) {
-                                this.teams.push(team);
-                            } else {
-                                next.teamPermissions.forEach((teamPermission: TeamPermissions) => {
-                                    if(team.id == teamPermission.id &&
-                                        (teamPermission.administrator || teamPermission.reportResults)) {
-                                        this.teams.push(team);
-                                    }
-                                });
-                            }
-                        });
-                        teams.forEach(team => {
-                            this.teamVisibility[team.id] = false;
-                        });
-                        this.teams.forEach(team => {
-                            this.teamVisibility[team.id] = true;
-                        });
-                        console.log(this.teams);
-
-                        this.gamesService.getAllGames().subscribe(
-                            (games: GameCollection) => {
-                                this.upcomingGames = games.upcomingGames;
-                                this.completeGames = games.completeGames;
-                                console.log(games);
-                            }, error => {
-                                console.log(error);
-                            }
-                        )
-
-                    }, error => {
-                        console.log(error);
-                    }
-                );
-
-            }, error => {
-                console.log(error);
-            });
+                private teamsService: TeamsService,
+                private dialog: MatDialog) {
+        this.games = EmptySortedGames();
+        this.teamsMap = {};
     }
 
-    swapVisibility(id: number): void {
-        this.teamVisibility[id] = !this.teamVisibility[id];
+    ngOnInit(): void {
+        this.teamsService.getLeagueTeams().subscribe(
+            teams => this.createTeamsMap(teams),
+            error => this.log.error(error)
+        );
+        this.gamesService.getLeagueGames({}).subscribe(
+            games => this.games = games,
+            error => this.log.error(error)
+        );
+        this.state.subscribeUser(user => this.user = user);
     }
 
-    deselectAll(): void {
-        this.teams.forEach(team => {
-            this.teamVisibility[team.id] = false;
+    createTeamsMap(teams: Team[]) {
+        teams.forEach(team => {
+            this.teamsMap[team.teamId] = team;
         });
     }
 
-    selectAll(): void {
-        this.teams.forEach(team => {
-            this.teamVisibility[team.id] = true;
-        });
+    hasPermissions(game: Game): boolean {
+        return this.user.leaguePermissions.administrator || this.user.leaguePermissions.editGames || // league-wide permissions check
+            this.user.teamPermissions.filter(t => t.administrator || t.games).map(t => t.teamId) // get list of editable team IDs;
+                .map(teamId => game.team1.teamId == teamId || game.team2.teamId == teamId) // map to true if at least one of the teams in game correspond to this team Id
+                .reduce((p, c) => p || c, false) // reduce to return true if there is at least on true in this list
     }
 
-    reportGamePopup(game: Game): void {
-        const dialogRef = this.dialog.open(ReportGamePopup, {
-            width: '500px',
-            data: {
-                caller: this,
-                game: game
-            },
-            autoFocus: false
-        });
+    isGameViewable(game: Game): boolean {
+        return this.hasPermissions(game) && this.selectedTeamId == null ? true :
+            game.team1.teamId == this.selectedTeamId || game.team2.teamId == this.selectedTeamId;
     }
 
-    newGamePopup(): void {
-        const dialogRef = this.dialog.open(ManageGamePopup, {
-            width: '500px',
-            data: {
-                action: Action.Create,
-                title: "Schedule New Game",
-                game: {
-                    gameTime: null
-                },
-                caller: this
-            },
-            autoFocus: false
-        });
+    moveGameToCompleted(game: Game): void {
+        game.complete = true;
+        this.games.upcomingGames = this.games.upcomingGames.filter(g => g.gameId != game.gameId);
+        this.games.completedGames.push(game);
     }
 
-    editGamePopup(game: Game): void {
-        const dialogRef = this.dialog.open(ManageGamePopup, {
-            width: '500px',
-            data: {
-                action: Action.Edit,
-                title: "Edit Game",
+    reportGame(game: Game): void {
+        this.dialog.open(ReportGamePopup, {
+            data: <GameData>{
                 game: game,
-                caller: this
+                onSuccess: game => {
+                    this.eventDisplayer.displaySuccess("Game Successfully Reported");
+                    if (!game.complete) {
+                        this.moveGameToCompleted(game);
+                    }
+                }
             },
-            autoFocus: false
+            autoFocus: false, width: '500px'
         });
     }
 
-    deletePopup(game: Game): void {
-        const dialogRef = this.dialog.open(WarningPopup, {
-            width: '500px',
-            data: {
-                entity: "game",
-                name: game.team1.name + " vs " + game.team2.name,
-                caller: this,
-                Id: game.id
+    newGame() {
+        this.dialog.open(ManageGamePopup, {
+            data: <GameData>{
+                action: Action.Create,
+                teams: this.teamsMap,
+                onSuccess: game => {
+                    this.eventDisplayer.displaySuccess("Game Successfully Scheduled");
+                    this.games.upcomingGames.push(game);
+                }
             },
-            autoFocus: false
+            width: '500px', autoFocus: false
         });
     }
 
-    notifyDelete(id: number) {
-        console.log("notify deleted with id ", id);
-        this.gamesService.deleteGame(id).subscribe(
-            next => {
-                this.upcomingGames = this.upcomingGames.filter((g: Game) => {
-                    return g.id != id;
-                });
-                this.completeGames = this.completeGames.filter((g: Game) => {
-                    return g.id != id;
-                });
-            }, error => {
-                console.log(error);
-            }
+    rescheduleGame(game: Game) {
+        this.dialog.open(ManageGamePopup, {
+            data: <GameData>{
+                action: Action.Edit,
+                teams: this.teamsMap,
+                game: game,
+                onSuccess: () => this.eventDisplayer.displaySuccess("Game Successfully Rescheduled")
+            },
+            width: '500px', autoFocus: false
+        });
+    }
+
+    private _deleteGame(gameId: number) {
+        this.gamesService.deleteGame(gameId).subscribe(
+            () => {
+                this.eventDisplayer.displaySuccess("Game Successfully Deleted");
+                this.games.upcomingGames = this.games.upcomingGames.filter(game => game.gameId != gameId);
+            }, error => this.eventDisplayer.displayError(error)
         );
     }
 
-    notifyComplete(game: Game) {
-        this.upcomingGames = this.upcomingGames.filter((g: Game) => {
-           return g.id != game.id;
+    private deleteGame(game: Game) {
+        this.dialog.open(WarningPopup, {
+            data: <WarningPopupData>{
+                entity: "game",
+                name: game.team1.name + " vs " + game.team2.name,
+                onAccept: () => this._deleteGame(game.gameId)
+            },
+            autoFocus: false, width: '500px'
         });
-        this.completeGames.push(game);
-        this.completeGames.sort(gameSortReverse);
-        console.log("amend notified");
-    }
-
-    notifyCreated(team1: Team, team2: Team, gameId: number, gameTime: number) {
-        console.log("notify created");
-        this.upcomingGames.push({
-            id: gameId,
-            gameTime: gameTime,
-            complete: false,
-            winnerId: -1,
-            scoreTeam1: 0,
-            scoreTeam2: 0,
-            team1Id: team1.id,
-            team2Id: team2.id,
-            team1: team1,
-            team2: team2
-        });
-        this.upcomingGames.sort(gameSort);
-    }
-
-    notifyRescheduled() {
-        console.log("notify reschedule");
-        this.upcomingGames.sort(gameSort);
     }
 }
 
-
+//     newGamePopup(): void {
+//         const dialogRef = this.dialog.open(ManageGamePopup, {
+//             width: '500px',
+//             data: {
+//                 action: Action.Create,
+//                 title: "Schedule New Game",
+//                 game: {
+//                     gameTime: null
+//                 },
+//                 caller: this
+//             },
+//             autoFocus: false
+//         });
+//     }
+//
+//     editGamePopup(game: Game): void {
+//         const dialogRef = this.dialog.open(ManageGamePopup, {
+//             width: '500px',
+//             data: {
+//                 action: Action.Edit,
+//                 title: "Edit Game",
+//                 game: game,
+//                 caller: this
+//             },
+//             autoFocus: false
+//         });
+//     }
+//
+//     deletePopup(game: Game): void {
+//         const dialogRef = this.dialog.open(WarningPopup, {
+//             width: '500px',
+//             data: {
+//                 entity: "game",
+//                 name: game.team1.name + " vs " + game.team2.name,
+//                 caller: this,
+//                 Id: game.id
+//             },
+//             autoFocus: false
+//         });
+//     }
+//
+// }
+//
+//
 @Component({
     selector: 'report-game-popup',
     templateUrl: 'report-game-popup.html',
     styleUrls: ['./report-game-popup.scss'],
 })
 export class ReportGamePopup {
-    game: Game;
-
     constructor(
         public dialogRef: MatDialogRef<ReportGamePopup>,
+        private log: NGXLogger,
         private gamesService: GamesService,
         @Inject(MAT_DIALOG_DATA) public data: GameData) {
-        this.game = data.game;
     }
 
     OnCancel(): void {
@@ -227,30 +235,23 @@ export class ReportGamePopup {
     }
 
     OnConfirm(): void {
-        console.log("confirm called");
-        console.log(this.game);
-        console.log("team1Score", this.game.scoreTeam1);
-        console.log("team2Score", this.game.scoreTeam2);
-        let numScoreTeam1: number = Number(this.game.scoreTeam1);
-        let numScoreTeam2: number = Number(this.game.scoreTeam2);
-        this.game.winnerId = numScoreTeam1 > numScoreTeam2 ? this.game.team1Id : this.game.team2Id;
-        this.gamesService.reportResult(
-            this.game.id,
-            this.game.winnerId,
-            numScoreTeam1,
-            numScoreTeam2
-        ).subscribe(
-            next => {
-                console.log("reported game");
-                if (!this.game.complete) {
-                    this.data.caller.notifyComplete(this.game);
-                }
+        if (this.data.game.scoreTeam1 > this.data.game.scoreTeam2) {
+            this.data.game.winnerId = this.data.game.team1.teamId;
+            this.data.game.loserId = this.data.game.team2.teamId;
+        } else {
+            this.data.game.winnerId = this.data.game.team2.teamId;
+            this.data.game.loserId = this.data.game.team1.teamId;
+        }
+        this.gamesService.reportResult(this.data.game.gameId, this.data.game).subscribe(
+            () => {
+                this.data.onSuccess(this.data.game);
                 this.dialogRef.close();
-            }, error => {
-                console.log(error);
+            },
+            error => {
+                this.log.error(error);
                 this.dialogRef.close();
             }
-        )
+        );
     }
 }
 
@@ -265,39 +266,28 @@ export class ReportGamePopup {
     ],
 })
 export class ManageGamePopup {
-    teams: Team[];
+    title: string;
+    teams: Option[];
     time: Moment;
     date: FormControl;
-    team1: Team;
-    team2: Team;
+    creationInformation: GameCreationInformation;
     constructor(
-        public dialogRef: MatDialogRef<ManageGamePopup>,
-        @Inject(MAT_DIALOG_DATA) public data: GameData,
-        private teamsService: TeamsService,
-        private gamesService: GamesService) {
-
-        if (data.game.gameTime == null) {
-            this.time = null;
-            this.date = new FormControl()
+        public dialogRef: MatDialogRef<ReportGamePopup>,
+        private log: NGXLogger,
+        private gamesService: GamesService,
+        @Inject(MAT_DIALOG_DATA) public data: GameData) {
+        this.title = this.data.action == Action.Create ? "Schedule New Game" : "Reschedule Game";
+        this.teams = Object.entries(this.data.teams).map(o => <Option>{value: parseInt(o[0]), display: o[1].name});
+        this.creationInformation = new GameCreationInformation();
+        if (this.data.game) {
+            this.time = moment.unix(this.data.game.gameTime);
+            this.date = new FormControl(this.time.clone());
+            this.creationInformation.team1Id = this.data.game.team1.teamId;
+            this.creationInformation.team2Id = this.data.game.team2.teamId;
         } else {
-            this.time = moment.unix(data.game.gameTime);
-            this.date = new FormControl(this.time);
+            this.time = moment();
+            this.date = new FormControl(moment());
         }
-
-        this.teamsService.getTeamSummary().subscribe(
-            teamSummary => {
-                this.teams = teamSummary;
-            }, error => {
-                console.log(error);
-            });
-    }
-
-    setTeam1(team: Team) {
-        this.team1 = team;
-    }
-
-    setTeam2(team: Team) {
-        this.team2 = team;
     }
 
     onCancel(): void {
@@ -305,31 +295,41 @@ export class ManageGamePopup {
     }
 
     onConfirm(): void {
-        console.log(this.time);
-        let mhTime = moment(this.time, "hh-mm a");
-        console.log(mhTime.format("dddd, MMMM Do YYYY, h:mm:ss a"));
-        let newTime = this.date.value.clone();
-        newTime.minute(mhTime.minute());
-        newTime.hour(mhTime.hour());
-        console.log(newTime.format("dddd, MMMM Do YYYY, h:mm:ss a"));
-        this.dialogRef.close();
-        if(this.data.action == Action.Create) {
-            this.gamesService.createNewGame(this.team1.id, this.team2.id, newTime.unix()).subscribe(
-                (next: Id) => {
-                    this.data.caller.notifyCreated(this.team1, this.team2, next.id, newTime.unix());
+        if (typeof this.time == "string") {
+            this.time = moment(this.time, "hh-mm a").seconds(0).milliseconds(0);
+        }
+        this.creationInformation.updateFromMoments(this.date.value, this.time);
+
+        if (this.data.action == Action.Create) {
+            this.gamesService.createGame(this.creationInformation).subscribe(
+                res => {
+                    this.data.onSuccess(<Game>{
+                        gameId: res.gameId,
+                        complete: false,
+                        gameTime: this.creationInformation.gameTime,
+                        team1: this.data.teams[this.creationInformation.team1Id],
+                        team2: this.data.teams[this.creationInformation.team2Id],
+                        winnerId: -1, loserId: -1, scoreTeam1: 0, scoreTeam2: 0
+                    })
                 }, error => {
-                    console.log(error);
+                    this.log.error(error);
+                    this.dialogRef.close();
                 }
-            )
-        } else if (this.data.action == Action.Edit) {
-            this.gamesService.rescheduleGame(this.data.game.id, newTime.unix()).subscribe(
-                next => {
-                    this.data.game.gameTime = newTime.unix();
-                    this.data.caller.notifyRescheduled();
+            );
+            this.dialogRef.close();
+        } else {
+            this.data.game.gameTime = this.creationInformation.gameTime;
+            this.gamesService.rescheduleGame(this.data.game.gameId,
+                {gameTime: this.creationInformation.gameTime}).subscribe(
+                () => {
+                    this.data.onSuccess(this.data.game);
+                    this.dialogRef.close();
                 }, error => {
-                    console.log(error);
+                    this.log.error(error);
+                    this.dialogRef.close();
                 }
-            )
+            );
+
         }
     }
 }

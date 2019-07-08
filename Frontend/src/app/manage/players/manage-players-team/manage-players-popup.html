@@ -1,28 +1,25 @@
-<h1 mat-dialog-title>{{data.title}}</h1>
+<h1 mat-dialog-title>{{title}}</h1>
 <div mat-dialog-content>
-    <div class="content-wrapper">
+    <form [formGroup]="playerForm" (submit)="savePlayer()" class="content-wrapper">
         <mat-form-field hintLabel="Between 3 and 25 characters">
-            <input matInput #input maxlength="25" placeholder="Name" value="{{player.name}}"
-                   [(ngModel)]="player.name" required>
+            <input matInput formControlName="name" #input maxlength="25" placeholder="Name" required>
             <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
         </mat-form-field>
 
         <mat-form-field hintLabel="Between 3 and 25 characters">
-            <input matInput #input maxlength="25" placeholder="Game Identifier" value="{{player.gameIdentifier}}"
-                   [(ngModel)]="player.gameIdentifier" required>
+            <input matInput formControlName="gameIdentifier" #input maxlength="25" placeholder="Game Identifier" required>
             <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
         </mat-form-field>
-    </div>
-
+    </form>
 </div>
 <div mat-dialog-actions>
     <div class="action-bar-wrapper">
         <span class="spacer"></span>
         <span class="button-wrapper">
-        <button mat-raised-button (click)="OnCancel()">Cancel</button>
+        <button mat-raised-button (click)="onCancel()">Cancel</button>
     </span>
         <span class="button-wrapper">
-         <button mat-raised-button (click)="OnConfirm()">Confirm</button>
+         <button mat-raised-button (click)="savePlayer()">Confirm</button>
     </span>
         <span class="spacer"></span>
     </div>

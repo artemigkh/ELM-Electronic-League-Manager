@@ -6,7 +6,7 @@
                 Team 1
             </div>
             <div class="team-name">
-                {{game.team1.name}}
+                {{data.game.team1.name}}
             </div>
         </span>
 
@@ -14,7 +14,7 @@
             <div class="heading">
                 Score
             </div>
-            <input class="score-input" [(ngModel)]="game.scoreTeam1">
+            <input type="number" class="score-input" [(ngModel)]="data.game.scoreTeam1">
         </span>
 
         <span class="spacer"></span>
@@ -29,7 +29,7 @@
             <div class="heading">
                 Score
             </div>
-            <input class="score-input" [(ngModel)]="game.scoreTeam2">
+            <input type="number" class="score-input" [(ngModel)]="data.game.scoreTeam2">
         </span>
 
         <span class="team">
@@ -37,7 +37,7 @@
                 Team 2
             </div>
             <div class="team-name">
-                {{game.team2.name}}
+                {{data.game.team2.name}}
             </div>
         </span>
     </div>

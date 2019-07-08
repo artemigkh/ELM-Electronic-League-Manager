@@ -167,6 +167,125 @@ func getTeamWithPlayersSelector() squirrel.SelectBuilder {
 		LeftJoin("player ON team.team_id = player.team_id")
 }
 
+func GetScannedTeamWithRosters(rows *sql.Rows) (*TeamWithRosters, error) {
+	defer rows.Close()
+
+	var team TeamWithRosters
+
+	for rows.Next() {
+		var (
+			playerId             sql.NullInt64
+			playerName           sql.NullString
+			playerGameIdentifier sql.NullString
+			playerMainRoster     sql.NullBool
+		)
+		if err := rows.Scan(
+			&team.TeamId,
+			&team.Name,
+			&team.Description,
+			&team.Tag,
+			&team.IconSmall,
+			&team.IconLarge,
+			&team.Wins,
+			&team.Losses,
+			&playerId,
+			&playerName,
+			&playerGameIdentifier,
+			&playerMainRoster,
+		); err != nil {
+			return nil, err
+		}
+		if playerId.Valid {
+			if playerMainRoster.Bool {
+				team.MainRoster = append(team.MainRoster, &Player{
+					PlayerId:       int(playerId.Int64),
+					Name:           playerName.String,
+					GameIdentifier: playerGameIdentifier.String,
+					MainRoster:     playerMainRoster.Bool,
+				})
+			} else {
+				team.SubstituteRoster = append(team.SubstituteRoster, &Player{
+					PlayerId:       int(playerId.Int64),
+					Name:           playerName.String,
+					GameIdentifier: playerGameIdentifier.String,
+					MainRoster:     playerMainRoster.Bool,
+				})
+			}
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &team, nil
+}
+
+func GetScannedAllTeamWithRosters(rows *sql.Rows) ([]*TeamWithRosters, error) {
+	teams := make([]*TeamWithRosters, 0)
+	getUniqueTeam := func(newTeam *TeamWithRosters) *TeamWithRosters {
+		for _, team := range teams {
+			if newTeam.TeamId == team.TeamId {
+				return team
+			}
+		}
+		teams = append(teams, newTeam)
+		return newTeam
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var team TeamWithRosters
+		var (
+			playerId             sql.NullInt64
+			playerName           sql.NullString
+			playerGameIdentifier sql.NullString
+			playerMainRoster     sql.NullBool
+		)
+		if err := rows.Scan(
+			&team.TeamId,
+			&team.Name,
+			&team.Description,
+			&team.Tag,
+			&team.IconSmall,
+			&team.IconLarge,
+			&team.Wins,
+			&team.Losses,
+			&playerId,
+			&playerName,
+			&playerGameIdentifier,
+			&playerMainRoster,
+		); err != nil {
+			return nil, err
+		}
+
+		uniqueTeam := getUniqueTeam(&team)
+		if playerId.Valid {
+			if playerMainRoster.Bool {
+				uniqueTeam.MainRoster = append(uniqueTeam.MainRoster, &Player{
+					PlayerId:       int(playerId.Int64),
+					Name:           playerName.String,
+					GameIdentifier: playerGameIdentifier.String,
+					MainRoster:     playerMainRoster.Bool,
+				})
+			} else {
+				uniqueTeam.SubstituteRoster = append(uniqueTeam.SubstituteRoster, &Player{
+					PlayerId:       int(playerId.Int64),
+					Name:           playerName.String,
+					GameIdentifier: playerGameIdentifier.String,
+					MainRoster:     playerMainRoster.Bool,
+				})
+			}
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return teams, nil
+}
+
 func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
 	defer rows.Close()
 
@@ -213,7 +332,7 @@ func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
 }
 
 func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
-	var teams []*TeamWithPlayers
+	teams := make([]*TeamWithPlayers, 0)
 	getUniqueTeam := func(newTeam *TeamWithPlayers) *TeamWithPlayers {
 		for _, team := range teams {
 			if newTeam.TeamId == team.TeamId {
@@ -259,6 +378,65 @@ func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
 				MainRoster:     playerMainRoster.Bool,
 			}) // TODO: refactor this to not have dupe code with above
 		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return teams, nil
+}
+
+func getTeamWithManagersSelector() squirrel.SelectBuilder {
+	return psql.Select(
+		"team.team_id",
+		"team.name",
+		"team.tag",
+		"team.icon_small",
+		"user_.user_id",
+		"user_.email",
+		"team_permissions.administrator",
+		"team_permissions.information",
+		"team_permissions.games",
+	).
+		From("team_permissions").
+		LeftJoin("user_ ON team_permissions.user_id = user_.user_id").
+		LeftJoin("team ON team_permissions.team_id = team.team_id")
+}
+
+//
+func GetScannedAllTeamWithManagers(rows *sql.Rows) ([]*TeamWithManagers, error) {
+	teams := make([]*TeamWithManagers, 0)
+	getUniqueTeam := func(newTeam *TeamWithManagers) *TeamWithManagers {
+		for _, team := range teams {
+			if newTeam.TeamId == team.TeamId {
+				return team
+			}
+		}
+		teams = append(teams, newTeam)
+		return newTeam
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var team TeamWithManagers
+		var manager TeamManager
+		if err := rows.Scan(
+			&team.TeamId,
+			&team.Name,
+			&team.Tag,
+			&team.IconSmall,
+			&manager.UserId,
+			&manager.Email,
+			&manager.Administrator,
+			&manager.Information,
+			&manager.Games,
+		); err != nil {
+			return nil, err
+		}
+
+		uniqueTeam := getUniqueTeam(&team)
+		uniqueTeam.Managers = append(uniqueTeam.Managers, &manager) // TODO: refactor this to not have dupe code with above
 	}
 
 	if err := rows.Err(); err != nil {

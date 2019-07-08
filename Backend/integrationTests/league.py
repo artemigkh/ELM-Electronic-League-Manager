@@ -57,6 +57,12 @@ class League:
         t.assertEqual(201, r.status_code)
         self.league_id = r.json()["leagueId"]
 
+    def get_team(self, team_id):
+        return next((t for t in self.teams if t.team_id == team_id), None)
+
+    def get_game(self, game_id):
+        return next((g for g in self.games if g.game_id == game_id), None)
+
     def assert_equal_json(self, t, json):
         t.assertEqual(self.league_id, json["leagueId"])
         t.assertEqual(self.name, json["name"])
@@ -69,12 +75,12 @@ class League:
 
     def assert_teams_equal_json(self, t, json):
         for json_team in json:
-            team = next((t for t in self.teams if t.team_id == json_team["teamId"]), None)
+            team = self.get_team(json_team["teamId"])
             team.assert_equal_json(t, json_team)
 
     def assert_managers_equal_json(self, t, json):
         for json_team in json:
-            team = next((t for t in self.teams if t.team_id == json_team["teamId"]), None)
+            team = self.get_team(json_team["teamId"])
             team.assert_display_equal_json(t, json_team)
             for json_manager in json_team["managers"]:
                 manager = next((m for m in team.managers if m.user_id == json_manager["userId"]), None)
@@ -87,5 +93,5 @@ class League:
 
     def assert_games_equal_json(self, t, json):
         for json_game in json:
-            game = next((g for g in self.games if g.game_id == json_game["gameId"]), None)
+            game = self.get_game(json_game["gameId"])
             game.assert_equal_json(t, json_game, self.teams)

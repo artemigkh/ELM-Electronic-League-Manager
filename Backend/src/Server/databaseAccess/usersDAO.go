@@ -103,6 +103,7 @@ func (d *PgUsersDAO) GetUserWithPermissions(leagueId, userId int) (*UserWithPerm
 	user.LeaguePermissions = leaguePermissions
 
 	var teamPermissions TeamPermissionsArray
+	teamPermissions.rows = make([]*TeamPermissions, 0)
 	if err := ScanRows(getTeamPermissionsSelector().
 		Where("team.league_id = ? AND user_.user_id = ", leagueId, userId), &teamPermissions); err != nil {
 		return nil, err

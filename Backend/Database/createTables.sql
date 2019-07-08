@@ -75,8 +75,8 @@ CREATE TABLE league_permissions (
 
 DROP TABLE IF EXISTS team_permissions;
 CREATE TABLE team_permissions (
-  user_id         INT           NOT NULL REFERENCES user_(user_id),
-  team_id         INT           NOT NULL REFERENCES team(team_id),
+  user_id         INT           NOT NULL REFERENCES user_(user_id) ON DELETE CASCADE,
+  team_id         INT           NOT NULL REFERENCES team(team_id) ON DELETE CASCADE,
   administrator   BOOLEAN       NOT NULL         ,
   information     BOOLEAN       NOT NULL         ,
   games           BOOLEAN       NOT NULL

@@ -95,6 +95,19 @@ type TeamWithPlayers struct {
 	Players     []*Player `json:"players"`
 }
 
+type TeamWithRosters struct {
+	TeamId           int       `json:"teamId"`
+	Name             string    `json:"name"`
+	Description      string    `json:"description"`
+	Tag              string    `json:"tag"`
+	IconSmall        string    `json:"iconSmall"`
+	IconLarge        string    `json:"iconLarge"`
+	Wins             int       `json:"wins"`
+	Losses           int       `json:"losses"`
+	MainRoster       []*Player `json:"mainRoster"`
+	SubstituteRoster []*Player `json:"substituteRoster"`
+}
+
 type TeamWithManagers struct {
 	TeamId    int            `json:"teamId"`
 	Name      string         `json:"name"`
@@ -108,6 +121,8 @@ type TeamDisplay struct {
 	Name      string `json:"name"`
 	Tag       string `json:"tag"`
 	IconSmall string `json:"iconSmall"`
+	Wins      int    `json:"wins"`
+	Losses    int    `json:"losses"`
 }
 
 // Players

@@ -34,7 +34,7 @@ func InitRoutes(conf config.Config) *gin.Engine {
 	RegisterLoginHandlers(app.Group("/"))
 	RegisterUserHandlers(app.Group("/api/v1/users"))
 	RegisterLeagueHandlers(app.Group("/api/v1/leagues"))
-	RegisterTeamHandlers(app.Group("/api/v1/teams"))
+	RegisterTeamHandlers(app.Group("/api/v1"))
 	RegisterGameHandlers(app.Group(""))
 	RegisterSchedulingHandlers(app.Group("/api/v1"))
 	//

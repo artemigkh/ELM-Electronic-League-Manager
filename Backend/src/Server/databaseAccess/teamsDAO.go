@@ -67,6 +67,7 @@ func tryGetUniqueIcon(leagueId int) (string, string, error) {
 
 // Teams
 
+//TODO: change permissions so that this can also be done during signup with giving create team perms
 func (d *PgTeamsDAO) CreateTeam(leagueId, userId int, teamInfo TeamCore) (int, error) {
 	iconSmall, iconLarge, err := tryGetUniqueIcon(leagueId)
 	if err != nil {
@@ -139,6 +140,16 @@ func (d *PgTeamsDAO) GetTeamInformation(teamId int) (*TeamWithPlayers, error) {
 	return GetScannedTeamWithPlayers(rows)
 }
 
+func (d *PgTeamsDAO) GetTeamWithRosters(teamId int) (*TeamWithRosters, error) {
+	rows, err := getTeamWithPlayersSelector().
+		Where("team.team_id = ?", teamId).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+	return GetScannedTeamWithRosters(rows)
+}
+
 func (d *PgTeamsDAO) GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error) {
 	rows, err := getTeamWithPlayersSelector().
 		Where("team.league_id = ?", leagueId).
@@ -150,8 +161,19 @@ func (d *PgTeamsDAO) GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, erro
 	return GetScannedAllTeamWithPlayers(rows)
 }
 
+func (d *PgTeamsDAO) GetAllTeamsInLeagueWithRosters(leagueId int) ([]*TeamWithRosters, error) {
+	rows, err := getTeamWithPlayersSelector().
+		Where("team.league_id = ?", leagueId).
+		OrderBy("team.wins DESC, team.losses ASC").
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+	return GetScannedAllTeamWithRosters(rows)
+}
+
 func (d *PgTeamsDAO) GetAllTeamDisplaysInLeague(leagueId int) ([]*TeamDisplay, error) {
-	var teams TeamDisplayArray
+	teams := TeamDisplayArray{rows: make([]*TeamDisplay, 0)}
 	if err := ScanRows(getTeamDisplaySelector().
 		Where("league_id = ?", leagueId), &teams); err != nil {
 		return nil, err

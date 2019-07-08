@@ -7,18 +7,6 @@ func (a *AccessChecker) Availability(accessType AccessType, leagueId, availabili
 		return false, errors.New("can't check create permissions for an existing availability")
 	}
 
-	// check if availability exists in league
-	var count int
-	if err := psql.Select("count(*)").
-		From("availability").
-		Where("league_id = ?", leagueId).
-		RunWith(db).QueryRow().Scan(&count); err != nil {
-		return false, err
-	} else if count == 0 && accessType != Create {
-		return false, nil
-	}
-
-	// if availability exists in this league, it is viewable
 	if accessType == View {
 		return true, nil
 	} else {

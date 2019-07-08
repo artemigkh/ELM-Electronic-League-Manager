@@ -28,7 +28,7 @@ func DataInvalid(ctx *gin.Context, valid bool, problem string, err error) bool {
 	if checkErr(ctx, err) {
 		return true
 	} else if !valid {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": problem})
+		ctx.JSON(http.StatusBadRequest, gin.H{"errorDescription": problem})
 		return true
 	} else {
 		return false

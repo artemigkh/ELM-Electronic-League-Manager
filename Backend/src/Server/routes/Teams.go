@@ -32,21 +32,17 @@ func createNewTeam() gin.HandlerFunc {
 		},
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return team.ValidateNew(getLeagueId(ctx)) },
 		Core: func(ctx *gin.Context) (interface{}, error) {
-			if ctx.ContentType() == "application/json" {
-				teamId, err := TeamsDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
-				return gin.H{"teamId": teamId}, err
-			} else {
-				_, err := ctx.FormFile("icon") //TODO: descriptive fail on icon store error
-				if checkErr(ctx, err) {
-					return nil, err
-				}
-
+			_, err := ctx.FormFile("icon")
+			if err == nil {
 				smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
 				if checkErr(ctx, err) {
 					return nil, err
 				}
 
 				teamId, err := TeamsDAO.CreateTeamWithIcon(getLeagueId(ctx), getUserId(ctx), team, smallIcon, largeIcon)
+				return gin.H{"teamId": teamId}, err
+			} else {
+				teamId, err := TeamsDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
 				return gin.H{"teamId": teamId}, err
 			}
 		},
@@ -65,6 +61,18 @@ func getAllTeams() gin.HandlerFunc {
 	}
 }
 
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueTeamsWithRosters
+func getAllTeamsWithRosters() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		games, err := TeamsDAO.GetAllTeamsInLeagueWithRosters(getLeagueId(ctx))
+		if checkErr(ctx, err) {
+			return
+		}
+
+		ctx.JSON(http.StatusOK, games)
+	}
+}
+
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getTeam
 func getTeamInfo() gin.HandlerFunc {
 	return endpoint{
@@ -72,6 +80,17 @@ func getTeamInfo() gin.HandlerFunc {
 		AccessType: View,
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			return TeamsDAO.GetTeamInformation(getTeamId(ctx))
+		},
+	}.createEndpointHandler()
+}
+
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getTeamWithRosters
+func getTeamWithRosters() gin.HandlerFunc {
+	return endpoint{
+		Entity:     Team,
+		AccessType: View,
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			return TeamsDAO.GetTeamWithRosters(getTeamId(ctx))
 		},
 	}.createEndpointHandler()
 }
@@ -104,25 +123,21 @@ func editTeam() gin.HandlerFunc {
 			return team.ValidateEdit(getLeagueId(ctx), getTeamId(ctx))
 		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
-			if ctx.ContentType() == "application/json" {
-				return nil, TeamsDAO.UpdateTeam(getLeagueId(ctx), team)
-			} else {
-				_, err := ctx.FormFile("icon") //TODO: descriptive fail on icon store error
-				if checkErr(ctx, err) {
-					return nil, err
-				}
+			err := TeamsDAO.UpdateTeam(getTeamId(ctx), team)
+			if checkErr(ctx, err) {
+				return nil, err
+			}
 
+			_, err = ctx.FormFile("icon")
+			if err == nil {
 				smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
 				if checkErr(ctx, err) {
 					return nil, err
 				}
 
-				err = TeamsDAO.UpdateTeam(getTeamId(ctx), team)
-				if checkErr(ctx, err) {
-					return nil, err
-				}
-
 				return nil, TeamsDAO.UpdateTeamIcon(getTeamId(ctx), smallIcon, largeIcon)
+			} else {
+				return nil, nil
 			}
 		},
 	}.createEndpointHandler()
@@ -197,11 +212,13 @@ func deletePlayer() gin.HandlerFunc {
 }
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
-	g.POST("", createNewTeam())
-	g.GET("", getAllTeams())
+	g.POST("/teams", createNewTeam())
+	g.GET("/teams", getAllTeams())
+	g.GET("/teamsWithRosters", getAllTeamsWithRosters())
 
-	withTeamId := g.Group("/:teamId", storeTeamId())
+	withTeamId := g.Group("/teams/:teamId", storeTeamId())
 	withTeamId.GET("", getTeamInfo())
+	withTeamId.GET("/withRosters", getTeamWithRosters())
 	withTeamId.PUT("", editTeam())
 	withTeamId.DELETE("", deleteTeam())
 

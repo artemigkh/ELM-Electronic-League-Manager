@@ -94,29 +94,13 @@ func (d *PgLeaguesDAO) GetLeaguePermissions(leagueId, userId int) (*LeaguePermis
 }
 
 func (d *PgLeaguesDAO) GetTeamManagerInformation(leagueId int) ([]*TeamWithManagers, error) {
-	return nil, nil
-	//var teamManagerInformation TeamManagerDTOArray
-	//if err := ScanRows(psql.Select(
-	//	"user_id",
-	//	"email",
-	//	"team_id",
-	//	"name",
-	//	"tag",
-	//	"description",
-	//	"icon_small",
-	//	"administrator",
-	//	"information",
-	//	"players",
-	//	"report_results",
-	//).
-	//	From("team_permissions").
-	//	Join("user_ ON team_permissions.user_id = user.id").
-	//	Join("team ON team_permissions.team_id = team.id").
-	//	Where("league_id = ?", leagueId), &teamManagerInformation); err != nil {
-	//	return nil, err
-	//}
-	//
-	//return teamManagerInformation.rows, nil
+	rows, err := getTeamWithManagersSelector().
+		Where("team.league_id = ?", leagueId).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+	return GetScannedAllTeamWithManagers(rows)
 }
 
 func (d *PgLeaguesDAO) IsLeagueViewable(leagueId, userId int) (bool, error) {
@@ -238,7 +222,7 @@ func (d *PgLeaguesDAO) AddAvailability(leagueId int, availability AvailabilityCo
 }
 
 func (d *PgLeaguesDAO) GetAvailabilities(leagueId int) ([]*Availability, error) {
-	var availabilities AvailabilityArray
+	availabilities := AvailabilityArray{rows: make([]*Availability, 0)}
 	if err := ScanRows(getAvailabilitySelector(leagueId), &availabilities); err != nil {
 		return nil, err
 	}
@@ -299,7 +283,7 @@ func (d *PgLeaguesDAO) AddWeeklyAvailability(leagueId int, availability WeeklyAv
 }
 
 func (d *PgLeaguesDAO) GetWeeklyAvailabilities(leagueId int) ([]*WeeklyAvailability, error) {
-	var availabilities WeeklyAvailabilityArray
+	availabilities := WeeklyAvailabilityArray{rows: make([]*WeeklyAvailability, 0)}
 	if err := ScanRows(getWeeklyAvailabilitySelector(leagueId), &availabilities); err != nil {
 		return nil, err
 	}

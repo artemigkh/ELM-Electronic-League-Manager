@@ -1,7 +1,10 @@
 package databaseAccess
 
 import (
+	"fmt"
 	"github.com/Masterminds/squirrel"
+	"github.com/snabb/isoweek"
+	"time"
 )
 
 const (
@@ -43,7 +46,9 @@ func (d *PgGamesDAO) CreateGame(leagueId int, gameInformation GameCreationInform
 	return gameId, err
 }
 
+// TODO: make this work for amending results
 func (d *PgGamesDAO) ReportGame(gameId int, gameResult GameResult) error {
+	fmt.Printf("%+v\n", gameResult)
 	_, err := db.Exec("SELECT report_game($1,$2,$3,$4,$5)",
 		gameId,
 		gameResult.WinnerId,
@@ -115,14 +120,14 @@ func (d *PgGamesDAO) GetGameInformationFromExternalId(externalId string) (*Game,
 func (d *PgGamesDAO) GetAllGamesInLeague(leagueId int) ([]*Game, error) {
 	var games GameArray
 	if err := ScanRows(getGameSelector().
-		Where("game.league_id = ?", leagueId), &games); err != nil {
+		Where("game.league_id = ?", leagueId).OrderBy("game.game_time ASC"), &games); err != nil {
 		return nil, err
 	}
 
 	return games.rows, nil
 }
 
-func (d *PgGamesDAO) GetSortedGames(leagueId, teamId int) (*SortedGames, error) {
+func (d *PgGamesDAO) GetSortedGames(leagueId, teamId, limit int) (*SortedGames, error) {
 	var games SortedGames
 	gameSelectorCompleted := getGameSelector()
 	gameSelectorUpcoming := getGameSelector()
@@ -142,6 +147,12 @@ func (d *PgGamesDAO) GetSortedGames(leagueId, teamId int) (*SortedGames, error) 
 	}
 	gameSelectorCompleted = gameSelectorCompleted.OrderBy("game.game_time ASC")
 	gameSelectorUpcoming = gameSelectorUpcoming.OrderBy("game.game_time ASC")
+
+	if limit > 0 {
+		gameSelectorCompleted = gameSelectorCompleted.Limit(uint64(limit))
+		gameSelectorUpcoming = gameSelectorUpcoming.Limit(uint64(limit))
+	}
+
 	var completedGames GameArray
 	if err := ScanRows(gameSelectorCompleted, &completedGames); err != nil {
 		return nil, err
@@ -222,4 +233,46 @@ func (d *PgGamesDAO) HasReportResultPermissions(leagueId, gameId, userId int) (b
 		RunWith(db).QueryRow().Scan(&canReport)
 
 	return canReport, err
+}
+
+type CompetitionWeek struct {
+	WeekStart int     `json:"weekStart"`
+	Games     []*Game `json:"games"`
+}
+
+func (d *PgGamesDAO) GetGamesByWeek(leagueId, timeZone int) ([]*CompetitionWeek, error) {
+	games, err := d.GetAllGamesInLeague(leagueId)
+	if err != nil {
+		return nil, err
+	}
+
+	competitionWeeks := make([]*CompetitionWeek, 0)
+	if len(games) == 0 {
+		return competitionWeeks, nil
+	}
+
+	// Create initial objects for the first week of games
+	year, week := time.Unix(int64(games[0].GameTime), 0).ISOWeek()
+	weekStart := isoweek.StartTime(year, week, time.FixedZone("", timeZone))
+	competitionWeek := &CompetitionWeek{
+		WeekStart: int(weekStart.Unix()),
+		Games:     make([]*Game, 0),
+	}
+	competitionWeeks = append(competitionWeeks, competitionWeek)
+
+	// Add all games to a week struct, creating a new week as necessary
+	for _, game := range games {
+		// Make new week if game is after the end of current week
+		if time.Unix(int64(game.GameTime), 0).After(weekStart.AddDate(0, 0, 7)) {
+			weekStart = weekStart.AddDate(0, 0, 7)
+			competitionWeek = &CompetitionWeek{
+				WeekStart: int(weekStart.Unix()),
+				Games:     make([]*Game, 0),
+			}
+			competitionWeeks = append(competitionWeeks, competitionWeek)
+		}
+		competitionWeek.Games = append(competitionWeek.Games, game)
+	}
+
+	return competitionWeeks, nil
 }

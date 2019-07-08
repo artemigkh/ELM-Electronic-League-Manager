@@ -62,7 +62,9 @@ type TeamsDAO interface {
 	UpdateTeam(teamId int, teamInformation TeamCore) error
 	UpdateTeamIcon(teamId int, small, large string) error
 	GetTeamInformation(teamId int) (*TeamWithPlayers, error)
+	GetTeamWithRosters(teamId int) (*TeamWithRosters, error)
 	GetAllTeamsInLeague(leagueId int) ([]*TeamWithPlayers, error)
+	GetAllTeamsInLeagueWithRosters(leagueId int) ([]*TeamWithRosters, error)
 	GetAllTeamDisplaysInLeague(leagueId int) ([]*TeamDisplay, error)
 
 	// Players
@@ -91,7 +93,8 @@ type GamesDAO interface {
 
 	// Get Game Information
 	GetAllGamesInLeague(leagueId int) ([]*Game, error)
-	GetSortedGames(leagueId, teamId int) (*SortedGames, error)
+	GetSortedGames(leagueId, teamId, limit int) (*SortedGames, error)
+	GetGamesByWeek(leagueId, timeZone int) ([]*CompetitionWeek, error)
 	GetGameInformation(gameId int) (*Game, error)
 	GetGameInformationFromExternalId(externalId string) (*Game, error)
 

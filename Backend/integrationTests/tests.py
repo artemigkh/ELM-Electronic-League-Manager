@@ -23,6 +23,9 @@ class TestElmApi(unittest.TestCase):
     def setUp(self):
         self.new_session()
 
+    def tearDown(self):
+        self.http.close()
+
     def login(self, user):
         # Make request to login endpoint
         r = self.http.post("http://localhost:8080/login", json={
@@ -32,7 +35,7 @@ class TestElmApi(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         # Get profile to see if matches with who just logged in
-        r = self.http.get("http://localhost:8080/api/v1/users/profile")
+        r = self.http.get("http://localhost:8080/api/v1/users")
 
         self.assertEqual(200, r.status_code)
         self.assertEqual(user.email, r.json()["email"])
@@ -43,7 +46,7 @@ class TestElmApi(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         # Get profile to make sure logged out
-        r = self.http.get("http://localhost:8080/api/v1/users/profile")
+        r = self.http.get("http://localhost:8080/api/v1/users")
 
         self.assertEqual(403, r.status_code)
 
@@ -60,7 +63,7 @@ class TestElmApi(unittest.TestCase):
 
     def join_active_league(self):
         # Check that no permissions before join
-        r = self.http.get("http://localhost:8080/api/v1/users/profile")
+        r = self.http.get("http://localhost:8080/api/v1/users/leaguePermissions")
         self.assertEqual(200, r.status_code)
         self.assertEqual(False, r.json()["leaguePermissions"]["administrator"])
         self.assertEqual(False, r.json()["leaguePermissions"]["createTeams"])
@@ -72,7 +75,7 @@ class TestElmApi(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         # Check that only create teams permission gets set after join
-        r = self.http.get("http://localhost:8080/api/v1/users/profile")
+        r = self.http.get("http://localhost:8080/api/v1/users/leaguePermissions")
         self.assertEqual(200, r.status_code)
         self.assertEqual(False, r.json()["leaguePermissions"]["administrator"])
         self.assertEqual(True, r.json()["leaguePermissions"]["createTeams"])
@@ -180,8 +183,14 @@ class TestElmApi(unittest.TestCase):
             self.check_game(game, league.teams)
         self.check_all_games(league)
 
-    def tearDown(self):
-        self.http.close()
+    def test_Games(self):
+        # set up league and 2 teams
+        league_owner = User(self)
+        self.login(league_owner)
+        league = League(self)
+        self.set_active_league(league)
+        team1 = Team(self, league, random.randint(0, 100))
+        team2 = Team(self, league, random.randint(0, 100))
 
 
 if __name__ == '__main__':

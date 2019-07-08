@@ -118,7 +118,25 @@ report_game(
   score_team2     INT
 )
 RETURNS VOID AS $$
+  DECLARE game_complete BOOLEAN;
+  DECLARE old_winner_id INT;
+  DECLARE old_loser_id INT;
   BEGIN
+  -- remove result of games that are being amended so they can be set again after
+--     SET game_complete, old_winner_id, old_loser_id =
+--       (SELECT game.complete FROM game WHERE game.game_id = report_game.game_id);
+    SELECT game.complete, game.winner_id, game.loser_id INTO game_complete, old_winner_id, old_loser_id
+      FROM game WHERE game.game_id = report_game.game_id;
+    IF (game_complete = TRUE) THEN
+      UPDATE team
+        SET wins = wins - 1
+      WHERE team_id = old_winner_id;
+
+      UPDATE team
+        SET losses = losses - 1
+      WHERE team_id = old_loser_id;
+    END IF;
+
     UPDATE game SET
       complete = TRUE,
       winner_id = report_game.winner_id,

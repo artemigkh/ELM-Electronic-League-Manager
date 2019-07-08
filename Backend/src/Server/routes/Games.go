@@ -27,7 +27,30 @@ func getSortedGames() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
 		}
 
-		games, err := GamesDAO.GetSortedGames(getLeagueId(ctx), teamId)
+		limitString := ctx.DefaultQuery("limit", "0")
+		limit, err := strconv.Atoi(limitString)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "limitMustBeInteger"})
+		}
+
+		games, err := GamesDAO.GetSortedGames(getLeagueId(ctx), teamId, limit)
+		if checkErr(ctx, err) {
+			return
+		}
+
+		ctx.JSON(http.StatusOK, games)
+	}
+}
+
+func getGamesByWeek() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		timeZoneOffsetString := ctx.DefaultQuery("timeZoneOffset", "0")
+		timeZoneOffset, err := strconv.Atoi(timeZoneOffsetString)
+		fmt.Printf("timezone offset is %v", timeZoneOffset)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "IdMustBeInteger"})
+		}
+		games, err := GamesDAO.GetGamesByWeek(getLeagueId(ctx), timeZoneOffset)
 		if checkErr(ctx, err) {
 			return
 		}
@@ -104,6 +127,7 @@ func reportGameResult() gin.HandlerFunc {
 
 func RegisterGameHandlers(g *gin.RouterGroup) {
 	g.GET("/api/v1/sortedGames", getSortedGames())
+	g.GET("/api/v1/gamesByWeek", getGamesByWeek())
 	games := g.Group("/api/v1/games")
 	games.GET("", getAllGamesInLeague)
 	games.GET("/:gameId", storeGameId(), getGameInformation())

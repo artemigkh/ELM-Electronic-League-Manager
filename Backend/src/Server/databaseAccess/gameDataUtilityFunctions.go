@@ -19,10 +19,14 @@ func getGameSelector() squirrel.SelectBuilder {
 		"team1.name",
 		"team1.tag",
 		"team1.icon_small",
+		"team1.wins",
+		"team1.losses",
 		"team2.team_id",
 		"team2.name",
 		"team2.tag",
-		"team2.icon_small").
+		"team2.icon_small",
+		"team2.wins",
+		"team2.losses").
 		From("game").
 		Join("team AS team1 ON game.team1_id = team1.team_id").
 		Join("team AS team2 ON game.team2_id = team2.team_id")
@@ -50,10 +54,14 @@ func GetScannedGame(rows squirrel.RowScanner) (*Game, error) {
 		&team1.Name,
 		&team1.Tag,
 		&team1.IconSmall,
+		&team1.Wins,
+		&team1.Losses,
 		&team2.TeamId,
 		&team2.Name,
 		&team2.Tag,
 		&team2.IconSmall,
+		&team2.Wins,
+		&team2.Losses,
 	); err != nil {
 		return nil, err
 	} else {

@@ -167,60 +167,6 @@ func getTeamWithPlayersSelector() squirrel.SelectBuilder {
 		LeftJoin("player ON team.team_id = player.team_id")
 }
 
-func GetScannedTeamWithRosters(rows *sql.Rows) (*TeamWithRosters, error) {
-	defer rows.Close()
-
-	var team TeamWithRosters
-
-	for rows.Next() {
-		var (
-			playerId             sql.NullInt64
-			playerName           sql.NullString
-			playerGameIdentifier sql.NullString
-			playerMainRoster     sql.NullBool
-		)
-		if err := rows.Scan(
-			&team.TeamId,
-			&team.Name,
-			&team.Description,
-			&team.Tag,
-			&team.IconSmall,
-			&team.IconLarge,
-			&team.Wins,
-			&team.Losses,
-			&playerId,
-			&playerName,
-			&playerGameIdentifier,
-			&playerMainRoster,
-		); err != nil {
-			return nil, err
-		}
-		if playerId.Valid {
-			if playerMainRoster.Bool {
-				team.MainRoster = append(team.MainRoster, &Player{
-					PlayerId:       int(playerId.Int64),
-					Name:           playerName.String,
-					GameIdentifier: playerGameIdentifier.String,
-					MainRoster:     playerMainRoster.Bool,
-				})
-			} else {
-				team.SubstituteRoster = append(team.SubstituteRoster, &Player{
-					PlayerId:       int(playerId.Int64),
-					Name:           playerName.String,
-					GameIdentifier: playerGameIdentifier.String,
-					MainRoster:     playerMainRoster.Bool,
-				})
-			}
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return &team, nil
-}
-
 func GetScannedAllTeamWithRosters(rows *sql.Rows) ([]*TeamWithRosters, error) {
 	teams := make([]*TeamWithRosters, 0)
 	getUniqueTeam := func(newTeam *TeamWithRosters) *TeamWithRosters {
@@ -286,49 +232,13 @@ func GetScannedAllTeamWithRosters(rows *sql.Rows) ([]*TeamWithRosters, error) {
 	return teams, nil
 }
 
-func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
-	defer rows.Close()
-
-	var team TeamWithPlayers
-
-	for rows.Next() {
-		var (
-			playerId             sql.NullInt64
-			playerName           sql.NullString
-			playerGameIdentifier sql.NullString
-			playerMainRoster     sql.NullBool
-		)
-		if err := rows.Scan(
-			&team.TeamId,
-			&team.Name,
-			&team.Description,
-			&team.Tag,
-			&team.IconSmall,
-			&team.IconLarge,
-			&team.Wins,
-			&team.Losses,
-			&playerId,
-			&playerName,
-			&playerGameIdentifier,
-			&playerMainRoster,
-		); err != nil {
-			return nil, err
-		}
-		if playerId.Valid {
-			team.Players = append(team.Players, &Player{
-				PlayerId:       int(playerId.Int64),
-				Name:           playerName.String,
-				GameIdentifier: playerGameIdentifier.String,
-				MainRoster:     playerMainRoster.Bool,
-			})
-		}
-	}
-
-	if err := rows.Err(); err != nil {
+func GetScannedTeamWithRosters(rows *sql.Rows) (*TeamWithRosters, error) {
+	teams, err := GetScannedAllTeamWithRosters(rows)
+	if err != nil {
 		return nil, err
+	} else {
+		return teams[0], nil
 	}
-
-	return &team, nil
 }
 
 func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
@@ -385,6 +295,88 @@ func GetScannedAllTeamWithPlayers(rows *sql.Rows) ([]*TeamWithPlayers, error) {
 	}
 
 	return teams, nil
+}
+
+func GetScannedTeamWithPlayers(rows *sql.Rows) (*TeamWithPlayers, error) {
+	teams, err := GetScannedAllTeamWithPlayers(rows)
+	if err != nil {
+		return nil, err
+	} else {
+		return teams[0], nil
+	}
+}
+
+func getLoLTeamStubSelector() squirrel.SelectBuilder {
+	return psql.Select(
+		"team.team_id",
+		"team.name",
+		"team.description",
+		"team.tag",
+		"team.icon_small",
+		"team.icon_large",
+		"team.wins",
+		"team.losses",
+		"player.player_id",
+		"player.external_id",
+		"player.main_roster",
+		"player.position",
+	).
+		From("team").
+		LeftJoin("player ON team.team_id = player.team_id")
+}
+
+func GetScannedLoLTeamStub(rows *sql.Rows) (*LoLTeamStub, error) {
+	defer rows.Close()
+
+	var team LoLTeamStub
+
+	for rows.Next() {
+		var (
+			playerId         sql.NullInt64
+			playerExternalId sql.NullString
+			playerMainRoster sql.NullBool
+			playerPosition   sql.NullString
+		)
+		if err := rows.Scan(
+			&team.TeamId,
+			&team.Name,
+			&team.Description,
+			&team.Tag,
+			&team.IconSmall,
+			&team.IconLarge,
+			&team.Wins,
+			&team.Losses,
+			&playerId,
+			&playerExternalId,
+			&playerMainRoster,
+			&playerPosition,
+		); err != nil {
+			return nil, err
+		}
+		if playerExternalId.Valid && playerExternalId.String != "" {
+			if playerMainRoster.Bool {
+				team.MainRoster = append(team.MainRoster, &LoLPlayerStub{
+					PlayerId:   int(playerId.Int64),
+					ExternalId: playerExternalId.String,
+					MainRoster: playerMainRoster.Bool,
+					Position:   playerPosition.String,
+				})
+			} else {
+				team.SubstituteRoster = append(team.SubstituteRoster, &LoLPlayerStub{
+					PlayerId:   int(playerId.Int64),
+					ExternalId: playerExternalId.String,
+					MainRoster: playerMainRoster.Bool,
+					Position:   playerPosition.String,
+				})
+			}
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &team, nil
 }
 
 func getTeamWithManagersSelector() squirrel.SelectBuilder {

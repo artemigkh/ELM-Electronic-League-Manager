@@ -108,6 +108,19 @@ type TeamWithRosters struct {
 	SubstituteRoster []*Player `json:"substituteRoster"`
 }
 
+type LoLTeamWithRosters struct {
+	TeamId           int          `json:"teamId"`
+	Name             string       `json:"name"`
+	Description      string       `json:"description"`
+	Tag              string       `json:"tag"`
+	IconSmall        string       `json:"iconSmall"`
+	IconLarge        string       `json:"iconLarge"`
+	Wins             int          `json:"wins"`
+	Losses           int          `json:"losses"`
+	MainRoster       []*LoLPlayer `json:"mainRoster"`
+	SubstituteRoster []*LoLPlayer `json:"substituteRoster"`
+}
+
 type TeamWithManagers struct {
 	TeamId    int            `json:"teamId"`
 	Name      string         `json:"name"`
@@ -125,6 +138,19 @@ type TeamDisplay struct {
 	Losses    int    `json:"losses"`
 }
 
+type LoLTeamStub struct {
+	TeamId           int
+	Name             string
+	Description      string
+	Tag              string
+	IconSmall        string
+	IconLarge        string
+	Wins             int
+	Losses           int
+	MainRoster       []*LoLPlayerStub
+	SubstituteRoster []*LoLPlayerStub
+}
+
 // Players
 type PlayerCore struct {
 	Name           string `json:"name"`
@@ -132,11 +158,33 @@ type PlayerCore struct {
 	MainRoster     bool   `json:"mainRoster"`
 }
 
+type LoLPlayerCore struct {
+	GameIdentifier string `json:"gameIdentifier"`
+	MainRoster     bool   `json:"mainRoster"`
+	Position       string `json:"position"`
+}
+
 type Player struct {
 	PlayerId       int    `json:"playerId"`
 	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"`
 	MainRoster     bool   `json:"mainRoster"`
+}
+
+type LoLPlayer struct {
+	PlayerId       int    `json:"playerId"`
+	GameIdentifier string `json:"gameIdentifier"`
+	MainRoster     bool   `json:"mainRoster"`
+	Position       string `json:"position"`
+	Rank           string `json:"rank"`
+	Tier           string `json:"tier"`
+}
+
+type LoLPlayerStub struct {
+	PlayerId   int
+	ExternalId string
+	MainRoster bool
+	Position   string
 }
 
 // Games

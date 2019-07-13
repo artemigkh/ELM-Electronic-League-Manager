@@ -1,6 +1,9 @@
 package lolApi
 
-import "net/http"
+import (
+	"Server/databaseAccess"
+	"net/http"
+)
 
 type SummonerInformation struct {
 	GameIdentifier string `json:"gameIdentifier"`
@@ -29,20 +32,26 @@ type PlayerStats struct {
 }
 
 type MatchInformation struct {
-	Duration         float64       `json:"duration"`
-	Timestamp        int           `json:"timestamp"`
-	BannedChampions  []string      `json:"bannedChampions"`
-	WinningChampions []string      `json:"winningChampions"`
-	LosingChampions  []string      `json:"losingChampions"`
-	WinningTeamIds   []string      `json:"winningTeamIds"`
-	LosingTeamIds    []string      `json:"losingTeamIds"`
-	WinningTeamStats TeamStats     `json:"winningTeamStats"`
-	LosingTeamStats  TeamStats     `json:"losingTeamStats"`
-	PlayerStats      []PlayerStats `json:"playerStats"`
+	GameId                 string        `json:"gameId"`
+	Duration               float64       `json:"duration"`
+	Timestamp              int           `json:"timestamp"`
+	Team1Id                int           `json:"team1Id"`
+	Team2Id                int           `json:"team2Id"`
+	WinningTeamId          int           `json:"winningTeamId"`
+	LosingTeamId           int           `json:"losingTeamId"`
+	BannedChampions        []string      `json:"bannedChampions"`
+	WinningChampions       []string      `json:"winningChampions"`
+	LosingChampions        []string      `json:"losingChampions"`
+	WinningTeamSummonerIds []string      `json:"winningTeamSummonerIds"`
+	LosingTeamSummonerIds  []string      `json:"losingTeamSummonerIds"`
+	WinningTeamStats       TeamStats     `json:"winningTeamStats"`
+	LosingTeamStats        TeamStats     `json:"losingTeamStats"`
+	PlayerStats            []PlayerStats `json:"playerStats"`
 }
 
 type LoLApi interface {
 	GetSummonerInformation(ids []string) map[string]*SummonerInformation
+	CompletePlayerStubs(team *databaseAccess.LoLTeamStub) (*databaseAccess.LoLTeamWithRosters, error)
 	GetSummonerId(name string) (string, error)
 	GetMatchStats(id string) (*MatchInformation, error)
 }

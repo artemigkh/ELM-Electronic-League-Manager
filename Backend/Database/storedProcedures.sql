@@ -122,9 +122,6 @@ RETURNS VOID AS $$
   DECLARE old_winner_id INT;
   DECLARE old_loser_id INT;
   BEGIN
-  -- remove result of games that are being amended so they can be set again after
---     SET game_complete, old_winner_id, old_loser_id =
---       (SELECT game.complete FROM game WHERE game.game_id = report_game.game_id);
     SELECT game.complete, game.winner_id, game.loser_id INTO game_complete, old_winner_id, old_loser_id
       FROM game WHERE game.game_id = report_game.game_id;
     IF (game_complete = TRUE) THEN
@@ -155,3 +152,45 @@ RETURNS VOID AS $$
   END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION
+report_game_by_external_id(
+  external_id     INT,
+  winner_id       INT,
+  loser_id        INT,
+  score_team1     INT,
+  score_team2     INT
+)
+RETURNS VOID AS $$
+  DECLARE game_complete BOOLEAN;
+  DECLARE old_winner_id INT;
+  DECLARE old_loser_id INT;
+  BEGIN
+    SELECT game.complete, game.winner_id, game.loser_id INTO game_complete, old_winner_id, old_loser_id
+      FROM game WHERE game.external_id = report_game.external_id;
+    IF (game_complete = TRUE) THEN
+      UPDATE team
+        SET wins = wins - 1
+      WHERE team_id = old_winner_id;
+
+      UPDATE team
+        SET losses = losses - 1
+      WHERE team_id = old_loser_id;
+    END IF;
+
+    UPDATE game SET
+      complete = TRUE,
+      winner_id = report_game.winner_id,
+      loser_id = report_game.loser_id,
+      score_team1 = report_game.score_team1,
+      score_team2 = report_game.score_team2
+    WHERE game.external_id = report_game.external_id;
+
+    UPDATE team
+      SET wins = wins + 1
+    WHERE team_id = winner_id;
+
+    UPDATE team
+      SET losses = losses + 1
+    WHERE team_id = loser_id;
+  END;
+$$ LANGUAGE plpgsql;

@@ -5,6 +5,10 @@ from faker import Faker
 from faker.providers import internet
 from faker.providers import lorem
 
+from .team import Team
+from .availability import Availability
+from .game import Game
+
 fake = Faker()
 fake.add_provider(internet)
 fake.add_provider(lorem)
@@ -56,6 +60,21 @@ class League:
 
         t.assertEqual(201, r.status_code)
         self.league_id = r.json()["leagueId"]
+
+    def create_team(self, t, manager, name=None, tag=None):
+        new_team = Team(t, self, manager, random.randint(0, 100), name, tag)
+        self.teams.append(new_team)
+        return new_team
+
+    def create_availability(self, t, league, weekday, hour, minute, duration_minutes):
+        new_availability = Availability(t, league, weekday, hour, minute, duration_minutes)
+        self.availabilities.append(new_availability)
+        return new_availability
+
+    def create_game(self, t, team1_id, team2_id, game_time):
+        new_game = Game(t, team1_id, team2_id, game_time)
+        self.games.append(new_game)
+        return new_game
 
     def get_team(self, team_id):
         return next((t for t in self.teams if t.team_id == team_id), None)

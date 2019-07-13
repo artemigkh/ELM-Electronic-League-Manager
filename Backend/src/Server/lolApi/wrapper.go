@@ -1,6 +1,7 @@
 package lolApi
 
 import (
+	"Server/databaseAccess"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -106,6 +107,52 @@ func (l *lolApi) GetSummonerInformation(ids []string) map[string]*SummonerInform
 		summonerInformation[id] = si
 	}
 	return summonerInformation
+}
+
+func (l *lolApi) CompletePlayerStubs(stub *databaseAccess.LoLTeamStub) (*databaseAccess.LoLTeamWithRosters, error) {
+	team := databaseAccess.LoLTeamWithRosters{
+		TeamId:           stub.TeamId,
+		Name:             stub.Name,
+		Description:      stub.Description,
+		Tag:              stub.Tag,
+		IconSmall:        stub.IconSmall,
+		IconLarge:        stub.IconLarge,
+		Wins:             stub.Wins,
+		Losses:           stub.Losses,
+		MainRoster:       make([]*databaseAccess.LoLPlayer, 0),
+		SubstituteRoster: make([]*databaseAccess.LoLPlayer, 0),
+	}
+
+	allPlayerIds := make([]string, 0)
+	for _, player := range append(stub.MainRoster, stub.SubstituteRoster...) {
+		allPlayerIds = append(allPlayerIds, player.ExternalId)
+	}
+
+	summonerMap := l.GetSummonerInformation(allPlayerIds)
+	for _, player := range stub.MainRoster {
+		info := summonerMap[player.ExternalId]
+		team.MainRoster = append(team.MainRoster, &databaseAccess.LoLPlayer{
+			PlayerId:       player.PlayerId,
+			GameIdentifier: info.GameIdentifier,
+			MainRoster:     player.MainRoster,
+			Position:       player.Position,
+			Rank:           info.Rank,
+			Tier:           info.Tier,
+		})
+	}
+	for _, player := range stub.SubstituteRoster {
+		info := summonerMap[player.ExternalId]
+		team.SubstituteRoster = append(team.SubstituteRoster, &databaseAccess.LoLPlayer{
+			PlayerId:       player.PlayerId,
+			GameIdentifier: info.GameIdentifier,
+			MainRoster:     player.MainRoster,
+			Position:       player.Position,
+			Rank:           info.Rank,
+			Tier:           info.Tier,
+		})
+	}
+	//TODO: proper error
+	return &team, nil
 }
 
 type idContainer struct {

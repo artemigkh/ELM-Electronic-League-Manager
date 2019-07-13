@@ -38,7 +38,7 @@ func InitRoutes(conf config.Config) *gin.Engine {
 	RegisterGameHandlers(app.Group(""))
 	RegisterSchedulingHandlers(app.Group("/api/v1"))
 	//
-	//routes.RegisterLeagueOfLegendsHandlers(app.Group("/api/v1/league-of-legends"), conf)
+	RegisterLeagueOfLegendsHandlers(app.Group("/api/v1/lol"))
 
 	// should probably be replaced with apache or nginx in production
 	app.Static("/icons", conf.GetIconsDir())

@@ -185,7 +185,7 @@ func createNewPlayer() gin.HandlerFunc {
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updatePlayer
-func editPlayer() gin.HandlerFunc {
+func updatePlayer() gin.HandlerFunc {
 	var player databaseAccess.PlayerCore
 	return endpoint{
 		Entity:     Player,
@@ -226,6 +226,6 @@ func RegisterTeamHandlers(g *gin.RouterGroup) {
 
 	withTeamId.POST("/players", createNewPlayer())
 	withPlayerId := withTeamId.Group("/players/:playerId", storePlayerId())
-	withPlayerId.PUT("", editPlayer())
+	withPlayerId.PUT("", updatePlayer())
 	withPlayerId.DELETE("", deletePlayer())
 }

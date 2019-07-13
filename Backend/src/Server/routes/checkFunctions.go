@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/badoux/checkmail"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -59,6 +60,15 @@ func ge(x, y int) bool {
 // General Cases
 func bindAndCheckErr(ctx *gin.Context, obj interface{}) bool {
 	if err := ctx.ShouldBindJSON(&obj); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func bindRepeatedAndCheckErr(ctx *gin.Context, obj interface{}) bool {
+	if err := ctx.ShouldBindBodyWith(&obj, binding.JSON); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 		return true
 	} else {

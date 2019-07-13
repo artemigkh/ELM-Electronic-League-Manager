@@ -117,6 +117,33 @@ class TestElmApi(unittest.TestCase):
         self.assertEqual(200, r.status_code)
         return r.json()
 
+    def ensure_team_creation_fails(self, name, tag, expected_error):
+        r = self.http.post("http://localhost:8080/api/v1/teams", json={
+            "name": name,
+            "tag": tag
+        })
+        self.assertEqual(400, r.status_code)
+        self.assertEqual(expected_error, r.json()["errorDescription"])
+        print(r.json())
+
+    def test_teams(self):
+        # set up league
+        league_owner = User(self)
+        self.login(league_owner)
+        league = League(self)
+        self.set_active_league(league)
+
+        # check that can't make invalid teams
+        self.ensure_team_creation_fails("", "TAG", "Name too short")
+        self.ensure_team_creation_fails("name", "A", "Tag too short")
+        self.ensure_team_creation_fails("name", "123456", "Tag too long")
+        self.ensure_team_creation_fails("a" * 51, "TAG", "Name too long")
+
+        # make a team and ensure can't make duplicates
+        league.create_team(self, league_owner, "TEAM", "TAG")
+        self.ensure_team_creation_fails("TEAM", "UNQ", "Name or tag in use")
+        self.ensure_team_creation_fails("UNIQUE_NAME", "TAG", "Name or tag in use")
+
     def test_normalUseCase(self):
         # create league owner
         league_owner = User(self)
@@ -149,9 +176,7 @@ class TestElmApi(unittest.TestCase):
             self.login(manager)
             self.set_active_league(league)
 
-            new_team = Team(self, league, random.randint(0, 100))
-            new_team.managers.append(manager)
-            league.teams.append(new_team)
+            new_team = league.create_team(self, manager)
             self.check_team(new_team)
 
         # check that league-wide team related information is correct
@@ -162,18 +187,17 @@ class TestElmApi(unittest.TestCase):
         # self.check_managers(league)
 
         # schedule double robin for all teams
-        league.availabilities.append(Availability(self, league, "friday", 18, 0, 2 * 60))
-        league.availabilities.append(Availability(self, league, "saturday", 16, 0, 6 * 60))
-        league.availabilities.append(Availability(self, league, "sunday", 17, 0, 5 * 60))
+        league.create_availability(self, league, "friday", 18, 0, 2 * 60)
+        league.create_availability(self, league, "saturday", 16, 0, 6 * 60)
+        league.create_availability(self, league, "sunday", 17, 0, 5 * 60)
         schedule = self.get_json_schedule("doubleroundrobin", 2, 1, 60)
         for json_game in schedule:
-            game = Game(
+            game = league.create_game(
                 self,
                 json_game["team1"]["teamId"],
                 json_game["team2"]["teamId"],
                 json_game["gameTime"]
             )
-            league.games.append(game)
             self.check_game(game, league.teams)
         self.check_all_games(league)
 
@@ -183,14 +207,16 @@ class TestElmApi(unittest.TestCase):
             self.check_game(game, league.teams)
         self.check_all_games(league)
 
-    def test_Games(self):
-        # set up league and 2 teams
-        league_owner = User(self)
-        self.login(league_owner)
-        league = League(self)
-        self.set_active_league(league)
-        team1 = Team(self, league, random.randint(0, 100))
-        team2 = Team(self, league, random.randint(0, 100))
+
+
+    # def test_Games(self):
+    #     # set up league and 2 teams
+    #     league_owner = User(self)
+    #     self.login(league_owner)
+    #     league = League(self)
+    #     self.set_active_league(league)
+    #     team1 = Team(self, league, random.randint(0, 100))
+    #     team2 = Team(self, league, random.randint(0, 100))
 
 
 if __name__ == '__main__':

@@ -183,7 +183,6 @@ func (d *PgTeamsDAO) GetAllTeamDisplaysInLeague(leagueId int) ([]*TeamDisplay, e
 }
 
 // Players
-
 func (d *PgTeamsDAO) CreatePlayer(leagueId, teamId int, playerInfo PlayerCore) (int, error) {
 	var playerId int
 	if err := psql.Insert("player").
@@ -252,18 +251,15 @@ func (d *PgTeamsDAO) GetTeamPermissions(teamId, userId int) (*TeamPermissionsCor
 }
 
 func (d *PgTeamsDAO) IsInfoInUse(leagueId, teamId int, name, tag string) (bool, string, error) {
-	var nameCount int
-	var tagCount int
+	var duplicateCount int
 
-	if err := psql.Select("count(name)", "count(tag)").
+	if err := psql.Select("count(*)").
 		From("team").
-		Where("league_id = ? AND team_id != ? AND name = ?", leagueId, teamId, name).
-		RunWith(db).QueryRow().Scan(&nameCount, &tagCount); err != nil {
+		Where("league_id = ? AND team_id != ? AND (name = ? OR tag = ?)", leagueId, teamId, name, tag).
+		RunWith(db).QueryRow().Scan(&duplicateCount); err != nil {
 		return false, "", err
-	} else if nameCount > 0 {
-		return true, "nameInUse", nil
-	} else if tagCount > 0 {
-		return true, "tagInUse", nil
+	} else if duplicateCount > 0 {
+		return true, "Name or tag in use", nil
 	} else {
 		return false, "", nil
 	}

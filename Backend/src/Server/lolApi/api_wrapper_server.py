@@ -1,3 +1,6 @@
+import json
+
+import requests
 from bottle import request, route, run
 
 import cassiopeia as cass
@@ -5,6 +8,10 @@ from cassiopeia import Queue
 from cassiopeia.core import Summoner, Match
 
 cass.apply_settings("Backend/src/Server/lolApi/cass_config.json")
+
+known_summoners = dict()
+
+http = requests.session()
 
 
 @route('/summonerId', method='GET')
@@ -17,7 +24,12 @@ def get_summoner_id():
 @route('/summonerInformation', method='GET')
 def get_summoner_information():
     summoner_id = request.query.id
-    summoner = Summoner(id=summoner_id)
+    if summoner_id in known_summoners:
+        summoner = known_summoners[summoner_id]
+    else:
+        summoner = Summoner(id=summoner_id)
+        known_summoners[summoner_id] = summoner
+
     information = {
         "gameIdentifier": summoner.name
     }
@@ -45,9 +57,30 @@ def get_summoner_information():
     return information
 
 
+@route('/tournamentCallback', method='POST')
+def get_summoner_id():
+    body = request.json
+    embedded_data = json.loads(body["metaData"])
+
+    game_info_from_callback = {k: embedded_data[k] for k in ["gameId", "team1Id", "team2Id", "team1RefPlayerId"]}
+    game_info = {**game_info_from_callback, **get_game_stats(body["gameId"])}
+    if game_info_from_callback["team1RefPlayerId"] in game_info["winningTeamSummonerIds"]:
+        game_info["winningTeamId"] = game_info["team1Id"]
+        game_info["losingTeamId"] = game_info["team2Id"]
+    else:
+        game_info["winningTeamId"] = game_info["team2Id"]
+        game_info["losingTeamId"] = game_info["team1Id"]
+
+    print(game_info)
+    http.post("http://localhost:8080/api/v1/lol/receiveCompletedTournamentGame", json=game_info)
+
+
 @route('/gameStats', method='GET')
-def get_game_stats():
-    match_id = int(request.query.id)
+def get_game_stats_handler():
+    return get_game_stats(request.query.id)
+
+
+def get_game_stats(match_id):
     match = Match(id=match_id)
 
     stats = {
@@ -56,9 +89,9 @@ def get_game_stats():
         "bannedChampions": [],
         "winningChampions": [],
         "losingChampions": [],
-        "winningTeamIds": [],
+        "winningTeamSummonerIds": [],
         "winningTeamStats": {},
-        "losingTeamIds": [],
+        "losingTeamSummonerIds": [],
         "losingTeamStats": {},
         "playerStats": []
     }
@@ -93,10 +126,10 @@ def get_game_stats():
     for participant in match.participants:
         if participant.team.win:
             stats["winningChampions"].append(participant.champion.name)
-            stats["winningTeamIds"].append(participant.summoner.id)
+            stats["winningTeamSummonerIds"].append(participant.summoner.id)
         else:
             stats["losingChampions"].append(participant.champion.name)
-            stats["losingTeamIds"].append(participant.summoner.id)
+            stats["losingTeamSummonerIds"].append(participant.summoner.id)
 
         stats["playerStats"].append({
             "id": participant.summoner.id,

@@ -63,6 +63,18 @@ func getAvailabilityId(ctx *gin.Context) int {
 	return ctx.GetInt("availabilityId")
 }
 
+func getExternalId(ctx *gin.Context) string {
+	return ctx.GetString("externalId")
+}
+
+func getExternalGameId(ctx *gin.Context) *string {
+	if id := ctx.GetString("externalGameId"); id != "" {
+		return &id
+	} else {
+		return nil
+	}
+}
+
 // Each endpoint does a subset of the following:
 // 1. Check Permissions of logged in user against action
 // 2. Binds and validates input data
@@ -171,7 +183,6 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 		if e.BindData != nil && e.BindData(ctx) {
 			return
 		}
-
 		// Validate input data
 		if e.IsDataInvalid != nil {
 			valid, problem, err := e.IsDataInvalid(ctx)
@@ -184,7 +195,6 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 		if checkErr(ctx, err) {
 			return
 		}
-
 		// Return status and data if exists to router
 		if returnData == nil {
 			if e.AccessType == Create {

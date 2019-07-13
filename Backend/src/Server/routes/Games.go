@@ -77,7 +77,7 @@ func createNewGame() gin.HandlerFunc {
 		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &game) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return game.Validate(getLeagueId(ctx)) },
 		Core: func(ctx *gin.Context) (interface{}, error) {
-			gameId, err := GamesDAO.CreateGame(getLeagueId(ctx), game)
+			gameId, err := GamesDAO.CreateGame(getLeagueId(ctx), getExternalGameId(ctx), game)
 			return gin.H{"gameId": gameId}, err
 		},
 	}.createEndpointHandler()

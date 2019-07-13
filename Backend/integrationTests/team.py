@@ -32,21 +32,28 @@ class Player:
 
 
 class Team:
-    def __init__(self, t, league, strength):
+    def __init__(self, t, league, manager, strength, name=None, tag=None):
         self.strength = strength
-        self.managers = []
+        self.managers = [manager]
         self.players = []
 
-        self.name = fake.slug()
+        if name is None:
+            self.name = fake.slug()
+        else:
+            self.name = name
+
         self.description = fake.text(max_nb_chars=500)
 
-        # Get Unique Tag
-        base_tag = self.name[0:4].upper()
-        suffix = 0
-        self.tag = base_tag
-        while self.tag in [team.tag for team in league.teams]:
-            self.tag = base_tag + str(suffix)
-            suffix += 1
+        if tag is None:
+            # Get Unique Tag
+            base_tag = self.name[0:4].upper()
+            suffix = 0
+            self.tag = base_tag
+            while self.tag in [team.tag for team in league.teams]:
+                self.tag = base_tag + str(suffix)
+                suffix += 1
+        else:
+            self.tag = tag
 
         r = t.http.post("http://localhost:8080/api/v1/teams", json={
             "name": self.name,

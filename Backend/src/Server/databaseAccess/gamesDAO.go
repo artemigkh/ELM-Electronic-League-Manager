@@ -15,11 +15,12 @@ type PgGamesDAO struct{}
 
 // Modify Games
 
-func (d *PgGamesDAO) CreateGame(leagueId int, gameInformation GameCreationInformation) (int, error) {
+func (d *PgGamesDAO) CreateGame(leagueId int, externalId *string, gameInformation GameCreationInformation) (int, error) {
 	gameId := -1
 	err := psql.Insert("game").
 		Columns(
 			"league_id",
+			"external_id",
 			"team1_id",
 			"team2_id",
 			"game_time",
@@ -31,6 +32,7 @@ func (d *PgGamesDAO) CreateGame(leagueId int, gameInformation GameCreationInform
 		).
 		Values(
 			leagueId,
+			externalId,
 			gameInformation.Team1Id,
 			gameInformation.Team2Id,
 			gameInformation.GameTime,
@@ -46,11 +48,22 @@ func (d *PgGamesDAO) CreateGame(leagueId int, gameInformation GameCreationInform
 	return gameId, err
 }
 
-// TODO: make this work for amending results
 func (d *PgGamesDAO) ReportGame(gameId int, gameResult GameResult) error {
 	fmt.Printf("%+v\n", gameResult)
 	_, err := db.Exec("SELECT report_game($1,$2,$3,$4,$5)",
 		gameId,
+		gameResult.WinnerId,
+		gameResult.LoserId,
+		gameResult.ScoreTeam1,
+		gameResult.ScoreTeam2,
+	)
+	return err
+}
+
+func (d *PgGamesDAO) ReportGameByExternalId(externalId string, gameResult GameResult) error {
+	fmt.Printf("%+v\n", gameResult)
+	_, err := db.Exec("SELECT report_game_by_external_id($1,$2,$3,$4,$5)",
+		externalId,
 		gameResult.WinnerId,
 		gameResult.LoserId,
 		gameResult.ScoreTeam1,

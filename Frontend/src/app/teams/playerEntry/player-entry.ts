@@ -11,6 +11,7 @@ import {Player} from "../../interfaces/Player";
 import {ElmState} from "../../shared/state/state.service";
 import {NGXLogger} from "ngx-logger";
 import {GenericPlayerEntry} from "./generic-player-entry";
+import {LeagueOfLegendsPlayerEntry} from "./league-of-legends-player-entry";
 
 @Directive({
     selector: '[player-entry-host]',
@@ -43,11 +44,13 @@ export class PlayerEntryComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        this.state.subscribeLeague(league => this.game = league.game, true);
+        this.state.subscribeLeague(league => {this.game = league.game; this.loadComponent()});
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        this.loadComponent();
+        if (this.game) {
+            this.loadComponent();
+        }
     }
 
     loadComponent() {
@@ -61,6 +64,10 @@ export class PlayerEntryComponent implements OnInit, OnChanges {
     }
 
     static getComponent(game: string): Type<PlayerEntryInterface> {
-        return GenericPlayerEntry;
+        if (game == "leagueoflegends") {
+            return LeagueOfLegendsPlayerEntry;
+        } else {
+            return GenericPlayerEntry;
+        }
     }
 }

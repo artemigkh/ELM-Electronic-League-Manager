@@ -12,6 +12,9 @@ import {ManagePlayersTeamComponent} from "./manage-players-team";
 import {ManageComponentInterface} from "../../manage-component-interface";
 import {ElmState} from "../../../shared/state/state.service";
 import {NGXLogger} from "ngx-logger";
+import {LeagueOfLegendsPlayerEntry} from "../../../teams/playerEntry/league-of-legends-player-entry";
+import {GenericPlayerEntry} from "../../../teams/playerEntry/generic-player-entry";
+import {ManagePlayersTeamLeagueOfLegendsComponent} from "./league-of-legends/manage-players-team-league-of-legends";
 
 @Directive({
     selector: '[manage-players-team-host]',
@@ -35,25 +38,31 @@ export class ManagePlayersTeamContainerComponent implements OnInit, OnChanges  {
                 private componentFactoryResolver: ComponentFactoryResolver) { }
 
     ngOnInit() {
-        this.state.subscribeLeague(league => this.game = league.game, true);
+        this.state.subscribeLeague(league => {this.game = league.game; this.loadComponent()});
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        this.loadComponent();
+        if (this.game) {
+            this.loadComponent();
+        }
     }
 
     loadComponent() {
         this.log.debug("Received league with game = " + this.game);
-        this.log.debug(this.team);
+        this.log.debug("Team in manage player team loader: ", this.team);
         this.managePlayersTeamHost.viewContainerRef.clear();
         let componentFactory = this.componentFactoryResolver.resolveComponentFactory(ManagePlayersTeamContainerComponent.getComponent(this.game));
         let componentRef = this.managePlayersTeamHost.viewContainerRef.createComponent(componentFactory);
 
-        (<ManagePlayersTeamComponent>componentRef.instance).team = this.team;
+        (<ManagePlayersTeamComponent>componentRef.instance).setTeam(this.team);
     }
 
     static getComponent(game: string): Type<ManageComponentInterface> {
-        return ManagePlayersTeamComponent;
+        if (game == "leagueoflegends") {
+            return ManagePlayersTeamLeagueOfLegendsComponent;
+        } else {
+            return ManagePlayersTeamComponent;
+        }
     }
 }
 

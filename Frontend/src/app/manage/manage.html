@@ -1,6 +1,8 @@
 <div class="docs-primary-header">
     <h1 class="docs-primary-header">League Management</h1>
 </div>
+<ng-container *ngIf="user">
+
 <div class="league-management">
     <div class="menu-area">
         <mat-accordion displayMode="flat" multi="true">
@@ -69,3 +71,5 @@
         <router-outlet></router-outlet>
     </span>
 </div>
+
+</ng-container>

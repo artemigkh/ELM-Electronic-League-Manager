@@ -11,12 +11,14 @@
     <a mat-button class="docs-button" routerLink="/games" aria-label="Angular Material">
         <span>Past and Upcoming Games</span>
     </a>
+    <ng-container *ngIf="league">
     <a *ngIf="isRegistrationPeriod()" mat-button class="docs-button" routerLink="/register" aria-label="Angular Material">
         <span>Tournament Registration</span>
     </a>
     <a *ngIf="hasStatsPage()" mat-button class="docs-button" routerLink="/stats" aria-label="Angular Material">
         <span>Stats</span>
     </a>
+    </ng-container>
     <div class="flex-spacer"></div>
     <a mat-button class="docs-button" routerLink="/leagues" aria-label="Angular Material">
         <span>Other Leagues</span>

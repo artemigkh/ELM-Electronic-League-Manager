@@ -1,4 +1,4 @@
-import {Player} from "./Player";
+import {LoLPlayer, Player} from "./Player";
 
 export class Team {
     teamId: number;
@@ -115,4 +115,17 @@ export interface TeamWithRosters {
     losses: number;
     mainRoster: Player[];
     substituteRoster: Player[];
+}
+
+export interface LoLTeamWithRosters extends TeamWithRosters{
+    teamId: number;
+    name: string;
+    description?: string;
+    tag: string;
+    iconSmall: string;
+    iconLarge: string;
+    wins: number;
+    losses: number;
+    mainRoster: LoLPlayer[];
+    substituteRoster: LoLPlayer[];
 }

@@ -1,6 +1,6 @@
 import {Component, Inject} from "@angular/core";
 import {ManageComponentInterface} from "../../manage-component-interface";
-import {Team, TeamWithRosters} from "../../../interfaces/Team";
+import {LoLTeamWithRosters, Team, TeamWithRosters} from "../../../interfaces/Team";
 import {ElmState} from "../../../shared/state/state.service";
 import {NGXLogger} from "ngx-logger";
 import {TeamsService} from "../../../httpServices/teams.service";
@@ -26,11 +26,15 @@ class PlayerData {
 })
 export class ManagePlayersTeamComponent implements ManageComponentInterface{
     team: TeamWithRosters;
-    constructor(private state: ElmState,
-                private log: NGXLogger,
-                private teamsService: TeamsService,
-                private eventDisplayer: EventDisplayerService,
-                private dialog: MatDialog) {
+    constructor(public state: ElmState,
+                public log: NGXLogger,
+                public teamsService: TeamsService,
+                public eventDisplayer: EventDisplayerService,
+                public dialog: MatDialog) {
+    }
+
+    setTeam(team: TeamWithRosters) {
+        this.team = team;
     }
 
     private createPlayer(mainRoster: boolean) {
@@ -60,7 +64,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
         });
     }
 
-    private removePlayerFromRoster(playerId: number, fromMainRoster: boolean) {
+    removePlayerFromRoster(playerId: number, fromMainRoster: boolean) {
         let roster = fromMainRoster ? this.team.mainRoster : this.team.substituteRoster;
         roster = roster.filter(rosterPlayer => rosterPlayer.playerId != playerId);
         if (fromMainRoster) {
@@ -70,7 +74,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
         }
     }
 
-    private _deletePlayer(player: Player) {
+    _deletePlayer(player: Player) {
         this.teamsService.deletePlayer(this.team.teamId, player.playerId).subscribe(
             () => {
                 this.eventDisplayer.displaySuccess("Player Successfully Deleted");
@@ -79,7 +83,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
         );
     }
 
-    private deletePlayer(player: Player) {
+    deletePlayer(player: Player) {
         this.dialog.open(WarningPopup, {
             data: <WarningPopupData>{
                 entity: "player",
@@ -90,7 +94,7 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
         });
     }
 
-    private movePlayerRoster(player: Player, isDestinationMainRoster: boolean) {
+    movePlayerRoster(player: Player, isDestinationMainRoster: boolean) {
         player.mainRoster = isDestinationMainRoster;
         this.teamsService.updatePlayer(this.team.teamId, player.playerId, player).subscribe(
             () => {

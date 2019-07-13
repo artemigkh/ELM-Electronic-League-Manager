@@ -2,8 +2,9 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {httpOptions, httpOptionsForm} from "./http-options";
 import {Observable} from "rxjs/Rx";
-import {TeamCoreWithIcon, TeamId, TeamPermissionsCore, TeamWithPlayers, TeamWithRosters} from "../interfaces/Team";
+import {LoLTeamWithRosters, TeamId, TeamPermissionsCore, TeamWithPlayers, TeamWithRosters} from "../interfaces/Team";
 import {PlayerCore, PlayerId} from "../interfaces/Player";
+import {ElmState} from "../shared/state/state.service";
 
 // function sortMainRosterByPosition(team: Team) {
 //     let sortedRoster = [];
@@ -19,7 +20,52 @@ import {PlayerCore, PlayerId} from "../interfaces/Player";
 
 @Injectable()
 export class TeamsService {
-    constructor(private http: HttpClient) {
+    constructor(private state: ElmState, private http: HttpClient) {
+    }
+
+    private gameSpecificCall<T>(call: (game: string) => Observable<T>): Observable<T> {
+        return new Observable(observer => {
+            this.state.subscribeLeague(league => {
+                console.log("request with game = " + league.game);
+                call(league.game).subscribe(
+                    (next: T) => observer.next(next),
+                    error => observer.error(error)
+                );
+            });
+        });
+    }
+
+    public getTeamWithRosters(teamId: string): Observable<TeamWithRosters> {
+        return this.gameSpecificCall<TeamWithRosters>(game => {
+            let apiPrefix = '';
+            if (game == 'leagueoflegends') {
+                apiPrefix = '/lol'
+            }
+            return this.http.get<LoLTeamWithRosters>(
+                'http://localhost:8080/api/v1' + apiPrefix + '/teams/' + teamId + "/withRosters", httpOptions);
+        });
+    }
+
+    public createPlayer(teamId: number, player: PlayerCore): Observable<PlayerId> {
+        return this.gameSpecificCall<PlayerId>(game => {
+            let apiPrefix = '';
+            if (game == 'leagueoflegends') {
+                apiPrefix = '/lol'
+            }
+            return this.http.post<PlayerId>('http://localhost:8080/api/v1' + apiPrefix + '/teams/' + teamId + '/players',
+                player, httpOptions)
+        });
+    }
+
+    public updatePlayer(teamId: number, playerId: number, player: PlayerCore): Observable<null> {
+        return this.gameSpecificCall<null>(game => {
+            let apiPrefix = '';
+            if (game == 'leagueoflegends') {
+                apiPrefix = '/lol'
+            }
+            return this.http.put<null>('http://localhost:8080/api/v1' + apiPrefix + '/teams/' + teamId + '/players/' + playerId,
+                player, httpOptions)
+        });
     }
 
     public getLeagueTeams(): Observable<TeamWithPlayers[]> {
@@ -28,11 +74,6 @@ export class TeamsService {
 
     public getLeagueTeamsWithRosters(): Observable<TeamWithRosters[]> {
         return this.http.get<TeamWithRosters[]>('http://localhost:8080/api/v1/teamsWithRosters', httpOptions)
-    }
-
-    public getTeamWithRosters(teamId: string) {
-        return this.http.get<TeamWithRosters>(
-            'http://localhost:8080/api/v1/teams/' + teamId + "/withRosters", httpOptions)
     }
 
     public createTeam(form: FormData): Observable<TeamId> {
@@ -45,16 +86,6 @@ export class TeamsService {
 
     public deleteTeam(teamId: number): Observable<null> {
         return this.http.delete<null>('http://localhost:8080/api/v1/teams/' + teamId, httpOptions)
-    }
-
-    public createPlayer(teamId: number, player: PlayerCore): Observable<PlayerId> {
-        return this.http.post<PlayerId>('http://localhost:8080/api/v1/teams/' + teamId + '/players',
-            player, httpOptions)
-    }
-
-    public updatePlayer(teamId: number, playerId: number, player: PlayerCore): Observable<null> {
-        return this.http.put<null>('http://localhost:8080/api/v1/teams/' + teamId + '/players/' + playerId,
-            player, httpOptions)
     }
 
     public deletePlayer(teamId: number, playerId: number,): Observable<null> {

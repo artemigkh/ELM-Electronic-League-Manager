@@ -26,8 +26,8 @@ export class ManageDatesComponent implements OnInit {
 
     ngOnInit(): void {
         this.state.subscribeLeague(league => {
-            this.league = league;
             this.timeKeys.forEach(k => this[k] = new FormControl(moment.unix(league[k])));
+            this.league = league;
         });
     }
 

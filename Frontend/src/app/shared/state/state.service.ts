@@ -11,19 +11,18 @@ type LeagueCallback = (league: League) => void;
     providedIn: 'root',
 })
 export class ElmState {
-    private user: UserWithPermissions;
+    private user: User;
+    private userWithPermissions: UserWithPermissions;
     private league: League;
-
-    private leagueNotDefault;
 
     private changeListeners: ChangeCallback[] = [];
     private userListeners: UserCallback[] = [];
     private leagueListeners: LeagueCallback[] = [];
 
     constructor() {
-        this.user = EmptyUser();
-        this.league = EmptyLeague();
-        this.leagueNotDefault = false;
+        this.user = null;
+        this.userWithPermissions = null;
+        this.league = null;
     }
 
     public subscribeChanges(listener: ChangeCallback) {
@@ -32,31 +31,31 @@ export class ElmState {
 
     public subscribeUser(listener: UserCallback) {
         this.userListeners.push(listener);
-        listener(this.user);
+        if (this.userWithPermissions != null) {
+            listener(this.userWithPermissions);
+        }
     }
 
-    public subscribeLeague(listener: LeagueCallback, getStateOnlyIfSet: boolean = false) {
+    public subscribeLeague(listener: LeagueCallback) {
         this.leagueListeners.push(listener);
-        if (!(getStateOnlyIfSet && this.leagueNotDefault)) {
+        if (this.league != null) {
             listener(this.league);
         }
     }
 
     public setUser(user: User) {
-        this.user.userId = user.userId;
-        this.user.email = user.email;
+        this.user = user;
         this.changeListeners.forEach((listener: ChangeCallback) => listener());
-        this.userListeners.forEach((listener: UserCallback) => listener(this.user));
     }
 
-    public setUserWithPermissions(user: UserWithPermissions) {
-        this.user = user;
-        this.userListeners.forEach((listener: UserCallback) => listener(this.user));
+    public setUserWithPermissions(userWithPermissions: UserWithPermissions) {
+        this.userWithPermissions = userWithPermissions;
+        this.userListeners.forEach((listener: UserCallback) => listener(this.userWithPermissions));
     }
 
     public setLeague(league: League) {
+        console.log("setting league", league);
         this.league = league;
-        this.leagueNotDefault = true;
         this.changeListeners.forEach((listener: ChangeCallback) => listener());
         this.leagueListeners.forEach((listener: LeagueCallback) => listener(this.league));
     }

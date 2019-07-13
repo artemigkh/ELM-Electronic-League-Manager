@@ -233,6 +233,11 @@ import {LeaguesComponent} from "./leagues/leagues";
 import {ManageAvailabilityPopup, ManageScheduleComponent} from "./manage/schedule/manage-schedule";
 import {ManageGamePopup, ManageGamesComponent, ReportGamePopup} from "./manage/games/manage-games";
 import {ManagePermissionsComponent} from "./manage/permissions/manage-permissions";
+import {LeagueOfLegendsPlayerEntry} from "./teams/playerEntry/league-of-legends-player-entry";
+import {
+    ManageLoLPlayerPopup,
+    ManagePlayersTeamLeagueOfLegendsComponent
+} from "./manage/players/manage-players-team/league-of-legends/manage-players-team-league-of-legends";
 
 @NgModule({
     declarations: [
@@ -249,6 +254,7 @@ import {ManagePermissionsComponent} from "./manage/permissions/manage-permission
         TeamsComponent,
         PlayerEntryDirective,
         GenericPlayerEntry,
+        LeagueOfLegendsPlayerEntry,
         PlayerEntryComponent,
         GamesComponent,
         RulesComponent,
@@ -260,6 +266,7 @@ import {ManagePermissionsComponent} from "./manage/permissions/manage-permission
         ManageTeamsComponent,
         ManagePlayersComponent,
         ManagePlayersTeamComponent,
+        ManagePlayersTeamLeagueOfLegendsComponent,
         ManagePlayersTeamDirective,
         ManagePlayersTeamContainerComponent,
         ManageGamesComponent,
@@ -267,6 +274,7 @@ import {ManagePermissionsComponent} from "./manage/permissions/manage-permission
         ManagePermissionsComponent,
         ManageTeamPopup,
         ManagePlayerPopup,
+        ManageLoLPlayerPopup,
         ManageAvailabilityPopup,
         ManageGamePopup,
         ReportGamePopup,
@@ -316,10 +324,13 @@ import {ManagePermissionsComponent} from "./manage/permissions/manage-permission
     bootstrap: [AppComponent],
     entryComponents: [
         GenericPlayerEntry,
+        LeagueOfLegendsPlayerEntry,
         ManagePlayersTeamComponent,
+        ManagePlayersTeamLeagueOfLegendsComponent,
         EventDisplayerComponent,
         ManageTeamPopup,
         ManagePlayerPopup,
+        ManageLoLPlayerPopup,
         ManageAvailabilityPopup,
         ManageGamePopup,
         ReportGamePopup,

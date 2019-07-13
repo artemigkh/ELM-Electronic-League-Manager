@@ -4,6 +4,7 @@
 
 <mat-divider></mat-divider>
 
+<ng-container *ngIf="league">
 
 <h4>
     Registration Period
@@ -45,3 +46,5 @@
 </mat-form-field>
 
 <button mat-flat-button color="primary" (click)="updateAtServer()">Update Information</button>
+
+</ng-container>

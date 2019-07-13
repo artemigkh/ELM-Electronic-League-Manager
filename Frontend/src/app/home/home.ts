@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.state.subscribeLeague((league: League) => this.league = league);
+        this.state.subscribeLeague(league => this.league = league);
 
         this.gamesService.getLeagueGames({limit: "5"}).subscribe(
             games => this.games = games,

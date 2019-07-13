@@ -1,6 +1,7 @@
 <div class="docs-primary-header">
   <h1 class="docs-primary-header">Home</h1>
 </div>
+<ng-container *ngIf="league">
 
 <ng-container *ngIf="!signupPeriod">
 <div class="home-content">
@@ -95,4 +96,6 @@
                             [team]="team" [position]="i+1" [height]="80" [signup]="signupPeriod"></app-team-entry>
         </span>
     </div>
+</ng-container>
+
 </ng-container>

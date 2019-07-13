@@ -4,10 +4,7 @@
 
 <mat-divider></mat-divider>
 
-<!--<h2>-->
-    <!--League Information-->
-<!--</h2>-->
-
+<ng-container *ngIf="league">
 <div class="example-container">
     <mat-form-field hintLabel="Between 3 and 25 characters">
         <input matInput [(ngModel)]="league.name" #input1 maxlength="50" placeholder="League Name">
@@ -54,7 +51,7 @@
 </section>
 
 <button mat-flat-button color="primary" (click)="updateAtServer()">Update Information</button>
-
+</ng-container>
 
 
 

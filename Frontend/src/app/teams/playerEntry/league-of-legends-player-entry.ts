@@ -1,14 +1,18 @@
-import {PlayerEntryInterface} from "./player-entry";
+// import {PlayerEntryInterface} from "./player-entry";
+// import {Component, Input} from "@angular/core";
+// import {LeagueOfLegendsPlayer} from "../../interfaces/Player";
+//
 import {Component, Input} from "@angular/core";
-import {LeagueOfLegendsPlayer} from "../../interfaces/Player";
+import {PlayerEntryInterface} from "./player-entry";
+import {LoLPlayer} from "../../interfaces/Player";
 
 @Component({
     templateUrl: './league-of-legends-player-entry.html',
     styleUrls: ['./league-of-legends-player-entry.scss'],
 })
 export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
-    @Input() players: LeagueOfLegendsPlayer[];
-    @Input() mainRoster: boolean = false;
+    @Input() players: LoLPlayer[];
+    @Input() displayAsMainRoster: boolean = false;
     getEmblem(player): string {
         if(player.tier.length > 0) {
             return "assets/leagueOfLegends/" +
@@ -20,11 +24,11 @@ export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
         }
     }
 
-    getPositionIcon(player: LeagueOfLegendsPlayer): string {
+    getPositionIcon(player: LoLPlayer): string {
         return "assets/leagueOfLegends/" + player.position.toLowerCase() + "_Icon.png";
     }
 
-    addRankNum(player: LeagueOfLegendsPlayer): string {
+    addRankNum(player: LoLPlayer): string {
         if(player.tier == "MASTER" ||
             player.tier == "GRANDMASTER" ||
             player.tier == "CHALLENGER" ) {
@@ -50,7 +54,7 @@ export class LeagueOfLegendsPlayerEntry implements PlayerEntryInterface {
         }
     }
 
-    getRankString(player: LeagueOfLegendsPlayer): string {
+    getRankString(player: LoLPlayer): string {
         if(player.tier.length > 0) {
             return player.tier.substring(0, 1) +
                 player.tier.substring(1).toLowerCase() +

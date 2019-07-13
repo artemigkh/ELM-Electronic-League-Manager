@@ -1,7 +1,7 @@
-import {Component, ViewEncapsulation} from '@angular/core';
-import {LeagueService} from '../httpServices/leagues.service';
-import {Team} from "../interfaces/Team";
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {TeamWithPlayers} from "../interfaces/Team";
 import {TeamsService} from "../httpServices/teams.service";
+import {NGXLogger} from "ngx-logger";
 
 @Component({
     selector: 'app-standings',
@@ -9,16 +9,16 @@ import {TeamsService} from "../httpServices/teams.service";
     styleUrls: ['./standings.scss'],
     encapsulation: ViewEncapsulation.None,
 })
-export class StandingsComponent {
-    displayedColumns: string[] = ['Position', 'Icon', 'Name', 'Score'];
-    teams: Team[];
+export class StandingsComponent implements OnInit {
+    teams: TeamWithPlayers[];
 
-    constructor(private teamsService: TeamsService) {
-        this.teamsService.getTeamSummary().subscribe(
-            teamSummary => {
-                this.teams = teamSummary;
-            }, error => {
-                console.log(error);
-            });
+    constructor(private log: NGXLogger, private teamsService: TeamsService) {
+    }
+
+    ngOnInit(): void {
+        this.teamsService.getLeagueTeams().subscribe(
+            team => this.teams = team,
+            error => this.log.error(error)
+        );
     }
 }

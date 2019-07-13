@@ -14,9 +14,9 @@
     </span>
 </div>
 
-<div class="limiter">
+<div class="limiter" ngDefaultControl [formControl]="selected">
     <!--<mat-divider></mat-divider>-->
-    <mat-tab-group>
+    <mat-tab-group [selectedIndex]="selected.value" (selectedIndexChange)="selected.setValue($event)">
         <mat-tab label="Members">
             <span class="members">
                 <div class="player-type">
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="player-entries">
-                    <player-entry-component [players]="team.players" [mainRoster]="true"></player-entry-component>
+                    <player-entry-component [players]="team.mainRoster" [displayAsMainRoster]="true"></player-entry-component>
                 </div>
 
                 <div class="vertical-spacer"></div>
@@ -36,7 +36,7 @@
                 </div>
 
                 <div class="player-entries">
-                    <player-entry-component [players]="team.substitutes"></player-entry-component>
+                    <player-entry-component [players]="team.substituteRoster"></player-entry-component>
                 </div>
 
             </span>
@@ -50,12 +50,12 @@
 
         <mat-tab label="Match History">
             <div class="games-list-team-page">
-                <app-game-entry *ngFor="let game of pastGames" [game]="game" [compact]="true"></app-game-entry>
+                <app-game-entry *ngFor="let game of games.completedGames" [game]="game" [compact]="true"></app-game-entry>
             </div>
         </mat-tab>
         <mat-tab label="Upcoming Games">
             <div class="games-list-team-page">
-                <app-game-entry *ngFor="let game of upcomingGames" [game]="game" [compact]="true"></app-game-entry>
+                <app-game-entry *ngFor="let game of games.upcomingGames" [game]="game" [compact]="true"></app-game-entry>
             </div>
         </mat-tab>
     </mat-tab-group>

@@ -3,14 +3,14 @@
         <div class="players">
             <div class="new-player-container">
                 <span class="players-title">Players</span>
-                <button mat-raised-button class="new-player" color="primary" [disabled]="team.players.length >= 5"
-                        (click)="newPlayerPopup(team.id, true)">
+                <button mat-raised-button class="new-player" color="primary" [disabled]="team.mainRoster.length >= 5"
+                        (click)="createLoLPlayer(true)">
                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                     Add Player
                 </button>
             </div>
             <ul>
-                <li *ngFor="let player of team.players">
+                <li *ngFor="let player of team.mainRoster">
                 <span class="player-entry">
                     <span class="game-name">
                         {{player.gameIdentifier}}
@@ -24,19 +24,19 @@
 
                     <span class="control-button">
                         <button mat-icon-button color="primary"
-                                (click)="editPlayerPopup(player, team.id, true)">
+                                (click)="editLoLPlayer(player)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                         </button>
                     </span>
 
                     <span class="control-button delete">
-                        <button mat-icon-button (click)="warningPopup(player, team.id)">
+                        <button mat-icon-button (click)="deletePlayer(player)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                         </button>
                     </span>
 
                     <span class="control-button move">
-                        <button mat-icon-button (click)="movePlayerRoleLoL(player, team.id, false)">
+                        <button mat-icon-button (click)="movePlayerRoster(player, false)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-caret-down"></mat-icon>
                         </button>
                     </span>
@@ -48,13 +48,13 @@
             <div class="new-player-container">
                 <span class="players-title">Substitutes</span>
                 <button mat-raised-button class="new-player" color="primary"
-                        (click)="newPlayerPopup(team.id, false)">
+                        (click)="createLoLPlayer(false)">
                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                     Add Substitute
                 </button>
             </div>
             <ul>
-                <li *ngFor="let player of team.substitutes">
+                <li *ngFor="let player of team.substituteRoster">
                 <span class="player-entry">
                     <span class="game-name">
                         {{player.gameIdentifier}}
@@ -64,19 +64,19 @@
 
                     <span class="control-button">
                         <button mat-icon-button color="primary"
-                                (click)="editPlayerPopup(player, team.id, false)">
+                                (click)="editLoLPlayer(player)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                         </button>
                     </span>
 
                     <span class="control-button delete">
-                        <button mat-icon-button (click)="warningPopup(player, team.id)">
+                        <button mat-icon-button (click)="deletePlayer(player)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                         </button>
                     </span>
 
-                    <span class="control-button move" *ngIf="team.players.length < 5">
-                        <button mat-icon-button (click)="movePlayerRole(player, team.id, true)">
+                    <span class="control-button move" *ngIf="team.mainRoster.length < 5">
+                        <button mat-icon-button (click)="movePlayerRoster(player, true)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-caret-up"></mat-icon>
                         </button>
                     </span>

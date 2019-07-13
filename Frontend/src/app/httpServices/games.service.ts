@@ -1,89 +1,61 @@
-import {HttpClient} from "@angular/common/http";
-import {Injectable} from "@angular/core";
+import {HttpClient, HttpParams} from "@angular/common/http";
+import {Injectable, Query} from "@angular/core";
 import {Observable} from "rxjs/Rx";
+import {
+    CompetitionWeek,
+    Game,
+    GameCreationInformation,
+    GameId,
+    GameResult,
+    GameTime,
+    SortedGames
+} from "../interfaces/Game";
+import * as moment from "moment";
+import {Moment} from "moment";
 import {httpOptions} from "./http-options";
-import {Game, GameCollection} from "../interfaces/Game";
-import {of} from "rxjs/index";
-import {TeamsService} from "./teams.service";
 
 @Injectable()
 export class GamesService {
-    constructor(private http: HttpClient,
-                private teamsService: TeamsService) {}
-
-    public reportResult(gameId: number, winnerId: number,
-                        scoreTeam1: number, scoreTeam2: number): Observable<Object> {
-        return this.http.post('http://localhost:8080/api/games/report/' + gameId, {
-            winnerId: winnerId,
-            scoreTeam1: scoreTeam1,
-            scoreTeam2: scoreTeam2
-        }, httpOptions)
+    constructor(private http: HttpClient) {
     }
 
-    public createNewGame(team1Id: number, team2Id: number, gameTime: number): Observable<Object> {
-        return this.http.post('http://localhost:8080/api/games/', {
-            team1Id: team1Id,
-            team2Id: team2Id,
-            gameTime: gameTime
-        }, httpOptions)
-    }
-
-    public rescheduleGame(gameId: number, gameTime: number): Observable<Object> {
-        return this.http.put('http://localhost:8080/api/games/', {
-            id: gameId,
-            gameTime: gameTime
-        }, httpOptions)
-    }
-
-    public deleteGame(teamId: number) {
-        return this.http.request('delete', 'http://localhost:8080/api/games/' + teamId,
-            httpOptions);
-    }
-
-    public getAllGames(): Observable<GameCollection> {
-        return new Observable(observer => {
-            //get the game summary from the server
-            this.http.get('http://localhost:8080/api/leagues/gameSummary', httpOptions).subscribe(
-                (games: Game[]) => {
-                    if(games == null) {
-                        observer.next({
-                            upcomingGames: [],
-                            completeGames: []
-                        });
-                    } else {
-                        //get the team summary from the server
-                        this.teamsService.getTeamSummary().subscribe(
-                            teams => {
-                                this.teamsService.addTeamInformation(games, teams);
-
-                                let completeGames = [];
-                                let upcomingGames = [];
-
-                                games.forEach(game => {
-                                    if(game.complete) {
-                                        completeGames.push(game);
-                                    } else {
-                                        upcomingGames.push(game);
-                                    }
-                                });
-                                upcomingGames.sort((a,b)=>
-                                    (a.gameTime > b.gameTime) ? 1 :
-                                        ((a.gameTime < b.gameTime) ? -1 : 0));
-                                observer.next({
-                                    upcomingGames: upcomingGames,
-                                    completeGames: completeGames
-                                });
-                            }, error => {
-                                observer.error(error);
-                                console.log(error);
-                            }
-                        );
-                    }
-                }, error => {
-                    observer.error(error);
-                    console.log(error);
-                }
-            )
+    public getLeagueGames(args: {limit?: string; teamId?: string;}): Observable<SortedGames> {
+        let queryParams = new HttpParams();
+        if (args.limit) {
+            queryParams = queryParams.set("limit", args.limit);
+        }
+        if (args.teamId) {
+            queryParams = queryParams.set("limit", args.teamId);
+        }
+        return this.http.get<SortedGames>('http://localhost:8080/api/v1/sortedGames', {
+            withCredentials: true,
+            params: queryParams
         })
     }
+
+    public getGamesByWeek(): Observable<CompetitionWeek[]> {
+        return this.http.get<CompetitionWeek[]>('http://localhost:8080/api/v1/gamesByWeek', {
+            withCredentials: true,
+            params: <any>{
+                timeZoneOffset: moment().utcOffset() * 60
+            }
+        })
+    }
+
+    public createGame(game: GameCreationInformation): Observable<GameId> {
+        return this.http.post<GameId>('http://localhost:8080/api/v1/games', game, httpOptions);
+    }
+
+    public rescheduleGame(gameId: number, gameTime: GameTime): Observable<GameId> {
+        return this.http.post<GameId>('http://localhost:8080/api/v1/games/' + gameId + '/reschedule', gameTime, httpOptions);
+    }
+
+    public reportResult(gameId: number, result: GameResult): Observable<null> {
+        return this.http.post<null>('http://localhost:8080/api/v1/games/' + gameId + '/report', result, httpOptions)
+    }
+
+    public deleteGame(gameId: number): Observable<null> {
+        return this.http.delete<null>('http://localhost:8080/api/v1/games/' + gameId, httpOptions);
+    }
+
 }

@@ -1,50 +1,31 @@
-import {Component, ViewEncapsulation} from "@angular/core";
-import {LeagueInformation} from "../../interfaces/LeagueInformation";
-import {MatSnackBar} from "@angular/material";
+import {Component, OnInit} from "@angular/core";
 import {LeagueService} from "../../httpServices/leagues.service";
-import {esportsDef, physicalSportsDef} from "../../shared/sports.defs";
-import {ConfirmationComponent} from "../../shared/confirmation/confirmation-component";
-import {Markdown} from "../../httpServices/api-return-schemas/markdown";
+import {EventDisplayerService} from "../../shared/eventDisplayer/event-displayer.service";
+import {NGXLogger} from "ngx-logger";
 
 @Component({
     selector: 'app-manage-rules',
     templateUrl: './manage-rules.html',
     styleUrls: ['./manage-rules.scss'],
 })
-export class ManageRulesComponent {
+export class ManageRulesComponent implements OnInit{
     markdown: string;
-    constructor(public confirmation: MatSnackBar, private leagueService: LeagueService) {
-        this.leagueService.getMarkdown().subscribe(
-            (next: Markdown) => {
-                this.markdown = next.markdown;
-                console.log(this.markdown)
-            }, error => {
-                console.log(error);
-            }
+    constructor(private leagueService: LeagueService,
+                private log: NGXLogger,
+                private eventDisplayer: EventDisplayerService) {
+    }
+
+    ngOnInit(): void {
+        this.leagueService.getLeagueMarkdown().subscribe(
+            md => this.markdown = md.markdown,
+            error => this.log.error(error)
         )
     }
 
     updateAtServer() {
-        this.leagueService.setMarkdown(this.markdown).subscribe(
-            next => {
-                this.confirmation.openFromComponent(ConfirmationComponent, {
-                    duration: 1250,
-                    panelClass: ['blue-snackbar'],
-                    data: {
-                        message: "Rules and Information Successfully Updated"
-                    }
-                });
-            }, error => {
-                console.log(error);
-                this.confirmation.openFromComponent(ConfirmationComponent, {
-                    duration: 2000,
-                    panelClass: ['red-snackbar'],
-                    data: {
-                        message: "Update Failed"
-                    }
-                });
-            }
+        this.leagueService.setLeagueMarkdown({markdown: this.markdown}).subscribe(
+            success => this.eventDisplayer.displaySuccess("Rules and Information Successfully Updated"),
+            error => this.eventDisplayer.displayError(error)
         );
-
     }
 }

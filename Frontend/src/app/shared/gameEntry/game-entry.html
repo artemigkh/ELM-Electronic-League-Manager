@@ -17,11 +17,11 @@
     <span class="info">
         <span class="team-container">
             <span class="spacer"></span>
-            <span *ngIf="!compact || tentative" [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.id]">
+            <span *ngIf="!compact || tentative" [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.teamId]">
                 {{game.team1.name}}
             </span>
 
-            <span class="team-block" [routerLink]="['/teams', game.team1.id]">
+            <span class="team-block" [routerLink]="['/teams', game.team1.teamId]">
                 <div class="tag">
                     {{game.team1.tag}}
                 </div>
@@ -37,7 +37,7 @@
 
             <span class="spacer"></span>
 
-            <span class="logo" [routerLink]="['/teams', game.team1.id]">
+            <span class="logo" [routerLink]="['/teams', game.team1.teamId]">
                 <img [src]="'http://localhost:8080/icons/' + game.team1.iconSmall">
             </span>
         </span>
@@ -45,11 +45,11 @@
         <span class="vs">vs</span>
 
         <span class="team-container">
-            <span class="logo" [routerLink]="['/teams', game.team2.id]">
+            <span class="logo" [routerLink]="['/teams', game.team2.teamId]">
             <img [src]="'http://localhost:8080/icons/' + game.team2.iconSmall">
             </span>
             <span class="spacer"></span>
-            <span class="team-block" [routerLink]="['/teams', game.team2.id]">
+            <span class="team-block" [routerLink]="['/teams', game.team2.teamId]">
 
                 <div class="tag">
                     {{game.team2.tag}}
@@ -64,7 +64,7 @@
                 </div>
             </span>
 
-            <span *ngIf="!compact || tentative" [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.id]">
+            <span *ngIf="!compact || tentative" [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.teamId]">
                 {{game.team2.name}}
             </span>
             <span class="spacer"></span>

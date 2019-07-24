@@ -1,15 +1,10 @@
-
 import {Component, Inject} from "@angular/core";
-import {LeagueService} from "../../httpServices/leagues.service";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
-import {ManageComponentInterface} from "../manage-component-interface";
 
-class WarningPopupData {
+export interface WarningPopupData {
     entity: string;
     name: string;
-    Id: number;
-    Id2: number;
-    caller: ManageComponentInterface;
+    onAccept: () => void;
 }
 
 @Component({
@@ -27,12 +22,7 @@ export class WarningPopup {
     }
 
     onConfirm(): void {
-        if(this.data.Id2) {
-            this.data.caller.notifyDelete(this.data.Id, this.data.Id2);
-        } else {
-            this.data.caller.notifyDelete(this.data.Id);
-        }
-
+        this.data.onAccept();
         this.dialogRef.close();
     }
 }

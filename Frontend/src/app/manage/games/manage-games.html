@@ -5,6 +5,12 @@
 <mat-divider></mat-divider>
 
 <h4>Filter by Team</h4>
+<div class="new-game-container">
+    <button mat-raised-button class="new-team" color="primary" (click)="newGame()">
+        <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
+        New Game
+    </button>
+</div>
 <!--<mat-chip-list>-->
     <!--<mat-chip [style.background-color]="'#D92826'" selected (click)="deselectAll()">-->
         <!--Deselect All-->
@@ -15,50 +21,43 @@
 <!--</mat-chip-list>-->
 
 
-<mat-chip-list>
-    <mat-chip *ngFor="let team of teams"
-              [style.background-color]=
-                  "teamVisibility[team.id]?primary:'darkgrey'" [selectable]="selectable"
-              (click)="swapVisibility(team.id)" selected>
-        {{team.name}}
-    </mat-chip>
-</mat-chip-list>
-<div class="vertical-divider"></div>
-<div class="button-row">
-    <button [style.background-color]="'#d94640'" selected (click)="deselectAll()" mat-raised-button>
-        Deselect All
-    </button>
-    <button [style.background-color]="'green'" selected (click)="selectAll()"mat-raised-button>
-        Select All
-    </button>
-</div>
-<mat-divider></mat-divider>
+<!--<mat-chip-list>-->
+    <!--<mat-chip *ngFor="let team of teams"-->
+              <!--[style.background-color]=-->
+                  <!--"teamVisibility[team.id]?primary:'darkgrey'" [selectable]="selectable"-->
+              <!--(click)="swapVisibility(team.id)" selected>-->
+        <!--{{team.name}}-->
+    <!--</mat-chip>-->
+<!--</mat-chip-list>-->
 <!--<div class="vertical-divider"></div>-->
-<mat-button-toggle-group #group="matButtonToggleGroup">
-    <mat-button-toggle checked value="upcoming">
-        Upcoming Games
-    </mat-button-toggle>
-    <mat-button-toggle value="past">
-        Past Games
-    </mat-button-toggle>
-</mat-button-toggle-group>
+<!--<div class="button-row">-->
+    <!--<button [style.background-color]="'#d94640'" selected (click)="deselectAll()" mat-raised-button>-->
+        <!--Deselect All-->
+    <!--</button>-->
+    <!--<button [style.background-color]="'green'" selected (click)="selectAll()"mat-raised-button>-->
+        <!--Select All-->
+    <!--</button>-->
+<!--</div>-->
+<!--<mat-divider></mat-divider>-->
+<!--&lt;!&ndash;<div class="vertical-divider"></div>&ndash;&gt;-->
+<!--<mat-button-toggle-group #group="matButtonToggleGroup">-->
+    <!--<mat-button-toggle checked value="upcoming">-->
+        <!--Upcoming Games-->
+    <!--</mat-button-toggle>-->
+    <!--<mat-button-toggle value="past">-->
+        <!--Past Games-->
+    <!--</mat-button-toggle>-->
+<!--</mat-button-toggle-group>-->
 
 <!--<mat-divider></mat-divider>-->
 <!--<h4>Upcoming Games</h4>-->
 
-
-
-<div class="game-content">
-    <div class="new-game-container">
-        <span class="game-type-title">Game</span>
-        <button mat-raised-button class="new-team" color="primary" (click)="newGamePopup()">
-            <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
-            New Game
-        </button>
-    </div>
-    <ul>
-        <ng-container *ngFor="let game of group.value == 'upcoming'?upcomingGames:completeGames">
-            <li *ngIf="teamVisibility[game.team1.id]||teamVisibility[game.team2.id]">
+<mat-tab-group mat-stretch-tabs>
+    <mat-tab label="Upcoming Games">
+    <div class="game-content">
+        <ul>
+            <ng-container *ngFor="let game of games.upcomingGames">
+                <li *ngIf="isGameViewable(game)">
             <span class="game-entry">
                 <span class="time">
                     <span class="dayofweek">
@@ -71,12 +70,68 @@
 
                 <span class="spacer"></span>
 
-                <span *ngIf="group.value=='past'&&game.team1.id==game.winnerId"
+                <span class="name">
+                    {{game.team1.name}}
+                </span>
+
+                <span class="vs">
+                     vs
+                </span>
+
+                <span class="name">
+                    {{game.team2.name}}
+                </span>
+
+                <span class="spacer"></span>
+
+                <span class="control-button">
+                    <button mat-raised-button class="report-result" (click)="reportGame(game)">
+                        Report Result
+                    </button>
+                </span>
+                <span class="control-button">
+                    <button mat-icon-button color="primary" (click)="rescheduleGame(game)">
+                        <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
+                    </button>
+                </span>
+
+                <span class="control-button delete">
+                    <button mat-icon-button (click)="deleteGame(game)">
+                        <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
+                    </button>
+                </span>
+            </span>
+                </li>
+            </ng-container>
+        </ul>
+    </div>
+    </mat-tab>
+
+    <mat-tab label="Completed Games">
+
+        <div class="game-content">
+
+            <ul>
+                <ng-container *ngFor="let game of games.completedGames">
+                    <li *ngIf="isGameViewable(game)">
+            <span class="game-entry">
+                <span class="time">
+                    <span class="dayofweek">
+                        {{game.gameTime * 1000 | date:'EEEE'}} {{game.gameTime * 1000 | date:'MMMM d'}}
+                    </span>
+                    <div class="hour-min">
+                        {{game.gameTime * 1000 | date:'h:mm a'}}
+                    </div>
+                </span>
+
+                <span class="spacer"></span>
+
+                <span *ngIf="game.team1.teamId == game.winnerId"
                       class="result victory">
                     VICTORY
                 </span>
-                <span *ngIf="group.value=='past'&&game.team1.id!=game.winnerId"
-                                      class="result defeat">
+                <span *ngIf="game.team1.teamId != game.winnerId"
+                      class="result defeat">
                     DEFEAT
                 </span>
 
@@ -85,7 +140,7 @@
                     {{game.team1.name}}
                 </span>
 
-               <span *ngIf="group.value=='past'" class="score">
+               <span class="score">
                     {{game.scoreTeam1}}
                 </span>
 
@@ -93,7 +148,7 @@
                      vs
                 </span>
 
-                <span *ngIf="group.value=='past'" class="score">
+                <span class="score">
                     {{game.scoreTeam2}}
                 </span>
 
@@ -102,11 +157,11 @@
                 </span>
 
 
-                <span *ngIf="group.value=='past'&&game.team2.id==game.winnerId"
+                <span *ngIf="game.team2.teamId == game.winnerId"
                       class="result victory">
                     VICTORY
                 </span>
-                <span *ngIf="group.value=='past'&&game.team2.id!=game.winnerId"
+                <span *ngIf="game.team2.teamId != game.winnerId"
                       class="result defeat">
                     DEFEAT
                 </span>
@@ -114,26 +169,18 @@
                 <span class="spacer"></span>
 
                 <span class="control-button">
-                    <button mat-raised-button class="report-result" (click)="reportGamePopup(game)">
-                        {{group.value=='upcoming'?"Report":"Amend"}} Result
-                    </button>
-                </span>
-                <span *ngIf="group.value=='upcoming'" class="control-button">
-                    <button mat-icon-button color="primary" (click)="editGamePopup(game)">
-                        <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
-                    </button>
-                </span>
-
-                <span class="control-button delete">
-                    <button mat-icon-button (click)="deletePopup(game)">
-                        <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
+                    <button mat-raised-button class="report-result" (click)="reportGame(game)">
+                        Amend Result
                     </button>
                 </span>
             </span>
-            </li>
-        </ng-container>
-    </ul>
-</div>
+                    </li>
+                </ng-container>
+            </ul>
+        </div>
+    </mat-tab>
+</mat-tab-group>
+
 
 <!--<mat-accordion displayMode="flat" multi="true" >-->
     <!--<mat-expansion-panel expanded="true" >-->
@@ -179,7 +226,7 @@
                             <!--<span class="spacer"></span>-->
 
                             <!--<span class="control-button">-->
-                                <!--<button mat-raised-button class="report-result" (click)="reportGamePopup(game)">-->
+                                <!--<button mat-raised-button class="report-result" (click)="reportGame(game)">-->
                                     <!--Report Result-->
                                 <!--</button>-->
                             <!--</span>-->

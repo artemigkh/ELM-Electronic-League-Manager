@@ -1,4 +1,3 @@
-
 <div class="manage-teams-table">
 <mat-table [dataSource]="teams">
     <!-- Position Column -->
@@ -14,12 +13,12 @@
                 </span>
                 <span class="spacer"></span>
                 <span class="edit">
-                    <button mat-icon-button color="primary" (click)="editTeamPopup(element)">
+                    <button mat-icon-button color="primary" (click)="editTeam(element)">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                     </button>
                 </span>
                 <span class="delete">
-                    <button mat-icon-button (click)="warningPopup(element)">
+                    <button mat-icon-button (click)="deleteTeam(element)">
                         <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                     </button>
                 </span>
@@ -31,7 +30,7 @@
         <div class="mat-header-row header-group-row">
             <div class="new-team-container">
                 <span class="teams-title">Manage Teams</span>
-                <button mat-raised-button class="new-team" color="primary" (click)="newTeamPopup()">
+                <button mat-raised-button class="new-team" color="primary" (click)="createTeam()">
                     <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                     New Team
                 </button>
@@ -39,7 +38,7 @@
         </div>
         <mat-header-row></mat-header-row>
     </ng-container>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    <mat-row *matRowDef="let row; columns: ['team'];"></mat-row>
 </mat-table>
 </div>
 

@@ -1,81 +1,56 @@
-import {Component} from '@angular/core';
-import {LeagueService} from "../httpServices/leagues.service";
-import {Game} from "../interfaces/Game";
-import {LeagueInformation} from "../interfaces/LeagueInformation";
-import {Team} from "../interfaces/Team";
+import {Component, OnInit} from '@angular/core';
+import {EmptySortedGames, SortedGames} from "../interfaces/Game";
+import {TeamWithPlayers} from "../interfaces/Team";
 import {GamesService} from "../httpServices/games.service";
 import {TeamsService} from "../httpServices/teams.service";
-import {sports} from "../shared/sports.defs";
-import {isUndefined} from "util";
+import {sports} from "../shared/lookup.defs";
+import {ElmState} from "../shared/state/state.service";
+import {League} from "../interfaces/League";
+import {NGXLogger} from "ngx-logger";
 
 @Component({
     selector: 'app-home',
     templateUrl: './home.html',
     styleUrls: ['./home.scss']
 })
-export class HomeComponent {
-    completeGames: Game[];
-    upcomingGames: Game[];
-    leagueInformation: LeagueInformation;
-    teams: Team[];
-    allTeams: Team[];
-    signupPeriod: boolean;
-    constructor(private leagueService: LeagueService,
+export class HomeComponent implements OnInit {
+    games: SortedGames;
+    league: League;
+    allTeams: TeamWithPlayers[];
+    topTeams: TeamWithPlayers[];
+    signupPeriod: boolean = false;
+
+    constructor(private state: ElmState,
+                private log: NGXLogger,
                 private gamesService: GamesService,
                 private teamsService: TeamsService) {
-        this.leagueInformation = {
-            id: 0,
-            name: "",
-            description: "",
-            game: "genericsport",
-            publicView: false,
-            publicJoin: false,
-            signupStart: 0,
-            signupEnd: 0,
-            leagueStart: 0,
-            leagueEnd: 0
-        };
+        this.games = EmptySortedGames();
+        this.allTeams = [];
+        this.topTeams = [];
+    }
 
-        this.leagueService.isLeagueRegistrationPeriod().subscribe(
-            (next: boolean) => {
-                this.signupPeriod = next;
-            }, error => {
-                console.log(error);
-            }
+    ngOnInit(): void {
+        this.state.subscribeLeague(league => this.league = league);
+
+        this.gamesService.getLeagueGames({limit: "5"}).subscribe(
+            games => this.games = games,
+            error => this.log.error(error)
         );
 
-        this.gamesService.getAllGames().subscribe(
-            gameSummary => {
-                this.completeGames = gameSummary.completeGames.slice(0,5);
-                this.upcomingGames = gameSummary.upcomingGames.slice(0,5);
-            },
-            error => {
-                console.log(error);
-            });
-
-        this.leagueService.getLeagueInformation().subscribe(
-            (next: LeagueInformation) => {
-                this.leagueInformation = next;
-            }, error => {
-                console.log(error);
-            }
-        );
-
-        this.teamsService.getTeamSummary().subscribe(
-            teamSummary => {
-                this.allTeams = teamSummary;
-                if(teamSummary.length > 3) {
-                    this.teams = teamSummary.slice(0,3);
+        this.teamsService.getLeagueTeams().subscribe(
+            teams => {
+                this.allTeams = teams;
+                if (teams.length > 3) {
+                    this.topTeams = teams.slice(0, 3);
                 } else {
-                    this.teams = teamSummary;
+                    this.topTeams = teams;
                 }
-
-            }, error => {
-                console.log(error);
-            });
+            },
+            error => this.log.error(error)
+        );
     }
 
     getGameLabel(): string {
-        return sports[this.leagueInformation.game];
+        return sports[this.league.game];
     }
 }

@@ -11,11 +11,6 @@ type IScheduler struct {
 	mock.Mock
 }
 
-// AddDailyAvailability provides a mock function with given fields: hour, minute, duration
-func (_m *IScheduler) AddDailyAvailability(hour int, minute int, duration time.Duration) {
-	_m.Called(hour, minute, duration)
-}
-
 // AddWeeklyAvailability provides a mock function with given fields: dayOfWeek, hour, minute, duration
 func (_m *IScheduler) AddWeeklyAvailability(dayOfWeek time.Weekday, hour int, minute int, duration time.Duration) {
 	_m.Called(dayOfWeek, hour, minute, duration)

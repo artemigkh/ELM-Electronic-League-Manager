@@ -1,9 +1,9 @@
-<h1 mat-dialog-title>{{data.title}}</h1>
+<h1 mat-dialog-title>{{title}}</h1>
 <div mat-dialog-content>
     <div class="content-wrapper">
         <div class="">
             <mat-form-field>
-                <mat-select placeholder="Day of Week" [(value)]="dayOfWeek">
+                <mat-select placeholder="Day of Week" [(value)]="data.availability.weekday">
                     <mat-option *ngFor="let day of daysOfWeek" [value]="day.value">
                         {{day.display}}
                     </mat-option>
@@ -50,10 +50,10 @@
     <div class="action-bar-wrapper">
         <span class="spacer"></span>
         <span class="button-wrapper">
-        <button mat-raised-button (click)="OnCancel()">Cancel</button>
+        <button mat-raised-button (click)="onCancel()">Cancel</button>
     </span>
         <span class="button-wrapper">
-         <button mat-raised-button (click)="OnConfirm()">Confirm</button>
+         <button mat-raised-button (click)="saveAvailability()">Confirm</button>
     </span>
         <span class="spacer"></span>
     </div>

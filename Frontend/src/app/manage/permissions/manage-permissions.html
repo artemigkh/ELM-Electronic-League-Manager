@@ -5,12 +5,12 @@
 <mat-divider></mat-divider>
 
 <ng-container *ngFor="let team of teams">
-    <h3>{{team.teamName}}</h3>
+    <h3>{{team.name}}</h3>
     <mat-table [dataSource]="team.managers" class="mat-elevation-z8">
         <!-- Position Column -->
         <ng-container matColumnDef="userEmail">
             <mat-header-cell *matHeaderCellDef> Email </mat-header-cell>
-            <mat-cell *matCellDef="let element">{{element.userEmail}}</mat-cell>
+            <mat-cell *matCellDef="let element">{{element.email}}</mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="administrator">
@@ -27,17 +27,10 @@
             </mat-cell>
         </ng-container>
 
-        <ng-container matColumnDef="players">
-            <mat-header-cell *matHeaderCellDef> Edit Players </mat-header-cell>
+        <ng-container matColumnDef="games">
+            <mat-header-cell *matHeaderCellDef> Edit Games </mat-header-cell>
             <mat-cell *matCellDef="let element">
-                <mat-checkbox [(ngModel)]=element.players></mat-checkbox>
-            </mat-cell>
-        </ng-container>
-
-        <ng-container matColumnDef="reportResults">
-            <mat-header-cell *matHeaderCellDef> Report Result </mat-header-cell>
-            <mat-cell *matCellDef="let element">
-                <mat-checkbox [(ngModel)]=element.reportResults></mat-checkbox>
+                <mat-checkbox [(ngModel)]=element.games></mat-checkbox>
             </mat-cell>
         </ng-container>
 

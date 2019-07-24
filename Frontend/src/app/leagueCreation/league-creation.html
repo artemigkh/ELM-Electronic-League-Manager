@@ -2,18 +2,20 @@
     <h1 class="docs-primary-header">League Creation</h1>
 </div>
 
+<form [formGroup]="leagueForm" (ngSubmit)="onSubmit()">
 <div class="creation-wrapper">
-    <mat-vertical-stepper #stepper>
-        <mat-step>
+    <mat-vertical-stepper #stepper linear>
+        <mat-step [stepControl]="leagueForm.get(['leagueInformation'])">
+            <form formGroupName="leagueInformation">
             <ng-template matStepLabel>League Information</ng-template>
             <div class="field-container">
                 <mat-form-field hintLabel="Between 3 and 25 characters">
-                    <input matInput [(ngModel)]="leagueInformation.name" #input1 maxlength="25" placeholder="League Name" required>
+                    <input matInput formControlName="name" #input1 maxlength="25" placeholder="League Name" required>
                     <mat-hint align="end">{{input1.value?.length || 0}}/25</mat-hint>
                 </mat-form-field>
 
                 <mat-form-field hintLabel="Maximum 500 characters">
-                <textarea matInput #input2 [(ngModel)]="leagueInformation.description"
+                <textarea matInput #input2 formControlName="description"
                   placeholder="Description" [mat-autosize]="true"></textarea>
                     <mat-hint align="end">{{input2.value?.length || 0}}/500</mat-hint>
                 </mat-form-field>
@@ -21,22 +23,24 @@
                 <mat-divider></mat-divider>
 
                 <section class="visibility-section">
-                    <mat-checkbox [(ngModel)]="leagueInformation.publicView">Anyone Can View This League</mat-checkbox>
-                    <mat-checkbox [(ngModel)]="leagueInformation.publicJoin">Anyone Can Join This League</mat-checkbox>
+                    <mat-checkbox formControlName="publicView">Anyone Can View This League</mat-checkbox>
+                    <mat-checkbox formControlName="publicJoin">Anyone Can Join This League</mat-checkbox>
                 </section>
             </div>
             <div class="next-button">
-                <button mat-raised-button color="primary" matStepperNext>Next</button>
+                <button [disabled]="!leagueForm.valid" mat-raised-button color="primary" matStepperNext type="button">Next</button>
             </div>
+            </form>
         </mat-step>
-        <mat-step>
+        <mat-step [stepControl]="leagueForm.get(['dates'])">
+            <form formGroupName="dates">
             <ng-template matStepLabel>Signup and Competition Times</ng-template>
 
             <h4>
                 Registration Period
             </h4>
             <mat-form-field>
-                <input matInput [matDatepicker]="picker1" placeholder="Start Date" [formControl]="signupStart">
+                <input matInput [matDatepicker]="picker1" placeholder="Start Date" formControlName="signupStart">
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
             </mat-form-field>
@@ -46,7 +50,7 @@
             </span>
 
             <mat-form-field>
-                <input matInput [matDatepicker]="picker2" placeholder="End Date" [formControl]="signupEnd">
+                <input matInput [matDatepicker]="picker2" placeholder="End Date" formControlName="signupEnd">
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
             </mat-form-field>
@@ -56,7 +60,7 @@
             </h4>
 
             <mat-form-field>
-                <input matInput [matDatepicker]="picker3" placeholder="Start Date" [formControl]="leagueStart">
+                <input matInput [matDatepicker]="picker3" placeholder="Start Date" formControlName="leagueStart">
                 <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
                 <mat-datepicker #picker3></mat-datepicker>
             </mat-form-field>
@@ -66,13 +70,17 @@
             </span>
 
             <mat-form-field>
-                <input matInput [matDatepicker]="picker4" placeholder="End Date" [formControl]="leagueEnd">
+                <input matInput [matDatepicker]="picker4" placeholder="End Date" formControlName="leagueEnd">
                 <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
                 <mat-datepicker #picker4></mat-datepicker>
             </mat-form-field>
+            <p *ngIf="leagueForm.get('dates').getError('outOfOrder')" class="mat-error">
+                Out of order
+            </p>
             <div class="next-button">
-                <button mat-raised-button color="primary" matStepperNext>Next</button>
+                <button [disabled]="!leagueForm.valid" mat-raised-button color="primary" matStepperNext type="button">Next</button>
             </div>
+            </form>
         </mat-step>
         <mat-step>
             <ng-template matStepLabel>Game Selection</ng-template>
@@ -80,8 +88,8 @@
                 <span>
                     <div>Physical Sports</div>
                     <mat-form-field>
-                        <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
-                            <mat-option *ngFor="let s of physicalSportsArray" [value]="s.value">
+                        <mat-select placeholder="Select Game" [(value)]="league.game">
+                            <mat-option *ngFor="let s of physicalSports" [value]="s.value">
                                 {{s.display}}
                             </mat-option>
                         </mat-select>
@@ -90,8 +98,8 @@
                 <span>
                     <div>E-Sports</div>
                     <mat-form-field>
-                        <mat-select placeholder="Select Game" [(value)]="leagueInformation.game">
-                            <mat-option *ngFor="let s of eSportsArray" [value]="s.value">
+                        <mat-select placeholder="Select Game" [(value)]="league.game">
+                            <mat-option *ngFor="let s of eSports" [value]="s.value">
                                 {{s.display}}
                             </mat-option>
                         </mat-select>
@@ -99,8 +107,10 @@
                 </span>
             </div>
             <div class="next-button">
-                <button mat-raised-button color="primary" (click)="create()">Create</button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!leagueForm.valid">Create League</button>
             </div>
         </mat-step>
     </mat-vertical-stepper>
 </div>
+
+</form>

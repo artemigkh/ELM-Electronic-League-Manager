@@ -1,31 +1,19 @@
-CREATE SEQUENCE gameIdSeq;
-
-CREATE TABLE championStats (
-  leagueId      INT           NOT NULL                ,
+CREATE TABLE lol_champion_stats (
+  league_id     INT           NOT NULL REFERENCES league(league_id),
   name          VARCHAR(16)   NOT NULL                ,
   picks         INT           NOT NULL                ,
   wins          INT           NOT NULL                ,
   bans          INT           NOT NULL
 );
 
-CREATE TABLE leagueGame (
-  id                INT           PRIMARY KEY DEFAULT nextval('gameIdSeq'),
-  gameId            INT           NOT NULL                ,
-  winTeamId         INT           NOT NULL                ,
-  loseTeamId        INT           NOT NULL                ,
-  leagueId          INT           NOT NULL                ,
-  timestamp         INT           NOT NULL                ,
-  duration          FLOAT         NOT NULL
-);
-
-CREATE TABLE playerStats (
+CREATE TABLE lol_player_stats (
   id                VARCHAR(50)   NOT NULL                ,
   name              VARCHAR(16)   NOT NULL                ,
-  gameId            INT           NOT NULL                ,
-  teamId            INT           NOT NULL                ,
-  leagueId          INT           NOT NULL                ,
+  game_id           INT           NOT NULL REFERENCES game(game_id),
+  team_id           INT           NOT NULL REFERENCES team(team_id),
+  league_id         INT           NOT NULL REFERENCES league(league_id),
   duration          FLOAT         NOT NULL                ,
-  championPicked    VARCHAR(16)   NOT NULL                ,
+  champion_picked   VARCHAR(16)   NOT NULL                ,
   gold              FLOAT         NOT NULL                ,
   cs                FLOAT         NOT NULL                ,
   damage            FLOAT         NOT NULL                ,
@@ -36,13 +24,13 @@ CREATE TABLE playerStats (
   win               BOOLEAN       NOT NULL
 );
 
-CREATE TABLE teamStats (
-  teamId            INT           NOT NULL                ,
-  gameId            INT           NOT NULL                ,
-  leagueId          INT           NOT NULL                ,
+CREATE TABLE lol_team_stats (
+  team_id           INT           NOT NULL REFERENCES team(team_id),
+  game_id           INT           NOT NULL REFERENCES game(game_id),
+  league_id         INT           NOT NULL REFERENCES league(league_id),
   duration          FLOAT         NOT NULL                ,
   side              INT           NOT NULL                , -- 100 blue 200 red
-  firstBlood        BOOLEAN       NOT NULL                ,
-  firstTurret       BOOLEAN       NOT NULL                ,
+  first_blood       BOOLEAN       NOT NULL                ,
+  first_turret      BOOLEAN       NOT NULL                ,
   win               BOOLEAN       NOT NULL
 );

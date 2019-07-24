@@ -8,5 +8,5 @@ import {Player} from "../../interfaces/Player";
 })
 export class GenericPlayerEntry implements PlayerEntryInterface {
     @Input() players: Player[];
-    @Input() mainRoster: boolean = false;
+    @Input() displayAsMainRoster: boolean = false;
 }

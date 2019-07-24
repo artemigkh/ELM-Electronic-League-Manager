@@ -1,95 +1,83 @@
-import {Component} from "@angular/core";
-import {LeagueInformation} from "../interfaces/LeagueInformation";
-import {esportsDef, physicalSportsDef} from "../shared/sports.defs";
-import {MatSnackBar} from "@angular/material";
-import {MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
-import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
-import {FormControl} from "@angular/forms";
-import * as moment from "moment";
-import {Moment} from "moment";
+import {Component, OnInit} from "@angular/core";
+import {LeagueCore} from "../interfaces/League";
+import {Option} from "../interfaces/UI";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {LeagueService} from "../httpServices/leagues.service";
-import {ConfirmationComponent} from "../shared/confirmation/confirmation-component";
+import {EventDisplayerService} from "../shared/eventDisplayer/event-displayer.service";
+import {eSportsDef, physicalSportsDef} from "../shared/lookup.defs";
+import * as moment from "moment";
 import {Router} from "@angular/router";
-import {Id} from "../httpServices/api-return-schemas/id";
 
 @Component({
     selector: 'app-league-creation',
     templateUrl: './league-creation.html',
     styleUrls: ['./league-creation.scss']
 })
-export class LeagueCreationComponent {
-    leagueInformation: LeagueInformation;
-    signupStart: FormControl;
-    signupEnd: FormControl;
-    leagueStart: FormControl;
-    leagueEnd: FormControl;
-    physicalSportsArray: {value: string; display: string}[];
-    eSportsArray: {value: string; display: string}[];
-    constructor(public confirmation: MatSnackBar, private leagueService: LeagueService, private router: Router,) {
-        this.signupStart = new FormControl();
-        this.signupEnd = new FormControl();
-        this.leagueStart = new FormControl();
-        this.leagueEnd = new FormControl();
-        this.physicalSportsArray = [];
-        Object.keys(physicalSportsDef).forEach((key: string) => {
-            this.physicalSportsArray.push({
-                value: key,
-                display: physicalSportsDef[key]
-            });
-        });
-        this.eSportsArray = [];
-        Object.keys(esportsDef).forEach((key: string) => {
-            this.eSportsArray.push({
-                value: key,
-                display: esportsDef[key]
-            });
-        });
-        this.leagueInformation = {
-            id: 0,
-            name: "",
-            description: "",
-            game: null,
-            publicView: false,
-            publicJoin: false,
-            signupStart: 0,
-            signupEnd: 0,
-            leagueStart: 0,
-            leagueEnd: 0
-        };
+export class LeagueCreationComponent implements OnInit{
+    league: LeagueCore;
+    physicalSports: Option[];
+    eSports: Option[];
+
+    leagueForm: FormGroup;
+    timeKeys: string[] = ['signupStart', 'signupEnd', 'leagueStart', 'leagueEnd'];
+
+    constructor(private leagueService: LeagueService,
+                private router: Router,
+                private eventDisplayer: EventDisplayerService,
+                private _formBuilder: FormBuilder) {
+        this.league = new LeagueCore();
+        this.physicalSports = Object.entries(physicalSportsDef).map(o => <Option>{value: o[0], display: o[1]});
+        this.eSports = Object.entries(eSportsDef).map(o => <Option>{value: o[0], display: o[1]});
+        this.timeKeys.forEach(k => this[k] = new FormControl(moment.unix(this.league[k])));
     }
 
-    create() {
-        this.leagueInformation.signupStart = this.signupStart.value.unix();
-        this.leagueInformation.signupEnd = this.signupEnd.value.unix();
-        this.leagueInformation.leagueStart = this.leagueStart.value.unix();
-        this.leagueInformation.leagueEnd = this.leagueEnd.value.unix();
-
-        this.leagueService.createLeague(this.leagueInformation).subscribe(
-            (next: Id) => {
-                this.leagueService.setActiveLeague(next.id).subscribe(
-                    next=> {
-                        this.router.navigate([""]);
-                        this.confirmation.openFromComponent(ConfirmationComponent, {
-                            duration: 1250,
-                            panelClass: ['blue-snackbar'],
-                            data: {
-                                message: "League " + this.leagueInformation.name + " Successfully Created"
-                            }
-                        });
-                    }, error=> {
-                        console.log(error);
-                    }
-                );
-            }, error => {
-                console.log(error);
-                this.confirmation.openFromComponent(ConfirmationComponent, {
-                    duration: 2000,
-                    panelClass: ['red-snackbar'],
-                    data: {
-                        message: "League Creation Failed"
-                    }
-                });
-            }
+    onSubmit() {
+        this.timeKeys.forEach(k => this.league[k] = this.leagueForm.get('dates').get(k).value.unix());
+        this.league.name = this.leagueForm.get('leagueInformation').get('name').value;
+        this.league.description = this.leagueForm.get('leagueInformation').get('description').value;
+        console.log(this.league);
+        this.leagueService.createLeague(this.league).subscribe(
+            res => this.navigateToCreatedLeague(res.leagueId),
+            error => this.eventDisplayer.displayError(error)
         );
+    }
+
+    private navigateToCreatedLeague(leagueId: number) {
+        this.eventDisplayer.displaySuccess("League successfully created");
+        this.leagueService.setActiveLeague(leagueId).subscribe(
+            () => this.router.navigate([""]),
+            error => this.eventDisplayer.displayError(error)
+        );
+    }
+
+    ngOnInit(): void {
+
+        this.leagueForm = this._formBuilder.group({
+            leagueInformation: new FormGroup({
+                name: new FormControl(this.league.name, Validators.compose([
+                    Validators.required,
+                    Validators.minLength(3),
+                    Validators.maxLength(25)])),
+                description: new FormControl(this.league.description, Validators.maxLength(500)),
+                publicView: new FormControl(true, Validators.required),
+                publicJoin: new FormControl(true, Validators.required)
+            }),
+            dates: new FormGroup({
+                signupStart: new FormControl(moment.unix(this.league.signupStart)),
+                signupEnd: new FormControl(moment.unix(this.league.signupEnd)),
+                leagueStart: new FormControl(moment.unix(this.league.leagueStart)),
+                leagueEnd: new FormControl(moment.unix(this.league.leagueEnd))
+            }, Validators.compose([
+                (g: FormGroup) => {
+                    return g.get('signupEnd').value.isAfter(g.get('signupStart').value) ? null : {'outOfOrder': true}
+                },
+                (g: FormGroup) => {
+                    return g.get('leagueStart').value.isSameOrAfter(g.get('signupEnd').value) ? null : {'outOfOrder': true}
+                },
+                (g: FormGroup) => {
+                    return g.get('leagueEnd').value.isAfter(g.get('leagueStart').value) ? null : {'outOfOrder': true}
+                },
+            ]))
+        });
     }
 }

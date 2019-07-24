@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/badoux/checkmail"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"net/http"
 )
 
@@ -19,16 +20,7 @@ import (
  */
 
 const (
-	MinPasswordLength    = 8
-	MaxNameLength        = 50
-	MaxTagLength         = 5
-	MaxDescriptionLength = 500
-	MinInformationLength = 2
-	MaxMdLength          = 50000
-	MaxOffsetSize        = 24*3600 - 1
-	MaxHour              = 24
-	MaxMinute            = 60
-	MaxDuration          = 60 * 24
+	MinPasswordLength = 8
 )
 
 var ValidGameStrings = [...]string{
@@ -57,6 +49,35 @@ func ge(x, y int) bool {
 }
 
 // General Cases
+func bindAndCheckErr(ctx *gin.Context, obj interface{}) bool {
+	if err := ctx.ShouldBindJSON(&obj); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func bindRepeatedAndCheckErr(ctx *gin.Context, obj interface{}) bool {
+	if err := ctx.ShouldBindBodyWith(&obj, binding.JSON); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+		return true
+	} else {
+		return false
+	}
+}
+
+func accessForbidden(ctx *gin.Context, allowed bool, err error) bool {
+	if checkErr(ctx, err) {
+		return true
+	} else if !allowed {
+		ctx.Status(http.StatusForbidden)
+		return true
+	} else {
+		return false
+	}
+}
+
 func checkJsonErr(ctx *gin.Context, err error) bool {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
@@ -100,120 +121,9 @@ func failIfPasswordTooShort(ctx *gin.Context, password string) bool {
 	return failIfImproperLength(ctx, password, MinPasswordLength, le, "passwordTooShort")
 }
 
-func failIfTeamTagTooLong(ctx *gin.Context, name string) bool {
-	return failIfImproperLength(ctx, name, MaxTagLength, ge, "tagTooLong")
-}
-
-func failIfNameTooShort(ctx *gin.Context, name string) bool {
-	return failIfImproperLength(ctx, name, MinInformationLength, le, "nameTooShort")
-}
-
-func failIfTagTooShort(ctx *gin.Context, tag string) bool {
-	return failIfImproperLength(ctx, tag, MinInformationLength, le, "tagTooShort")
-}
-
-func failIfGameIdentifierTooShort(ctx *gin.Context, tag string) bool {
-	return failIfImproperLength(ctx, tag, MinInformationLength, le, "gameIdentifierTooShort")
-}
-
-func failIfGameIdentifierTooLong(ctx *gin.Context, gameIdentifier string) bool {
-	return failIfImproperLength(ctx, gameIdentifier, MaxNameLength, ge, "gameIdentifierTooLong")
-}
-
-func failIfNameTooLong(ctx *gin.Context, name string) bool {
-	return failIfImproperLength(ctx, name, MaxNameLength, ge, "nameTooLong")
-}
-
-func failIfMdTooLong(ctx *gin.Context, name string) bool {
-	return failIfImproperLength(ctx, name, MaxMdLength, ge, "markdownTooLong")
-}
-
-func failIfDescriptionTooLong(ctx *gin.Context, description string) bool {
-	return failIfImproperLength(ctx, description, MaxDescriptionLength, ge, "descriptionTooLong")
-}
-func failIfTimezoneOffsetTooLarge(ctx *gin.Context, offset float64) bool {
-	return failIfBooleanConditionTrue(ctx, offset > MaxOffsetSize, nil, http.StatusBadRequest, "offsetTooLarge")
-}
-func failIfMinuteTooLarge(ctx *gin.Context, minute int) bool {
-	return failIfBooleanConditionTrue(ctx, minute > MaxMinute, nil, http.StatusBadRequest, "invalidMinute")
-}
-
-func failIfHourTooLarge(ctx *gin.Context, hour int) bool {
-	return failIfBooleanConditionTrue(ctx, hour > MaxHour, nil, http.StatusBadRequest, "invalidHour")
-}
-
-func failIfDurationTooLarge(ctx *gin.Context, duration int) bool {
-	return failIfBooleanConditionTrue(ctx, duration > MaxDuration, nil, http.StatusBadRequest, "invalidDuration")
-}
-
-// Boolean Checks
-func failIfEmailInUse(ctx *gin.Context, emailToCheck string) bool {
-	inUse, err := UsersDAO.IsEmailInUse(emailToCheck)
-	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, "emailInUse")
-}
-
 func failIfEmailNotInUse(ctx *gin.Context, emailToCheck string) bool {
-	inUse, err := UsersDAO.IsEmailInUse(emailToCheck)
+	inUse, err := UserDAO.IsEmailInUse(emailToCheck)
 	return failIfBooleanConditionTrue(ctx, !inUse, err, http.StatusBadRequest, "invalidLogin")
-}
-
-func failIfLeagueNameInUse(ctx *gin.Context, leagueId int, name string) bool {
-	inUse, err := LeaguesDAO.IsNameInUse(leagueId, name)
-	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, "nameInUse")
-}
-
-func failIfTeamInfoInUse(ctx *gin.Context, leagueId, teamId int, name, tag string) bool {
-	inUse, errorMsg, err := TeamsDAO.IsInfoInUse(leagueId, teamId, name, tag)
-	return failIfBooleanConditionTrue(ctx, inUse, err, http.StatusBadRequest, errorMsg)
-}
-
-func failIfTeamDoesNotExist(ctx *gin.Context, leagueId, teamId int) bool {
-	exists, err := TeamsDAO.DoesTeamExistInLeague(leagueId, teamId)
-	return failIfBooleanConditionTrue(ctx, !exists, err, http.StatusBadRequest, "teamDoesNotExist")
-}
-
-func failIfManagerDoesNotExist(ctx *gin.Context, teamId, userId int) bool {
-	tp, err := TeamsDAO.GetTeamPermissions(teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !(tp.Administrator || tp.ReportResults || tp.Players || tp.Information),
-		err, http.StatusBadRequest, "managerDoesNotExist")
-}
-
-func failIfConflictExists(ctx *gin.Context, team1Id, team2Id, gameTime int) bool {
-	conflictExists, err := GamesDAO.DoesExistConflict(team1Id, team2Id, gameTime)
-	return failIfBooleanConditionTrue(ctx, conflictExists, err, http.StatusBadRequest, "conflictExists")
-}
-
-func failIfGameDoesNotExist(ctx *gin.Context, gameId int) bool {
-	gameInformation, err := GamesDAO.GetGameInformation(gameId)
-	return failIfBooleanConditionTrue(ctx, gameInformation == nil, err, http.StatusBadRequest, "gameDoesNotExist")
-}
-
-func failIfAvailabilityDoesNotExist(ctx *gin.Context, availabilityId int) bool {
-	availability, err := LeaguesDAO.GetSchedulingAvailability(availabilityId)
-	return failIfBooleanConditionTrue(ctx, availability == nil, err, http.StatusBadRequest, "AvailabilityDoesNotExist")
-}
-
-func failIfGameDoesNotContainWinner(ctx *gin.Context, gameId, winnerId int) bool {
-	gi, err := GamesDAO.GetGameInformation(gameId)
-	return failIfBooleanConditionTrue(ctx,
-		!(gi.Team1Id == winnerId || gi.Team2Id == winnerId), err, http.StatusBadRequest, "gameDoesNotContainWinner")
-}
-
-func failIfCannotEditPlayersOnTeam(ctx *gin.Context, leagueId, teamId, userId int) bool {
-	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || lp.EditTeams || tp.Administrator || tp.Players),
-		err, http.StatusForbidden, "canNotEditPlayers")
-}
-
-func failIfNotTeamAdmin(ctx *gin.Context, leagueId, teamId, userId int) bool {
-	lp, tp, err := getLeagueAndTeamPermissions(leagueId, teamId, userId)
-	return failIfBooleanConditionTrue(ctx, !(lp.Administrator || tp.Administrator),
-		err, http.StatusForbidden, "notAdmin")
-}
-
-func failIfPlayerDoesNotExist(ctx *gin.Context, teamId, playerId int) bool {
-	playerExists, err := TeamsDAO.DoesPlayerExistInTeam(teamId, playerId)
-	return failIfBooleanConditionTrue(ctx, !playerExists, err, http.StatusBadRequest, "playerDoesNotExist")
 }
 
 // Misc. Checks
@@ -225,31 +135,4 @@ func failIfEmailMalformed(ctx *gin.Context, email string) bool {
 	} else {
 		return false
 	}
-}
-
-func failIfGameIdentifierInUse(ctx *gin.Context, teamId, playerId int, gameIdentifier string) bool {
-	teamInfo, err := TeamsDAO.GetTeamInformation(teamId)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, nil)
-		return true
-	}
-
-	for _, player := range teamInfo.Players {
-		if player.GameIdentifier == gameIdentifier && player.Id != playerId {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameIdentifierInUse"})
-			return true
-		}
-	}
-
-	return false
-}
-
-func failIfGameStringtNotValid(ctx *gin.Context, game string) bool {
-	for _, g := range ValidGameStrings {
-		if g == game {
-			return false
-		}
-	}
-	ctx.JSON(http.StatusBadRequest, gin.H{"error": "gameStringNotValid"})
-	return true
 }

@@ -23,7 +23,7 @@ func CreateGoMarkdownManager(conf config.Config) *GoMdManager {
 	}
 }
 
-func (m *GoMdManager) StoreMarkdown(leagueId int, markdown, oldFile string) (string, error) {
+func (m *GoMdManager) StoreMarkdown(markdown, oldFile string) (string, error) {
 	fileName := randomdata.RandStringRunes(10) + ".md"
 	f, err := os.Create(filepath.Join(m.OutPath, fileName))
 	if err != nil {
@@ -44,6 +44,9 @@ func (m *GoMdManager) StoreMarkdown(leagueId int, markdown, oldFile string) (str
 }
 
 func (m *GoMdManager) GetMarkdown(fileName string) (string, error) {
+	if fileName == "" {
+		return "", nil
+	}
 	md, err := ioutil.ReadFile(filepath.Join(m.OutPath, fileName))
 	if err != nil {
 		return "", err

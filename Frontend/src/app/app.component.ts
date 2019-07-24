@@ -1,7 +1,9 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {LeagueService} from './httpServices/leagues.service';
 import {TestingConfig} from "../../testingConfig";
 import {UserService} from "./httpServices/user.service";
+import {ElmState} from "./shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
 
 @Component({
     selector: 'elm-app',
@@ -10,26 +12,39 @@ import {UserService} from "./httpServices/user.service";
     encapsulation: ViewEncapsulation.None,
 })
 
-export class AppComponent {
-    constructor(private leagueService: LeagueService, private userService: UserService) {
-        if(TestingConfig.testing) {
-            this.leagueService.setActiveLeague(TestingConfig.leagueId).subscribe(
-                success => {
-                    console.log('successful set league');
-                    console.log(success);
-                    this.userService.login(TestingConfig.email,
-                        TestingConfig.password).subscribe(
+export class AppComponent implements OnInit {
+    constructor(private state: ElmState,
+                private log: NGXLogger,
+                private leagueService: LeagueService, private userService: UserService) {
+    }
+
+    ngOnInit(): void {
+        if (TestingConfig.testing) {
+            this.userService.login(
+                TestingConfig.email,
+                TestingConfig.password
+            ).subscribe(success => {
+                    this.leagueService.setActiveLeague(TestingConfig.leagueId).subscribe(
                         success => {
-                            console.log('successful login');
-                            console.log(success);
-                        }, error => {
-                            console.log('error');
-                            console.log(error);
-                        });
+                        },
+                        error => {
+                            this.log.error(error)
+                        })
                 },
                 error => {
-                    console.log('error');
-                    console.log(error);
+                    this.log.warn(error)
+                });
+        } else {
+            this.userService.getCurrentUser().subscribe(success => {
+                    this.leagueService.getLeagueInformation().subscribe(
+                        success => {
+                        },
+                        error => {
+                            this.log.error(error)
+                        })
+                },
+                error => {
+                    this.log.warn(error)
                 });
         }
     }

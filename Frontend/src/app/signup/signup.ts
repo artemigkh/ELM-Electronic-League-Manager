@@ -1,30 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import {Router} from '@angular/router';
-import {MatDialog} from '@angular/material'
-import {LeagueService} from "../httpServices/leagues.service";
+import {Component} from "@angular/core";
+import {Router} from "@angular/router";
 import {UserService} from "../httpServices/user.service";
+import {NGXLogger} from "ngx-logger";
 
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.html',
     styleUrls: ['./signup.scss']
 })
-export class SignupComponent implements OnInit {
-    constructor(private router: Router, private userService: UserService) { }
+export class SignupComponent {
     email: string;
     password: string;
-    ngOnInit() {
+
+    constructor(private log: NGXLogger,
+                private router: Router,
+                private userService: UserService) {
     }
-    signup() : void {
+
+    signup(): void {
         this.userService.signup(this.email, this.password).subscribe(
-            next => {
-                console.log("sign up successful");
-                this.router.navigate(["login"]);
-            }, error => {
-                console.log("error");
-                alert("sign up failed");
-            }
+            () => this.router.navigate(["login"]),
+            error => this.log.error(error)
         );
     }
 }
-

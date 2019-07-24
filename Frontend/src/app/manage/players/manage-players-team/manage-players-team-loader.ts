@@ -2,16 +2,19 @@ import {
     Component,
     ComponentFactoryResolver,
     Directive,
-    Input,
-    OnInit,
+    Input, OnChanges,
+    OnInit, SimpleChanges, Type,
     ViewChild,
     ViewContainerRef
 } from "@angular/core";
-import {ManagePlayersTeamLeagueOfLegendsComponent} from "./league-of-legends/manage-players-team-league-of-legends";
-import {Team} from "../../../interfaces/Team";
-import {LeagueService} from "../../../httpServices/leagues.service";
+import {TeamWithRosters} from "../../../interfaces/Team";
 import {ManagePlayersTeamComponent} from "./manage-players-team";
-
+import {ManageComponentInterface} from "../../manage-component-interface";
+import {ElmState} from "../../../shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
+import {LeagueOfLegendsPlayerEntry} from "../../../teams/playerEntry/league-of-legends-player-entry";
+import {GenericPlayerEntry} from "../../../teams/playerEntry/generic-player-entry";
+import {ManagePlayersTeamLeagueOfLegendsComponent} from "./league-of-legends/manage-players-team-league-of-legends";
 
 @Directive({
     selector: '[manage-players-team-host]',
@@ -20,45 +23,46 @@ export class ManagePlayersTeamDirective {
     constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
-
-const mptComponentMapping: { [id: string] : any; } = {
-    "genericsport": ManagePlayersTeamComponent,
-    "basketball": ManagePlayersTeamComponent,
-    "curling": ManagePlayersTeamComponent,
-    "football": ManagePlayersTeamComponent,
-    "hockey":ManagePlayersTeamComponent,
-    "rugby": ManagePlayersTeamComponent,
-    "soccer": ManagePlayersTeamComponent,
-    "volleyball": ManagePlayersTeamComponent,
-    "waterpolo": ManagePlayersTeamComponent,
-    "genericesport": ManagePlayersTeamComponent,
-    "csgo": ManagePlayersTeamComponent,
-    "leagueoflegends": ManagePlayersTeamLeagueOfLegendsComponent,
-    "overwatch": ManagePlayersTeamComponent
-};
-
 @Component({
     selector: 'manage-players-team-container',
     template: `<ng-template manage-players-team-host></ng-template>`
 })
-export class ManagePlayersTeamContainerComponent implements OnInit {
-    @Input() team: Team;
+export class ManagePlayersTeamContainerComponent implements OnInit, OnChanges  {
+    @Input() team: TeamWithRosters;
     @ViewChild(ManagePlayersTeamDirective) managePlayersTeamHost: ManagePlayersTeamDirective;
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver,
-                private leagueService: LeagueService) { }
+    game: string;
+
+    constructor(private state: ElmState,
+                private log: NGXLogger,
+                private componentFactoryResolver: ComponentFactoryResolver) { }
 
     ngOnInit() {
-        this.loadComponent();
+        this.state.subscribeLeague(league => {this.game = league.game; this.loadComponent()});
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this.game) {
+            this.loadComponent();
+        }
     }
 
     loadComponent() {
-        console.log(this.leagueService.getGame());
-        let componentFactory = this.componentFactoryResolver.
-        resolveComponentFactory(mptComponentMapping[this.leagueService.getGame()]);
-        let viewContainerRef = this.managePlayersTeamHost.viewContainerRef;
-        let componentRef = viewContainerRef.createComponent(componentFactory);
-        (<ManagePlayersTeamComponent>componentRef.instance).team = this.team;
+        this.log.debug("Received league with game = " + this.game);
+        this.log.debug("Team in manage player team loader: ", this.team);
+        this.managePlayersTeamHost.viewContainerRef.clear();
+        let componentFactory = this.componentFactoryResolver.resolveComponentFactory(ManagePlayersTeamContainerComponent.getComponent(this.game));
+        let componentRef = this.managePlayersTeamHost.viewContainerRef.createComponent(componentFactory);
+
+        (<ManagePlayersTeamComponent>componentRef.instance).setTeam(this.team);
+    }
+
+    static getComponent(game: string): Type<ManageComponentInterface> {
+        if (game == "leagueoflegends") {
+            return ManagePlayersTeamLeagueOfLegendsComponent;
+        } else {
+            return ManagePlayersTeamComponent;
+        }
     }
 }
 

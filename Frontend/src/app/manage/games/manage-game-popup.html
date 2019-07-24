@@ -1,14 +1,14 @@
 <div class="manage-game-popup-container">
 
 
-<h1 mat-dialog-title>{{data.title}}</h1>
+<h1 mat-dialog-title>{{title}}</h1>
 <div mat-dialog-content>
     <h4>Information</h4>
     <div class="teams">
         <mat-form-field>
-            <mat-select placeholder="Team 1" [(value)]="data.game==None?None:data.game.team1Id">
-                <mat-option *ngFor="let team of teams" [value]="team.id" (click)="setTeam1(team)">
-                    {{team.name}}
+            <mat-select placeholder="Team 1" [(value)]="creationInformation.team1Id">
+                <mat-option *ngFor="let team of teams" [value]="team.value">
+                    {{team.display}}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -16,9 +16,9 @@
             vs
         </span>
         <mat-form-field>
-            <mat-select placeholder="Team 2" [(value)]="data.game==None?None:data.game.team2Id">
-                <mat-option *ngFor="let team of teams" [value]="team.id" (click)="setTeam2(team)">
-                    {{team.name}}
+            <mat-select placeholder="Team 2" [(value)]="creationInformation.team2Id">
+                <mat-option *ngFor="let team of teams" [value]="team.value">
+                    {{team.display}}
                 </mat-option>
             </mat-select>
         </mat-form-field>

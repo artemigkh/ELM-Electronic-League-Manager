@@ -25,56 +25,21 @@ func (_m *UsersDAO) CreateUser(email string, salt string, hash string) error {
 }
 
 // GetAuthenticationInformation provides a mock function with given fields: email
-func (_m *UsersDAO) GetAuthenticationInformation(email string) (int, string, string, error) {
+func (_m *UsersDAO) GetAuthenticationInformation(email string) (*databaseAccess.UserAuthenticationDTO, error) {
 	ret := _m.Called(email)
 
-	var r0 int
-	if rf, ok := ret.Get(0).(func(string) int); ok {
+	var r0 *databaseAccess.UserAuthenticationDTO
+	if rf, ok := ret.Get(0).(func(string) *databaseAccess.UserAuthenticationDTO); ok {
 		r0 = rf(email)
 	} else {
-		r0 = ret.Get(0).(int)
-	}
-
-	var r1 string
-	if rf, ok := ret.Get(1).(func(string) string); ok {
-		r1 = rf(email)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	var r2 string
-	if rf, ok := ret.Get(2).(func(string) string); ok {
-		r2 = rf(email)
-	} else {
-		r2 = ret.Get(2).(string)
-	}
-
-	var r3 error
-	if rf, ok := ret.Get(3).(func(string) error); ok {
-		r3 = rf(email)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
-}
-
-// GetPermissions provides a mock function with given fields: leagueId, userId
-func (_m *UsersDAO) GetPermissions(leagueId int, userId int) (*databaseAccess.UserPermissions, error) {
-	ret := _m.Called(leagueId, userId)
-
-	var r0 *databaseAccess.UserPermissions
-	if rf, ok := ret.Get(0).(func(int, int) *databaseAccess.UserPermissions); ok {
-		r0 = rf(leagueId, userId)
-	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.UserPermissions)
+			r0 = ret.Get(0).(*databaseAccess.UserAuthenticationDTO)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(leagueId, userId)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(email)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -82,16 +47,16 @@ func (_m *UsersDAO) GetPermissions(leagueId int, userId int) (*databaseAccess.Us
 	return r0, r1
 }
 
-// GetUserProfile provides a mock function with given fields: userId
-func (_m *UsersDAO) GetUserProfile(userId int) (*databaseAccess.UserInformation, error) {
+// GetUserWithPermissions provides a mock function with given fields: userId
+func (_m *UsersDAO) GetUserProfile(userId int) (*databaseAccess.User, error) {
 	ret := _m.Called(userId)
 
-	var r0 *databaseAccess.UserInformation
-	if rf, ok := ret.Get(0).(func(int) *databaseAccess.UserInformation); ok {
+	var r0 *databaseAccess.User
+	if rf, ok := ret.Get(0).(func(int) *databaseAccess.User); ok {
 		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*databaseAccess.UserInformation)
+			r0 = ret.Get(0).(*databaseAccess.User)
 		}
 	}
 

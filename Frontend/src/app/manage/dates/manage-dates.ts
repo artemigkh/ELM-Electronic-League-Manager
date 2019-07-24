@@ -1,69 +1,41 @@
-import {Component} from "@angular/core";
-import {MAT_MOMENT_DATE_FORMATS, MomentDateAdapter} from '@angular/material-moment-adapter';
-import {DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE} from '@angular/material/core';
+import {Component, OnInit} from "@angular/core";
 import {FormControl} from "@angular/forms";
+import {ElmState} from "../../shared/state/state.service";
 import {LeagueService} from "../../httpServices/leagues.service";
+import {EventDisplayerService} from "../../shared/eventDisplayer/event-displayer.service";
 import * as moment from "moment";
-import {Moment} from "moment";
-import {LeagueInformation} from "../../interfaces/LeagueInformation";
-import {ConfirmationComponent} from "../../shared/confirmation/confirmation-component";
-import {MatSnackBar} from "@angular/material";
+import {League} from "../../interfaces/League";
 
 @Component({
     selector: 'app-manage-dates',
     templateUrl: './manage-dates.html',
     styleUrls: ['./manage-dates.scss'],
 })
-export class ManageDatesComponent {
+export class ManageDatesComponent implements OnInit {
+    league: League;
     signupStart: FormControl;
     signupEnd: FormControl;
     leagueStart: FormControl;
     leagueEnd: FormControl;
-    leagueInformation: LeagueInformation;
-    constructor(public confirmation: MatSnackBar, private leagueService: LeagueService) {
-        this.signupStart = new FormControl();
-        this.signupEnd = new FormControl();
-        this.leagueStart = new FormControl();
-        this.leagueEnd = new FormControl();
-        this.leagueInformation = null;
-        this.leagueService.getLeagueInformation().subscribe(
-            (next: LeagueInformation) => {
-                this.leagueInformation = next;
-                this.signupStart = new FormControl(moment.unix(next.signupStart));
-                this.signupEnd = new FormControl(moment.unix(next.signupEnd));
-                this.leagueStart = new FormControl(moment.unix(next.leagueStart));
-                this.leagueEnd = new FormControl(moment.unix(next.leagueEnd));
-            }, error => {
-                console.log(error);
-            }
-        )
+    timeKeys: string[] = ['signupStart', 'signupEnd', 'leagueStart', 'leagueEnd'];
+
+    constructor(private state: ElmState,
+                private leagueService: LeagueService,
+                private eventDisplayer: EventDisplayerService) {
     }
 
-    onUpdate(): void {
-        this.leagueInformation.signupStart = this.signupStart.value.unix();
-        this.leagueInformation.signupEnd = this.signupEnd.value.unix();
-        this.leagueInformation.leagueStart = this.leagueStart.value.unix();
-        this.leagueInformation.leagueEnd = this.leagueEnd.value.unix();
+    ngOnInit(): void {
+        this.state.subscribeLeague(league => {
+            this.timeKeys.forEach(k => this[k] = new FormControl(moment.unix(league[k])));
+            this.league = league;
+        });
+    }
 
-        this.leagueService.updateLeagueInformation(this.leagueInformation).subscribe(
-            next => {
-                this.confirmation.openFromComponent(ConfirmationComponent, {
-                    duration: 1250,
-                    panelClass: ['blue-snackbar'],
-                    data: {
-                        message: "League Dates Successfully Updated"
-                    }
-                });
-            }, error => {
-                console.log(error);
-                this.confirmation.openFromComponent(ConfirmationComponent, {
-                    duration: 2000,
-                    panelClass: ['red-snackbar'],
-                    data: {
-                        message: "Update Failed"
-                    }
-                });
-            }
+    updateAtServer() {
+        this.timeKeys.forEach(k => this.league[k] = this[k].value.unix());
+        this.leagueService.updateLeagueInformation(this.league).subscribe(
+            success => this.eventDisplayer.displaySuccess("League Dates Successfully Updated"),
+            error => this.eventDisplayer.displayError(error)
         );
     }
 }

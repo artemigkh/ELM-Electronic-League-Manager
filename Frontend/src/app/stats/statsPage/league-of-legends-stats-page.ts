@@ -1,18 +1,14 @@
 import {Component, ViewEncapsulation} from "@angular/core";
 import {StatsPageInterface} from "./stats-page";
-import {ActivatedRoute} from "@angular/router";
-import {LeagueService} from "../../httpServices/leagues.service";
 import {TeamsService} from "../../httpServices/teams.service";
-import {GamesService} from "../../httpServices/games.service";
 import {
     ChampionStatsEntry,
     PlayerStatsEntry,
     TeamStatsEntry
-} from "../../httpServices/api-return-schemas/league-of-legends";
+} from "../../interfaces/league-of-legends";
 import {LeagueOfLegendsStatsService} from "../../httpServices/league-of-legends-stats.service";
-import {forkJoin} from "rxjs/index";
-import {Team} from "../../interfaces/Team";
 import * as moment from "moment";
+import {NGXLogger} from "ngx-logger";
 
 class PlayerEntry {
     name: string;
@@ -50,7 +46,8 @@ export class LeagueOfLegendsStatsPage implements StatsPageInterface {
     playerStats: PlayerStatsEntry[] = [];
     teamStats: AugmentedTeamStatsEntry[] = [];
     championStats: ChampionStatsEntry[] = [];
-    constructor(private teamsService: TeamsService, private statsService: LeagueOfLegendsStatsService) {
+
+    constructor(private teamsService: TeamsService, private statsService: LeagueOfLegendsStatsService, private log: NGXLogger) {
         this.statsService.getPlayerStats().subscribe(
             (next: PlayerStatsEntry[]) => {
                 this.playerStats = next;
@@ -72,15 +69,13 @@ export class LeagueOfLegendsStatsPage implements StatsPageInterface {
         this.statsService.getTeamStats().subscribe(
             (next: TeamStatsEntry[]) => {
                 let augmentedTeamStats: AugmentedTeamStatsEntry[] = [];
-                forkJoin(next.map((team: TeamStatsEntry) => {
-                    return this.teamsService.getTeamInformation(team.id);
-                })).subscribe(
-                    (teamsInfo: Team[]) => {
-                        teamsInfo.forEach((teamInfo: Team) => {
+                this.teamsService.getLeagueTeams().subscribe(
+                    teams => {
+                        teams.forEach(teamInfo => {
                             next.forEach((team: TeamStatsEntry) => {
-                                if(teamInfo.id == team.id) {
+                                if (teamInfo.teamId == team.id) {
                                     augmentedTeamStats.push({
-                                        id: teamInfo.id,
+                                        id: teamInfo.teamId,
                                         name: teamInfo.name,
                                         tag: teamInfo.tag,
                                         iconSmall: teamInfo.iconSmall,
@@ -99,21 +94,18 @@ export class LeagueOfLegendsStatsPage implements StatsPageInterface {
 
                         this.teamStats = augmentedTeamStats;
                     },
-                    error2 => {console.log(error2)}
+                    error => this.log.error(error)
                 )
-            }, error => {
-                console.log(error);
-            }
+            }, error => this.log.error(error)
         );
     }
 
     getPlayerStats(stat: string, desc = true): PlayerEntry[] {
         let comp = desc ? 1 : -1;
         let sortedPlayerEntries: PlayerEntry[] = [];
-        this.playerStats.sort((a,b) => (a[stat] > b[stat]) ? -1 * comp : ((b[stat] > a[stat]) ? comp : 0)).
-        slice(0,3).forEach((playerStats: PlayerStatsEntry) => {
+        this.playerStats.sort((a, b) => (a[stat] > b[stat]) ? -1 * comp : ((b[stat] > a[stat]) ? comp : 0)).slice(0, 3).forEach((playerStats: PlayerStatsEntry) => {
             let value: string;
-            if(Number.isInteger(playerStats[stat])) {
+            if (Number.isInteger(playerStats[stat])) {
                 value = playerStats[stat].toFixed(0);
             } else {
                 value = playerStats[stat].toFixed(2);
@@ -128,21 +120,19 @@ export class LeagueOfLegendsStatsPage implements StatsPageInterface {
     }
 
     getChampionStats(stat: string): ChampionStatsEntry[] {
-        return this.championStats.
-            sort((a,b) => (a[stat] > b[stat]) ? -1 : ((b[stat] > a[stat]) ? 1 : 0)).
-            filter(a => {
-                if (stat == 'winrate') {
-                    return 1;
-                } else {
-                    return a[stat] > 0;
-                }
+        return this.championStats.sort((a, b) => (a[stat] > b[stat]) ? -1 : ((b[stat] > a[stat]) ? 1 : 0)).filter(a => {
+            if (stat == 'winrate') {
+                return 1;
+            } else {
+                return a[stat] > 0;
+            }
         });
     }
 
     formatWinrate(winrate: number): string {
         winrate *= 100;
         let sn: string;
-        if(Number.isInteger(winrate)) {
+        if (Number.isInteger(winrate)) {
             sn = winrate.toFixed(0);
         } else {
             sn = winrate.toFixed(2);
@@ -154,13 +144,11 @@ export class LeagueOfLegendsStatsPage implements StatsPageInterface {
     getTeamStats(stat: string, desc = true): TeamEntry[] {
         let comp = desc ? 1 : -1;
         let sortedTeamEntries: TeamEntry[] = [];
-        this.teamStats.sort((a,b) => (a[stat] > b[stat]) ? -1 * comp : ((b[stat] > a[stat]) ? comp : 0)).
-        slice(0,3).forEach((teamStats: AugmentedTeamStatsEntry) => {
+        this.teamStats.sort((a, b) => (a[stat] > b[stat]) ? -1 * comp : ((b[stat] > a[stat]) ? comp : 0)).slice(0, 3).forEach((teamStats: AugmentedTeamStatsEntry) => {
             let value: string;
-            if(stat == "averageDuration") {
-                value = moment.utc(teamStats[stat]*1000).format('mm:ss');
-            }
-            else if(Number.isInteger(teamStats[stat])) {
+            if (stat == "averageDuration") {
+                value = moment.utc(teamStats[stat] * 1000).format('mm:ss');
+            } else if (Number.isInteger(teamStats[stat])) {
                 value = teamStats[stat].toFixed(0);
             } else {
                 value = teamStats[stat].toFixed(2);

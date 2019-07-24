@@ -1,20 +1,17 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnInit} from "@angular/core";
 import {Observable} from "rxjs/Rx";
-import {User} from "../interfaces/User";
+import {EmptyUser, User, UserCreationInformation, UserId, UserWithPermissions} from "../interfaces/User";
 import {httpOptions} from "./http-options";
-import {Id} from "./api-return-schemas/id";
-import {NavBar} from "../shared/navbar/navbar";
 import {HttpClient} from "@angular/common/http";
-import {UserPermissions} from "./api-return-schemas/permissions";
+import {ElmState} from "../shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
 
 @Injectable()
-export class UserService {
-    user: User;
-    navBar: NavBar;
-
-    constructor(private http: HttpClient) {
-        this.user = null;
-        this.navBar = null;
+export class UserService{
+    constructor(private state: ElmState,
+                private log: NGXLogger,
+                private http: HttpClient) {
+        this.state.subscribeChanges(() => {this.updateUserPermissions()});
     }
 
     public login(email: string, password: string): Observable<User> {
@@ -23,55 +20,54 @@ export class UserService {
                 email: email,
                 password: password
             }, httpOptions).subscribe(
-                (next: Id) => {
-                    console.log(this.navBar);
-                    this.navBar.notifyLogin();
-                    this.user = {
-                        id: next.id,
-                        email: email
-                    };
-                    observer.next(this.user)
+                (user: User) => {
+                    this.log.debug("User successfully logged in", user);
+                    this.state.setUser(user);
+                    observer.next(user)
                 }, error => {
+                    this.log.error("Failed to log in", error);
                     observer.error(error);
                 }
-            )
-        })
-    }
-
-    public signup(email: string, password: string): Observable<boolean> {
-        return new Observable(observer => {
-            this.http.post('http://localhost:8080/api/users/', {
-                email: email,
-                password: password
-            }, httpOptions).subscribe(
-                next => {observer.next(true);},
-                error => {observer.next(false);}
-            )
-        })
-    }
-
-    public logout(): Observable<Object> {
-        return this.http.post('http://localhost:8080/logout', httpOptions);
-    }
-
-    public checkIfLoggedIn(): Observable<boolean> {
-        return new Observable(observer => {
-            this.http.get('http://localhost:8080/api/users/profile', httpOptions).subscribe(
-                next => {observer.next(true);},
-                error => {observer.next(false);}
             )
         });
     }
 
-    public getUserPermissions(): Observable<Object> {
-        return this.http.get('http://localhost:8080/api/users/permissions', httpOptions)
+    public signup(email: string, password: string): Observable<UserId> {
+        return this.http.post<UserId> ('http://localhost:8080/api/v1/users', {
+            email: email,
+            password: password
+        }, httpOptions);
     }
 
-    public getCurrentUser() {
-        return this.user;
+    public logout(): void {
+        this.http.post('http://localhost:8080/logout', httpOptions).subscribe(
+            next => {this.state.setUserWithPermissions(EmptyUser())},
+            error => {this.log.error(error)}
+        );
     }
 
-    public registerNavBar(navBar: NavBar) {
-        this.navBar = navBar;
+    public getCurrentUser(): Observable<Object> {
+        return new Observable(observer => {
+            this.http.get('http://localhost:8080/api/v1/users', httpOptions).subscribe(
+                (user: User) => {
+                    this.state.setUser(user);
+                    observer.next(user);
+                }, error => {
+                    this.log.error(error);
+                    observer.error(error);
+                }
+            )
+        });
+    }
+
+    private updateUserPermissions() {
+        this.log.debug("Received request to update user permissions because state change");
+        this.http.get('http://localhost:8080/api/v1/users/leaguePermissions', httpOptions).subscribe(
+            (user: UserWithPermissions) => {
+                this.state.setUserWithPermissions(user);
+            }, error => {
+                this.log.error(error);
+            }
+        )
     }
 }

@@ -17,8 +17,8 @@ export class GameEntry {
         if (!this.game.complete) {
             return toReturn;
         } else {
-            if (this.game.winnerId == this.game.team1.id && teamNum == 1 ||
-                this.game.winnerId == this.game.team2.id && teamNum == 2 ) {
+            if (this.game.winnerId == this.game.team1.teamId && teamNum == 1 ||
+                this.game.winnerId == this.game.team2.teamId && teamNum == 2 ) {
                 return toReturn + " victory";
             } else {
                 return toReturn + " defeat";
@@ -28,8 +28,8 @@ export class GameEntry {
 
     gameResultClass(teamNum: number): string {
         let c = "";
-        if (this.game.winnerId == this.game.team1.id && teamNum == 1 ||
-            this.game.winnerId == this.game.team2.id && teamNum == 2 ) {
+        if (this.game.winnerId == this.game.team1.teamId && teamNum == 1 ||
+            this.game.winnerId == this.game.team2.teamId && teamNum == 2 ) {
             c = "victory";
         } else {
             c = "defeat";
@@ -43,8 +43,8 @@ export class GameEntry {
     }
 
     gameResultText(teamNum: number): string {
-        if (this.game.winnerId == this.game.team1.id && teamNum == 1 ||
-            this.game.winnerId == this.game.team2.id && teamNum == 2 ) {
+        if (this.game.winnerId == this.game.team1.teamId && teamNum == 1 ||
+            this.game.winnerId == this.game.team2.teamId && teamNum == 2 ) {
             return "VICTORY";
         } else {
             return "DEFEAT";

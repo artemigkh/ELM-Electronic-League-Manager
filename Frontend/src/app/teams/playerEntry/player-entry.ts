@@ -1,62 +1,76 @@
 import {
-    Component, ComponentFactoryResolver, Directive, Input, OnInit, ViewChild,
+    Component,
+    ComponentFactoryResolver,
+    Directive,
+    Input, OnChanges,
+    OnInit, SimpleChanges, Type,
+    ViewChild,
     ViewContainerRef
-} from '@angular/core';
+} from "@angular/core";
 import {Player} from "../../interfaces/Player";
+import {ElmState} from "../../shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
 import {GenericPlayerEntry} from "./generic-player-entry";
 import {LeagueOfLegendsPlayerEntry} from "./league-of-legends-player-entry";
-import {LeagueService} from "../../httpServices/leagues.service";
 
 @Directive({
     selector: '[player-entry-host]',
 })
 export class PlayerEntryDirective {
-    constructor(public viewContainerRef: ViewContainerRef) { }
+    constructor(public viewContainerRef: ViewContainerRef) {
+    }
 }
 
 export interface PlayerEntryInterface {
+    displayAsMainRoster: boolean;
     players: Player[];
-    mainRoster: boolean;
 }
 
-const componentMapping: { [id: string] : any; } = {
-    "genericsport": GenericPlayerEntry,
-    "basketball": GenericPlayerEntry,
-    "curling": GenericPlayerEntry,
-    "football": GenericPlayerEntry,
-    "hockey":GenericPlayerEntry,
-    "rugby": GenericPlayerEntry,
-    "soccer": GenericPlayerEntry,
-    "volleyball": GenericPlayerEntry,
-    "waterpolo": GenericPlayerEntry,
-    "genericesport": GenericPlayerEntry,
-    "csgo": GenericPlayerEntry,
-    "leagueoflegends": LeagueOfLegendsPlayerEntry,
-    "overwatch": GenericPlayerEntry
-};
 @Component({
     selector: 'player-entry-component',
-    template: `<ng-template player-entry-host></ng-template>`
+    template: `
+        <ng-template player-entry-host></ng-template>`
 })
-export class PlayerEntryComponent implements OnInit {
+export class PlayerEntryComponent implements OnInit, OnChanges {
+    @Input() displayAsMainRoster: boolean;
     @Input() players: Player[];
-    @Input() mainRoster: boolean = false;
     @ViewChild(PlayerEntryDirective) playerEntryHost: PlayerEntryDirective;
 
-    constructor(private componentFactoryResolver: ComponentFactoryResolver,
-                private leagueService: LeagueService) { }
+    game: string;
+
+    constructor(private state: ElmState,
+                private log: NGXLogger,
+                private componentFactoryResolver: ComponentFactoryResolver) {
+    }
 
     ngOnInit() {
-        this.loadComponent();
+        this.state.subscribeLeague(league => {
+            this.game = league.game;
+            this.loadComponent()
+        });
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this.game) {
+            this.loadComponent();
+        }
     }
 
     loadComponent() {
-        console.log(this.leagueService.getGame());
-        let componentFactory = this.componentFactoryResolver.
-            resolveComponentFactory(componentMapping[this.leagueService.getGame()]);
-        let viewContainerRef = this.playerEntryHost.viewContainerRef;
-        let componentRef = viewContainerRef.createComponent(componentFactory);
+        this.log.debug("Received league with game = " + this.game);
+        this.log.debug(this.players);
+        this.playerEntryHost.viewContainerRef.clear();
+        let componentFactory = this.componentFactoryResolver.resolveComponentFactory(PlayerEntryComponent.getComponent(this.game));
+        let componentRef = this.playerEntryHost.viewContainerRef.createComponent(componentFactory);
+        (<PlayerEntryInterface>componentRef.instance).displayAsMainRoster = this.displayAsMainRoster;
         (<PlayerEntryInterface>componentRef.instance).players = this.players;
-        (<PlayerEntryInterface>componentRef.instance).mainRoster = this.mainRoster;
+    }
+
+    static getComponent(game: string): Type<PlayerEntryInterface> {
+        if (game == "leagueoflegends") {
+            return LeagueOfLegendsPlayerEntry;
+        } else {
+            return GenericPlayerEntry;
+        }
     }
 }

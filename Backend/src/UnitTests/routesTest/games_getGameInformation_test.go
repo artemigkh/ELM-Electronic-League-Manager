@@ -75,7 +75,7 @@ func testGetGameInformationDbError(t *testing.T) {
 		Return(nil, errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
-	routes.GamesDAO = mockGamesDao
+	routes.GameDAO = mockGamesDao
 
 	httpTest(t, nil, "GET", "/1", 500, testParams{})
 
@@ -92,7 +92,7 @@ func testGetGameInformationTeamDoesNotExist(t *testing.T) {
 		Return(nil, nil)
 
 	routes.ElmSessions = mockSession
-	routes.GamesDAO = mockGamesDao
+	routes.GameDAO = mockGamesDao
 
 	httpTest(t, nil, "GET", "/1", 400, testParams{Error: "gameDoesNotExist"})
 
@@ -131,7 +131,7 @@ func testGetGameInformationCorrectGetInfo(t *testing.T) {
 		}, nil)
 
 	routes.ElmSessions = mockSession
-	routes.GamesDAO = mockGamesDao
+	routes.GameDAO = mockGamesDao
 
 	httpTest(t, nil, "GET", "/1", 200, testParams{ResponseBody: createGameInfoBody(1, 2, 4, 5,
 		1532913359, 4, 2, 1, true)})

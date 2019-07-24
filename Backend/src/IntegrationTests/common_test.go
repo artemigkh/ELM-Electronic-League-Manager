@@ -33,10 +33,10 @@ func createRouterAndHttpClient() {
 	//start router/webapp
 	router = gin.Default()
 	databaseAccess.Init(conf)
-	routes.UsersDAO = databaseAccess.CreateUsersDao()
-	routes.LeaguesDAO = databaseAccess.CreateLeaguesDAO()
-	routes.TeamsDAO = databaseAccess.CreateTeamsDAO()
-	routes.GamesDAO = databaseAccess.CreateGamesDAO()
+	routes.UserDAO = databaseAccess.UserSqlDao{}
+	routes.LeagueDAO = databaseAccess.CreateLeaguesDAO()
+	routes.TeamDAO = databaseAccess.CreateTeamsDAO()
+	routes.GameDAO = databaseAccess.CreateGamesDAO()
 	routes.ElmSessions = sessionManager.CreateCookieSessionManager(conf)
 
 	routes.RegisterLoginHandlers(router.Group("/"))

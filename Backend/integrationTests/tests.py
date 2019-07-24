@@ -27,6 +27,9 @@ class TestElmApi(unittest.TestCase):
         self.http.close()
 
     def login(self, user):
+        print("logging in as ")
+        print(user.email)
+        print(user.password)
         # Make request to login endpoint
         r = self.http.post("http://localhost:8080/login", json={
             "email": user.email,
@@ -114,7 +117,7 @@ class TestElmApi(unittest.TestCase):
                 "concurrentGameNum": concurrent_game_num,
                 "gameDuration": game_duration_minutes
         })
-        self.assertEqual(200, r.status_code)
+        self.assertEqual(201, r.status_code)
         return r.json()
 
     def ensure_team_creation_fails(self, name, tag, expected_error):
@@ -124,7 +127,15 @@ class TestElmApi(unittest.TestCase):
         })
         self.assertEqual(400, r.status_code)
         self.assertEqual(expected_error, r.json()["errorDescription"])
-        print(r.json())
+
+    def ensure_player_creation_fails(self, team_id, name, game_identifier, expected_error):
+        r = self.http.post("http://localhost:8080/api/v1/teams/{}/players".format(team_id), json={
+            "name": name,
+            "gameIdentifier": game_identifier,
+            "mainRoster": True
+        })
+        self.assertEqual(400, r.status_code)
+        self.assertEqual(expected_error, r.json()["errorDescription"])
 
     def test_teams(self):
         # set up league
@@ -140,9 +151,39 @@ class TestElmApi(unittest.TestCase):
         self.ensure_team_creation_fails("a" * 51, "TAG", "Name too long")
 
         # make a team and ensure can't make duplicates
-        league.create_team(self, league_owner, "TEAM", "TAG")
+        team1 = league.create_team(self, league_owner, "TEAM", "TAG")
         self.ensure_team_creation_fails("TEAM", "UNQ", "Name or tag in use")
         self.ensure_team_creation_fails("UNIQUE_NAME", "TAG", "Name or tag in use")
+
+        # make sure can make a second team correctly
+        team2 = league.create_team(self, league_owner, "TEAM2", "TAG2")
+
+        # check that can't make invalid players
+        self.ensure_player_creation_fails(team1.team_id, "a", "gameName", "Name too short")
+        self.ensure_player_creation_fails(team1.team_id, "a" * 51, "gameName", "Name too long")
+        self.ensure_player_creation_fails(team1.team_id, "Name", "", "Game identifier too short")
+        self.ensure_player_creation_fails(team1.team_id, "Name", "a", "Game identifier too short")
+        self.ensure_player_creation_fails(team1.team_id, "Name", "a" * 51, "Game identifier too long")
+
+        # make a player and check that can't make duplicates on any team
+        team1.add_player(self, True, "Name", "GameIdentifier")
+        self.ensure_player_creation_fails(
+            team1.team_id, "Name", "GameIdentifier", "Player game Identifier already in use")
+        self.ensure_player_creation_fails(
+            team2.team_id, "Name", "GameIdentifier", "Player game Identifier already in use")
+
+        # make sure can make player with same name
+        team1_player= team1.add_player(self, True, "Name", "GameIdentifier2")
+        team2.add_player(self, True, "Name", "GameIdentifier3")
+
+        self.check_all_teams(league)
+
+        # updating and deleting
+        team1_player.update_player(self, True, "Name", "GameIdentifierUpdated")
+        self.check_all_teams(league)
+
+        team1.remove_player(self, team1_player.player_id)
+        self.check_all_teams(league)
 
     def test_normalUseCase(self):
         # create league owner
@@ -172,10 +213,13 @@ class TestElmApi(unittest.TestCase):
 
         # each manager independently creates a team
         for manager in league.managers:
+            print(self.http)
             self.new_session()
+            print(self.http)
             self.login(manager)
+            print(self.http)
             self.set_active_league(league)
-
+            print(self.http)
             new_team = league.create_team(self, manager)
             self.check_team(new_team)
 

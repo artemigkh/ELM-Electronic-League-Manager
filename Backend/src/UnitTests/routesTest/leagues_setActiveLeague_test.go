@@ -21,7 +21,7 @@ func testSetLeagueDoesNotExist(t *testing.T) {
 	mockLeaguesDao := new(mocks.LeaguesDAO)
 	mockLeaguesDao.On("GetLeagueInformation", 2).Return(nil, errors.New("fake error"))
 
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/2", 400, testParams{Error: "leagueDoesNotExist"})
 
@@ -38,7 +38,7 @@ func testSetLeagueNotViewable(t *testing.T) {
 	mockLeaguesDao.On("IsLeagueViewable", 2, 1).Return(false, nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/2", 403, testParams{})
 
@@ -68,7 +68,7 @@ func testSetLeagueDatabaseError(t *testing.T) {
 		Return(false, errors.New("database error"))
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/2", 500, testParams{})
 
@@ -86,7 +86,7 @@ func testSetLeagueSetSessionError(t *testing.T) {
 	mockLeaguesDao.On("IsLeagueViewable", 2, 1).Return(true, nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/2", 500, testParams{})
 
@@ -104,7 +104,7 @@ func testCorrectSetLeague(t *testing.T) {
 	mockLeaguesDao.On("IsLeagueViewable", 2, 1).Return(true, nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/2", 200, testParams{})
 

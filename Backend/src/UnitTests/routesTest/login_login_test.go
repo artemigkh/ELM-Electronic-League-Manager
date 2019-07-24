@@ -51,7 +51,7 @@ func testCreateNewUserNotEmailInUse(t *testing.T) {
 	mockUsersDao := new(mocks.UsersDAO)
 	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(false, nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
 		"POST", "/", 400, testParams{Error: "invalidLogin"})
@@ -68,7 +68,7 @@ func testBadPassword(t *testing.T) {
 	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
 		Return(1, salt, storedHash, nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678o3294"),
 		"POST", "/", 400, testParams{Error: "invalidLogin"})
@@ -82,7 +82,7 @@ func testBadHash(t *testing.T) {
 	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
 		Return(1, salt, strings.Replace(storedHash, "f", "0", 1), nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678o3294"),
 		"POST", "/", 400, testParams{Error: "invalidLogin"})
@@ -96,7 +96,7 @@ func testBadSalt(t *testing.T) {
 	mockUsersDao.On("GetAuthenticationInformation", "test@test.com").
 		Return(1, strings.Replace(salt, "f", "0", 1), storedHash, nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678o3294"),
 		"POST", "/", 400, testParams{Error: "invalidLogin"})
@@ -113,7 +113,7 @@ func testSessionError(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("LogIn", mock.Anything, 1).Return(errors.New("fake session error"))
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 	routes.ElmSessions = mockSession
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
@@ -131,7 +131,7 @@ func testCorrectLogin(t *testing.T) {
 	mockSession := new(mocks.SessionManager)
 	mockSession.On("LogIn", mock.Anything, 1).Return(nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 	routes.ElmSessions = mockSession
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),

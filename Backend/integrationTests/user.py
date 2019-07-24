@@ -20,4 +20,6 @@ class User:
             "password": self.password
         })
 
+        if r.status_code != 201:
+            print(r.json())
         t.assertEqual(201, r.status_code)

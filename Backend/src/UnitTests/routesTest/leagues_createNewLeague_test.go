@@ -63,7 +63,7 @@ func (s *createNewLeague) SetupTest() {
 
 	routes.ElmSessions = s.mockSession
 	routes.DataValidator = s.mockValidator
-	routes.LeaguesDAO = s.mockLeaguesDao
+	routes.LeagueDAO = s.mockLeaguesDao
 }
 func (s *createNewLeague) SetDefaultMockValues() {
 	s.mockSession.On("AuthenticateAndGetUserId", mock.Anything).
@@ -162,13 +162,13 @@ func TestExampleTestSuite(t *testing.T) {
 //	mockValidator.On("ValidateLeagueDTO", mock.Anything).
 //		Return(true, "", nil)
 //
-//	mockLeaguesDao := new(mocks.LeaguesDAO)
+//	mockLeaguesDao := new(mocks.LeagueDAO)
 //	mockLeaguesDao.On("CreateLeague", 1, mock.Anything).
 //		Return(-1, errors.New("fake db error"))
 //
 //	routes.ElmSessions = mockSession
 //	routes.DataValidator = mockValidator
-//	routes.LeaguesDAO = mockLeaguesDao
+//	routes.LeagueDAO = mockLeaguesDao
 //
 //	httpTest(t, createLeagueRequestBody("testName", "", "genericsport", true, true,
 //		1, 2, 3, 4),
@@ -186,13 +186,13 @@ func TestExampleTestSuite(t *testing.T) {
 //	mockValidator.On("ValidateLeagueDTO", mock.Anything).
 //		Return(true, "", nil)
 //
-//	mockLeaguesDao := new(mocks.LeaguesDAO)
+//	mockLeaguesDao := new(mocks.LeagueDAO)
 //	mockLeaguesDao.On("CreateLeague", 1, mock.Anything).
 //		Return(3, nil)
 //
 //	routes.ElmSessions = mockSession
 //	routes.DataValidator = mockValidator
-//	routes.LeaguesDAO = mockLeaguesDao
+//	routes.LeagueDAO = mockLeaguesDao
 //
 //	httpTest(t, createLeagueRequestBody("testName", randomdata.RandStringRunes(500), "volleyball", true, true,
 //		1, 2, 3, 4),

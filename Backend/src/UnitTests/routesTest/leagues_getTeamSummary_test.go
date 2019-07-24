@@ -51,7 +51,7 @@ func testGetTeamSummaryDatabaseError(t *testing.T) {
 		errors.New("Fake db error"))
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "GET", "/teamSummary", 500, testParams{})
 
@@ -90,7 +90,7 @@ func testCorrectGetTeamSummary(t *testing.T) {
 	mockLeaguesDao.On("GetTeamSummary", 2).Return(teamSummary, nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "GET", "/teamSummary", 200, testParams{ResponseBody: createTeamSummaryBody(teamSummary)})
 

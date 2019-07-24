@@ -1,7 +1,7 @@
 package lolApi
 
 import (
-	"Server/databaseAccess"
+	"Server/dataModel"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -70,15 +70,21 @@ func (l *lolApi) callWrapperServerAsync(url string, responseBody chan []byte) {
 	res, err := l.client.Do(httpReq)
 	if err != nil {
 		fmt.Println("Failed to execute HTTP Request. Error:", err.Error())
+		responseBody <- nil
+		return
 	}
 
 	if res.StatusCode != http.StatusOK {
 		fmt.Println(fmt.Sprintf("Non 200 Status Code: %v %v", res.StatusCode, res.Status))
+		responseBody <- nil
+		return
 	}
 
 	bodyBytes, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println("Failed to read body. Error:", err.Error())
+		responseBody <- nil
+		return
 	}
 
 	responseBody <- bodyBytes
@@ -109,8 +115,8 @@ func (l *lolApi) GetSummonerInformation(ids []string) map[string]*SummonerInform
 	return summonerInformation
 }
 
-func (l *lolApi) CompletePlayerStubs(stub *databaseAccess.LoLTeamStub) (*databaseAccess.LoLTeamWithRosters, error) {
-	team := databaseAccess.LoLTeamWithRosters{
+func (l *lolApi) CompletePlayerStubs(stub *dataModel.LoLTeamStub) (*dataModel.LoLTeamWithRosters, error) {
+	team := dataModel.LoLTeamWithRosters{
 		TeamId:           stub.TeamId,
 		Name:             stub.Name,
 		Description:      stub.Description,
@@ -119,8 +125,8 @@ func (l *lolApi) CompletePlayerStubs(stub *databaseAccess.LoLTeamStub) (*databas
 		IconLarge:        stub.IconLarge,
 		Wins:             stub.Wins,
 		Losses:           stub.Losses,
-		MainRoster:       make([]*databaseAccess.LoLPlayer, 0),
-		SubstituteRoster: make([]*databaseAccess.LoLPlayer, 0),
+		MainRoster:       make([]*dataModel.LoLPlayer, 0),
+		SubstituteRoster: make([]*dataModel.LoLPlayer, 0),
 	}
 
 	allPlayerIds := make([]string, 0)
@@ -131,7 +137,7 @@ func (l *lolApi) CompletePlayerStubs(stub *databaseAccess.LoLTeamStub) (*databas
 	summonerMap := l.GetSummonerInformation(allPlayerIds)
 	for _, player := range stub.MainRoster {
 		info := summonerMap[player.ExternalId]
-		team.MainRoster = append(team.MainRoster, &databaseAccess.LoLPlayer{
+		team.MainRoster = append(team.MainRoster, &dataModel.LoLPlayer{
 			PlayerId:       player.PlayerId,
 			GameIdentifier: info.GameIdentifier,
 			MainRoster:     player.MainRoster,
@@ -142,7 +148,7 @@ func (l *lolApi) CompletePlayerStubs(stub *databaseAccess.LoLTeamStub) (*databas
 	}
 	for _, player := range stub.SubstituteRoster {
 		info := summonerMap[player.ExternalId]
-		team.SubstituteRoster = append(team.SubstituteRoster, &databaseAccess.LoLPlayer{
+		team.SubstituteRoster = append(team.SubstituteRoster, &dataModel.LoLPlayer{
 			PlayerId:       player.PlayerId,
 			GameIdentifier: info.GameIdentifier,
 			MainRoster:     player.MainRoster,
@@ -173,13 +179,13 @@ func (l *lolApi) GetSummonerId(name string) (string, error) {
 	return summonerId.Id, nil
 }
 
-func (l *lolApi) GetMatchStats(id string) (*MatchInformation, error) {
+func (l *lolApi) GetMatchStats(id string) (*dataModel.LoLMatchInformation, error) {
 	bodyBytes, err := l.callWrapperServer(fmt.Sprintf("gameStats?id=%v", id))
 	if err != nil {
 		println(err.Error())
 		return nil, err
 	}
-	var matchInfo MatchInformation
+	var matchInfo dataModel.LoLMatchInformation
 	if err := json.Unmarshal(bodyBytes, &matchInfo); err != nil {
 		println(err.Error())
 		return nil, err

@@ -43,7 +43,7 @@ func testCreateNewUserEmailInUse(t *testing.T) {
 	mockUsersDao := new(mocks.UsersDAO)
 	mockUsersDao.On("IsEmailInUse", "test@test.com").Return(true, nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
 		"POST", "/", 400, testParams{Error: "emailInUse"})
@@ -57,7 +57,7 @@ func testCreateNewUserDatabaseError(t *testing.T) {
 	mockUsersDao.On("CreateUser", "test@test.com", mock.Anything, mock.Anything).
 		Return(errors.New("fake db error"))
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
 		"POST", "/", 500, testParams{})
@@ -71,7 +71,7 @@ func testCorrectUserCreation(t *testing.T) {
 	mockUsersDao.On("CreateUser", "test@test.com", mock.Anything, mock.Anything).
 		Return(nil)
 
-	routes.UsersDAO = mockUsersDao
+	routes.UserDAO = mockUsersDao
 
 	httpTest(t, createLoginRequestBody("test@test.com", "12345678"),
 		"POST", "/", 200, testParams{})

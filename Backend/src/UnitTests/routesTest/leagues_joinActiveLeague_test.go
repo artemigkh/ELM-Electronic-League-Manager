@@ -58,7 +58,7 @@ func testJoinActiveLeagueCanNotJoin(t *testing.T) {
 	mockLeaguesDao.On("CanJoinLeague", 2, 1).Return(false, nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/", 400, testParams{Error: "canNotJoin"})
 
@@ -77,7 +77,7 @@ func testJoinActiveLeagueDatabaseError(t *testing.T) {
 	mockLeaguesDao.On("JoinLeague", 2, 1).Return(errors.New("fake db error"))
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/", 500, testParams{})
 
@@ -96,7 +96,7 @@ func testCorrectJoinLeague(t *testing.T) {
 	mockLeaguesDao.On("JoinLeague", 2, 1).Return(nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "POST", "/", 200, testParams{})
 

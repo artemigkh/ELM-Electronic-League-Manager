@@ -66,7 +66,7 @@ func testGetLeagueDataDatabaseError(t *testing.T) {
 	}, errors.New("Fake db error"))
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "GET", "/", 500, testParams{})
 
@@ -93,7 +93,7 @@ func testCorrectGetLeagueData(t *testing.T) {
 	}, nil)
 
 	routes.ElmSessions = mockSession
-	routes.LeaguesDAO = mockLeaguesDao
+	routes.LeagueDAO = mockLeaguesDao
 
 	httpTest(t, nil, "GET", "/", 200,
 		testParams{ResponseBody: createLeagueInfoBody(2, "testName", "testDescription", "basketball",

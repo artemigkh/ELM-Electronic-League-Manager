@@ -152,21 +152,24 @@ RETURNS VOID AS $$
   END;
 $$ LANGUAGE plpgsql;
 
+CREATE TYPE league_game_ids AS (league_id INT, game_id INT);
 CREATE OR REPLACE FUNCTION
 report_game_by_external_id(
-  external_id     INT,
+  external_id     VARCHAR(50),
   winner_id       INT,
   loser_id        INT,
   score_team1     INT,
   score_team2     INT
 )
-RETURNS VOID AS $$
+RETURNS SETOF league_game_ids AS $$
+  DECLARE league_id INT;
+  DECLARE game_id INT;
   DECLARE game_complete BOOLEAN;
   DECLARE old_winner_id INT;
   DECLARE old_loser_id INT;
   BEGIN
-    SELECT game.complete, game.winner_id, game.loser_id INTO game_complete, old_winner_id, old_loser_id
-      FROM game WHERE game.external_id = report_game.external_id;
+    SELECT game.league_id, game.game_id, game.complete, game.winner_id, game.loser_id INTO league_id, game_id, game_complete, old_winner_id, old_loser_id
+      FROM game WHERE game.external_id = report_game_by_external_id.external_id;
     IF (game_complete = TRUE) THEN
       UPDATE team
         SET wins = wins - 1
@@ -179,11 +182,11 @@ RETURNS VOID AS $$
 
     UPDATE game SET
       complete = TRUE,
-      winner_id = report_game.winner_id,
-      loser_id = report_game.loser_id,
-      score_team1 = report_game.score_team1,
-      score_team2 = report_game.score_team2
-    WHERE game.external_id = report_game.external_id;
+      winner_id = report_game_by_external_id.winner_id,
+      loser_id = report_game_by_external_id.loser_id,
+      score_team1 = report_game_by_external_id.score_team1,
+      score_team2 = report_game_by_external_id.score_team2
+    WHERE game.external_id = report_game_by_external_id.external_id;
 
     UPDATE team
       SET wins = wins + 1
@@ -192,5 +195,8 @@ RETURNS VOID AS $$
     UPDATE team
       SET losses = losses + 1
     WHERE team_id = loser_id;
+
+    RETURN QUERY (SELECT league_id, game_id);
   END;
 $$ LANGUAGE plpgsql;
+

@@ -1,58 +1,70 @@
-// import {Component, ComponentFactoryResolver, Directive, OnInit, ViewChild, ViewContainerRef} from "@angular/core";
-// import {Player} from "../../interfaces/Player";
-// import {GenericPlayerEntry} from "../../teams/playerEntry/generic-player-entry";
-// import {LeagueOfLegendsPlayerEntry} from "../../teams/playerEntry/league-of-legends-player-entry";
-// import {GenericStatsPage} from "./generic-stats-page";
-// import {LeagueService} from "../../httpServices/leagues.service";
-// import {PlayerEntryDirective, PlayerEntryInterface} from "../../teams/playerEntry/player-entry";
-// import {LeagueOfLegendsStatsPage} from "./league-of-legends-stats-page";
-//
-// @Directive({
-//     selector: '[stats-page-host]',
-// })
-// export class StatsPageDirective {
-//     constructor(public viewContainerRef: ViewContainerRef) { }
-// }
-//
-// export interface StatsPageInterface {
-//
-// }
-//
-// const componentMapping: { [id: string] : any; } = {
-//     "genericsport": GenericStatsPage,
-//     "basketball": GenericStatsPage,
-//     "curling": GenericStatsPage,
-//     "football": GenericStatsPage,
-//     "hockey":GenericStatsPage,
-//     "rugby": GenericStatsPage,
-//     "soccer": GenericStatsPage,
-//     "volleyball": GenericStatsPage,
-//     "waterpolo": GenericStatsPage,
-//     "genericesport": GenericStatsPage,
-//     "csgo": GenericStatsPage,
-//     "leagueoflegends": LeagueOfLegendsStatsPage,
-//     "overwatch": GenericStatsPage
-// };
-//
-// @Component({
-//     selector: 'stats-page-component',
-//     template: `<ng-template stats-page-host></ng-template>`
-// })
-// export class StatsPageComponent implements OnInit {
-//     @ViewChild(StatsPageDirective) statsPageHost: StatsPageDirective;
-//
-//     constructor(private componentFactoryResolver: ComponentFactoryResolver,
-//                 private leagueService: LeagueService) { }
-//
-//     ngOnInit() {
-//         this.loadComponent();
-//     }
-//
-//     loadComponent() {
-//         console.log(this.leagueService.getGame());
-//         let componentFactory = this.componentFactoryResolver.
-//         resolveComponentFactory(componentMapping[this.leagueService.getGame()]);
-//         let viewContainerRef = this.statsPageHost.viewContainerRef;
-//         let componentRef = viewContainerRef.createComponent(componentFactory);
-//     }
-// }
+import {
+    Component,
+    ComponentFactoryResolver,
+    Directive, OnChanges,
+    OnInit,
+    SimpleChanges,
+    Type,
+    ViewChild,
+    ViewContainerRef
+} from "@angular/core";
+import {GenericStatsPage} from "./generic-stats-page";
+import {LeagueOfLegendsStatsPage} from "./league-of-legends-stats-page";
+import {ElmState} from "../../shared/state/state.service";
+import {NGXLogger} from "ngx-logger";
+
+@Directive({
+    selector: '[stats-page-host]',
+})
+export class StatsPageDirective {
+    constructor(public viewContainerRef: ViewContainerRef) {
+    }
+}
+
+export interface StatsPageInterface {
+
+}
+
+@Component({
+    selector: 'stats-page-component',
+    template: `
+        <ng-template stats-page-host></ng-template>`
+})
+export class StatsPageComponent implements OnInit, OnChanges {
+    @ViewChild(StatsPageDirective) statsPageHost: StatsPageDirective;
+
+    game: string;
+
+    constructor(private state: ElmState,
+                private log: NGXLogger,
+                private componentFactoryResolver: ComponentFactoryResolver) {
+    }
+
+    ngOnInit() {
+        this.state.subscribeLeague(league => {
+            this.game = league.game;
+            this.loadComponent()
+        });
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this.game) {
+            this.loadComponent();
+        }
+    }
+
+    loadComponent() {
+        this.log.debug("Received league with game = " + this.game);
+
+        let componentFactory = this.componentFactoryResolver.resolveComponentFactory(StatsPageComponent.getComponent(this.game));
+        this.statsPageHost.viewContainerRef.createComponent(componentFactory);
+    }
+
+    static getComponent(game: string): Type<StatsPageInterface> {
+        if (game == "leagueoflegends") {
+            return LeagueOfLegendsStatsPage;
+        } else {
+            return GenericStatsPage;
+        }
+    }
+}

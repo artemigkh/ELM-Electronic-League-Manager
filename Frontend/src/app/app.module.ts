@@ -238,6 +238,11 @@ import {
     ManageLoLPlayerPopup,
     ManagePlayersTeamLeagueOfLegendsComponent
 } from "./manage/players/manage-players-team/league-of-legends/manage-players-team-league-of-legends";
+import {StatsComponent} from "./stats/stats";
+import {StatsPageComponent, StatsPageDirective} from "./stats/statsPage/stats-page";
+import {GenericStatsPage} from "./stats/statsPage/generic-stats-page";
+import {LeagueOfLegendsStatsPage} from "./stats/statsPage/league-of-legends-stats-page";
+import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stats.service";
 
 @NgModule({
     declarations: [
@@ -248,6 +253,11 @@ import {
         LeaguesComponent,
         LeagueCreationComponent,
         HomeComponent,
+        StatsComponent,
+        StatsPageComponent,
+        GenericStatsPage,
+        LeagueOfLegendsStatsPage,
+        StatsPageDirective,
         StandingsComponent,
         TeamEntry,
         GameEntry,
@@ -319,6 +329,7 @@ import {
         LeagueService,
         GamesService,
         TeamsService,
+        LeagueOfLegendsStatsService,
         MatIconRegistry
     ],
     bootstrap: [AppComponent],
@@ -328,6 +339,8 @@ import {
         ManagePlayersTeamComponent,
         ManagePlayersTeamLeagueOfLegendsComponent,
         EventDisplayerComponent,
+        GenericStatsPage,
+        LeagueOfLegendsStatsPage,
         ManageTeamPopup,
         ManagePlayerPopup,
         ManageLoLPlayerPopup,

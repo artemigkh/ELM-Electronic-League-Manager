@@ -6,7 +6,7 @@ import {NGXLogger} from "ngx-logger";
 import {TeamsService} from "../../../httpServices/teams.service";
 import {EventDisplayerService} from "../../../shared/eventDisplayer/event-displayer.service";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Action} from "../../actions";
 import {Player} from "../../../interfaces/Player";
 import {ManageTeamPopup} from "../../teams/manage-teams";
@@ -123,8 +123,8 @@ export class ManagePlayerPopup {
         private formBuilder: FormBuilder) {
         this.title = this.data.action == Action.Create ? "Create New Player" : "Edit Player";
         this.playerForm = this.formBuilder.group({
-            'name': [this.data.player.name],
-            'gameIdentifier': [this.data.player.gameIdentifier],
+            'name': [this.data.player.name, [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
+            'gameIdentifier': [this.data.player.gameIdentifier, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
         });
     }
 

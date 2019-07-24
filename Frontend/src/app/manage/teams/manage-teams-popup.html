@@ -1,6 +1,8 @@
+
 <h1 mat-dialog-title>{{title}}</h1>
+<form [formGroup]="teamForm" (submit)="saveTeam()">
 <div mat-dialog-content>
-    <form [formGroup]="teamForm" (submit)="saveTeam()" class="content-wrapper">
+    <div class="content-wrapper">
         <mat-form-field hintLabel="Between 3 and 25 characters">
             <input matInput formControlName="name" #input maxlength="25" placeholder="Team Name" required>
             <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
@@ -23,8 +25,7 @@
                 <input type="file" accept=".png" (change)="onFileChange($event)">
             </div>
         </div>
-    </form>
-
+    </div>
 </div>
 <div mat-dialog-actions>
     <div class="action-bar-wrapper">
@@ -32,9 +33,10 @@
         <span class="button-wrapper">
         <button mat-raised-button (click)="onCancel()">Cancel</button>
     </span>
-        <span class="button-wrapper">
-         <button mat-raised-button (click)="saveTeam()">Confirm</button>
+    <span class="button-wrapper">
+         <button mat-raised-button [disabled]="!teamForm.valid" type="submit">Confirm</button>
     </span>
         <span class="spacer"></span>
     </div>
 </div>
+</form>

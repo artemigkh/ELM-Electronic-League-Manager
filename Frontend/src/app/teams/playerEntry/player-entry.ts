@@ -44,7 +44,10 @@ export class PlayerEntryComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        this.state.subscribeLeague(league => {this.game = league.game; this.loadComponent()});
+        this.state.subscribeLeague(league => {
+            this.game = league.game;
+            this.loadComponent()
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {

@@ -19,7 +19,7 @@ import {TeamsService} from "../../../../httpServices/teams.service";
 import {EventDisplayerService} from "../../../../shared/eventDisplayer/event-displayer.service";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
 import {LoLPlayer, Player} from "../../../../interfaces/Player";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Action} from "../../../actions";
 
 const allPositions: string[] = ["top", "jungle", "middle", "bottom", "support"];
@@ -147,8 +147,7 @@ export class ManageLoLPlayerPopup {
         private formBuilder: FormBuilder) {
         this.title = this.data.action == Action.Create ? "Create New Player" : "Edit Player";
         this.playerForm = this.formBuilder.group({
-            'name': [this.data.player.name],
-            'gameIdentifier': [this.data.player.gameIdentifier],
+            'gameIdentifier': [this.data.player.gameIdentifier, [Validators.required, Validators.minLength(2), Validators.maxLength(25)]],
             'position': [this.data.player.position],
         });
     }

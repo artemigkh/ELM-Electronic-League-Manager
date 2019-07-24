@@ -7,7 +7,7 @@ import {TeamsService} from "../../httpServices/teams.service";
 import {UserWithPermissions} from "../../interfaces/User";
 import {Action} from "../actions";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {WarningPopup, WarningPopupData} from "../warningPopup/warning-popup";
 
 class TeamData {
@@ -119,9 +119,9 @@ export class ManageTeamPopup {
         private formBuilder: FormBuilder) {
         this.title = this.data.action == Action.Create ? "Create New Team" : "Edit Team";
         this.teamForm = this.formBuilder.group({
-            'name': [this.data.team.name],
-            'tag': [this.data.team.tag],
-            'description': [this.data.team.description],
+            'name': [this.data.team.name, [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
+            'tag': [this.data.team.tag, [Validators.required, Validators.minLength(3), Validators.maxLength(5)]],
+            'description': [this.data.team.description, Validators.maxLength(500)],
             'icon': null
         });
     }

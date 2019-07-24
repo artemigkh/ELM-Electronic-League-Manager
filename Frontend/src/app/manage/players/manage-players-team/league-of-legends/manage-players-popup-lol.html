@@ -1,7 +1,8 @@
 <h1 mat-dialog-title>{{title}}</h1>
+<form [formGroup]="playerForm" (submit)="savePlayer()" >
 <div mat-dialog-content>
-    <form [formGroup]="playerForm" (submit)="savePlayer()" class="content-wrapper">
-        <mat-form-field hintLabel="Between 3 and 25 characters">
+    <div class="content-wrapper">
+        <mat-form-field hintLabel="Between 2 and 25 characters">
             <input matInput formControlName="gameIdentifier" #input maxlength="25" placeholder="Game Identifier" required>
             <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
         </mat-form-field>
@@ -15,7 +16,7 @@
                 </ng-container>
             </mat-select>
         </mat-form-field>
-    </form>
+    </div>
 </div>
 <div mat-dialog-actions>
     <div class="action-bar-wrapper">
@@ -24,8 +25,9 @@
         <button mat-raised-button (click)="onCancel()">Cancel</button>
     </span>
         <span class="button-wrapper">
-         <button mat-raised-button (click)="savePlayer()">Confirm</button>
+         <button mat-raised-button [disabled]="!playerForm.valid" type="submit">Confirm</button>
     </span>
         <span class="spacer"></span>
     </div>
 </div>
+</form>

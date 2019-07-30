@@ -213,13 +213,9 @@ class TestElmApi(unittest.TestCase):
 
         # each manager independently creates a team
         for manager in league.managers:
-            print(self.http)
             self.new_session()
-            print(self.http)
             self.login(manager)
-            print(self.http)
             self.set_active_league(league)
-            print(self.http)
             new_team = league.create_team(self, manager)
             self.check_team(new_team)
 

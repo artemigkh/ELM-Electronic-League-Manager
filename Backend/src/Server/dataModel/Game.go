@@ -26,23 +26,16 @@ type GameTime struct {
 	GameTime int `json:"gameTime"`
 }
 
-func (gameTime *GameTime) Validate(leagueId, gameId int) (bool, string, error) {
-	return validate(
-		gameTime.noConflict(),
-		gameTime.duringLeague())
-}
-
-func (gameTime *GameTime) noConflict() ValidateFunc {
-	return func(_ *string, _ *error) bool {
-		// TODO
-		return true
-	}
-}
-
-func (gameTime *GameTime) duringLeague() ValidateFunc {
-	return func(_ *string, _ *error) bool {
-		// TODO
-		return true
+func (gameTime *GameTime) Validate(leagueId, gameId int, leagueDao LeagueDAO, teamDao TeamDAO, gameDao GameDAO) (bool, string, error) {
+	gameInformation, err := gameDao.GetGameInformation(gameId)
+	if err != nil {
+		return false, "", err
+	} else {
+		return GameCreationInformation{
+			Team1Id:  gameInformation.Team1.TeamId,
+			Team2Id:  gameInformation.Team2.TeamId,
+			GameTime: gameTime.GameTime,
+		}.ValidateReschedule(leagueId, gameId, leagueDao, teamDao, gameDao)
 	}
 }
 
@@ -52,12 +45,20 @@ type GameCreationInformation struct {
 	GameTime int `json:"gameTime"`
 }
 
-func (game *GameCreationInformation) Validate(leagueId int, teamDao TeamDAO) (bool, string, error) {
+func (game GameCreationInformation) validate(leagueId, gameId int, leagueDao LeagueDAO, teamDao TeamDAO, gameDao GameDAO) (bool, string, error) {
 	return validate(
 		game.differentTeams(),
 		game.teamsExist(leagueId, teamDao),
-		game.noConflict(),
-		game.duringLeague())
+		game.noConflict(leagueId, gameId, gameDao),
+		validateDuringLeague(leagueId, game.GameTime, leagueDao, GameNotDuringLeague))
+}
+
+func (game GameCreationInformation) Validate(leagueId int, leagueDao LeagueDAO, teamDao TeamDAO, gameDao GameDAO) (bool, string, error) {
+	return game.validate(leagueId, 0, leagueDao, teamDao, gameDao)
+}
+
+func (game GameCreationInformation) ValidateReschedule(leagueId, gameId int, leagueDao LeagueDAO, teamDao TeamDAO, gameDao GameDAO) (bool, string, error) {
+	return game.validate(leagueId, gameId, leagueDao, teamDao, gameDao)
 }
 
 func (game *GameCreationInformation) differentTeams() ValidateFunc {
@@ -89,16 +90,24 @@ func (game *GameCreationInformation) teamsExist(leagueId int, teamDao TeamDAO) V
 	}
 }
 
-func (game *GameCreationInformation) noConflict() ValidateFunc {
-	return func(_ *string, _ *error) bool {
-		// TODO
-		return true
-	}
-}
-
-func (game *GameCreationInformation) duringLeague() ValidateFunc {
-	return func(_ *string, _ *error) bool {
-		// TODO
+func (game *GameCreationInformation) noConflict(leagueId, gameId int, gameDao GameDAO) ValidateFunc {
+	return func(problemDest *string, errorDest *error) bool {
+		allGames, err := gameDao.GetAllGamesInLeague(leagueId)
+		if err != nil {
+			*errorDest = err
+			return false
+		}
+		for _, ExistingGame := range allGames {
+			if gameId != ExistingGame.GameId &&
+				game.GameTime == ExistingGame.GameTime &&
+				(game.Team1Id == ExistingGame.Team1.TeamId ||
+					game.Team1Id == ExistingGame.Team2.TeamId ||
+					game.Team2Id == ExistingGame.Team1.TeamId ||
+					game.Team2Id == ExistingGame.Team2.TeamId) {
+				*problemDest = GameConflict
+				return false
+			}
+		}
 		return true
 	}
 }
@@ -116,15 +125,36 @@ type GameResult struct {
 	ScoreTeam2 int `json:"scoreTeam2"`
 }
 
-func (gameResult *GameResult) Validate(leagueId int) (bool, string, error) {
-	return validate(
-		gameResult.hasReportedTeams())
+func (gameResult *GameResult) Validate(gameId int, gameDao GameDAO) (bool, string, error) {
+	gameInformation, err := gameDao.GetGameInformation(gameId)
+	if err != nil {
+		return false, "", err
+	} else {
+		return validate(gameResult.hasReportedTeams(gameInformation, gameDao))
+	}
 }
 
-func (gameResult *GameResult) hasReportedTeams() ValidateFunc {
-	return func(_ *string, _ *error) bool {
-		// TODO
-		return true
+func (gameResult *GameResult) ValidateByExternalId(externalGameId string, gameDao GameDAO) (bool, string, error) {
+	gameInformation, err := gameDao.GetGameInformationFromExternalId(externalGameId)
+	if err != nil {
+		return false, "", err
+	} else {
+		return validate(gameResult.hasReportedTeams(gameInformation, gameDao))
+	}
+}
+
+func (gameResult *GameResult) hasReportedTeams(gameInformation *Game, gameDao GameDAO) ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		valid := false
+		if (gameInformation.Team1.TeamId == gameResult.WinnerId &&
+			gameInformation.Team2.TeamId == gameResult.LoserId) ||
+			(gameInformation.Team2.TeamId == gameResult.WinnerId &&
+				gameInformation.Team1.TeamId == gameResult.LoserId) {
+			*problemDest = GameDoesNotContainTeams
+		} else {
+			valid = true
+		}
+		return valid
 	}
 }
 

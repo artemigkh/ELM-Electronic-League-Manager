@@ -3,7 +3,7 @@ package databaseAccess
 import (
 	"Server/dataModel"
 	"database/sql"
-	"fmt"
+	"strings"
 )
 
 type UserSqlDao struct{}
@@ -16,7 +16,7 @@ func (d *UserSqlDao) CreateUser(email, salt, hash string) error {
 			"hash",
 		).
 		Values(
-			email,
+			strings.ToLower(email),
 			salt,
 			hash,
 		).RunWith(db).Exec()
@@ -24,11 +24,10 @@ func (d *UserSqlDao) CreateUser(email, salt, hash string) error {
 }
 
 func (d *UserSqlDao) IsEmailInUse(email string) (bool, error) {
-	//TODO: check for equivalent emails
 	var count int
 	if err := psql.Select("count(email)").
 		From("user_").
-		Where("email = ?", email).
+		Where("email = ?", strings.ToLower(email)).
 		RunWith(db).QueryRow().Scan(&count); err != nil {
 		return false, err
 	} else {
@@ -91,7 +90,6 @@ func (d *UserSqlDao) GetUserProfile(userId int) (*dataModel.User, error) {
 }
 
 func (d *UserSqlDao) GetUserWithPermissions(leagueId, userId int) (*dataModel.UserWithPermissions, error) {
-	fmt.Printf("league id: %v, userId: %v\n", leagueId, userId)
 	var userBase *dataModel.User
 	userBase, err := GetScannedUser(getUserSelector().
 		Where("user_id = ?", userId).RunWith(db).QueryRow())

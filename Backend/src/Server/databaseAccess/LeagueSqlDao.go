@@ -3,6 +3,7 @@ package databaseAccess
 import (
 	"Server/dataModel"
 	"database/sql"
+	"strings"
 )
 
 type LeagueSqlDao struct{}
@@ -138,7 +139,6 @@ func (d *LeagueSqlDao) IsLeagueViewable(leagueId, userId int) (bool, error) {
 }
 
 //TODO: make invite system for private leagues, check if user invited in this function
-//TODO: make ordering consistent
 func (d *LeagueSqlDao) CanJoinLeague(leagueId, userId int) (bool, error) {
 	var canJoin = false
 	err := psql.Select("public_join").
@@ -184,7 +184,7 @@ func (d *LeagueSqlDao) IsNameInUse(leagueId int, name string) (bool, error) {
 func (d *LeagueSqlDao) GetPublicLeagueList() ([]*dataModel.League, error) {
 	var leagueSummary LeagueArray
 	if err := ScanRows(getLeagueSelector().
-		Where("public_view = true"), &leagueSummary); err != nil {
+		Where("public_view = true").OrderBy("league_id DESC"), &leagueSummary); err != nil {
 		return nil, err
 	}
 
@@ -283,7 +283,7 @@ func (d *LeagueSqlDao) AddWeeklyAvailability(leagueId int, availability dataMode
 		).
 		Values(
 			availabilityId,
-			availability.Weekday,
+			strings.ToLower(availability.Weekday),
 			availability.Timezone,
 			availability.Hour,
 			availability.Minute,
@@ -318,7 +318,7 @@ func (d *LeagueSqlDao) EditWeeklyAvailability(availabilityId int,
 	}
 
 	_, err = psql.Update("weekly_recurrence").
-		Set("weekday", availability.Weekday).
+		Set("weekday", strings.ToLower(availability.Weekday)).
 		Set("timezone", availability.Timezone).
 		Set("hour", availability.Hour).
 		Set("minute", availability.Minute).

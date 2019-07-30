@@ -72,10 +72,12 @@ func getGameInformation() gin.HandlerFunc {
 func createNewGame() gin.HandlerFunc {
 	var game dataModel.GameCreationInformation
 	return endpoint{
-		Entity:        Game,
-		AccessType:    Create,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &game) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return game.Validate(getLeagueId(ctx), TeamDAO) },
+		Entity:     Game,
+		AccessType: Create,
+		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &game) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return game.Validate(getLeagueId(ctx), LeagueDAO, TeamDAO, GameDAO)
+		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			gameId, err := GameDAO.CreateGame(getLeagueId(ctx), getExternalGameId(ctx), game)
 			return gin.H{"gameId": gameId}, err
@@ -102,7 +104,7 @@ func rescheduleGame() gin.HandlerFunc {
 		AccessType: Edit,
 		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameTime) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return gameTime.Validate(getLeagueId(ctx), getGameId(ctx))
+			return gameTime.Validate(getLeagueId(ctx), getGameId(ctx), LeagueDAO, TeamDAO, GameDAO)
 		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			return nil, GameDAO.RescheduleGame(getGameId(ctx), gameTime.GameTime)
@@ -117,7 +119,7 @@ func reportGameResult() gin.HandlerFunc {
 		Entity:        Game,
 		AccessType:    Edit,
 		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameResult) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return gameResult.Validate(getLeagueId(ctx)) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return gameResult.Validate(getLeagueId(ctx), GameDAO) },
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			return nil, GameDAO.ReportGame(getGameId(ctx), gameResult)
 		},

@@ -1,7 +1,12 @@
 package icons
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"image"
+)
 
 type IconManager interface {
-	StoreNewIcon(ctx *gin.Context) (string, string, error)
+	StoreNewIconFromBase64String(icon string) (string, string, error)
+	StoreNewIconFromForm(ctx *gin.Context) (string, string, error)
+	StoreNewIconFromImage(img image.Image) (string, string, error)
 }

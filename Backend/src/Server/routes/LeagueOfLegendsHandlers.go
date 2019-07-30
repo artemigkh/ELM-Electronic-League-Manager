@@ -55,10 +55,12 @@ func leagueOfLegendsGetSummonerId() gin.HandlerFunc {
 		err := ctx.ShouldBindBodyWith(&playerInfo, binding.JSON)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+			return
 		}
 		summonerId, err := LoLApi.GetSummonerId(playerInfo.GameIdentifier)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "lolApiError"})
+			return
 		}
 		ctx.Set("externalId", summonerId)
 		ctx.Next()
@@ -72,7 +74,6 @@ func leagueOfLegendsGenerateExternalGameId() gin.HandlerFunc {
 	}
 }
 
-//TODO: validate created game struct
 //TODO: add case for adding game result to series
 func receiveCompletedTournamentGame() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -81,25 +82,31 @@ func receiveCompletedTournamentGame() gin.HandlerFunc {
 			return
 		}
 
-		leagueId, gameId, err := GameDAO.ReportGameByExternalId(matchInformation.GameId,
-			dataModel.GameResult{
-				WinnerId: matchInformation.WinningTeamId,
-				LoserId:  matchInformation.LosingTeamId,
-				ScoreTeam1: func() int {
-					if matchInformation.WinningTeamId == matchInformation.Team1Id {
-						return 1
-					} else {
-						return 0
-					}
-				}(),
-				ScoreTeam2: func() int {
-					if matchInformation.WinningTeamId == matchInformation.Team2Id {
-						return 1
-					} else {
-						return 0
-					}
-				}(),
-			})
+		gameResult := dataModel.GameResult{
+			WinnerId: matchInformation.WinningTeamId,
+			LoserId:  matchInformation.LosingTeamId,
+			ScoreTeam1: func() int {
+				if matchInformation.WinningTeamId == matchInformation.Team1Id {
+					return 1
+				} else {
+					return 0
+				}
+			}(),
+			ScoreTeam2: func() int {
+				if matchInformation.WinningTeamId == matchInformation.Team2Id {
+					return 1
+				} else {
+					return 0
+				}
+			}(),
+		}
+
+		valid, problem, err := gameResult.ValidateByExternalId(matchInformation.GameId, GameDAO)
+		if DataInvalid(ctx, valid, problem, err) {
+			return
+		}
+
+		leagueId, gameId, err := GameDAO.ReportGameByExternalId(matchInformation.GameId, gameResult)
 		if checkErr(ctx, err) {
 			return
 		}
@@ -145,7 +152,7 @@ func createNewLoLPlayer() gin.HandlerFunc {
 		AccessType: Create,
 		BindData:   func(ctx *gin.Context) bool { return bindRepeatedAndCheckErr(ctx, &player) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return player.ValidateNew(getLeagueId(ctx), getTeamId(ctx))
+			return player.ValidateNew(getLeagueId(ctx), getTeamId(ctx), LeagueOfLegendsDAO)
 		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			playerId, err := LeagueOfLegendsDAO.CreateLoLPlayer(
@@ -163,7 +170,7 @@ func updateLoLPlayer() gin.HandlerFunc {
 		AccessType: Edit,
 		BindData:   func(ctx *gin.Context) bool { return bindRepeatedAndCheckErr(ctx, &player) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return player.ValidateEdit(getLeagueId(ctx), getTeamId(ctx), getPlayerId(ctx))
+			return player.ValidateEdit(getLeagueId(ctx), getTeamId(ctx), getPlayerId(ctx), LeagueOfLegendsDAO)
 		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			return nil, LeagueOfLegendsDAO.UpdateLoLPlayer(
@@ -187,7 +194,44 @@ func getLoLTeamWithRosters() gin.HandlerFunc {
 	}.createEndpointHandler()
 }
 
+func createNewLoLTeamWithPlayers() gin.HandlerFunc {
+	var team dataModel.LoLTeamWithPlayersCore
+	return endpoint{
+		Entity:     Team,
+		AccessType: Create,
+		BindData: func(ctx *gin.Context) bool {
+			team = dataModel.LoLTeamWithPlayersCore{}
+			return bindAndCheckErr(ctx, &team)
+		},
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return team.Validate(getLeagueId(ctx), TeamDAO)
+		},
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			var err error
+
+			for _, player := range team.Players {
+				externalId, err := LoLApi.GetSummonerId(player.GameIdentifier)
+				if err != nil {
+					return nil, err
+				}
+				player.ExternalId = externalId
+			}
+			smallIcon := ""
+			largeIcon := ""
+			if len(team.Icon) > 0 {
+				smallIcon, largeIcon, err = IconManager.StoreNewIconFromBase64String(team.Icon)
+				if checkErr(ctx, err) {
+					return nil, err
+				}
+			}
+			return LeagueOfLegendsDAO.CreateLoLTeamWithPlayers(
+				getLeagueId(ctx), getUserId(ctx), team.Team, team.Players, smallIcon, largeIcon)
+		},
+	}.createEndpointHandler()
+}
+
 func RegisterLeagueOfLegendsHandlers(g *gin.RouterGroup) {
+	g.POST("/teamsWithPlayers", createNewLoLTeamWithPlayers())
 	g.POST("/receiveCompletedTournamentGame", receiveCompletedTournamentGame())
 	//g.Use(getActiveLeague())
 	//
@@ -202,5 +246,4 @@ func RegisterLeagueOfLegendsHandlers(g *gin.RouterGroup) {
 	//g.PUT("/teams/updatePlayer", authenticate(), leagueOfLegendsGetSummonerId(), updatePlayer)
 	//g.GET("/teams/:id", storeUrlId(), leagueOfLegendsGetTeamInformation)
 	//g.GET("/tournamentCode/:id", storeUrlId(), getTournamentCodeForGame)
-
 }

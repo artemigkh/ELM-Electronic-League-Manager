@@ -212,7 +212,7 @@ func (d *LeagueOfLegendsSqlDao) GetPlayerStats(leagueId int) ([]*dataModel.LoLPl
 
 	defer rows.Close()
 
-	var allPlayerStats []*dataModel.LoLPlayerStats
+	allPlayerStats := make([]*dataModel.LoLPlayerStats, 0)
 
 	for rows.Next() {
 		var playerStats dataModel.LoLPlayerStats
@@ -267,7 +267,7 @@ func (d *LeagueOfLegendsSqlDao) GetTeamStats(leagueId int) ([]*dataModel.LoLTeam
 
 	defer rows.Close()
 
-	var allTeamStats []*dataModel.LoLTeamStats
+	allTeamStats := make([]*dataModel.LoLTeamStats, 0)
 	for rows.Next() {
 		var teamStats dataModel.LoLTeamStats
 		err := rows.Scan(
@@ -308,7 +308,7 @@ func (d *LeagueOfLegendsSqlDao) GetChampionStats(leagueId int) ([]*dataModel.LoL
 
 	defer rows.Close()
 
-	var allChampStats []*dataModel.LoLChampionStats
+	allChampStats := make([]*dataModel.LoLChampionStats, 0)
 
 	for rows.Next() {
 		var champStats dataModel.LoLChampionStats
@@ -383,4 +383,78 @@ func (d *LeagueOfLegendsSqlDao) GetLoLTeamStub(teamId int) (*dataModel.LoLTeamSt
 		return nil, err
 	}
 	return GetScannedLoLTeamStub(rows)
+}
+
+func (d *LeagueOfLegendsSqlDao) GetAllLoLTeamStubInLeague(leagueId int) ([]*dataModel.LoLTeamStub, error) {
+	rows, err := getLoLTeamStubSelector().
+		Where("team.league_id = ?", leagueId).
+		RunWith(db).Query()
+	if err != nil {
+		return nil, err
+	}
+	return GetScannedAllLoLTeamStubs(rows)
+}
+
+func (d *LeagueOfLegendsSqlDao) CreateLoLTeamWithPlayers(
+	leagueId,
+	userId int,
+	teamInfo dataModel.TeamCore,
+	players []*dataModel.LoLPlayerCore,
+	iconSmall, iconLarge string) (int, error) {
+
+	// Create new team based on icon status
+	var teamId int
+	var err error
+	if len(iconSmall)+len(iconLarge) > 0 {
+		teamId, err = teamsDAO.CreateTeamWithIcon(leagueId, userId, teamInfo, iconSmall, iconLarge)
+	} else {
+		teamId, err = teamsDAO.CreateTeam(leagueId, userId, teamInfo)
+	}
+	if err != nil {
+		return -1, err
+	}
+
+	if players == nil || len(players) == 0 {
+		return teamId, nil
+	}
+	// Insert all players
+	insertBuilder := psql.Insert("player").
+		Columns(
+			"team_id",
+			"league_id",
+			"game_identifier",
+			"name",
+			"main_roster",
+			"external_id",
+			"position",
+		)
+
+	for _, player := range players {
+		insertBuilder = insertBuilder.Values(
+			teamId,
+			leagueId,
+			player.GameIdentifier,
+			player.GameIdentifier,
+			player.MainRoster,
+			player.ExternalId,
+			player.Position,
+		)
+	}
+
+	_, err = insertBuilder.RunWith(db).Exec()
+	if err != nil {
+		//TODO: make sure permission table entries also deleted here with cascade
+
+		//"rollback" delete the created team if this insertion failed
+		_, delErr := psql.Delete("team").
+			Where("team_id = ?", teamId).
+			RunWith(db).Exec()
+		if delErr != nil {
+			return -1, delErr
+		} else {
+			return -1, err
+		}
+	} else {
+		return teamId, nil
+	}
 }

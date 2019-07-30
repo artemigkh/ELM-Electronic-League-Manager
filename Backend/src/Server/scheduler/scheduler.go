@@ -5,11 +5,16 @@ import (
 	"github.com/pkg/errors"
 	"math"
 	"sort"
+	"strings"
 	"time"
 )
 
 func (s *Scheduler) GetTournamentFromString(tournament string) int {
 	return tournamentStringToEnum[tournament]
+}
+func (s *Scheduler) IsTournamentTypeSupported(tournament string) bool {
+	_, ok := tournamentStringToEnum[strings.ToLower(tournament)]
+	return ok
 }
 
 func (s *Scheduler) GetWeekdayFromString(weekday string) time.Weekday {
@@ -35,6 +40,16 @@ func leq(t1, t2 time.Time) bool {
 func (s *Scheduler) AddWeeklyAvailability(dayOfWeek time.Weekday, hour, minute int, duration time.Duration) {
 	fmt.Printf("League start: %v\n", s.start.Format(time.UnixDate))
 	weekCursor := time.Time(s.start)
+	weekCursor = time.Date(
+		weekCursor.Year(),
+		weekCursor.Month(),
+		weekCursor.Day(),
+		hour,
+		minute,
+		0,
+		0,
+		weekCursor.Location(),
+	)
 	for weekCursor.Weekday() != dayOfWeek {
 		weekCursor = weekCursor.Add(time.Hour * 24)
 	}

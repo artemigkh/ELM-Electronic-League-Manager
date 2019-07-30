@@ -3,6 +3,7 @@ package validation
 import (
 	"Server/dataModel"
 	"github.com/pkg/errors"
+	"time"
 )
 
 func teamPermissions(userPermissions *dataModel.UserWithPermissions, teamId int) *dataModel.TeamPermissions {
@@ -39,7 +40,7 @@ func teamGames(userPermissions *dataModel.UserWithPermissions, teamId int) bool 
 }
 
 func (a *AccessChecker) Team(accessType AccessType, permissions *dataModel.UserWithPermissions,
-	teamDao dataModel.TeamDAO, leagueId, teamId int) (bool, error) {
+	teamDao dataModel.TeamDAO, leagueDao dataModel.LeagueDAO, leagueId, teamId int) (bool, error) {
 	switch accessType {
 	case View:
 		return teamDao.DoesTeamExistInLeague(leagueId, teamId)
@@ -63,8 +64,19 @@ func (a *AccessChecker) Team(accessType AccessType, permissions *dataModel.UserW
 			return false, nil
 		}
 	case Create:
-		return permissions.LeaguePermissions.Administrator ||
-			permissions.LeaguePermissions.CreateTeams, nil
+		if permissions.LeaguePermissions.Administrator || permissions.LeaguePermissions.CreateTeams {
+			return true, nil
+		} else {
+			// if during signup period and allows public signups
+			leagueInfo, err := leagueDao.GetLeagueInformation(leagueId)
+			if err != nil {
+				return false, err
+			} else {
+				return leagueInfo.PublicJoin &&
+					time.Now().Unix() > int64(leagueInfo.SignupStart) &&
+					time.Now().Unix() < int64(leagueInfo.SignupEnd), nil
+			}
+		}
 	default:
 		return false, errors.New("invalid access type to check")
 	}

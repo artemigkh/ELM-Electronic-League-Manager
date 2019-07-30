@@ -34,7 +34,7 @@ func createNewTeam() gin.HandlerFunc {
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			_, err := ctx.FormFile("icon")
 			if err == nil {
-				smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+				smallIcon, largeIcon, err := IconManager.StoreNewIconFromForm(ctx)
 				if checkErr(ctx, err) {
 					return nil, err
 				}
@@ -45,6 +45,39 @@ func createNewTeam() gin.HandlerFunc {
 				teamId, err := TeamDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
 				return gin.H{"teamId": teamId}, err
 			}
+		},
+	}.createEndpointHandler()
+}
+
+func createNewTeamWithPlayers() gin.HandlerFunc {
+	return endpoint{
+		Entity:     Team,
+		AccessType: Create,
+		BindData: func(ctx *gin.Context) bool {
+			team := dataModel.TeamWithPlayersCore{}
+			bindSuccessful := bindAndCheckErr(ctx, &team)
+			ctx.Set("boundReqData", team)
+			return bindSuccessful
+		},
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			boundReqData, _ := ctx.Get("boundReqData")
+			team := boundReqData.(dataModel.TeamWithPlayersCore)
+			return team.Validate(getLeagueId(ctx), TeamDAO)
+		},
+		Core: func(ctx *gin.Context) (interface{}, error) {
+			boundReqData, _ := ctx.Get("boundReqData")
+			team := boundReqData.(dataModel.TeamWithPlayersCore)
+			var err error
+			smallIcon := ""
+			largeIcon := ""
+			if len(team.Icon) > 0 {
+				smallIcon, largeIcon, err = IconManager.StoreNewIconFromBase64String(team.Icon)
+				if checkErr(ctx, err) {
+					return nil, err
+				}
+			}
+			return TeamDAO.CreateTeamWithPlayers(
+				getLeagueId(ctx), getUserId(ctx), team.Team, team.Players, smallIcon, largeIcon)
 		},
 	}.createEndpointHandler()
 }
@@ -130,7 +163,7 @@ func editTeam() gin.HandlerFunc {
 
 			_, err = ctx.FormFile("icon")
 			if err == nil {
-				smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+				smallIcon, largeIcon, err := IconManager.StoreNewIconFromForm(ctx)
 				if checkErr(ctx, err) {
 					return nil, err
 				}
@@ -213,6 +246,7 @@ func deletePlayer() gin.HandlerFunc {
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.POST("/teams", createNewTeam())
+	g.POST("/teamsWithPlayers", createNewTeamWithPlayers())
 	g.GET("/teams", getAllTeams())
 	g.GET("/teamsWithRosters", getAllTeamsWithRosters())
 

@@ -33,8 +33,6 @@ func GetScannedUser(rows squirrel.RowScanner) (*dataModel.User, error) {
 		&user.UserId,
 		&user.Email,
 	); err != nil {
-		println("error here")
-		println(err.Error())
 		return nil, err
 	} else {
 		return &user, nil

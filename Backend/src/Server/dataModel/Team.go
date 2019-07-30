@@ -4,6 +4,7 @@ type TeamDAO interface {
 	// Teams
 	CreateTeam(leagueId, userId int, teamInfo TeamCore) (int, error)
 	CreateTeamWithIcon(leagueId, userId int, teamInfo TeamCore, iconSmall, iconLarge string) (int, error)
+	CreateTeamWithPlayers(leagueId, userId int, teamInfo TeamCore, players []PlayerCore, iconSmall, iconLarge string) (int, error)
 	DeleteTeam(teamId int) error
 	UpdateTeam(teamId int, teamInformation TeamCore) error
 	UpdateTeamIcon(teamId int, small, large string) error
@@ -29,69 +30,47 @@ type TeamDAO interface {
 	ChangeManagerPermissions(teamId, userId int, teamPermissionInformation TeamPermissionsCore) error
 }
 
-type TeamCore struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Tag         string `json:"tag"`
+type TeamWithPlayersCore struct {
+	Team    TeamCore     `json:"team"`
+	Icon    string       `json:"icon"`
+	Players []PlayerCore `json:"players"`
 }
 
-// TeamCore
-func (team *TeamCore) validate(leagueId, teamId int, teamDao TeamDAO) (bool, string, error) {
-	return validate(
-		team.name(),
-		team.uniqueness(leagueId, teamId, teamDao),
-		team.tag())
-}
-
-func (team *TeamCore) ValidateNew(leagueId int, teamDao TeamDAO) (bool, string, error) {
-	return team.validate(leagueId, 0, teamDao)
-}
-
-func (team *TeamCore) ValidateEdit(leagueId, teamId int, teamDao TeamDAO) (bool, string, error) {
-	return team.validate(leagueId, teamId, teamDao)
-}
-
-func (team *TeamCore) name() ValidateFunc {
-	return func(problemDest *string, _ *error) bool {
-		valid := false
-		if len(team.Name) > MaxNameLength {
-			*problemDest = NameTooLong
-		} else if len(team.Name) < MinInformationLength {
-			*problemDest = NameTooShort
-		} else {
-			valid = true
-		}
-		return valid
+func (team *TeamWithPlayersCore) Validate(leagueId int, teamDao TeamDAO) (bool, string, error) {
+	valid, problem, err := team.Team.ValidateNew(leagueId, teamDao)
+	if !valid || problem != "" || err != nil {
+		return valid, problem, err
 	}
-}
 
-func (team *TeamCore) uniqueness(leagueId, teamId int, teamDao TeamDAO) ValidateFunc {
-	return func(problemDest *string, errorDest *error) bool {
-		valid := false
-		inUse, problem, err := teamDao.IsInfoInUse(leagueId, teamId, team.Name, team.Tag)
-		if err != nil {
-			*errorDest = err
-		} else if inUse {
-			*problemDest = problem
-		} else {
-			valid = true
+	// Check that each player is unique from the other non-existing players
+	for i := 0; i < len(team.Players); i++ {
+		otherPlayers := make([]*Player, 0)
+		for j := 0; j < len(team.Players); j++ {
+			if i != j {
+				otherPlayers = append(otherPlayers, &Player{
+					PlayerId:       0,
+					Name:           team.Players[j].Name,
+					GameIdentifier: team.Players[j].GameIdentifier,
+					MainRoster:     team.Players[j].MainRoster,
+				})
+			}
 		}
-		return valid
-	}
-}
 
-func (team *TeamCore) tag() ValidateFunc {
-	return func(problemDest *string, _ *error) bool {
-		valid := false
-		if len(team.Tag) > MaxTagLength {
-			*problemDest = TagTooLong
-		} else if len(team.Tag) < MinInformationLength {
-			*problemDest = TagTooShort
-		} else {
-			valid = true
+		valid, problem := team.Players[i].uniqueness(-1, otherPlayers)
+		if !valid {
+			return false, problem, nil
 		}
-		return valid
 	}
+
+	// Validate each player normally
+	for _, player := range team.Players {
+		valid, problem, err := player.ValidateNew(leagueId, -1, teamDao)
+		if !valid || problem != "" || err != nil {
+			return valid, problem, err
+		}
+	}
+
+	return true, "", nil
 }
 
 type TeamWithPlayers struct {
@@ -147,4 +126,80 @@ type TeamDisplay struct {
 	IconSmall string `json:"iconSmall"`
 	Wins      int    `json:"wins"`
 	Losses    int    `json:"losses"`
+}
+
+type TeamCore struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Tag         string `json:"tag"`
+}
+
+func (team *TeamCore) validate(leagueId, teamId int, teamDao TeamDAO) (bool, string, error) {
+	return validate(
+		team.name(),
+		team.uniqueness(leagueId, teamId, teamDao),
+		team.tag(),
+		team.description())
+}
+
+func (team *TeamCore) ValidateNew(leagueId int, teamDao TeamDAO) (bool, string, error) {
+	return team.validate(leagueId, 0, teamDao)
+}
+
+func (team *TeamCore) ValidateEdit(leagueId, teamId int, teamDao TeamDAO) (bool, string, error) {
+	return team.validate(leagueId, teamId, teamDao)
+}
+
+func (team *TeamCore) name() ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		valid := false
+		if len(team.Name) > MaxNameLength {
+			*problemDest = NameTooLong
+		} else if len(team.Name) < MinInformationLength {
+			*problemDest = NameTooShort
+		} else {
+			valid = true
+		}
+		return valid
+	}
+}
+
+func (team *TeamCore) uniqueness(leagueId, teamId int, teamDao TeamDAO) ValidateFunc {
+	return func(problemDest *string, errorDest *error) bool {
+		valid := false
+		inUse, problem, err := teamDao.IsInfoInUse(leagueId, teamId, team.Name, team.Tag)
+		if err != nil {
+			*errorDest = err
+		} else if inUse {
+			*problemDest = problem
+		} else {
+			valid = true
+		}
+		return valid
+	}
+}
+
+func (team *TeamCore) tag() ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		valid := false
+		if len(team.Tag) > MaxTagLength {
+			*problemDest = TagTooLong
+		} else if len(team.Tag) < MinInformationLength {
+			*problemDest = TagTooShort
+		} else {
+			valid = true
+		}
+		return valid
+	}
+}
+
+func (team *TeamCore) description() ValidateFunc {
+	return func(problemDest *string, _ *error) bool {
+		if len(team.Description) > MaxDescriptionLength {
+			*problemDest = DescriptionTooLong
+			return false
+		} else {
+			return true
+		}
+	}
 }

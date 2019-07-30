@@ -12,10 +12,12 @@ import (
 func createNewAvailability() gin.HandlerFunc {
 	var availability dataModel.AvailabilityCore
 	return endpoint{
-		Entity:        Availability,
-		AccessType:    Create,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &availability) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return availability.Validate(getLeagueId(ctx)) },
+		Entity:     Availability,
+		AccessType: Create,
+		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &availability) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return availability.Validate(getLeagueId(ctx), LeagueDAO)
+		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			availabilityId, err := LeagueDAO.AddAvailability(getLeagueId(ctx), availability)
 			return gin.H{"availabilityId": availabilityId}, err
@@ -49,10 +51,12 @@ func deleteAvailability() gin.HandlerFunc {
 func createNewWeeklyAvailability() gin.HandlerFunc {
 	var availability dataModel.WeeklyAvailabilityCore
 	return endpoint{
-		Entity:        Availability,
-		AccessType:    Create,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &availability) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return availability.ValidateNew(getLeagueId(ctx)) },
+		Entity:     Availability,
+		AccessType: Create,
+		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &availability) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return availability.ValidateNew(getLeagueId(ctx), LeagueDAO)
+		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			availabilityId, err := LeagueDAO.AddWeeklyAvailability(getLeagueId(ctx), availability)
 			return gin.H{"availabilityId": availabilityId}, err
@@ -90,7 +94,7 @@ func editWeeklyAvailability() gin.HandlerFunc {
 		AccessType: Create,
 		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &availability) },
 		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return availability.ValidateEdit(getLeagueId(ctx), getAvailabilityId(ctx))
+			return availability.ValidateEdit(getLeagueId(ctx), getAvailabilityId(ctx), LeagueDAO)
 		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			return nil, LeagueDAO.EditWeeklyAvailability(getAvailabilityId(ctx), availability)
@@ -160,7 +164,7 @@ func generateSchedule() gin.HandlerFunc {
 			scheduledGames, err := s.GetSchedule()
 			if err != nil {
 				print(err.Error())
-				return nil, err
+				return gin.H{"errorDescription": err.Error()}, err
 			}
 
 			fmt.Printf("games: %+v\n", scheduledGames)

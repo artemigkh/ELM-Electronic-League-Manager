@@ -130,12 +130,12 @@ func HasPermissions(ctx *gin.Context, entity Entity, accessType validation.Acces
 		if accessType != Create {
 			entityId = getTeamId(ctx)
 		}
-		hasPermissions, err = Access.Team(accessType, permissions, TeamDAO, leagueId, entityId)
+		hasPermissions, err = Access.Team(accessType, permissions, TeamDAO, LeagueDAO, leagueId, entityId)
 	case Player:
 		if accessType != Create {
 			entityId = getPlayerId(ctx)
 		}
-		hasPermissions, err = Access.Player(accessType, permissions, TeamDAO, leagueId, getTeamId(ctx), entityId)
+		hasPermissions, err = Access.Player(accessType, permissions, TeamDAO, LeagueDAO, leagueId, getTeamId(ctx), entityId)
 	case Game:
 		if accessType != Create {
 			entityId = getGameId(ctx)
@@ -186,7 +186,7 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 		}
 		// Perform the core action of the endpoint
 		returnData, err := e.Core(ctx)
-		if checkErr(ctx, err) {
+		if returnData == nil && checkErr(ctx, err) {
 			return
 		}
 		// Return status and data if exists to router
@@ -196,6 +196,8 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 			} else {
 				ctx.Status(http.StatusOK)
 			}
+		} else if returnData != nil && err != nil {
+			ctx.JSON(http.StatusBadRequest, returnData)
 		} else {
 			if e.AccessType == Create {
 				ctx.JSON(http.StatusCreated, returnData)

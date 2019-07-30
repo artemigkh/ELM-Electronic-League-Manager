@@ -25,10 +25,12 @@ func createNewLeague() gin.HandlerFunc {
 func updateLeagueInfo() gin.HandlerFunc {
 	var league dataModel.LeagueCore
 	return endpoint{
-		Entity:        League,
-		AccessType:    Edit,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &league) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return league.ValidateEdit(getLeagueId(ctx), LeagueDAO) },
+		Entity:     League,
+		AccessType: Edit,
+		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &league) },
+		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+			return league.ValidateEdit(getLeagueId(ctx), LeagueDAO, GameDAO)
+		},
 		Core: func(ctx *gin.Context) (interface{}, error) {
 			return nil, LeagueDAO.UpdateLeague(getLeagueId(ctx), league)
 		},

@@ -19,12 +19,18 @@ export class TeamCore {
     name: string = "";
     description: string = "";
     tag: string = "";
+
+    constructor(name: string, description: string, tag: string) {
+        this.name = name;
+        this.description = description;
+        this.tag = tag;
+    }
 }
 export interface TeamCoreWithIcon {
     name: string;
     description?: string;
     tag: string;
-    icon: string; // binary
+    icon: string; // binary for form
 }
 export interface TeamDisplay {
     teamId: number;
@@ -115,6 +121,14 @@ export interface TeamWithRosters {
     losses: number;
     mainRoster: Player[];
     substituteRoster: Player[];
+}
+
+export function getEmptyTeamWithRosters(): TeamWithRosters {
+    // @ts-ignore
+    return {
+        mainRoster: [],
+        substituteRoster: []
+    }
 }
 
 export interface LoLTeamWithRosters extends TeamWithRosters{

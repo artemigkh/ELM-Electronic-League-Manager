@@ -18,7 +18,7 @@ import {NGXLogger} from "ngx-logger";
 import {TeamsService} from "../../../../httpServices/teams.service";
 import {EventDisplayerService} from "../../../../shared/eventDisplayer/event-displayer.service";
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
-import {LoLPlayer, Player} from "../../../../interfaces/Player";
+import {createUniqueLoLPlayer, createUniquePlayer, LoLPlayer, Player} from "../../../../interfaces/Player";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Action} from "../../../actions";
 
@@ -40,6 +40,9 @@ class LoLPlayerData {
     teamId: number;
     positions: Position[];
     onSuccess: (player?: LoLPlayer) => void;
+    sendToServer: boolean;
+    localPlayers: Player[];
+    mainRoster: boolean;
 }
 
 @Component({
@@ -70,15 +73,19 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
     }
 
     setTeam(team: TeamWithRosters) {
-        this.teamsService.getTeamWithRosters(team.teamId.toString()).subscribe(
-            (team: LoLTeamWithRosters) => {
-                this.team = team;
-                this.team.mainRoster.forEach(player => {
-                   this.selectPosition(player.position);
-                });
-            },
-            error => this.log.error(error)
-        );
+        if (this.sendToServer) {
+            this.teamsService.getTeamWithRosters(team.teamId.toString()).subscribe(
+                (team: LoLTeamWithRosters) => {
+                    this.team = team;
+                    this.team.mainRoster.forEach(player => {
+                        this.selectPosition(player.position);
+                    });
+                },
+                error => this.log.error(error)
+            );
+        } else {
+            this.team = <LoLTeamWithRosters>team;
+        }
     }
 
     getPositionIcon(player: LoLPlayer): string {
@@ -88,8 +95,11 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
     createLoLPlayer(mainRoster: boolean): void {
         this.dialog.open(ManageLoLPlayerPopup, {
             data: <LoLPlayerData>{
+                sendToServer: this.sendToServer,
+                localPlayers: this.team.mainRoster.concat(this.team.substituteRoster),
+                mainRoster: mainRoster,
                 action: Action.Create,
-                player: new LoLPlayer(mainRoster),
+                player: createUniqueLoLPlayer(mainRoster, () => this.internalPlayerIndex--),
                 teamId: this.team.teamId,
                 positions: this.positions,
                 onSuccess: (player => {
@@ -106,6 +116,9 @@ export class ManagePlayersTeamLeagueOfLegendsComponent extends ManagePlayersTeam
         let oldPosition = player.position;
         this.dialog.open(ManageLoLPlayerPopup, {
             data: <LoLPlayerData>{
+                sendToServer: this.sendToServer,
+                localPlayers: this.team.mainRoster.concat(this.team.substituteRoster),
+                mainRoster: player.mainRoster,
                 action: Action.Edit,
                 player: player,
                 teamId: this.team.teamId,
@@ -147,9 +160,13 @@ export class ManageLoLPlayerPopup {
         private formBuilder: FormBuilder) {
         this.title = this.data.action == Action.Create ? "Create New Player" : "Edit Player";
         this.playerForm = this.formBuilder.group({
-            'gameIdentifier': [this.data.player.gameIdentifier, [Validators.required, Validators.minLength(2), Validators.maxLength(25)]],
-            'position': [this.data.player.position],
-        });
+            'gameIdentifier': [this.data.player.gameIdentifier, [Validators.required, Validators.minLength(2), Validators.maxLength(25)],
+                this.teamsService.validateGameIdentifierUniqueness(this.data.player.playerId, this.data.localPlayers)],
+            'position': [this.data.player.position, [p => {
+                console.log(p.value);
+                return !this.data.mainRoster || (p.value != null && p.value.length > 0) ? null : {'mainRosterMustHavePosition': true}
+            }]],
+        })
     }
 
     onCancel(): void {
@@ -158,27 +175,36 @@ export class ManageLoLPlayerPopup {
 
     savePlayer(): void {
         ['gameIdentifier', 'position'].forEach(k => this.data.player[k] = this.playerForm.value[k]);
-        if(this.data.action == Action.Create) {
-            this.teamsService.createPlayer(this.data.teamId, this.data.player).subscribe(
-                res => {
-                    this.data.player.playerId = res.playerId;
-                    this.data.onSuccess(this.data.player);
-                    this.dialogRef.close();
-                }, error => {
-                    this.log.error(error);
-                    this.dialogRef.close();
-                }
-            );
-        } else if(this.data.action == Action.Edit) {
-            this.teamsService.updatePlayer(this.data.teamId, this.data.player.playerId, this.data.player).subscribe(
-                () => {
-                    this.data.onSuccess();
-                    this.dialogRef.close();
-                }, error => {
-                    this.log.error(error);
-                    this.dialogRef.close();
-                }
-            );
+        if (this.data.sendToServer) {
+            if(this.data.action == Action.Create) {
+                this.teamsService.createPlayer(this.data.teamId, this.data.player).subscribe(
+                    res => {
+                        this.data.player.playerId = res.playerId;
+                        this.data.onSuccess(this.data.player);
+                        this.dialogRef.close();
+                    }, error => {
+                        this.log.error(error);
+                        this.dialogRef.close();
+                    }
+                );
+            } else if(this.data.action == Action.Edit) {
+                this.teamsService.updatePlayer(this.data.teamId, this.data.player.playerId, this.data.player).subscribe(
+                    () => {
+                        this.data.onSuccess();
+                        this.dialogRef.close();
+                    }, error => {
+                        this.log.error(error);
+                        this.dialogRef.close();
+                    }
+                );
+            }
+        } else {
+            if(this.data.action == Action.Create) {
+                this.data.onSuccess(this.data.player);
+            } else if(this.data.action == Action.Edit) {
+                this.data.onSuccess();
+            }
+            this.dialogRef.close();
         }
     }
 }

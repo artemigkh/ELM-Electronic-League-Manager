@@ -8,7 +8,7 @@ import {EventDisplayerService} from "../../../shared/eventDisplayer/event-displa
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Action} from "../../actions";
-import {Player} from "../../../interfaces/Player";
+import {createUniquePlayer, Player} from "../../../interfaces/Player";
 import {ManageTeamPopup} from "../../teams/manage-teams";
 import {WarningPopup, WarningPopupData} from "../../warningPopup/warning-popup";
 
@@ -16,6 +16,8 @@ class PlayerData {
     action: Action;
     player: Player;
     teamId: number;
+    sendToServer: boolean;
+    localPlayers: Player[];
     onSuccess: (player?: Player) => void;
 }
 
@@ -25,12 +27,15 @@ class PlayerData {
     styleUrls: ['./manage-players-team.scss'],
 })
 export class ManagePlayersTeamComponent implements ManageComponentInterface{
+    sendToServer: boolean;
     team: TeamWithRosters;
+    internalPlayerIndex: number;
     constructor(public state: ElmState,
                 public log: NGXLogger,
                 public teamsService: TeamsService,
                 public eventDisplayer: EventDisplayerService,
                 public dialog: MatDialog) {
+        this.internalPlayerIndex = -1;
     }
 
     setTeam(team: TeamWithRosters) {
@@ -40,8 +45,10 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
     private createPlayer(mainRoster: boolean) {
         this.dialog.open(ManagePlayerPopup, {
             data: <PlayerData>{
+                sendToServer: this.sendToServer,
+                localPlayers: this.team.mainRoster.concat(this.team.substituteRoster),
                 action: Action.Create,
-                player: new Player(mainRoster),
+                player: createUniquePlayer(mainRoster, () => this.internalPlayerIndex--),
                 teamId: this.team.teamId,
                 onSuccess: (player => {
                     this.eventDisplayer.displaySuccess("Player Successfully Created");
@@ -55,6 +62,8 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
     private editPlayer(player: Player) {
         this.dialog.open(ManagePlayerPopup, {
             data: <PlayerData>{
+                sendToServer: this.sendToServer,
+                localPlayers: this.team.mainRoster.concat(this.team.substituteRoster),
                 action: Action.Edit,
                 player: player,
                 teamId: this.team.teamId,
@@ -84,25 +93,34 @@ export class ManagePlayersTeamComponent implements ManageComponentInterface{
     }
 
     deletePlayer(player: Player) {
-        this.dialog.open(WarningPopup, {
-            data: <WarningPopupData>{
-                entity: "player",
-                name: player.name,
-                onAccept: () => this._deletePlayer(player)
-            },
-            autoFocus: false, width: '500px'
-        });
+        if (this.sendToServer) {
+            this.dialog.open(WarningPopup, {
+                data: <WarningPopupData>{
+                    entity: "player",
+                    name: player.name,
+                    onAccept: () => this._deletePlayer(player)
+                },
+                autoFocus: false, width: '500px'
+            });
+        } else {
+            this.removePlayerFromRoster(player.playerId, player.mainRoster);
+        }
     }
 
     movePlayerRoster(player: Player, isDestinationMainRoster: boolean) {
         player.mainRoster = isDestinationMainRoster;
-        this.teamsService.updatePlayer(this.team.teamId, player.playerId, player).subscribe(
-            () => {
-                this.eventDisplayer.displaySuccess("Player Successfully Moved");
-                this.removePlayerFromRoster(player.playerId, !isDestinationMainRoster);
-                isDestinationMainRoster? this.team.mainRoster.push(player) : this.team.substituteRoster.push(player);
-            }, error => this.log.error(error)
-        );
+        if (this.sendToServer) {
+            this.teamsService.updatePlayer(this.team.teamId, player.playerId, player).subscribe(
+                () => {
+                    this.eventDisplayer.displaySuccess("Player Successfully Moved");
+                    this.removePlayerFromRoster(player.playerId, !isDestinationMainRoster);
+                    isDestinationMainRoster? this.team.mainRoster.push(player) : this.team.substituteRoster.push(player);
+                }, error => this.log.error(error)
+            );
+        } else {
+            this.removePlayerFromRoster(player.playerId, !isDestinationMainRoster);
+            isDestinationMainRoster? this.team.mainRoster.push(player) : this.team.substituteRoster.push(player);
+        }
     }
 }
 
@@ -124,7 +142,8 @@ export class ManagePlayerPopup {
         this.title = this.data.action == Action.Create ? "Create New Player" : "Edit Player";
         this.playerForm = this.formBuilder.group({
             'name': [this.data.player.name, [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
-            'gameIdentifier': [this.data.player.gameIdentifier, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
+            'gameIdentifier': [this.data.player.gameIdentifier, [Validators.required, Validators.minLength(1), Validators.maxLength(25)],
+                this.teamsService.validateGameIdentifierUniqueness(this.data.player.playerId, this.data.localPlayers)],
         });
     }
 
@@ -134,27 +153,36 @@ export class ManagePlayerPopup {
 
     savePlayer(): void {
         ['name', 'gameIdentifier'].forEach(k => this.data.player[k] = this.playerForm.value[k]);
-        if(this.data.action == Action.Create) {
-            this.teamsService.createPlayer(this.data.teamId, this.data.player).subscribe(
-                res => {
-                    this.data.player.playerId = res.playerId;
-                    this.data.onSuccess(this.data.player);
-                    this.dialogRef.close();
-                }, error => {
-                    this.log.error(error);
-                    this.dialogRef.close();
-                }
-            );
-        } else if(this.data.action == Action.Edit) {
-            this.teamsService.updatePlayer(this.data.teamId, this.data.player.playerId, this.data.player).subscribe(
-                () => {
-                    this.data.onSuccess();
-                    this.dialogRef.close();
-                }, error => {
-                    this.log.error(error);
-                    this.dialogRef.close();
-                }
-            );
+        if (this.data.sendToServer) {
+            if(this.data.action == Action.Create) {
+                this.teamsService.createPlayer(this.data.teamId, this.data.player).subscribe(
+                    res => {
+                        this.data.player.playerId = res.playerId;
+                        this.data.onSuccess(this.data.player);
+                        this.dialogRef.close();
+                    }, error => {
+                        this.log.error(error);
+                        this.dialogRef.close();
+                    }
+                );
+            } else if(this.data.action == Action.Edit) {
+                this.teamsService.updatePlayer(this.data.teamId, this.data.player.playerId, this.data.player).subscribe(
+                    () => {
+                        this.data.onSuccess();
+                        this.dialogRef.close();
+                    }, error => {
+                        this.log.error(error);
+                        this.dialogRef.close();
+                    }
+                );
+            }
+        } else {
+            if(this.data.action == Action.Create) {
+                this.data.onSuccess(this.data.player);
+            } else if(this.data.action == Action.Edit) {
+                this.data.onSuccess();
+            }
+            this.dialogRef.close();
         }
     }
 }

@@ -10,6 +10,7 @@
         <mat-form-field hintLabel="Between 1 and 25 characters">
             <input matInput formControlName="gameIdentifier" #gameIdentifierInput maxlength="25" placeholder="Game Identifier" required>
             <mat-hint align="end">{{gameIdentifierInput.value?.length || 0}}/25</mat-hint>
+            <mat-error *ngIf="playerForm.get('gameIdentifier').getError('gameIdentifierInUse')">Game identifier already in use!</mat-error>
         </mat-form-field>
     </div>
 </div>
@@ -17,7 +18,7 @@
     <div class="action-bar-wrapper">
         <span class="spacer"></span>
         <span class="button-wrapper">
-        <button mat-raised-button (click)="onCancel()">Cancel</button>
+        <button mat-raised-button (click)="onCancel()" type="button">Cancel</button>
     </span>
         <span class="button-wrapper">
          <button mat-raised-button [disabled]="!playerForm.valid" type="submit">Confirm</button>

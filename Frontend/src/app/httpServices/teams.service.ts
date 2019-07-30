@@ -2,9 +2,17 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {httpOptions, httpOptionsForm} from "./http-options";
 import {Observable} from "rxjs/Rx";
-import {LoLTeamWithRosters, TeamId, TeamPermissionsCore, TeamWithPlayers, TeamWithRosters} from "../interfaces/Team";
-import {PlayerCore, PlayerId} from "../interfaces/Player";
+import {
+    LoLTeamWithRosters, Team, TeamCore,
+    TeamCoreWithIcon,
+    TeamId,
+    TeamPermissionsCore,
+    TeamWithPlayers,
+    TeamWithRosters
+} from "../interfaces/Team";
+import {Player, PlayerCore, PlayerId} from "../interfaces/Player";
 import {ElmState} from "../shared/state/state.service";
+import {AbstractControl, AsyncValidatorFn, ValidationErrors} from "@angular/forms";
 
 // function sortMainRosterByPosition(team: Team) {
 //     let sortedRoster = [];
@@ -68,6 +76,20 @@ export class TeamsService {
         });
     }
 
+    public createTeamWithPlayers(team: TeamCore, b64icon: string, players: PlayerCore[]): Observable<TeamId> {
+        return this.gameSpecificCall<TeamId>(game => {
+            let apiPrefix = '';
+            if (game == 'leagueoflegends') {
+                apiPrefix = '/lol'
+            }
+            return this.http.post<TeamId>('http://localhost:8080/api/v1' + apiPrefix + '/teamsWithPlayers', {
+                'team': team,
+                'icon': b64icon,
+                'players': players
+            }, httpOptions)
+        });
+    }
+
     public getLeagueTeams(): Observable<TeamWithPlayers[]> {
         return this.http.get<TeamWithPlayers[]>('http://localhost:8080/api/v1/teams', httpOptions)
     }
@@ -96,6 +118,84 @@ export class TeamsService {
     public updateTeamManagerPermissions(teamId: number, userId: number, permissions: TeamPermissionsCore) {
         return this.http.put<null>('http://localhost:8080/api/v1/teams/' + teamId + '/permissions/' + userId,
             permissions, httpOptions)
+    }
+
+    public validateTeamNameUniqueness(teamToValidateId: number): AsyncValidatorFn {
+        return (c: AbstractControl): Observable<ValidationErrors> | null => {
+            return new Observable(observer => {
+                this.getLeagueTeams().subscribe(
+                    teams => {
+                        teams.forEach(team => {
+                            if (team.teamId != teamToValidateId) {
+                                if (team.name.toLowerCase().replace(/\s/g,'') == c.value.toLowerCase().replace(/\s/g,'')) {
+                                    observer.next({'nameInUse': true});
+                                    observer.complete();
+                                    return;
+                                }
+                            }
+                            observer.next(null);
+                            observer.complete();
+                        });
+                    }, error => observer.error(error)
+                );
+            });
+        };
+    }
+
+    public validateTagUniqueness(teamToValidateId: number): AsyncValidatorFn {
+        return (c: AbstractControl): Observable<ValidationErrors> | null => {
+            return new Observable(observer => {
+                this.getLeagueTeams().subscribe(
+                    teams => {
+                        teams.forEach(team => {
+                            if (team.teamId != teamToValidateId) {
+                                if (team.tag.toLowerCase().replace(/\s/g,'')  == c.value.toLowerCase().replace(/\s/g,'')) {
+                                    observer.next({'tagInUse': true});
+                                    observer.complete();
+                                    return;
+                                }
+                            }
+                            observer.next(null);
+                            observer.complete();
+                        });
+                    }, error => observer.error(error)
+                );
+            });
+        };
+    }
+
+    public validateGameIdentifierUniqueness(playerToValidateId: number, localPlayers: Player[]): AsyncValidatorFn {
+        return (c: AbstractControl): Observable<ValidationErrors> | null => {
+            return new Observable(observer => {
+                localPlayers.forEach(player => {
+                    if (player.playerId != playerToValidateId) {
+                        if (player.gameIdentifier.toLowerCase().replace(/\s/g,'')  == c.value.toLowerCase().replace(/\s/g,'')) {
+                            observer.next({'gameIdentifierInUse': true});
+                            observer.complete();
+                            return;
+                        }
+                    }
+                });
+
+                this.getLeagueTeams().subscribe(
+                    teams => {
+                        teams.forEach(team => {
+                            team.players.forEach(player => {
+                                if (player.playerId != playerToValidateId) {
+                                    if (player.gameIdentifier.toLowerCase().replace(/\s/g,'')  == c.value.toLowerCase().replace(/\s/g,'')) {
+                                        observer.next({'gameIdentifierInUse': true});
+                                        observer.complete();
+                                        return;
+                                    }
+                                }
+                            });
+                        });
+                        observer.next(null);
+                        observer.complete();
+                    }, error => observer.error(error)
+                );
+            });
+        };
     }
 
     //

@@ -137,7 +137,7 @@ export class ManageTeamPopup {
     }
 
     saveTeam(): void {
-        Object.keys(new TeamCore).forEach(k => this.data.team[k] = this.teamForm.value[k]);
+        Object.keys(new TeamCore("", "", "")).forEach(k => this.data.team[k] = this.teamForm.value[k]);
         let form = new FormData();
         Object.keys(this.teamForm.value).forEach(k => form.append(k, this.teamForm.value[k]));
         if(this.data.action == Action.Create) {

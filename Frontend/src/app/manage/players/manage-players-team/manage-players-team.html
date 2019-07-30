@@ -4,7 +4,7 @@
         <div class="new-player-container">
             <span class="players-title">Players</span>
             <button mat-raised-button class="new-player" color="primary"
-                    (click)="createPlayer(true)">
+                    (click)="createPlayer(true)" type="button">
                 <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                 Add Player
             </button>
@@ -23,7 +23,7 @@
                     <span class="spacer"></span>
 
                     <span class="control-button">
-                        <button mat-icon-button color="primary"
+                        <button mat-icon-button color="primary" type="button"
                                 (click)="editPlayer(player)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                         </button>
@@ -36,7 +36,7 @@
                     </span>
 
                     <span class="control-button move">
-                        <button mat-icon-button (click)="movePlayerRoster(player, false)">
+                        <button mat-icon-button (click)="movePlayerRoster(player, false)" type="button">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-caret-down"></mat-icon>
                         </button>
                     </span>
@@ -47,7 +47,7 @@
     <div class="players">
         <div class="new-player-container">
             <span class="players-title">Substitutes</span>
-            <button mat-raised-button class="new-player" color="primary"
+            <button mat-raised-button class="new-player" color="primary" type="button"
                     (click)="createPlayer(false)">
                 <mat-icon inline="true" fontSet="fa" fontIcon="fa-plus-square"></mat-icon>
                 Add Substitute
@@ -66,20 +66,20 @@
                     <span class="spacer"></span>
 
                     <span class="control-button">
-                        <button mat-icon-button color="primary"
+                        <button mat-icon-button color="primary" type="button"
                                 (click)="editPlayer(player)">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-pencil"></mat-icon>
                         </button>
                     </span>
 
                     <span class="control-button delete">
-                        <button mat-icon-button (click)="deletePlayer(player)">
+                        <button mat-icon-button (click)="deletePlayer(player)" type="button">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-trash"></mat-icon>
                         </button>
                     </span>
 
                     <span class="control-button move">
-                        <button mat-icon-button (click)="movePlayerRoster(player, true)">
+                        <button mat-icon-button (click)="movePlayerRoster(player, true)" type="button">
                             <mat-icon inline="true" fontSet="fa" fontIcon="fa-caret-up"></mat-icon>
                         </button>
                     </span>

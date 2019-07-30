@@ -13,39 +13,33 @@ mat-divider {
     margin-left: 20%;
 }
 
-.content-wrapper {
+.content-wrapper-column {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    .team-name {
-        width: 70%;
-        margin: 10px;
-    }
-    .tag {
-        width: 30%;
-        margin: 10px;
-    }
+    flex-direction: column;
+    justify-content: start;
+    padding: 10px;
+    width: 50%;
 
-    .description {
-        margin: 10px;
-        width: 100%;
-    }
-
-    &.icons {
+    .icon-upload {
+        height: 20%;
         justify-content: left;
         margin-top: 15px;
         margin-bottom: 15px;
-        .icon-upload {
-            margin: 10px;
-            font-weight: 400;
-            //width: 50%;
-            color: rgba(0, 0, 0, 0.54);
-            input {
-                margin-top: 10px;
-            }
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.54);
+        input {
+            margin-top: 10px;
         }
     }
 
+    .icon-display {
+        height: 80%;
+    }
 }
 
-
+.content-wrapper-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 20px;
+}

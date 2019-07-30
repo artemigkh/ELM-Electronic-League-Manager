@@ -12,8 +12,6 @@ import {ManagePlayersTeamComponent} from "./manage-players-team";
 import {ManageComponentInterface} from "../../manage-component-interface";
 import {ElmState} from "../../../shared/state/state.service";
 import {NGXLogger} from "ngx-logger";
-import {LeagueOfLegendsPlayerEntry} from "../../../teams/playerEntry/league-of-legends-player-entry";
-import {GenericPlayerEntry} from "../../../teams/playerEntry/generic-player-entry";
 import {ManagePlayersTeamLeagueOfLegendsComponent} from "./league-of-legends/manage-players-team-league-of-legends";
 
 @Directive({
@@ -29,6 +27,7 @@ export class ManagePlayersTeamDirective {
 })
 export class ManagePlayersTeamContainerComponent implements OnInit, OnChanges  {
     @Input() team: TeamWithRosters;
+    @Input() sendToServer: boolean = true;
     @ViewChild(ManagePlayersTeamDirective) managePlayersTeamHost: ManagePlayersTeamDirective;
 
     game: string;
@@ -54,6 +53,7 @@ export class ManagePlayersTeamContainerComponent implements OnInit, OnChanges  {
         let componentFactory = this.componentFactoryResolver.resolveComponentFactory(ManagePlayersTeamContainerComponent.getComponent(this.game));
         let componentRef = this.managePlayersTeamHost.viewContainerRef.createComponent(componentFactory);
 
+        (<ManagePlayersTeamComponent>componentRef.instance).sendToServer = this.sendToServer;
         (<ManagePlayersTeamComponent>componentRef.instance).setTeam(this.team);
     }
 

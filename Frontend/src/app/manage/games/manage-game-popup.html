@@ -55,7 +55,7 @@
         <button mat-raised-button (click)="onCancel()">Cancel</button>
     </span>
     <span class="button-wrapper">
-         <button mat-raised-button (click)="onConfirm()">Confirm</button>
+         <button mat-raised-button [disabled]="!requiredFieldsPresent()" (click)="onConfirm()">Confirm</button>
     </span>
         <span class="spacer"></span>
     </div>

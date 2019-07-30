@@ -69,6 +69,7 @@
         </mat-form-field>
     </span>
 </div>
+<div *ngIf="schedulingError"><mat-error>Generating a schedule for this tournament failed for the following reason: {{schedulingError}}</mat-error></div>
 <div>
     <span>
         <button mat-flat-button color="primary" (click)="generateSchedule()" class="generate">Generate Schedule</button>

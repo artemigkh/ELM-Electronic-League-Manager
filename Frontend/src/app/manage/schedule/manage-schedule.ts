@@ -39,6 +39,7 @@ export class ManageScheduleComponent implements OnInit {
     league: League;
     tentativeSchedule: GameCore[];
     weeks: Week[];
+    schedulingError: String;
 
     constructor(private log: NGXLogger,
                 private state: ElmState,
@@ -130,8 +131,11 @@ export class ManageScheduleComponent implements OnInit {
 
     generateSchedule() {
         this.leagueService.generateSchedule(this.schedulingParameters).subscribe(
-            tentativeSchedule => this._generateSchedule(tentativeSchedule),
-            error => this.eventDisplayer.displayError(error)
+            tentativeSchedule => {
+                this._generateSchedule(tentativeSchedule);
+                this.schedulingError = null;
+            },
+            error => error.status == 400 ? this.schedulingError = error.error.errorDescription : this.eventDisplayer.displayError(error)
         );
     }
 

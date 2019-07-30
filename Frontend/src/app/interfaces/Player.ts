@@ -8,6 +8,12 @@ export class Player implements PlayerCore{
     }
 }
 
+export function createUniquePlayer(mainRoster: boolean, uniqueIdFunc: () => number): Player {
+    let newPlayer = new Player(mainRoster);
+    newPlayer.playerId = uniqueIdFunc();
+    return newPlayer;
+}
+
 export class LoLPlayer extends Player {
     playerId: number;
     name: string;
@@ -21,6 +27,13 @@ export class LoLPlayer extends Player {
         this.mainRoster = mainRoster;
     }
 }
+
+export function createUniqueLoLPlayer(mainRoster: boolean, uniqueIdFunc: () => number): LoLPlayer {
+    let newPlayer = new LoLPlayer(mainRoster);
+    newPlayer.playerId = uniqueIdFunc();
+    return newPlayer;
+}
+
 export interface PlayerCore {
     name: string;
     gameIdentifier: string;

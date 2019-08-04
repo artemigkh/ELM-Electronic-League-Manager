@@ -8,8 +8,9 @@ import (
 
 type UserSqlDao struct{}
 
-func (d *UserSqlDao) CreateUser(email, salt, hash string) error {
-	_, err := psql.Insert("user_").
+func (d *UserSqlDao) CreateUser(email, salt, hash string) (int, error) {
+	var userId int
+	if err := psql.Insert("user_").
 		Columns(
 			"email",
 			"salt",
@@ -19,8 +20,12 @@ func (d *UserSqlDao) CreateUser(email, salt, hash string) error {
 			strings.ToLower(email),
 			salt,
 			hash,
-		).RunWith(db).Exec()
-	return err
+		).
+		Suffix("RETURNING \"user_id\"").
+		RunWith(db).QueryRow().Scan(&userId); err != nil {
+		return -1, err
+	}
+	return userId, nil
 }
 
 func (d *UserSqlDao) IsEmailInUse(email string) (bool, error) {

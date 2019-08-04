@@ -130,7 +130,7 @@ func (gameResult *GameResult) Validate(gameId int, gameDao GameDAO) (bool, strin
 	if err != nil {
 		return false, "", err
 	} else {
-		return validate(gameResult.hasReportedTeams(gameInformation, gameDao))
+		return validate(gameResult.hasReportedTeams(gameInformation))
 	}
 }
 
@@ -139,22 +139,21 @@ func (gameResult *GameResult) ValidateByExternalId(externalGameId string, gameDa
 	if err != nil {
 		return false, "", err
 	} else {
-		return validate(gameResult.hasReportedTeams(gameInformation, gameDao))
+		return validate(gameResult.hasReportedTeams(gameInformation))
 	}
 }
 
-func (gameResult *GameResult) hasReportedTeams(gameInformation *Game, gameDao GameDAO) ValidateFunc {
+func (gameResult *GameResult) hasReportedTeams(gameInformation *Game) ValidateFunc {
 	return func(problemDest *string, _ *error) bool {
-		valid := false
 		if (gameInformation.Team1.TeamId == gameResult.WinnerId &&
 			gameInformation.Team2.TeamId == gameResult.LoserId) ||
 			(gameInformation.Team2.TeamId == gameResult.WinnerId &&
 				gameInformation.Team1.TeamId == gameResult.LoserId) {
-			*problemDest = GameDoesNotContainTeams
+			return true
 		} else {
-			valid = true
+			*problemDest = GameDoesNotContainTeams
+			return false
 		}
-		return valid
 	}
 }
 

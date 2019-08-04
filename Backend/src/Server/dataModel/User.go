@@ -3,7 +3,7 @@ package dataModel
 import "github.com/badoux/checkmail"
 
 type UserDAO interface {
-	CreateUser(email, salt, hash string) error
+	CreateUser(email, salt, hash string) (int, error)
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (*UserAuthenticationDTO, error)
 	GetUserProfile(userId int) (*User, error)

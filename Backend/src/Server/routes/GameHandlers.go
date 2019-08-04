@@ -70,19 +70,22 @@ func getGameInformation() gin.HandlerFunc {
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createGame
 func createNewGame() gin.HandlerFunc {
-	var game dataModel.GameCreationInformation
-	return endpoint{
-		Entity:     Game,
-		AccessType: Create,
-		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &game) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return game.Validate(getLeagueId(ctx), LeagueDAO, TeamDAO, GameDAO)
-		},
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			gameId, err := GameDAO.CreateGame(getLeagueId(ctx), getExternalGameId(ctx), game)
-			return gin.H{"gameId": gameId}, err
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var game dataModel.GameCreationInformation
+		endpoint{
+			Entity:     Game,
+			AccessType: Create,
+			BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &game) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return game.Validate(getLeagueId(ctx), LeagueDAO, TeamDAO, GameDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				gameId, err := GameDAO.CreateGame(getLeagueId(ctx), getExternalGameId(ctx), game)
+				return gin.H{"gameId": gameId}, err
+			},
+		}.createEndpointHandler()(ctx)
+	}
+
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/deleteGame
@@ -98,32 +101,36 @@ func deleteGame() gin.HandlerFunc {
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/rescheduleGame
 func rescheduleGame() gin.HandlerFunc {
-	var gameTime dataModel.GameTime
-	return endpoint{
-		Entity:     Game,
-		AccessType: Edit,
-		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameTime) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return gameTime.Validate(getLeagueId(ctx), getGameId(ctx), LeagueDAO, TeamDAO, GameDAO)
-		},
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, GameDAO.RescheduleGame(getGameId(ctx), gameTime.GameTime)
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var gameTime dataModel.GameTime
+		endpoint{
+			Entity:     Game,
+			AccessType: Edit,
+			BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameTime) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return gameTime.Validate(getLeagueId(ctx), getGameId(ctx), LeagueDAO, TeamDAO, GameDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				return nil, GameDAO.RescheduleGame(getGameId(ctx), gameTime.GameTime)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/reportGame
 func reportGameResult() gin.HandlerFunc {
-	var gameResult dataModel.GameResult
-	return endpoint{
-		Entity:        Game,
-		AccessType:    Edit,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameResult) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return gameResult.Validate(getLeagueId(ctx), GameDAO) },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, GameDAO.ReportGame(getGameId(ctx), gameResult)
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var gameResult dataModel.GameResult
+		endpoint{
+			Entity:        Game,
+			AccessType:    Edit,
+			BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &gameResult) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return gameResult.Validate(getGameId(ctx), GameDAO) },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				return nil, GameDAO.ReportGame(getGameId(ctx), gameResult)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 func RegisterGameHandlers(g *gin.RouterGroup) {

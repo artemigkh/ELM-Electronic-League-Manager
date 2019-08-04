@@ -103,15 +103,16 @@ func (d *GameSqlDao) AddExternalId(gameId int, externalId string) error {
 
 func (d *GameSqlDao) GetGameInformation(gameId int) (*dataModel.Game, error) {
 	row := getGameSelector().
-		Where("game_id = ?", gameId).
+		Where("game.game_id = ?", gameId).
 		RunWith(db).QueryRow()
 
 	return GetScannedGame(row)
 }
 
+//TODO: check all joins and see where clauses are correct
 func (d *GameSqlDao) GetGameInformationFromExternalId(externalId string) (*dataModel.Game, error) {
 	row := getGameSelector().
-		Where("external_id = ?", externalId).
+		Where("game.external_id = ?", externalId).
 		RunWith(db).QueryRow()
 
 	return GetScannedGame(row)

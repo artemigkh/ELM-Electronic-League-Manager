@@ -58,7 +58,7 @@ func (d *LeagueSqlDao) JoinLeague(leagueId, userId int) error {
 			userId,
 			leagueId,
 			false,
-			true,
+			false,
 			false,
 			false,
 		).

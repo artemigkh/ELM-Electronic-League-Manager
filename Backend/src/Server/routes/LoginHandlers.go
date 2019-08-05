@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"Server/dataModel"
 	"bytes"
 	"encoding/hex"
 	"github.com/gin-gonic/gin"
@@ -8,42 +9,16 @@ import (
 	"net/http"
 )
 
-type loginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-/**
- * @api{POST} /login/ Login
- * @apiGroup Login
- * @apiDescription Provide user email and password to get login authorization
- *
- * @apiParam {string} email
- * @apiParam {string} password
- *
- * @apiSuccess {int} id The unique numerical identifier of the user that successfully logged in
- *
- * @apiError passwordTooShort The password was too short
- * @apiError emailMalformed The email was not formed correctly
- * @apiError invalidLogin The user does not exist or password was incorrect
- */
-//TODO: Add Maximum (64 char) password length
+// https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/logIn
 func login(ctx *gin.Context) {
-	//get parameters
-	var request loginRequest
+	var request dataModel.LoginRequest
 	err := ctx.ShouldBindJSON(&request)
 	if checkJsonErr(ctx, err) {
 		return
 	}
 
-	//check parameters
-	if failIfPasswordTooShort(ctx, request.Password) {
-		return
-	}
-	if failIfEmailMalformed(ctx, request.Email) {
-		return
-	}
-	if failIfEmailNotInUse(ctx, request.Email) {
+	valid, problem, err := request.Validate()
+	if DataInvalid(ctx, valid, problem, err) {
 		return
 	}
 

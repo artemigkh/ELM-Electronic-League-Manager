@@ -1351,6 +1351,67 @@ paths:
           description: Forbidden
         '500':
           description: Internal Server Error
+  /api/v1/lol/registerTournament:
+    post:
+      summary: Register league as a tournament with the riot API
+      operationId: registerLoLTournament
+      tags:
+        - league-of-legends
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+  /api/v1/lol/games/{gameId}/tournamentCode:
+    get:
+      summary: Get Tournament Code
+      operationId: getLoLTournamentCode
+      description: Get league of legends tournament code
+      tags:
+        - league-of-legends
+      parameters:
+        - in: path
+          name: gameId
+          schema:
+            type: integer
+          required: true
+          description: Numeric ID of the game to get tournament code for
+        - in: query
+          name: new
+          schema:
+            type: boolean
+            description: If true, overwrite tournament code for this game if one already exists
+            default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tournamentCode:
+                    type: string
+                    description: The tournament code used to start the game in the client
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+
 
 components:
   schemas:

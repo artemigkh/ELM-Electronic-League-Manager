@@ -10,24 +10,27 @@ import (
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createUser
 func createNewUser() gin.HandlerFunc {
-	var user dataModel.UserCreationInformation
-	return endpoint{
-		Entity:        User,
-		AccessType:    Create,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &user) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return user.Validate(UserDAO) },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			//create users password information
-			salt := securecookie.GenerateRandomKey(32)
-			hash, err := scrypt.Key([]byte(user.Password), salt, 32768, 8, 1, 64)
-			if checkErr(ctx, err) {
-				return nil, err
-			}
+	return func(ctx *gin.Context) {
+		var user dataModel.UserCreationInformation
+		endpoint{
+			Entity:        User,
+			AccessType:    Create,
+			BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &user) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return user.Validate(UserDAO) },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				//create users password information
+				salt := securecookie.GenerateRandomKey(32)
+				hash, err := scrypt.Key([]byte(user.Password), salt, 32768, 8, 1, 64)
+				if checkErr(ctx, err) {
+					return nil, err
+				}
 
-			//create user in database
-			return nil, UserDAO.CreateUser(user.Email, hex.EncodeToString(salt), hex.EncodeToString(hash))
-		},
-	}.createEndpointHandler()
+				//create user in database
+				userId, err := UserDAO.CreateUser(user.Email, hex.EncodeToString(salt), hex.EncodeToString(hash))
+				return gin.H{"userId": userId}, err
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getUser

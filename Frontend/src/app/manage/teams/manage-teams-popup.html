@@ -3,9 +3,9 @@
 <form [formGroup]="teamForm" (submit)="saveTeam()">
 <div mat-dialog-content>
     <div class="content-wrapper">
-        <mat-form-field hintLabel="Between 3 and 25 characters">
-            <input matInput formControlName="name" #input maxlength="25" placeholder="Team Name" required>
-            <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
+        <mat-form-field hintLabel="Between 3 and 20 characters">
+            <input matInput formControlName="name" #input maxlength="20" placeholder="Team Name" required>
+            <mat-hint align="end">{{input.value?.length || 0}}/20</mat-hint>
         </mat-form-field>
 
         <mat-form-field hintLabel="Between 3 and 5 characters">

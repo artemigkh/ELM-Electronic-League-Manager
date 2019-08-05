@@ -8,45 +8,78 @@ import (
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createTeam
 func createNewTeam() gin.HandlerFunc {
-	var team dataModel.TeamCore
-	return endpoint{
-		Entity:     Team,
-		AccessType: Create,
-		BindData: func(ctx *gin.Context) bool {
-			if ctx.ContentType() == "application/json" {
-				return bindAndCheckErr(ctx, &team)
-			} else if ctx.ContentType() == "multipart/form-data" {
-				team.Name = ctx.PostForm("name")
-				team.Tag = ctx.PostForm("tag")
-				team.Description = ctx.PostForm("description")
-				if team.Name == "" || team.Tag == "" {
+	return func(ctx *gin.Context) {
+		var team dataModel.TeamCore
+		endpoint{
+			Entity:     Team,
+			AccessType: Create,
+			BindData: func(ctx *gin.Context) bool {
+				if ctx.ContentType() == "application/json" {
+					return bindAndCheckErr(ctx, &team)
+				} else if ctx.ContentType() == "multipart/form-data" {
+					team.Name = ctx.PostForm("name")
+					team.Tag = ctx.PostForm("tag")
+					team.Description = ctx.PostForm("description")
+					if team.Name == "" || team.Tag == "" {
+						ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+						return true
+					} else {
+						return false
+					}
+				} else {
 					ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 					return true
-				} else {
-					return false
 				}
-			} else {
-				ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
-				return true
-			}
-		},
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return team.ValidateNew(getLeagueId(ctx), TeamDAO) },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			_, err := ctx.FormFile("icon")
-			if err == nil {
-				smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
-				if checkErr(ctx, err) {
-					return nil, err
-				}
+			},
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return team.ValidateNew(getLeagueId(ctx), TeamDAO) },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				_, err := ctx.FormFile("icon")
+				if err == nil {
+					smallIcon, largeIcon, err := IconManager.StoreNewIconFromForm(ctx)
+					if checkErr(ctx, err) {
+						return nil, err
+					}
 
-				teamId, err := TeamDAO.CreateTeamWithIcon(getLeagueId(ctx), getUserId(ctx), team, smallIcon, largeIcon)
+					teamId, err := TeamDAO.CreateTeamWithIcon(getLeagueId(ctx), getUserId(ctx), team, smallIcon, largeIcon)
+					return gin.H{"teamId": teamId}, err
+				} else {
+					teamId, err := TeamDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
+					return gin.H{"teamId": teamId}, err
+				}
+			},
+		}.createEndpointHandler()(ctx)
+	}
+
+}
+
+func createNewTeamWithPlayers() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var team dataModel.TeamWithPlayersCore
+		endpoint{
+			Entity:     Team,
+			AccessType: Create,
+			BindData: func(ctx *gin.Context) bool {
+				return bindAndCheckErr(ctx, &team)
+			},
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return team.Validate(getLeagueId(ctx), TeamDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				var err error
+				smallIcon := ""
+				largeIcon := ""
+				if len(team.Icon) > 0 {
+					smallIcon, largeIcon, err = IconManager.StoreNewIconFromBase64String(team.Icon)
+					if checkErr(ctx, err) {
+						return nil, err
+					}
+				}
+				teamId, err := TeamDAO.CreateTeamWithPlayers(
+					getLeagueId(ctx), getUserId(ctx), team.Team, team.Players, smallIcon, largeIcon)
 				return gin.H{"teamId": teamId}, err
-			} else {
-				teamId, err := TeamDAO.CreateTeam(getLeagueId(ctx), getUserId(ctx), team)
-				return gin.H{"teamId": teamId}, err
-			}
-		},
-	}.createEndpointHandler()
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueTeams
@@ -97,50 +130,52 @@ func getTeamWithRosters() gin.HandlerFunc {
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateTeam
 func editTeam() gin.HandlerFunc {
-	var team dataModel.TeamCore
-	return endpoint{
-		Entity:     Team,
-		AccessType: Edit,
-		BindData: func(ctx *gin.Context) bool {
-			if ctx.ContentType() == "application/json" {
-				return bindAndCheckErr(ctx, &team)
-			} else if ctx.ContentType() == "multipart/form-data" {
-				team.Name = ctx.PostForm("name")
-				team.Tag = ctx.PostForm("tag")
-				team.Description = ctx.PostForm("description")
-				if team.Name == "" || team.Tag == "" {
+	return func(ctx *gin.Context) {
+		var team dataModel.TeamCore
+		endpoint{
+			Entity:     Team,
+			AccessType: Edit,
+			BindData: func(ctx *gin.Context) bool {
+				if ctx.ContentType() == "application/json" {
+					return bindAndCheckErr(ctx, &team)
+				} else if ctx.ContentType() == "multipart/form-data" {
+					team.Name = ctx.PostForm("name")
+					team.Tag = ctx.PostForm("tag")
+					team.Description = ctx.PostForm("description")
+					if team.Name == "" || team.Tag == "" {
+						ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
+						return true
+					} else {
+						return false
+					}
+				} else {
 					ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
 					return true
-				} else {
-					return false
 				}
-			} else {
-				ctx.JSON(http.StatusBadRequest, gin.H{"error": "malformedInput"})
-				return true
-			}
-		},
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return team.ValidateEdit(getLeagueId(ctx), getTeamId(ctx), TeamDAO)
-		},
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			err := TeamDAO.UpdateTeam(getTeamId(ctx), team)
-			if checkErr(ctx, err) {
-				return nil, err
-			}
-
-			_, err = ctx.FormFile("icon")
-			if err == nil {
-				smallIcon, largeIcon, err := IconManager.StoreNewIcon(ctx)
+			},
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return team.ValidateEdit(getLeagueId(ctx), getTeamId(ctx), TeamDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				err := TeamDAO.UpdateTeam(getTeamId(ctx), team)
 				if checkErr(ctx, err) {
 					return nil, err
 				}
 
-				return nil, TeamDAO.UpdateTeamIcon(getTeamId(ctx), smallIcon, largeIcon)
-			} else {
-				return nil, nil
-			}
-		},
-	}.createEndpointHandler()
+				_, err = ctx.FormFile("icon")
+				if err == nil {
+					smallIcon, largeIcon, err := IconManager.StoreNewIconFromForm(ctx)
+					if checkErr(ctx, err) {
+						return nil, err
+					}
+
+					return nil, TeamDAO.UpdateTeamIcon(getTeamId(ctx), smallIcon, largeIcon)
+				} else {
+					return nil, nil
+				}
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 func deleteTeam() gin.HandlerFunc {
@@ -155,49 +190,55 @@ func deleteTeam() gin.HandlerFunc {
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setTeamPermissions
 func editTeamManagerPermissions() gin.HandlerFunc {
-	var permissions dataModel.TeamPermissionsCore
-	return endpoint{
-		Entity:        Team,
-		AccessType:    Edit, //TODO: check permissions on this one
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &permissions) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return permissions.Validate() },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, TeamDAO.ChangeManagerPermissions(getTeamId(ctx), getTargetUserId(ctx), permissions)
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var permissions dataModel.TeamPermissionsCore
+		endpoint{
+			Entity:        Team,
+			AccessType:    Edit, //TODO: check permissions on this one
+			BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &permissions) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return permissions.Validate() },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				return nil, TeamDAO.ChangeManagerPermissions(getTeamId(ctx), getTargetUserId(ctx), permissions)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createPlayer
 func createNewPlayer() gin.HandlerFunc {
-	var player dataModel.PlayerCore
-	return endpoint{
-		Entity:     Player,
-		AccessType: Create,
-		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &player) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return player.ValidateNew(getLeagueId(ctx), getTeamId(ctx), TeamDAO)
-		},
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			playerId, err := TeamDAO.CreatePlayer(getLeagueId(ctx), getTeamId(ctx), player)
-			return gin.H{"playerId": playerId}, err
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var player dataModel.PlayerCore
+		endpoint{
+			Entity:     Player,
+			AccessType: Create,
+			BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &player) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return player.ValidateNew(getLeagueId(ctx), getTeamId(ctx), TeamDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				playerId, err := TeamDAO.CreatePlayer(getLeagueId(ctx), getTeamId(ctx), player)
+				return gin.H{"playerId": playerId}, err
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updatePlayer
 func updatePlayer() gin.HandlerFunc {
-	var player dataModel.PlayerCore
-	return endpoint{
-		Entity:     Player,
-		AccessType: Edit,
-		BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &player) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
-			return player.ValidateEdit(getLeagueId(ctx), getTeamId(ctx), getPlayerId(ctx), TeamDAO)
-		},
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, TeamDAO.UpdatePlayer(getPlayerId(ctx), player)
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var player dataModel.PlayerCore
+		endpoint{
+			Entity:     Player,
+			AccessType: Edit,
+			BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &player) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return player.ValidateEdit(getLeagueId(ctx), getTeamId(ctx), getPlayerId(ctx), TeamDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				return nil, TeamDAO.UpdatePlayer(getPlayerId(ctx), player)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/deletePlayer
@@ -213,6 +254,7 @@ func deletePlayer() gin.HandlerFunc {
 
 func RegisterTeamHandlers(g *gin.RouterGroup) {
 	g.POST("/teams", createNewTeam())
+	g.POST("/teamsWithPlayers", createNewTeamWithPlayers())
 	g.GET("/teams", getAllTeams())
 	g.GET("/teamsWithRosters", getAllTeamsWithRosters())
 

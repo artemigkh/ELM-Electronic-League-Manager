@@ -43,8 +43,10 @@ import {TeamsService} from "../../httpServices/teams.service";
 import {Option} from "../../interfaces/UI";
 import {Moment} from "moment";
 import * as moment from "moment";
-import {FormControl} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {WarningPopup, WarningPopupData} from "../warningPopup/warning-popup";
+import {League} from "../../interfaces/League";
+import {TournamentCodePopup} from "./league-of-legends/tournament-code-popup";
 
 class GameData {
     action?: Action;
@@ -61,6 +63,7 @@ class GameData {
 })
 export class ManageGamesComponent implements OnInit{
     user: UserWithPermissions;
+    league: League;
     games: SortedGames;
     teamsMap: { [teamId: number] : Team; };
     selectedTeamId: number;
@@ -73,6 +76,7 @@ export class ManageGamesComponent implements OnInit{
                 private dialog: MatDialog) {
         this.games = EmptySortedGames();
         this.teamsMap = {};
+        this.league = null;
     }
 
     ngOnInit(): void {
@@ -85,6 +89,7 @@ export class ManageGamesComponent implements OnInit{
             error => this.log.error(error)
         );
         this.state.subscribeUser(user => this.user = user);
+        this.state.subscribeLeague(league => this.league = league);
     }
 
     createTeamsMap(teams: Team[]) {
@@ -149,6 +154,19 @@ export class ManageGamesComponent implements OnInit{
                 onSuccess: () => this.eventDisplayer.displaySuccess("Game Successfully Rescheduled")
             },
             width: '500px', autoFocus: false
+        });
+    }
+
+    leagueGame(): string {
+        return this.league == null ? '' : this.league.game;
+    }
+
+    openTournamentCodePopup(game: Game) {
+        this.dialog.open(TournamentCodePopup, {
+            data: <GameData>{
+                game: game
+            },
+            width: '750px', autoFocus: false
         });
     }
 
@@ -272,6 +290,7 @@ export class ManageGamePopup {
     date: FormControl;
     creationInformation: GameCreationInformation;
     constructor(
+        private eventDisplayer: EventDisplayerService,
         public dialogRef: MatDialogRef<ReportGamePopup>,
         private log: NGXLogger,
         private gamesService: GamesService,
@@ -294,6 +313,13 @@ export class ManageGamePopup {
         this.dialogRef.close();
     }
 
+    requiredFieldsPresent(): boolean {
+        return this.creationInformation.team1Id != null && this.creationInformation.team1Id > 0 &&
+            this.creationInformation.team2Id != null && this.creationInformation.team2Id > 0 &&
+            this.creationInformation.team1Id != this.creationInformation.team2Id &&
+            this.time != null && this.date.value != null;
+    }
+
     onConfirm(): void {
         if (typeof this.time == "string") {
             this.time = moment(this.time, "hh-mm a").seconds(0).milliseconds(0);
@@ -312,7 +338,7 @@ export class ManageGamePopup {
                         winnerId: -1, loserId: -1, scoreTeam1: 0, scoreTeam2: 0
                     })
                 }, error => {
-                    this.log.error(error);
+                    this.eventDisplayer.displayError(error);
                     this.dialogRef.close();
                 }
             );
@@ -325,7 +351,7 @@ export class ManageGamePopup {
                     this.data.onSuccess(this.data.game);
                     this.dialogRef.close();
                 }, error => {
-                    this.log.error(error);
+                    this.eventDisplayer.displayError(error);
                     this.dialogRef.close();
                 }
             );

@@ -68,7 +68,6 @@ func tryGetUniqueIcon(leagueId int) (string, string, error) {
 
 // Teams
 
-//TODO: change permissions so that this can also be done during signup with giving create team perms
 func (d *TeamSqlDao) CreateTeam(leagueId, userId int, teamInfo dataModel.TeamCore) (int, error) {
 	iconSmall, iconLarge, err := tryGetUniqueIcon(leagueId)
 	if err != nil {
@@ -92,6 +91,65 @@ func (d *TeamSqlDao) CreateTeamWithIcon(leagueId, userId int, teamInfo dataModel
 	).Scan(&teamId)
 
 	return teamId, err
+}
+
+func (d *TeamSqlDao) CreateTeamWithPlayers(leagueId,
+	userId int,
+	teamInfo dataModel.TeamCore,
+	players []dataModel.PlayerCore,
+	iconSmall, iconLarge string) (int, error) {
+
+	// Create new team based on icon status
+	var teamId int
+	var err error
+	if len(iconSmall)+len(iconLarge) > 0 {
+		teamId, err = d.CreateTeamWithIcon(leagueId, userId, teamInfo, iconSmall, iconLarge)
+	} else {
+		teamId, err = d.CreateTeam(leagueId, userId, teamInfo)
+	}
+	if err != nil {
+		return -1, err
+	}
+
+	if players == nil || len(players) == 0 {
+		return teamId, nil
+	}
+	// Insert all players
+	insertBuilder := psql.Insert("player").
+		Columns(
+			"team_id",
+			"league_id",
+			"game_identifier",
+			"name",
+			"main_roster",
+		)
+
+	for _, player := range players {
+		insertBuilder = insertBuilder.Values(
+			teamId,
+			leagueId,
+			player.GameIdentifier,
+			player.Name,
+			player.MainRoster,
+		)
+	}
+
+	_, err = insertBuilder.RunWith(db).Exec()
+	if err != nil {
+		//TODO: make sure permission table entries also deleted here with cascade
+
+		//"rollback" delete the created team if this insertion failed
+		_, delErr := psql.Delete("team").
+			Where("team_id = ?", teamId).
+			RunWith(db).Exec()
+		if delErr != nil {
+			return -1, delErr
+		} else {
+			return -1, err
+		}
+	} else {
+		return teamId, nil
+	}
 }
 
 func (d *TeamSqlDao) DeleteTeam(teamId int) error {

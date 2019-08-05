@@ -1,12 +1,10 @@
-import random
+from datetime import timedelta, datetime
 import unittest
 
 import requests
 
 from .user import User
 from .league import League
-from .team import Team
-from .availability import Availability
 from .game import Game
 
 
@@ -60,9 +58,7 @@ class TestElmApi(unittest.TestCase):
         self.assertEqual(200, r.status_code)
 
         # Get league info to make sure correct league set
-        r = self.http.get("http://localhost:8080/api/v1/leagues")
-        self.assertEqual(200, r.status_code)
-        league.assert_equal_json(self, r.json())
+        league.assert_server_data_consistent(self)
 
     def join_active_league(self):
         # Check that no permissions before join
@@ -81,7 +77,7 @@ class TestElmApi(unittest.TestCase):
         r = self.http.get("http://localhost:8080/api/v1/users/leaguePermissions")
         self.assertEqual(200, r.status_code)
         self.assertEqual(False, r.json()["leaguePermissions"]["administrator"])
-        self.assertEqual(True, r.json()["leaguePermissions"]["createTeams"])
+        self.assertEqual(False, r.json()["leaguePermissions"]["createTeams"])
         self.assertEqual(False, r.json()["leaguePermissions"]["editTeams"])
         self.assertEqual(False, r.json()["leaguePermissions"]["editGames"])
 
@@ -112,10 +108,10 @@ class TestElmApi(unittest.TestCase):
 
     def get_json_schedule(self, tournament_type, rounds_per_week, concurrent_game_num, game_duration_minutes):
         r = self.http.post("http://localhost:8080/api/v1/schedule", json={
-                "tournamentType": tournament_type,
-                "roundsPerWeek": rounds_per_week,
-                "concurrentGameNum": concurrent_game_num,
-                "gameDuration": game_duration_minutes
+            "tournamentType": tournament_type,
+            "roundsPerWeek": rounds_per_week,
+            "concurrentGameNum": concurrent_game_num,
+            "gameDuration": game_duration_minutes
         })
         self.assertEqual(201, r.status_code)
         return r.json()
@@ -173,7 +169,7 @@ class TestElmApi(unittest.TestCase):
             team2.team_id, "Name", "GameIdentifier", "Player game Identifier already in use")
 
         # make sure can make player with same name
-        team1_player= team1.add_player(self, True, "Name", "GameIdentifier2")
+        team1_player = team1.add_player(self, True, "Name", "GameIdentifier2")
         team2.add_player(self, True, "Name", "GameIdentifier3")
 
         self.check_all_teams(league)
@@ -184,6 +180,257 @@ class TestElmApi(unittest.TestCase):
 
         team1.remove_player(self, team1_player.player_id)
         self.check_all_teams(league)
+
+    def test_league_permissions(self):
+        # Create league
+        league_owner = User(self)
+        self.login(league_owner)
+        league = League(self)
+
+        # create spectator and team manager, and owner of other league
+        self.new_session()
+        other_league_owner = User(self)
+        self.login(other_league_owner)
+        League(self)
+        self.set_active_league(league)
+        self.join_active_league()
+
+        self.new_session()
+        manager = User(self)
+        self.login(manager)
+        self.set_active_league(league)
+        self.join_active_league()
+        league.managers.append(manager)
+        team = league.create_team(self, manager)
+
+        self.new_session()
+        spectator = User(self)
+        self.login(spectator)
+        self.set_active_league(league)
+        self.join_active_league()
+
+        # check that unauthorized users get denied management permission endpoints
+        for user in [spectator, manager, other_league_owner]:
+            self.new_session()
+            self.login(user)
+            self.set_active_league(league)
+            self.assertEqual(403, self.http.put("http://localhost:8080/api/v1/leagues", json={}).status_code)
+            self.assertEqual(403, self.http.put("http://localhost:8080/api/v1/leagues/markdown", json={}).status_code)
+            self.assertEqual(
+                403, self.http.get("http://localhost:8080/api/v1/leagues/teamManagers", json={}).status_code)
+            self.assertEqual(
+                403, self.http.put("http://localhost:8080/api/v1/leagues/permissions/0", json={}).status_code)
+            self.assertEqual(
+                403, self.http.post("http://localhost:8080/api/v1/availabilities", json={}).status_code)
+            self.assertEqual(
+                403, self.http.delete("http://localhost:8080/api/v1/availabilities/0", json={}).status_code)
+            self.assertEqual(
+                403, self.http.post("http://localhost:8080/api/v1/weeklyAvailabilities", json={}).status_code)
+            self.assertEqual(
+                403, self.http.delete("http://localhost:8080/api/v1/weeklyAvailabilities/0", json={}).status_code)
+            self.assertEqual(
+                403, self.http.put("http://localhost:8080/api/v1/weeklyAvailabilities/0", json={}).status_code)
+            self.assertEqual(
+                403, self.http.post("http://localhost:8080/api/v1/schedule", json={}).status_code)
+            if user == spectator:
+                self.assertEqual(
+                    403, self.http.put("http://localhost:8080/api/v1/teams/{}/permissions/0".format(team.team_id),
+                                       json={}).status_code)
+
+    def test_team_permissions(self):
+        # TODO: test cant edit other leagues teams
+        # Create league
+        league_owner = User(self)
+        self.login(league_owner)
+        league = League(self)
+        self.set_active_league(league)
+
+        # create manager that makes the team of interest
+        self.new_session()
+        manager_with_team = User(self)
+        self.login(manager_with_team)
+        self.set_active_league(league)
+        self.join_active_league()
+        league.managers.append(manager_with_team)
+        team = league.create_team(self, manager_with_team)
+        player = team.add_player(self)
+
+        # create manager that makes other team
+        self.new_session()
+        other_manager = User(self)
+        self.login(other_manager)
+        self.set_active_league(league)
+        self.join_active_league()
+        league.managers.append(other_manager)
+        league.create_team(self, other_manager)
+
+        # create league spectator
+        self.new_session()
+        spectator = User(self)
+
+        # bring league out of signup period
+        self.new_session()
+        self.login(league_owner)
+        self.set_active_league(league)
+        league.update_permissions(self, False)
+        league.assert_server_data_consistent(self)
+
+        # check that spectators and other managers get denied management permission endpoints
+        for user in [spectator, other_manager]:
+            self.new_session()
+            self.login(user)
+            self.set_active_league(league)
+            self.assertEqual(403, self.http.post("http://localhost:8080/api/v1/teams", json={
+                "name": "newTeamName",
+                "description": "newTeamDescription",
+                "tag": "NWTAG"
+            }).status_code)
+
+            self.assertEqual(403, self.http.put("http://localhost:8080/api/v1/teams/{}".format(team.team_id), json={
+                "name": "newTeamName",
+                "description": "newTeamDescription",
+                "tag": "NWTAG"
+            }).status_code)
+
+            self.assertEqual(403,
+                             self.http.delete("http://localhost:8080/api/v1/teams/{}".format(team.team_id)).status_code)
+
+            self.assertEqual(403,
+                             self.http.post("http://localhost:8080/api/v1/teams/{}/players".format(team.team_id), json={
+                                 "name": "newPlayerName",
+                                 "gameIdentifier": "newPlayerGameIdentifier",
+                                 "mainRoster": True
+                             }).status_code)
+
+            self.assertEqual(
+                403, self.http.put("http://localhost:8080/api/v1/teams/{}/players/{}".format(
+                    team.team_id, player.player_id), json={
+                    "name": "newPlayerName",
+                    "gameIdentifier": "newPlayerGameIdentifier",
+                    "mainRoster": True
+                }).status_code)
+
+            self.assertEqual(
+                403, self.http.delete("http://localhost:8080/api/v1/teams/{}/players/{}".format(
+                    team.team_id, player.player_id)).status_code)
+
+    def test_games(self):
+        # set up league
+        league_owner = User(self)
+        self.login(league_owner)
+        league = League(self)
+        self.set_active_league(league)
+        league.update_to_middle_of_competition_time(self)
+
+        # create 3 teams
+        team1 = league.create_team(self, league_owner, "TEAM1", "TAG1")
+        team2 = league.create_team(self, league_owner, "TEAM2", "TAG2")
+        team3 = league.create_team(self, league_owner, "TEAM3", "TAG3")
+
+        # create two games correctly
+        epoch_time = int(datetime.utcnow().timestamp())
+        game1 = league.create_game(self, team1.team_id, team2.team_id, epoch_time)
+        game2 = league.create_game(self, team2.team_id, team3.team_id, epoch_time + 3600)
+        print(game1.__dict__)
+
+        # check that can't create invalid games
+        Game.create_game_expect_fail(self, team1.team_id - 1, team2.team_id, epoch_time + 1800,
+                                     "A team in this game does not exist in this league")
+        Game.create_game_expect_fail(self, team3.team_id, team2.team_id, epoch_time,
+                                     "A team in this game already has a game starting at this time")
+        Game.create_game_expect_fail(self, team3.team_id, team3.team_id, epoch_time + 1800,
+                                     "The two teams in game must be different")
+        Game.create_game_expect_fail(self, team1.team_id, team2.team_id, int(league.league_end.timestamp()) + 1,
+                                     "This game start time is not during the league competition period")
+
+        # check that can't reschedule with invalid parameters
+        game1.reschedule_expect_fail(self, epoch_time + 3600,
+                                     "A team in this game already has a game starting at this time")
+        game1.reschedule_expect_fail(self, int(league.league_start.timestamp()) - 1,
+                                     "This game start time is not during the league competition period")
+
+        # check that can't report with invalid parameters
+        game1.report_expect_fail(self, team3.team_id, team2.team_id, 3, 2,
+                                 "The teams in this game report are not in this game")
+
+        # can reschedule correctly
+        game1.reschedule(self, epoch_time + 7200)
+
+    def test_game_permissions(self):
+        # Create league
+        league_owner = User(self)
+        self.login(league_owner)
+        league = League(self)
+        self.set_active_league(league)
+
+        # create 3 managers that make two teams
+        self.new_session()
+        manager1 = User(self)
+        self.login(manager1)
+        self.set_active_league(league)
+        self.join_active_league()
+        league.managers.append(manager1)
+        team1 = league.create_team(self, manager1)
+
+        self.new_session()
+        manager2 = User(self)
+        self.login(manager2)
+        self.set_active_league(league)
+        self.join_active_league()
+        league.managers.append(manager2)
+        team2 = league.create_team(self, manager2)
+
+        self.new_session()
+        manager3 = User(self)
+        self.login(manager3)
+        self.set_active_league(league)
+        self.join_active_league()
+        league.managers.append(manager3)
+        league.create_team(self, manager3)
+
+        # create league spectator
+        self.new_session()
+        spectator = User(self)
+
+        # league manager schedules one game correctly
+        self.new_session()
+        self.login(league_owner)
+        self.set_active_league(league)
+        league.update_to_middle_of_competition_time(self)
+        epoch_time = int(datetime.utcnow().timestamp())
+        game = league.create_game(self, team1.team_id, team2.team_id, epoch_time)
+
+        # check that spectators and other managers get denied management permission endpoints
+        for user in [spectator, manager2, manager3]:
+            self.new_session()
+            self.login(user)
+            self.set_active_league(league)
+            self.assertEqual(403, self.http.post("http://localhost:8080/api/v1/games", json={
+                "team1Id": team1.team_id,
+                "team2Id": team2.team_id,
+                "gameTime": epoch_time
+            }).status_code)
+
+            self.assertEqual(403, self.http.delete("http://localhost:8080/api/v1/games/{}".format(game.game_id), json={
+                "team1Id": team1.team_id,
+                "team2Id": team2.team_id,
+                "gameTime": epoch_time
+            }).status_code)
+
+            if user != manager2:
+                print("user not manager2")
+                self.assertEqual(403,
+                                 self.http.post("http://localhost:8080/api/v1/games/{}/reschedule".format(game.game_id),
+                                                json={"gameTime": epoch_time + 1800}).status_code)
+
+                self.assertEqual(403,
+                                 self.http.post("http://localhost:8080/api/v1/games/{}/report".format(game.game_id),
+                                                json={
+                                                    "winnerId": team1.team_id,
+                                                    "loserId": team2.team_id,
+                                                    "scoreTeam1": 2,
+                                                    "scoreTeam2": 1
+                                                }).status_code)
 
     def test_normalUseCase(self):
         # create league owner
@@ -213,13 +460,9 @@ class TestElmApi(unittest.TestCase):
 
         # each manager independently creates a team
         for manager in league.managers:
-            print(self.http)
             self.new_session()
-            print(self.http)
             self.login(manager)
-            print(self.http)
             self.set_active_league(league)
-            print(self.http)
             new_team = league.create_team(self, manager)
             self.check_team(new_team)
 
@@ -229,6 +472,8 @@ class TestElmApi(unittest.TestCase):
         self.set_active_league(league)
         self.check_all_teams(league)
         # self.check_managers(league)
+
+        league.update_to_middle_of_competition_time(self)
 
         # schedule double robin for all teams
         league.create_availability(self, league, "friday", 18, 0, 2 * 60)
@@ -250,17 +495,6 @@ class TestElmApi(unittest.TestCase):
             game.decide_result_and_report(self, league.teams)
             self.check_game(game, league.teams)
         self.check_all_games(league)
-
-
-
-    # def test_Games(self):
-    #     # set up league and 2 teams
-    #     league_owner = User(self)
-    #     self.login(league_owner)
-    #     league = League(self)
-    #     self.set_active_league(league)
-    #     team1 = Team(self, league, random.randint(0, 100))
-    #     team2 = Team(self, league, random.randint(0, 100))
 
 
 if __name__ == '__main__':

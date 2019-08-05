@@ -15,12 +15,11 @@ type GameSqlDao struct{}
 
 // Modify Games
 
-func (d *GameSqlDao) CreateGame(leagueId int, externalId *string, gameInformation dataModel.GameCreationInformation) (int, error) {
+func (d *GameSqlDao) CreateGame(leagueId int, gameInformation dataModel.GameCreationInformation) (int, error) {
 	gameId := -1
 	err := psql.Insert("game").
 		Columns(
 			"league_id",
-			"external_id",
 			"team1_id",
 			"team2_id",
 			"game_time",
@@ -32,7 +31,6 @@ func (d *GameSqlDao) CreateGame(leagueId int, externalId *string, gameInformatio
 		).
 		Values(
 			leagueId,
-			externalId,
 			gameInformation.Team1Id,
 			gameInformation.Team2Id,
 			gameInformation.GameTime,
@@ -91,6 +89,7 @@ func (d *GameSqlDao) RescheduleGame(gameId, gameTime int) error {
 }
 
 func (d *GameSqlDao) AddExternalId(gameId int, externalId string) error {
+	fmt.Printf("adding external id: %v for game id %v\n", externalId, gameId)
 	_, err := psql.Update("game").
 		Set("external_id", externalId).
 		Where("game_id = ?", gameId).
@@ -103,15 +102,16 @@ func (d *GameSqlDao) AddExternalId(gameId int, externalId string) error {
 
 func (d *GameSqlDao) GetGameInformation(gameId int) (*dataModel.Game, error) {
 	row := getGameSelector().
-		Where("game_id = ?", gameId).
+		Where("game.game_id = ?", gameId).
 		RunWith(db).QueryRow()
 
 	return GetScannedGame(row)
 }
 
+//TODO: check all joins and see where clauses are correct
 func (d *GameSqlDao) GetGameInformationFromExternalId(externalId string) (*dataModel.Game, error) {
 	row := getGameSelector().
-		Where("external_id = ?", externalId).
+		Where("game.external_id = ?", externalId).
 		RunWith(db).QueryRow()
 
 	return GetScannedGame(row)

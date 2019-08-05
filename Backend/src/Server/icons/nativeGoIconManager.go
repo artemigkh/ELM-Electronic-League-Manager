@@ -2,10 +2,14 @@ package icons
 
 import (
 	"Server/config"
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gin-gonic/gin"
 	"github.com/nfnt/resize"
+	"github.com/pkg/errors"
+	"image"
 	"image/png"
 	"net/http"
 	"os"
@@ -25,7 +29,48 @@ func CreateGoIconManager(conf config.Config) IconManager {
 	}
 }
 
-func (m *GoIconManager) StoreNewIcon(ctx *gin.Context) (string, string, error) {
+func (m *GoIconManager) StoreNewIconFromImage(img image.Image) (string, string, error) {
+	largeOutPath := randomdata.RandStringRunes(10) + ".png"
+	smallOutPath := randomdata.RandStringRunes(10) + ".png"
+
+	largeImg := resize.Resize(512, 512, img, resize.Lanczos3)
+	smallImg := resize.Resize(128, 128, img, resize.Lanczos3)
+
+	largeOut, err := os.Create(m.OutPath + largeOutPath)
+
+	if err != nil {
+		return "", "", err
+	}
+	defer largeOut.Close()
+
+	smallOut, err := os.Create(m.OutPath + smallOutPath)
+	if err != nil {
+		return "", "", err
+	}
+	defer smallOut.Close()
+
+	png.Encode(largeOut, largeImg)
+	png.Encode(smallOut, smallImg)
+
+	return smallOutPath, largeOutPath, nil
+}
+
+func (m *GoIconManager) StoreNewIconFromBase64String(icon string) (string, string, error) {
+	b, err := base64.StdEncoding.DecodeString(icon)
+	if err != nil {
+		return "", "", errors.New("Cannot decode b64")
+	}
+
+	r := bytes.NewReader(b)
+	img, err := png.Decode(r)
+	if err != nil {
+		panic("Bad png")
+	}
+
+	return m.StoreNewIconFromImage(img)
+}
+
+func (m *GoIconManager) StoreNewIconFromForm(ctx *gin.Context) (string, string, error) {
 	tmpFileLoc := "tmp/" + randomdata.RandStringRunes(10)
 	formFile, err := ctx.FormFile("icon")
 	if err != nil {
@@ -51,27 +96,5 @@ func (m *GoIconManager) StoreNewIcon(ctx *gin.Context) (string, string, error) {
 	}
 	file.Close()
 
-	largeOutPath := randomdata.RandStringRunes(10) + ".png"
-	smallOutPath := randomdata.RandStringRunes(10) + ".png"
-
-	largeImg := resize.Resize(512, 512, img, resize.Lanczos3)
-	smallImg := resize.Resize(128, 128, img, resize.Lanczos3)
-
-	largeOut, err := os.Create(m.OutPath + largeOutPath)
-
-	if err != nil {
-		return "", "", err
-	}
-	defer largeOut.Close()
-
-	smallOut, err := os.Create(m.OutPath + smallOutPath)
-	if err != nil {
-		return "", "", err
-	}
-	defer smallOut.Close()
-
-	png.Encode(largeOut, largeImg)
-	png.Encode(smallOut, smallImg)
-
-	return smallOutPath, largeOutPath, nil
+	return m.StoreNewIconFromImage(img)
 }

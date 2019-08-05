@@ -3,6 +3,16 @@ from datetime import datetime
 
 
 class Game:
+    @staticmethod
+    def create_game_expect_fail(t, team1_id, team2_id, game_time, expected_error):
+        r = t.http.post("http://localhost:8080/api/v1/games", json={
+            "team1Id": team1_id,
+            "team2Id": team2_id,
+            "gameTime": game_time
+        })
+        t.assertEqual(400, r.status_code)
+        t.assertEqual(expected_error, r.json()["errorDescription"])
+
     def __init__(self, t, team1_id, team2_id, game_time):
         self.team1_id = team1_id
         self.team2_id = team2_id
@@ -22,6 +32,29 @@ class Game:
 
         t.assertEqual(201, r.status_code)
         self.game_id = r.json()["gameId"]
+
+    def reschedule_expect_fail(self, t, game_time, expected_error):
+        r = t.http.post("http://localhost:8080/api/v1/games/{}/reschedule".format(self.game_id), json={
+            "gameTime": game_time
+        })
+        t.assertEqual(400, r.status_code)
+        t.assertEqual(expected_error, r.json()["errorDescription"])
+
+    def report_expect_fail(self, t, winner_id, loser_id, score_team1, score_team2, expected_error):
+        r = t.http.post("http://localhost:8080/api/v1/games/{}/report".format(self.game_id), json={
+            "winnerId": winner_id,
+            "loserId": loser_id,
+            "scoreTeam1": score_team1,
+            "scoreTeam2": score_team2
+        })
+        t.assertEqual(400, r.status_code)
+        t.assertEqual(expected_error, r.json()["errorDescription"])
+
+    def reschedule(self, t, game_time):
+        r = t.http.post("http://localhost:8080/api/v1/games/{}/reschedule".format(self.game_id), json={
+            "gameTime": game_time
+        })
+        t.assertEqual(200, r.status_code)
 
     def decide_result_and_report(self, t, teams):
         if self.game_time < int(datetime.utcnow().timestamp()):

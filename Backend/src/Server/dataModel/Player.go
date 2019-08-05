@@ -1,5 +1,12 @@
 package dataModel
 
+type Player struct {
+	PlayerId       int    `json:"playerId"`
+	Name           string `json:"name"`
+	GameIdentifier string `json:"gameIdentifier"`
+	MainRoster     bool   `json:"mainRoster"`
+}
+
 type PlayerCore struct {
 	Name           string `json:"name"`
 	GameIdentifier string `json:"gameIdentifier"`
@@ -8,9 +15,9 @@ type PlayerCore struct {
 
 func (player *PlayerCore) validate(leagueId, teamId, playerId int, teamDao TeamDAO) (bool, string, error) {
 	return validate(
-		player.name(),
-		player.gameIdentifier(),
-		player.uniqueness(leagueId, playerId, teamDao))
+		validateName(player.Name),
+		validateGameIdentifier(player.GameIdentifier),
+		player.uniquenessWithExisting(leagueId, playerId, teamDao))
 }
 
 func (player *PlayerCore) ValidateNew(leagueId, teamId int, teamDao TeamDAO) (bool, string, error) {
@@ -21,35 +28,16 @@ func (player *PlayerCore) ValidateEdit(leagueId, teamId, playerId int, teamDao T
 	return player.validate(leagueId, teamId, playerId, teamDao)
 }
 
-func (player *PlayerCore) name() ValidateFunc {
-	return func(problemDest *string, _ *error) bool {
-		valid := false
-		if len(player.Name) > MaxNameLength {
-			*problemDest = NameTooLong
-		} else if len(player.Name) < MinInformationLength {
-			*problemDest = NameTooShort
-		} else {
-			valid = true
+func (player PlayerCore) uniqueness(playerId int, players []*Player) (bool, string) {
+	for _, existingPlayer := range players {
+		if existingPlayer.GameIdentifier == player.GameIdentifier && existingPlayer.PlayerId != playerId {
+			return false, PlayerGameIdentifierInUse
 		}
-		return valid
 	}
+	return true, ""
 }
 
-func (player *PlayerCore) gameIdentifier() ValidateFunc {
-	return func(problemDest *string, _ *error) bool {
-		valid := false
-		if len(player.GameIdentifier) > MaxNameLength {
-			*problemDest = GameIdentifierTooLong
-		} else if len(player.GameIdentifier) < MinInformationLength {
-			*problemDest = GameIdentifierTooShort
-		} else {
-			valid = true
-		}
-		return valid
-	}
-}
-
-func (player *PlayerCore) uniqueness(leagueId, playerId int, teamDao TeamDAO) ValidateFunc {
+func (player *PlayerCore) uniquenessWithExisting(leagueId, playerId int, teamDao TeamDAO) ValidateFunc {
 	return func(problemDest *string, errorDest *error) bool {
 		teams, err := teamDao.GetAllTeamsInLeague(leagueId)
 		if err != nil {
@@ -57,21 +45,15 @@ func (player *PlayerCore) uniqueness(leagueId, playerId int, teamDao TeamDAO) Va
 			return false
 		}
 
+		allPlayers := make([]*Player, 0)
 		for _, team := range teams {
-			for _, existingPlayer := range team.Players {
-				if existingPlayer.GameIdentifier == player.GameIdentifier && existingPlayer.PlayerId != playerId {
-					*problemDest = PlayerGameIdentifierInUse
-					return false
-				}
-			}
+			allPlayers = append(allPlayers, team.Players...)
 		}
-		return true
-	}
-}
 
-type Player struct {
-	PlayerId       int    `json:"playerId"`
-	Name           string `json:"name"`
-	GameIdentifier string `json:"gameIdentifier"`
-	MainRoster     bool   `json:"mainRoster"`
+		valid, problem := player.uniqueness(playerId, allPlayers)
+		if !valid {
+			*problemDest = problem
+		}
+		return valid
+	}
 }

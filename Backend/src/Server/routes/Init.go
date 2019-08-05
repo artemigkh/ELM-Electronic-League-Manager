@@ -32,6 +32,7 @@ func InitRoutes(conf config.Config) *gin.Engine {
 	IconManager = icons.CreateGoIconManager(conf)
 	MarkdownManager = markdown.CreateGoMarkdownManager(conf)
 	LoLApi = lolApi.GetLolApiWrapper()
+	LoLTournamentApi = lolApi.GetLoLTournamentApi(conf)
 
 	RegisterLoginHandlers(app.Group("/"))
 	RegisterUserHandlers(app.Group("/api/v1/users"))

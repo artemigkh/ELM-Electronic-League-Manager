@@ -1,46 +1,55 @@
 <div class="docs-primary-header">
     <h1 class="docs-primary-header">Tournament Registration</h1>
 </div>
-
+<form [formGroup]="teamForm" (ngSubmit)="onSubmit()">
 <div class="registration-wrapper">
-    <mat-vertical-stepper [linear]="true" (selectionChange)="onNext($event)" (animationDone)="onAnimationEnd()" #stepper>
-        <mat-step [stepControl]="firstFormGroup">
+    <mat-vertical-stepper linear>
+        <mat-step [stepControl]="teamForm">
             <ng-template matStepLabel>Team Information</ng-template>
-            <form [formGroup]="firstFormGroup">
-                <div class="content-wrapper">
-                    <mat-form-field class="team-name" hintLabel="Between 3 and 25 characters">
-                        <input matInput #input maxlength="25" placeholder="Team Name" value="{{name}}"
-                               formControlName="name" required>
+            <div class="content-wrapper-row">
+                <div class="content-wrapper-column">
+                    <mat-form-field hintLabel="Between 3 and 25 characters">
+                        <input matInput formControlName="name" #input maxlength="25" placeholder="Team Name" required>
                         <mat-hint align="end">{{input.value?.length || 0}}/25</mat-hint>
+                        <mat-error *ngIf="teamForm.get('name').getError('nameInUse')">Name already in use!</mat-error>
                     </mat-form-field>
 
-                    <mat-form-field class="tag" hintLabel="Between 3 and 5 characters">
-                        <input matInput #input maxlength="5" placeholder="Tag" value="{{tag}}"
-                               formControlName="tag" required>
-                        <mat-hint align="end">{{input.value?.length || 0}}/5</mat-hint>
+                    <mat-form-field hintLabel="Between 3 and 5 characters">
+                        <input matInput formControlName="tag" #input2 maxlength="5" placeholder="Tag" required>
+                        <mat-hint align="end">{{input2.value?.length || 0}}/5</mat-hint>
+                        <mat-error *ngIf="teamForm.get('tag').getError('tagInUse')">Tag already in use!</mat-error>
                     </mat-form-field>
-                </div>
-                <div class="content-wrapper">
+
                     <mat-form-field class="description" hintLabel="Maximum 500 characters">
-                    <textarea matInput #input2 value="{{description}}"
-                          placeholder="Description" [mat-autosize]="true" formControlName="description"></textarea>
-                        <mat-hint align="end">{{input2.value?.length || 0}}/500</mat-hint>
+                        <textarea formControlName="description" matInput #input3
+                                  placeholder="Description" [mat-autosize]="true"></textarea>
+                        <mat-hint align="end">{{input3.value?.length || 0}}/500</mat-hint>
                     </mat-form-field>
                 </div>
-                <div class="content-wrapper icons">
+                <div class="content-wrapper-column">
                     <div class="icon-upload">
                         <div>Icon</div>
                         <input type="file" accept=".png" (change)="onFileChange($event)">
+                        <span>
+                            <button type="button" *ngIf="image" (click)="removeImage()">Cancel</button>
+                        </span>
+                    </div>
+                    <div class="icon-display">
+                        <img [src]="image" height="256" width="256" *ngIf="image">
                     </div>
                 </div>
-                <div>
-                    <button mat-raised-button color="primary" matStepperNext>Next</button>
-                </div>
-            </form>
+            </div>
+            <div>
+                <button type="button" mat-raised-button color="primary" matStepperNext>Next</button>
+            </div>
         </mat-step>
-        <mat-step [stepControl]="secondFormGroup" #teamStep>
-            <ng-template matStepLabel>Player Information</ng-template>
-            <app-manage-players-team [team]="team"></app-manage-players-team>
+        <mat-step>
+            <ng-template matStepLabel>Players</ng-template>
+            <manage-players-team-container [team]="team" [sendToServer]="false"></manage-players-team-container>
+            <div class="next-button">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!teamForm.valid">Create Team</button>
+            </div>
         </mat-step>
     </mat-vertical-stepper>
 </div>
+</form>

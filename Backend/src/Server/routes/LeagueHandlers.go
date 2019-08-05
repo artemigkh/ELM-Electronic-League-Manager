@@ -8,60 +8,67 @@ import (
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/createLeague
 func createNewLeague() gin.HandlerFunc {
-	var league dataModel.LeagueCore
-	return endpoint{
-		Entity:        League,
-		AccessType:    Create,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &league) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return league.ValidateNew(LeagueDAO) },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			leagueId, err := LeagueDAO.CreateLeague(getUserId(ctx), league)
-			return gin.H{"leagueId": leagueId}, err
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var league dataModel.LeagueCore
+		endpoint{
+			Entity:        League,
+			AccessType:    Create,
+			BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &league) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return league.ValidateNew(LeagueDAO) },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				leagueId, err := LeagueDAO.CreateLeague(getUserId(ctx), league)
+				return gin.H{"leagueId": leagueId}, err
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateLeague
 func updateLeagueInfo() gin.HandlerFunc {
-	var league dataModel.LeagueCore
-	return endpoint{
-		Entity:        League,
-		AccessType:    Edit,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &league) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return league.ValidateEdit(getLeagueId(ctx), LeagueDAO) },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, LeagueDAO.UpdateLeague(getLeagueId(ctx), league)
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var league dataModel.LeagueCore
+		endpoint{
+			Entity:     League,
+			AccessType: Edit,
+			BindData:   func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &league) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) {
+				return league.ValidateEdit(getLeagueId(ctx), LeagueDAO, GameDAO)
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				return nil, LeagueDAO.UpdateLeague(getLeagueId(ctx), league)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateLeagueMd
 func setLeagueMarkdown() gin.HandlerFunc {
-	var markdown dataModel.Markdown
-	return endpoint{
-		Entity:        League,
-		AccessType:    Edit,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &markdown) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return markdown.Validate() },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			oldFile, err := LeagueDAO.GetMarkdownFile(getLeagueId(ctx))
-			if err != nil {
-				return nil, err
-			}
+	return func(ctx *gin.Context) {
+		var markdown dataModel.Markdown
+		endpoint{
+			Entity:        League,
+			AccessType:    Edit,
+			BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &markdown) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return markdown.Validate() },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				oldFile, err := LeagueDAO.GetMarkdownFile(getLeagueId(ctx))
+				if err != nil {
+					return nil, err
+				}
 
-			fileName, err := MarkdownManager.StoreMarkdown(markdown.Markdown, oldFile)
-			if err != nil {
-				return nil, err
-			}
+				fileName, err := MarkdownManager.StoreMarkdown(markdown.Markdown, oldFile)
+				if err != nil {
+					return nil, err
+				}
 
-			return nil, LeagueDAO.SetMarkdownFile(getLeagueId(ctx), fileName)
-		},
-	}.createEndpointHandler()
+				return nil, LeagueDAO.SetMarkdownFile(getLeagueId(ctx), fileName)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/setActiveLeague
 func setActiveLeague() gin.HandlerFunc {
-	//var // data Type
 	return endpoint{
 		Entity:     League,
 		AccessType: View,
@@ -124,38 +131,42 @@ func getPublicLeagues(ctx *gin.Context) {
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/updateLeaguePermissions
 func setLeaguePermissions() gin.HandlerFunc {
-	var permissions dataModel.LeaguePermissionsCore
-	return endpoint{
-		Entity:        League,
-		AccessType:    Edit,
-		BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &permissions) },
-		IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return permissions.Validate() },
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			return nil, LeagueDAO.SetLeaguePermissions(getLeagueId(ctx), getTargetUserId(ctx), permissions)
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var permissions dataModel.LeaguePermissionsCore
+		endpoint{
+			Entity:        League,
+			AccessType:    Edit,
+			BindData:      func(ctx *gin.Context) bool { return bindAndCheckErr(ctx, &permissions) },
+			IsDataInvalid: func(ctx *gin.Context) (bool, string, error) { return permissions.Validate() },
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				return nil, LeagueDAO.SetLeaguePermissions(getLeagueId(ctx), getTargetUserId(ctx), permissions)
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 // https://artemigkh.github.io/ELM-Electronic-League-Manager/#operation/getLeagueMd
 func getLeagueMarkdown() gin.HandlerFunc {
-	var fileName string
-	var err error
-	return endpoint{
-		Entity:     League,
-		AccessType: View,
-		BindData: func(ctx *gin.Context) bool {
-			fileName, err = LeagueDAO.GetMarkdownFile(getLeagueId(ctx))
-			if checkErr(ctx, err) {
-				return true
-			} else {
-				return false
-			}
-		},
-		Core: func(ctx *gin.Context) (interface{}, error) {
-			markdown, err := MarkdownManager.GetMarkdown(fileName)
-			return gin.H{"markdown": markdown}, err
-		},
-	}.createEndpointHandler()
+	return func(ctx *gin.Context) {
+		var fileName string
+		var err error
+		endpoint{
+			Entity:     League,
+			AccessType: View,
+			BindData: func(ctx *gin.Context) bool {
+				fileName, err = LeagueDAO.GetMarkdownFile(getLeagueId(ctx))
+				if checkErr(ctx, err) {
+					return true
+				} else {
+					return false
+				}
+			},
+			Core: func(ctx *gin.Context) (interface{}, error) {
+				markdown, err := MarkdownManager.GetMarkdown(fileName)
+				return gin.H{"markdown": markdown}, err
+			},
+		}.createEndpointHandler()(ctx)
+	}
 }
 
 func RegisterLeagueHandlers(g *gin.RouterGroup) {
@@ -165,7 +176,7 @@ func RegisterLeagueHandlers(g *gin.RouterGroup) {
 	g.PUT("", updateLeagueInfo())
 	g.PUT("/markdown", setLeagueMarkdown())
 	g.GET("/teamManagers", getTeamManagers())
-	g.PUT("/setLeaguePermissions/:userId", storeTargetUserId(), setLeaguePermissions()) //TODO: test this one
+	g.PUT("/permissions/:userId", storeTargetUserId(), setLeaguePermissions()) //TODO: test this one in integrat
 
 	// League Interact
 	g.POST("/setActiveLeague/:leagueId", storeTargetLeagueId(), setActiveLeague())

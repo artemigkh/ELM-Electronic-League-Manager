@@ -6,7 +6,7 @@ import (
 )
 
 func (a *AccessChecker) Player(accessType AccessType, permissions *dataModel.UserWithPermissions,
-	teamDao dataModel.TeamDAO, leagueId, teamId, playerId int) (bool, error) {
+	teamDao dataModel.TeamDAO, leagueDao dataModel.LeagueDAO, leagueId, teamId, playerId int) (bool, error) {
 	switch accessType {
 	case View:
 		return teamDao.DoesPlayerExist(leagueId, teamId, playerId)
@@ -20,7 +20,7 @@ func (a *AccessChecker) Player(accessType AccessType, permissions *dataModel.Use
 			return false, nil
 		}
 	case Create:
-		return a.Team(Edit, permissions, teamDao, leagueId, teamId)
+		return a.Team(Edit, permissions, teamDao, leagueDao, leagueId, teamId)
 	default:
 		return false, errors.New("invalid access type to check")
 	}

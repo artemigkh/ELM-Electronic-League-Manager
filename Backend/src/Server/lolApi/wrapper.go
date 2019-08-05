@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -166,7 +167,9 @@ type idContainer struct {
 }
 
 func (l *lolApi) GetSummonerId(name string) (string, error) {
-	bodyBytes, err := l.callWrapperServer(fmt.Sprintf("summonerId?name=%v", name))
+	params := url.Values{}
+	params.Add("name", name)
+	bodyBytes, err := l.callWrapperServer("summonerId?" + params.Encode())
 	if err != nil {
 		return "", err
 	}
@@ -175,7 +178,6 @@ func (l *lolApi) GetSummonerId(name string) (string, error) {
 		return "", err
 	}
 
-	println("got id: ", summonerId.Id)
 	return summonerId.Id, nil
 }
 

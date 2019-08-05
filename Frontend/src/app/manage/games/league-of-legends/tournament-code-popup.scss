@@ -2,20 +2,6 @@ h1 {
     text-align: center!important;
 }
 
-.teams {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    .vs {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: center;
-        width: 50px;
-    }
-}
-
 .content-wrapper {
     display: flex;
     flex-direction: column;
@@ -23,6 +9,23 @@ h1 {
     //height: 300px;
     margin-bottom: 20px;
 
+
+    .tournament-code {
+        margin-top: 20px;
+
+
+        .code-label {
+            font-size: 30px;
+            font-weight: 300;
+        }
+
+        .code-value {
+            font-size: 24px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+    }
 }
 
 .action-bar-wrapper {
@@ -34,7 +37,6 @@ h1 {
         display: flex;
         flex-direction: row;
         justify-content: center;
-        width: 125px;
     }
 
     .spacer {

@@ -6,6 +6,7 @@ class Availability:
     def __init__(self, t, league, weekday, hour, minute, duration_minutes):
         self.start_time = int(league.league_start.timestamp())
         self.end_time = int(league.league_end.timestamp())
+
         self.weekday = weekday
         self.timezone = timezone('US/Eastern').utcoffset(datetime.utcnow(), is_dst=False).seconds
         self.hour = hour
@@ -22,6 +23,8 @@ class Availability:
             "duration": self.duration_minutes
         })
 
+        if r.status_code != 201:
+            print(r.json())
         t.assertEqual(201, r.status_code)
         self.availability_id = r.json()["availabilityId"]
 

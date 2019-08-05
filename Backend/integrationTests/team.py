@@ -27,7 +27,6 @@ class Player:
             self.game_identifier = player_profile["username"]
         else:
             self.game_identifier = game_identifier
-        print(t.http)
         r = t.http.post("http://localhost:8080/api/v1/teams/{}/players".format(team_id), json={
             "name": self.name,
             "gameIdentifier": self.game_identifier,
@@ -81,7 +80,6 @@ class Team:
                 suffix += 1
         else:
             self.tag = tag
-        print(t.http)
         r = t.http.post("http://localhost:8080/api/v1/teams", json={
             "name": self.name,
             "description": self.description,

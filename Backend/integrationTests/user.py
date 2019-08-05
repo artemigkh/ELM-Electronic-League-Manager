@@ -23,3 +23,4 @@ class User:
         if r.status_code != 201:
             print(r.json())
         t.assertEqual(201, r.status_code)
+        self.user_id = r.json()["userId"]

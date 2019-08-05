@@ -2,40 +2,62 @@ package dataModel
 
 type LeagueOfLegendsDAO interface {
 	CreateLoLPlayer(leagueId, teamId int, externalId string, playerInfo LoLPlayerCore) (int, error)
+	CreateLoLTeamWithPlayers(leagueId, userId int, teamInfo TeamCore, players []*LoLPlayerCore, iconSmall, iconLarge string) (int, error)
 	UpdateLoLPlayer(playerId int, externalId string, playerInfo LoLPlayerCore) error
 
 	GetLoLTeamStub(teamId int) (*LoLTeamStub, error)
+	GetAllLoLTeamStubInLeague(leagueId int) ([]*LoLTeamStub, error)
 
 	ReportEndGameStats(leagueId, gameId int, match *LoLMatchInformation) error
 	GetPlayerStats(leagueId int) ([]*LoLPlayerStats, error)
 	GetTeamStats(leagueId int) ([]*LoLTeamStats, error)
 	GetChampionStats(leagueId int) ([]*LoLChampionStats, error)
+
+	RegisterTournamentProvider(leagueId, providerId, tournamentId int) error
+	LeagueHasRegisteredTournament(leagueId int) (bool, error)
+	GetTournamentId(leagueId int) (int, error)
+
+	HasTournamentCode(gameId int) (bool, error)
+	GetTournamentCode(gameId int) (string, error)
+	CreateTournamentCode(gameId int, tournamentCode string) error
 }
 
-type LoLPlayerCore struct {
-	GameIdentifier string `json:"gameIdentifier"`
-	MainRoster     bool   `json:"mainRoster"`
-	Position       string `json:"position"`
+type LoLTeamWithPlayersCore struct {
+	Team    TeamCore         `json:"team"`
+	Icon    string           `json:"icon"`
+	Players []*LoLPlayerCore `json:"players"`
 }
 
-func (player *LoLPlayerCore) validate(leagueId, teamId, playerId int) (bool, string, error) {
-	return validate(
-		player.uniqueness(leagueId, teamId, playerId))
-}
-
-func (player *LoLPlayerCore) ValidateNew(leagueId, teamId int) (bool, string, error) {
-	return player.validate(leagueId, teamId, 0)
-}
-
-func (player *LoLPlayerCore) ValidateEdit(leagueId, teamId, playerId int) (bool, string, error) {
-	return player.validate(leagueId, teamId, playerId)
-}
-
-func (player *LoLPlayerCore) uniqueness(leagueId, teamId, playerId int) ValidateFunc {
-	return func(problemDest *string, _ *error) bool {
-		//TODO: implement this
-		return true
+func (team *LoLTeamWithPlayersCore) Validate(leagueId int, teamDao TeamDAO) (bool, string, error) {
+	valid, problem, err := team.Team.ValidateNew(leagueId, teamDao)
+	if !valid || problem != "" || err != nil {
+		return valid, problem, err
 	}
+
+	playersToCheck := make([]PlayerCore, 0)
+	for _, player := range team.Players {
+		playersToCheck = append(playersToCheck, PlayerCore{GameIdentifier: player.GameIdentifier})
+	}
+
+	// Check that each player is unique from the other non-existing players
+	for i := 0; i < len(playersToCheck); i++ {
+		otherPlayers := make([]*Player, 0)
+		for j := 0; j < len(playersToCheck); j++ {
+			if i != j {
+				otherPlayers = append(otherPlayers, &Player{
+					PlayerId:       0,
+					GameIdentifier: playersToCheck[j].GameIdentifier,
+				})
+			}
+		}
+
+		valid, problem := playersToCheck[i].uniqueness(-1, otherPlayers)
+		if !valid {
+			return false, problem, nil
+		}
+	}
+
+	return true, "", nil
 }
 
 type LoLPlayer struct {
@@ -139,4 +161,44 @@ type LoLMatchInformation struct {
 	WinningTeamStats       LoLMatchTeamStats     `json:"winningTeamStats"`
 	LosingTeamStats        LoLMatchTeamStats     `json:"losingTeamStats"`
 	PlayerStats            []LoLMatchPlayerStats `json:"playerStats"`
+}
+
+type LoLPlayerCore struct {
+	GameIdentifier string `json:"gameIdentifier"`
+	MainRoster     bool   `json:"mainRoster"`
+	Position       string `json:"position"`
+	ExternalId     string `json:"externalId"`
+}
+
+func (player *LoLPlayerCore) validate(leagueId, teamId, playerId int, leagueOfLegendsDAO LeagueOfLegendsDAO) (bool, string, error) {
+	return validate(
+		validateGameIdentifier(player.GameIdentifier),
+		player.uniqueness(leagueId, playerId, leagueOfLegendsDAO))
+}
+
+func (player *LoLPlayerCore) ValidateNew(leagueId, teamId int, leagueOfLegendsDAO LeagueOfLegendsDAO) (bool, string, error) {
+	return player.validate(leagueId, teamId, 0, leagueOfLegendsDAO)
+}
+
+func (player *LoLPlayerCore) ValidateEdit(leagueId, teamId, playerId int, leagueOfLegendsDAO LeagueOfLegendsDAO) (bool, string, error) {
+	return player.validate(leagueId, teamId, playerId, leagueOfLegendsDAO)
+}
+
+func (player *LoLPlayerCore) uniqueness(leagueId, playerId int, leagueOfLegendsDAO LeagueOfLegendsDAO) ValidateFunc {
+	return func(problemDest *string, errorDest *error) bool {
+		teams, err := leagueOfLegendsDAO.GetAllLoLTeamStubInLeague(leagueId)
+		if err != nil {
+			errorDest = &err
+			return false
+		}
+		for _, team := range teams {
+			for _, existingPlayer := range append(team.MainRoster, team.SubstituteRoster...) {
+				if existingPlayer.ExternalId == player.ExternalId && existingPlayer.PlayerId != playerId {
+					*problemDest = ExternalIdentifierInUse
+					return false
+				}
+			}
+		}
+		return true
+	}
 }

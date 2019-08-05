@@ -35,6 +35,8 @@ type IScheduler interface {
 	InitScheduler(tournamentType, roundsPerWeek, concurrentGameNum int, gameDuration time.Duration, start, end time.Time, teams []int)
 	AddWeeklyAvailability(dayOfWeek time.Weekday, hour, minute int, duration time.Duration)
 	GetSchedule() ([]Game, error)
+
+	IsTournamentTypeSupported(tournament string) bool
 }
 
 type GameBlock struct {

@@ -3,7 +3,7 @@ package dataModel
 import "github.com/badoux/checkmail"
 
 type UserDAO interface {
-	CreateUser(email, salt, hash string) error
+	CreateUser(email, salt, hash string) (int, error)
 	IsEmailInUse(email string) (bool, error)
 	GetAuthenticationInformation(email string) (*UserAuthenticationDTO, error)
 	GetUserProfile(userId int) (*User, error)
@@ -44,9 +44,9 @@ type TeamManager struct {
 // UserCreationInformation
 func (user *UserCreationInformation) Validate(userDao UserDAO) (bool, string, error) {
 	return validate(
-		user.email(),
+		validateEmailFormat(user.Email),
 		user.uniqueness(userDao),
-		user.password())
+		validatePasswordLength(user.Password))
 }
 
 func (user *UserCreationInformation) email() ValidateFunc {
@@ -86,4 +86,15 @@ func (user *UserCreationInformation) password() ValidateFunc {
 		}
 		return valid
 	}
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (req *LoginRequest) Validate() (bool, string, error) {
+	return validate(
+		validateEmailFormat(req.Email),
+		validatePasswordLength(req.Password))
 }

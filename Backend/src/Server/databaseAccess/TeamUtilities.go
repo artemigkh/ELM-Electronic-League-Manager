@@ -219,12 +219,24 @@ func getLoLTeamStubSelector() squirrel.SelectBuilder {
 		LeftJoin("player ON team.team_id = player.team_id")
 }
 
-func GetScannedLoLTeamStub(rows *sql.Rows) (*dataModel.LoLTeamStub, error) {
+func GetScannedAllLoLTeamStubs(rows *sql.Rows) ([]*dataModel.LoLTeamStub, error) {
+	teams := make([]*dataModel.LoLTeamStub, 0)
+	getUniqueTeam := func(newTeam *dataModel.LoLTeamStub) *dataModel.LoLTeamStub {
+		for _, team := range teams {
+			if newTeam.TeamId == team.TeamId {
+				return team
+			}
+		}
+		teams = append(teams, newTeam)
+		return newTeam
+	}
+
 	defer rows.Close()
 
-	var team dataModel.LoLTeamStub
-
 	for rows.Next() {
+		var team dataModel.LoLTeamStub
+		team.SubstituteRoster = make([]*dataModel.LoLPlayerStub, 0)
+		team.MainRoster = make([]*dataModel.LoLPlayerStub, 0)
 		var (
 			playerId         sql.NullInt64
 			playerExternalId sql.NullString
@@ -247,16 +259,17 @@ func GetScannedLoLTeamStub(rows *sql.Rows) (*dataModel.LoLTeamStub, error) {
 		); err != nil {
 			return nil, err
 		}
+		uniqueTeam := getUniqueTeam(&team)
 		if playerExternalId.Valid && playerExternalId.String != "" {
 			if playerMainRoster.Bool {
-				team.MainRoster = append(team.MainRoster, &dataModel.LoLPlayerStub{
+				uniqueTeam.MainRoster = append(uniqueTeam.MainRoster, &dataModel.LoLPlayerStub{
 					PlayerId:   int(playerId.Int64),
 					ExternalId: playerExternalId.String,
 					MainRoster: playerMainRoster.Bool,
 					Position:   playerPosition.String,
 				})
 			} else {
-				team.SubstituteRoster = append(team.SubstituteRoster, &dataModel.LoLPlayerStub{
+				uniqueTeam.SubstituteRoster = append(uniqueTeam.SubstituteRoster, &dataModel.LoLPlayerStub{
 					PlayerId:   int(playerId.Int64),
 					ExternalId: playerExternalId.String,
 					MainRoster: playerMainRoster.Bool,
@@ -270,7 +283,16 @@ func GetScannedLoLTeamStub(rows *sql.Rows) (*dataModel.LoLTeamStub, error) {
 		return nil, err
 	}
 
-	return &team, nil
+	return teams, nil
+}
+
+func GetScannedLoLTeamStub(rows *sql.Rows) (*dataModel.LoLTeamStub, error) {
+	teams, err := GetScannedAllLoLTeamStubs(rows)
+	if err != nil {
+		return nil, err
+	} else {
+		return teams[0], nil
+	}
 }
 
 func getTeamWithManagersSelector() squirrel.SelectBuilder {

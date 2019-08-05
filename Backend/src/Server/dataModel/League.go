@@ -75,8 +75,35 @@ func (league *LeagueCore) ValidateNew(leagueDao LeagueDAO) (bool, string, error)
 	return league.validate(0, leagueDao)
 }
 
-func (league *LeagueCore) ValidateEdit(leagueId int, leagueDao LeagueDAO) (bool, string, error) {
-	return league.validate(leagueId, leagueDao)
+func (league *LeagueCore) ValidateEdit(leagueId int, leagueDao LeagueDAO, gameDao GameDAO) (bool, string, error) {
+	//check that there are no games and availabilities out of bounds
+	availabilities, err := leagueDao.GetAvailabilities(leagueId)
+	if err != nil {
+		return false, "", err
+	}
+
+	games, err := gameDao.GetAllGamesInLeague(leagueId)
+	if err != nil {
+		return false, "", err
+	}
+
+	leagueDateBoundsValidators := make([]ValidateFunc, 0)
+	for _, avail := range availabilities {
+		leagueDateBoundsValidators = append(leagueDateBoundsValidators,
+			validateDuringLeague(leagueId, avail.StartTime, leagueDao, AvailabilitiesNotDuringLeague),
+			validateDuringLeague(leagueId, avail.EndTime, leagueDao, AvailabilitiesNotDuringLeague))
+	}
+	for _, game := range games {
+		leagueDateBoundsValidators = append(leagueDateBoundsValidators,
+			validateDuringLeague(leagueId, game.GameTime, leagueDao, GamesNotDuringLeague))
+	}
+
+	valid, problem, err := validate(leagueDateBoundsValidators...)
+	if !valid || problem != "" || err != nil {
+		return valid, problem, err
+	} else {
+		return league.validate(leagueId, leagueDao)
+	}
 }
 
 func (league *LeagueCore) name() ValidateFunc {

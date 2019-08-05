@@ -176,13 +176,27 @@
 // })
 import {
     MatButtonModule,
-    MatButtonToggleModule, MatCardModule,
+    MatButtonToggleModule,
+    MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatDatepickerModule, MatDialogModule, MatDividerModule, MatExpansionModule, MatFormFieldModule, MatIconModule,
-    MatIconRegistry, MatInputModule,
-    MatNativeDateModule, MatProgressSpinnerModule, MatSelectModule,
-    MatSlideToggleModule, MatSnackBarModule, MatStepperModule, MatTableModule, MatTabsModule
+    MatDatepickerModule,
+    MatDialogModule,
+    MatDividerModule,
+    MatError,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatIconRegistry,
+    MatInputModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatStepperModule,
+    MatTableModule,
+    MatTabsModule
 } from "@angular/material";
 import {NgModule} from "@angular/core";
 import {AppComponent} from "./app.component";
@@ -243,6 +257,8 @@ import {StatsPageComponent, StatsPageDirective} from "./stats/statsPage/stats-pa
 import {GenericStatsPage} from "./stats/statsPage/generic-stats-page";
 import {LeagueOfLegendsStatsPage} from "./stats/statsPage/league-of-legends-stats-page";
 import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stats.service";
+import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
+import {TournamentCodePopup} from "./manage/games/league-of-legends/tournament-code-popup";
 
 @NgModule({
     declarations: [
@@ -253,6 +269,7 @@ import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stat
         LeaguesComponent,
         LeagueCreationComponent,
         HomeComponent,
+        TournamentRegistrationComponent,
         StatsComponent,
         StatsPageComponent,
         GenericStatsPage,
@@ -288,6 +305,7 @@ import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stat
         ManageAvailabilityPopup,
         ManageGamePopup,
         ReportGamePopup,
+        TournamentCodePopup,
         WarningPopup
     ],
     imports: [
@@ -347,6 +365,7 @@ import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stat
         ManageAvailabilityPopup,
         ManageGamePopup,
         ReportGamePopup,
+        TournamentCodePopup,
         WarningPopup
     ]
 })

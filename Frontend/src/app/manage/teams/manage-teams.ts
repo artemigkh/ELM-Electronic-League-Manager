@@ -119,7 +119,7 @@ export class ManageTeamPopup {
         private formBuilder: FormBuilder) {
         this.title = this.data.action == Action.Create ? "Create New Team" : "Edit Team";
         this.teamForm = this.formBuilder.group({
-            'name': [this.data.team.name, [Validators.required, Validators.minLength(3), Validators.maxLength(25)]],
+            'name': [this.data.team.name, [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
             'tag': [this.data.team.tag, [Validators.required, Validators.minLength(3), Validators.maxLength(5)]],
             'description': [this.data.team.description, Validators.maxLength(500)],
             'icon': null
@@ -137,7 +137,7 @@ export class ManageTeamPopup {
     }
 
     saveTeam(): void {
-        Object.keys(new TeamCore).forEach(k => this.data.team[k] = this.teamForm.value[k]);
+        Object.keys(new TeamCore("", "", "")).forEach(k => this.data.team[k] = this.teamForm.value[k]);
         let form = new FormData();
         Object.keys(this.teamForm.value).forEach(k => form.append(k, this.teamForm.value[k]));
         if(this.data.action == Action.Create) {

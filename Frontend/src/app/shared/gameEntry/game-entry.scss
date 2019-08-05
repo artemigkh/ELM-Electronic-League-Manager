@@ -10,6 +10,7 @@
 
     &.compact {
         height: 80px;
+
         .time {
             min-width: 110px;
             .dayofweek {
@@ -72,24 +73,39 @@
         flex-direction: row;
 
         .team-name {
-            width:20%;
+            flex-grow: 2;
+            width: 0;
             display: flex;
             justify-content: center;
             flex-direction: column;
-            padding-left: 40px;
-            padding-right: 40px;
+            //padding-left: 40px;
+            //padding-right: 40px;
 
-            font-size: 30px;
+            font-size: 42px;
             font-weight: 300;
             color: #000000;
+
+            //@media (max-width: 1370px) {
+            //    font-size: 30px;
+            //}
 
             @media (max-width: 919px) {
                 display: none;
             }
+
+            &.compact {
+                font-size: 24px;
+
+                //@media (max-width: 1370px) {
+                //    font-size: 18px;
+                //}
+            }
         }
 
         .team-block {
-            width: 25%;
+            flex-grow: 1;
+            width: 0;
+            //width: 25%;
             display: flex;
             justify-content: center;
             flex-direction: column;
@@ -133,17 +149,19 @@
         }
 
         .vs {
-            min-width: 24px;
+            width: 24px;
             justify-content: center;
             flex-direction: column;
             display: flex;
-            padding-left: 40px;
-            padding-right: 40px;
+            //padding-left: 40px;
+            //padding-right: 40px;
             font-size: 24px;
             font-weight: 300;
         }
 
         .logo {
+            width: 0;
+            flex-grow: 0.75;
             height: 100%;
             display: flex;
             align-items: center;

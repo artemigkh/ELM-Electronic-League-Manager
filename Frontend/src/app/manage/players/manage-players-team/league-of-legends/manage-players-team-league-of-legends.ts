@@ -155,6 +155,7 @@ export class ManageLoLPlayerPopup {
     constructor(
         @Inject(MAT_DIALOG_DATA) public data: LoLPlayerData,
         public dialogRef: MatDialogRef<ManageLoLPlayerPopup>,
+        private eventDisplayer: EventDisplayerService,
         private log: NGXLogger,
         private teamsService: TeamsService,
         private formBuilder: FormBuilder) {
@@ -183,7 +184,7 @@ export class ManageLoLPlayerPopup {
                         this.data.onSuccess(this.data.player);
                         this.dialogRef.close();
                     }, error => {
-                        this.log.error(error);
+                        this.eventDisplayer.displayError(error);
                         this.dialogRef.close();
                     }
                 );
@@ -193,7 +194,7 @@ export class ManageLoLPlayerPopup {
                         this.data.onSuccess();
                         this.dialogRef.close();
                     }, error => {
-                        this.log.error(error);
+                        this.eventDisplayer.displayError(error);
                         this.dialogRef.close();
                     }
                 );

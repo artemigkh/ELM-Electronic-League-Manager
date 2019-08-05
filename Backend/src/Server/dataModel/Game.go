@@ -2,7 +2,7 @@ package dataModel
 
 type GameDAO interface {
 	// Modify Games
-	CreateGame(leagueId int, externalId *string, gameInformation GameCreationInformation) (int, error)
+	CreateGame(leagueId int, gameInformation GameCreationInformation) (int, error)
 	ReportGame(gameId int, gameResult GameResult) error
 	ReportGameByExternalId(externalId string, gameResult GameResult) (int, int, error)
 	DeleteGame(gameId int) error

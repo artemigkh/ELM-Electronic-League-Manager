@@ -165,7 +165,7 @@ func getLeagueMarkdown() gin.HandlerFunc {
 				markdown, err := MarkdownManager.GetMarkdown(fileName)
 				return gin.H{"markdown": markdown}, err
 			},
-		}.createEndpointHandler()
+		}.createEndpointHandler()(ctx)
 	}
 }
 

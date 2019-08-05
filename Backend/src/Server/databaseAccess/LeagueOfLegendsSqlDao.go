@@ -392,6 +392,7 @@ func (d *LeagueOfLegendsSqlDao) GetAllLoLTeamStubInLeague(leagueId int) ([]*data
 	if err != nil {
 		return nil, err
 	}
+
 	return GetScannedAllLoLTeamStubs(rows)
 }
 
@@ -457,4 +458,80 @@ func (d *LeagueOfLegendsSqlDao) CreateLoLTeamWithPlayers(
 	} else {
 		return teamId, nil
 	}
+}
+
+func (d *LeagueOfLegendsSqlDao) RegisterTournamentProvider(leagueId, providerId, tournamentId int) error {
+	_, err := psql.Insert("lol_tournament").
+		Columns(
+			"league_id",
+			"provider_id",
+			"tournament_id",
+		).
+		Values(
+			leagueId,
+			providerId,
+			tournamentId,
+		).
+		RunWith(db).Exec()
+	return err
+}
+
+func (d *LeagueOfLegendsSqlDao) LeagueHasRegisteredTournament(leagueId int) (bool, error) {
+	var count int
+	if err := psql.Select("count(*)").
+		From("lol_tournament").
+		Where("league_id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&count); err != nil {
+		return false, err
+	} else {
+		return count > 0, nil
+	}
+}
+
+func (d *LeagueOfLegendsSqlDao) GetTournamentId(leagueId int) (int, error) {
+	var tournamentId int
+	if err := psql.Select("tournament_id").
+		From("lol_tournament").
+		Where("league_id = ?", leagueId).
+		RunWith(db).QueryRow().Scan(&tournamentId); err != nil {
+		return -1, err
+	}
+	return tournamentId, nil
+}
+
+func (d *LeagueOfLegendsSqlDao) HasTournamentCode(gameId int) (bool, error) {
+	var count int
+	if err := psql.Select("count(*)").
+		From("lol_game").
+		Where("game_id = ?", gameId).
+		RunWith(db).QueryRow().Scan(&count); err != nil {
+		return false, err
+	} else {
+		return count > 0, nil
+	}
+}
+
+func (d *LeagueOfLegendsSqlDao) GetTournamentCode(gameId int) (string, error) {
+	var tournamentCode string
+	if err := psql.Select("tournament_code").
+		From("lol_game").
+		Where("game_id = ?", gameId).
+		RunWith(db).QueryRow().Scan(&tournamentCode); err != nil {
+		return "", err
+	}
+	return tournamentCode, nil
+}
+
+func (d *LeagueOfLegendsSqlDao) CreateTournamentCode(gameId int, tournamentCode string) error {
+	_, err := psql.Insert("lol_game").
+		Columns(
+			"game_id",
+			"tournament_code",
+		).
+		Values(
+			gameId,
+			tournamentCode,
+		).
+		RunWith(db).Exec()
+	return err
 }

@@ -74,8 +74,9 @@ func createNewTeamWithPlayers() gin.HandlerFunc {
 						return nil, err
 					}
 				}
-				return TeamDAO.CreateTeamWithPlayers(
+				teamId, err := TeamDAO.CreateTeamWithPlayers(
 					getLeagueId(ctx), getUserId(ctx), team.Team, team.Players, smallIcon, largeIcon)
+				return gin.H{"teamId": teamId}, err
 			},
 		}.createEndpointHandler()(ctx)
 	}

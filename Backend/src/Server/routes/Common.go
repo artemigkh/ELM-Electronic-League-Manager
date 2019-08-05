@@ -25,6 +25,7 @@ var IconManager icons.IconManager
 var MarkdownManager markdown.MdManager
 
 var LoLApi lolApi.LoLApi
+var LoLTournamentApi lolApi.LoLTournamentApi
 
 // context helpers
 func getLeagueId(ctx *gin.Context) int {
@@ -56,14 +57,6 @@ func getAvailabilityId(ctx *gin.Context) int {
 
 func getExternalId(ctx *gin.Context) string {
 	return ctx.GetString("externalId")
-}
-
-func getExternalGameId(ctx *gin.Context) *string {
-	if id := ctx.GetString("externalGameId"); id != "" {
-		return &id
-	} else {
-		return nil
-	}
 }
 
 // Each endpoint does a subset of the following:
@@ -161,6 +154,7 @@ type endpoint struct {
 	BindData      func(ctx *gin.Context) bool
 	IsDataInvalid func(ctx *gin.Context) (bool, string, error)
 	Core          func(ctx *gin.Context) (interface{}, error)
+	CustomResCore func(ctx *gin.Context)
 }
 
 func (e endpoint) createEndpointHandler() gin.HandlerFunc {
@@ -184,26 +178,29 @@ func (e endpoint) createEndpointHandler() gin.HandlerFunc {
 				return
 			}
 		}
+
 		// Perform the core action of the endpoint
-		returnData, err := e.Core(ctx)
-		if returnData == nil && checkErr(ctx, err) {
-			return
-		}
-		// Return status and data if exists to router
-		if returnData == nil {
-			if e.AccessType == Create {
-				ctx.Status(http.StatusCreated)
-			} else {
-				ctx.Status(http.StatusOK)
+		if e.Core != nil {
+			returnData, err := e.Core(ctx)
+			if checkErr(ctx, err) {
+				return
 			}
-		} else if returnData != nil && err != nil {
-			ctx.JSON(http.StatusBadRequest, returnData)
+
+			if returnData == nil {
+				if e.AccessType == Create {
+					ctx.Status(http.StatusCreated)
+				} else {
+					ctx.Status(http.StatusOK)
+				}
+			} else {
+				if e.AccessType == Create {
+					ctx.JSON(http.StatusCreated, returnData)
+				} else {
+					ctx.JSON(http.StatusOK, returnData)
+				}
+			}
 		} else {
-			if e.AccessType == Create {
-				ctx.JSON(http.StatusCreated, returnData)
-			} else {
-				ctx.JSON(http.StatusOK, returnData)
-			}
+			e.CustomResCore(ctx)
 		}
 	}
 }

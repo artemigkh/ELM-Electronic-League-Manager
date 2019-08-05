@@ -80,7 +80,7 @@ func createNewGame() gin.HandlerFunc {
 				return game.Validate(getLeagueId(ctx), LeagueDAO, TeamDAO, GameDAO)
 			},
 			Core: func(ctx *gin.Context) (interface{}, error) {
-				gameId, err := GameDAO.CreateGame(getLeagueId(ctx), getExternalGameId(ctx), game)
+				gameId, err := GameDAO.CreateGame(getLeagueId(ctx), game)
 				return gin.H{"gameId": gameId}, err
 			},
 		}.createEndpointHandler()(ctx)

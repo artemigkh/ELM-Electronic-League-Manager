@@ -12,6 +12,14 @@ type LeagueOfLegendsDAO interface {
 	GetPlayerStats(leagueId int) ([]*LoLPlayerStats, error)
 	GetTeamStats(leagueId int) ([]*LoLTeamStats, error)
 	GetChampionStats(leagueId int) ([]*LoLChampionStats, error)
+
+	RegisterTournamentProvider(leagueId, providerId, tournamentId int) error
+	LeagueHasRegisteredTournament(leagueId int) (bool, error)
+	GetTournamentId(leagueId int) (int, error)
+
+	HasTournamentCode(gameId int) (bool, error)
+	GetTournamentCode(gameId int) (string, error)
+	CreateTournamentCode(gameId int, tournamentCode string) error
 }
 
 type LoLTeamWithPlayersCore struct {
@@ -21,7 +29,34 @@ type LoLTeamWithPlayersCore struct {
 }
 
 func (team *LoLTeamWithPlayersCore) Validate(leagueId int, teamDao TeamDAO) (bool, string, error) {
-	//TODO: validate all players within team as well
+	valid, problem, err := team.Team.ValidateNew(leagueId, teamDao)
+	if !valid || problem != "" || err != nil {
+		return valid, problem, err
+	}
+
+	playersToCheck := make([]PlayerCore, 0)
+	for _, player := range team.Players {
+		playersToCheck = append(playersToCheck, PlayerCore{GameIdentifier: player.GameIdentifier})
+	}
+
+	// Check that each player is unique from the other non-existing players
+	for i := 0; i < len(playersToCheck); i++ {
+		otherPlayers := make([]*Player, 0)
+		for j := 0; j < len(playersToCheck); j++ {
+			if i != j {
+				otherPlayers = append(otherPlayers, &Player{
+					PlayerId:       0,
+					GameIdentifier: playersToCheck[j].GameIdentifier,
+				})
+			}
+		}
+
+		valid, problem := playersToCheck[i].uniqueness(-1, otherPlayers)
+		if !valid {
+			return false, problem, nil
+		}
+	}
+
 	return true, "", nil
 }
 
@@ -138,7 +173,7 @@ type LoLPlayerCore struct {
 func (player *LoLPlayerCore) validate(leagueId, teamId, playerId int, leagueOfLegendsDAO LeagueOfLegendsDAO) (bool, string, error) {
 	return validate(
 		validateGameIdentifier(player.GameIdentifier),
-		player.uniqueness(teamId, playerId, leagueOfLegendsDAO))
+		player.uniqueness(leagueId, playerId, leagueOfLegendsDAO))
 }
 
 func (player *LoLPlayerCore) ValidateNew(leagueId, teamId int, leagueOfLegendsDAO LeagueOfLegendsDAO) (bool, string, error) {
@@ -156,7 +191,6 @@ func (player *LoLPlayerCore) uniqueness(leagueId, playerId int, leagueOfLegendsD
 			errorDest = &err
 			return false
 		}
-
 		for _, team := range teams {
 			for _, existingPlayer := range append(team.MainRoster, team.SubstituteRoster...) {
 				if existingPlayer.ExternalId == player.ExternalId && existingPlayer.PlayerId != playerId {

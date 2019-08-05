@@ -1,3 +1,16 @@
+DROP SEQUENCE IF EXISTS lol_tournament_id_seq CASCADE ;
+CREATE SEQUENCE lol_tournament_id_seq;
+DROP TABLE IF EXISTS lol_tournament CASCADE;
+CREATE TABLE lol_tournament (
+  lol_tournament_id INT           PRIMARY KEY DEFAULT nextval('lol_tournament_id_seq'),
+  league_id         INT           NOT NULL REFERENCES league(league_id),
+  provider_id       INT           NOT NULL,
+  tournament_id     INT           UNIQUE NOT NULL,
+  UNIQUE (lol_tournament_id, tournament_id),
+  UNIQUE (league_id, tournament_id)
+);
+
+DROP TABLE IF EXISTS lol_champion_stats CASCADE;
 CREATE TABLE lol_champion_stats (
   league_id     INT           NOT NULL REFERENCES league(league_id),
   name          VARCHAR(16)   NOT NULL                ,
@@ -6,6 +19,7 @@ CREATE TABLE lol_champion_stats (
   bans          INT           NOT NULL
 );
 
+DROP TABLE IF EXISTS lol_player_stats CASCADE;
 CREATE TABLE lol_player_stats (
   id                VARCHAR(50)   NOT NULL                ,
   name              VARCHAR(16)   NOT NULL                ,
@@ -24,6 +38,7 @@ CREATE TABLE lol_player_stats (
   win               BOOLEAN       NOT NULL
 );
 
+DROP TABLE IF EXISTS lol_team_stats CASCADE;
 CREATE TABLE lol_team_stats (
   team_id           INT           NOT NULL REFERENCES team(team_id),
   game_id           INT           NOT NULL REFERENCES game(game_id),
@@ -33,4 +48,11 @@ CREATE TABLE lol_team_stats (
   first_blood       BOOLEAN       NOT NULL                ,
   first_turret      BOOLEAN       NOT NULL                ,
   win               BOOLEAN       NOT NULL
+);
+
+DROP TABLE IF EXISTS lol_game CASCADE;
+CREATE TABLE lol_game (
+  game_id           INT           NOT NULL REFERENCES game(game_id),
+  tournament_code   VARCHAR(64)   NOT NULL         , -- unique in production
+  match_id          VARCHAR(64)
 );

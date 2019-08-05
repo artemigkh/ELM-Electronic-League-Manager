@@ -58,4 +58,9 @@ export class GamesService {
         return this.http.delete<null>('http://localhost:8080/api/v1/games/' + gameId, httpOptions);
     }
 
+    public getLoLTournamentCode(gameId: number, forceNewCode: boolean): Observable<{tournamentCode: string}> {
+        return this.http.get<{tournamentCode: string}>(
+            'http://localhost:8080/api/v1/lol/games/' + gameId + '/tournamentCode' + (forceNewCode ? '?new=true' : ''), httpOptions);
+
+    }
 }

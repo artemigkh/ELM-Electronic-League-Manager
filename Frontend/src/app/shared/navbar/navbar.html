@@ -12,7 +12,7 @@
         <span>Past and Upcoming Games</span>
     </a>
     <ng-container *ngIf="league">
-    <a *ngIf="isRegistrationPeriod()" mat-button class="docs-button" routerLink="/register" aria-label="Angular Material">
+    <a *ngIf="isRegistrationPeriod() || true" mat-button class="docs-button" routerLink="/register" aria-label="Angular Material">
         <span>Tournament Registration</span>
     </a>
     <a *ngIf="hasStatsPage()" mat-button class="docs-button" routerLink="/stats" aria-label="Angular Material">

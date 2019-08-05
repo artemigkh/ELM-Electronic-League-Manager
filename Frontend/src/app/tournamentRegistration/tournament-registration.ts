@@ -13,7 +13,8 @@ import {Router} from "@angular/router";
 export class TournamentRegistrationComponent {
     teamForm: FormGroup;
     team: TeamWithRosters;
-    imagePreview: any;
+    image: any;
+    imageb64: any;
 
     constructor(
         private router: Router,
@@ -21,19 +22,21 @@ export class TournamentRegistrationComponent {
         private _formBuilder: FormBuilder,
         private eventDisplayer: EventDisplayerService) {
         this.team = getEmptyTeamWithRosters();
-        this.imagePreview = null;
+        this.image = null;
+        this.imageb64 = null;
     }
 
     newForm() {
+        console.log("newForm called");
         this.teamForm = this._formBuilder.group({
             'name': ['', [Validators.required, Validators.minLength(3), Validators.maxLength(25)],
                 this.teamsService.validateTeamNameUniqueness(0)],
             'tag': ['', [Validators.required, Validators.minLength(3), Validators.maxLength(5)],
                 this.teamsService.validateTagUniqueness(0)],
             'description': ['', Validators.maxLength(500)],
-            'icon': null
         }, {updateOn: 'blur'});
-        this.imagePreview = null;
+        this.image = null;
+        this.imageb64 = null;
     }
 
     ngOnInit() {
@@ -41,12 +44,13 @@ export class TournamentRegistrationComponent {
     }
 
     onSubmit() {
+        console.log(this.teamForm.value.icon);
         this.teamsService.createTeamWithPlayers(
             new TeamCore(
                 this.teamForm.value.name,
                 this.teamForm.value.description,
                 this.teamForm.value.tag
-            ), this.teamForm.value.icon, this.team.mainRoster.concat(this.team.substituteRoster)).subscribe(
+            ), this.imageb64, this.team.mainRoster.concat(this.team.substituteRoster)).subscribe(
                 createdTeamId => {
                     this.newForm();
                     this.eventDisplayer.displaySuccess("Team successfully registered");
@@ -60,20 +64,20 @@ export class TournamentRegistrationComponent {
             let file: File = event.target.files[0];
             let reader = new FileReader();
             reader.onloadend = () => {
-                this.imagePreview = reader.result;
-                console.log(this.imagePreview);
+                this.image = reader.result;
                 let encoded = reader.result.replace(/^data:(.*;base64,)?/, '');
                 if ((encoded.length % 4) > 0) {
                     encoded += '='.repeat(4 - (encoded.length % 4));
                 }
-                this.teamForm.value.icon = encoded;
+                this.imageb64 = encoded;
             };
             reader.readAsDataURL(file);
         }
     }
 
     removeImage() {
-        this.imagePreview = null;
-        this.teamForm.value.icon = null;
+        console.log("Remove image called");
+        this.image = null;
+        this.imageb64 = null;
     }
 }

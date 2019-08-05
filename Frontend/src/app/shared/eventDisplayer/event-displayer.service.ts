@@ -19,7 +19,7 @@ export class EventDisplayerService {
     public displayError(error: any) {
         this.log.error(error);
         this.confirmation.openFromComponent(EventDisplayerComponent, {
-            duration: 2000,
+            duration: 5000,
             panelClass: ['red-snackbar'],
             data: "Error: ".concat(error.status == 400 ? error.error.errorDescription : error.statusText)
         });

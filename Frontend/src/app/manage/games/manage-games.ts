@@ -45,6 +45,8 @@ import {Moment} from "moment";
 import * as moment from "moment";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {WarningPopup, WarningPopupData} from "../warningPopup/warning-popup";
+import {League} from "../../interfaces/League";
+import {TournamentCodePopup} from "./league-of-legends/tournament-code-popup";
 
 class GameData {
     action?: Action;
@@ -61,6 +63,7 @@ class GameData {
 })
 export class ManageGamesComponent implements OnInit{
     user: UserWithPermissions;
+    league: League;
     games: SortedGames;
     teamsMap: { [teamId: number] : Team; };
     selectedTeamId: number;
@@ -73,6 +76,7 @@ export class ManageGamesComponent implements OnInit{
                 private dialog: MatDialog) {
         this.games = EmptySortedGames();
         this.teamsMap = {};
+        this.league = null;
     }
 
     ngOnInit(): void {
@@ -85,6 +89,7 @@ export class ManageGamesComponent implements OnInit{
             error => this.log.error(error)
         );
         this.state.subscribeUser(user => this.user = user);
+        this.state.subscribeLeague(league => this.league = league);
     }
 
     createTeamsMap(teams: Team[]) {
@@ -149,6 +154,19 @@ export class ManageGamesComponent implements OnInit{
                 onSuccess: () => this.eventDisplayer.displaySuccess("Game Successfully Rescheduled")
             },
             width: '500px', autoFocus: false
+        });
+    }
+
+    leagueGame(): string {
+        return this.league == null ? '' : this.league.game;
+    }
+
+    openTournamentCodePopup(game: Game) {
+        this.dialog.open(TournamentCodePopup, {
+            data: <GameData>{
+                game: game
+            },
+            width: '750px', autoFocus: false
         });
     }
 

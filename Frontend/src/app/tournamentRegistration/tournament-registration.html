@@ -31,11 +31,11 @@
                         <div>Icon</div>
                         <input type="file" accept=".png" (change)="onFileChange($event)">
                         <span>
-                            <button type="button" *ngIf="imagePreview" (click)="removeImage()">Cancel</button>
+                            <button type="button" *ngIf="image" (click)="removeImage()">Cancel</button>
                         </span>
                     </div>
                     <div class="icon-display">
-                        <img [src]="imagePreview" height="256" width="256" *ngIf="imagePreview">
+                        <img [src]="image" height="256" width="256" *ngIf="image">
                     </div>
                 </div>
             </div>

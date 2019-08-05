@@ -15,9 +15,14 @@
 
 
     <span class="info">
-        <span class="team-container">
-            <span class="spacer"></span>
-            <span *ngIf="!compact || tentative" [class]="teamNameClass(1)" [routerLink]="['/teams', game.team1.teamId]">
+        <!--<span class="team-container">-->
+            <!--<span class="spacer"></span>-->
+            <span *ngIf="!compact || tentative || true"
+                  [ngClass]="{'team-name': true,
+                  'compact': compact,
+                  'victory': this.game.complete && isTeamWinner(1),
+                  'defeat': this.game.complete && !isTeamWinner(1)}"
+                  [routerLink]="['/teams', game.team1.teamId]">
                 {{game.team1.name}}
             </span>
 
@@ -26,7 +31,7 @@
                     {{game.team1.tag}}
                 </div>
 
-                <div [class]="gameResultClass(1)">
+                <div [ngClass]="{'ignore': !this.game.complete, 'victory': isTeamWinner(1), 'defeat': !isTeamWinner(1)}">
                     {{gameResultText(1)}}
                 </div>
 
@@ -35,27 +40,27 @@
                 </div>
             </span>
 
-            <span class="spacer"></span>
+            <!--<span class="spacer"></span>-->
 
             <span class="logo" [routerLink]="['/teams', game.team1.teamId]">
                 <img [src]="'http://localhost:8080/icons/' + game.team1.iconSmall">
             </span>
-        </span>
+        <!--</span>-->
 
         <span class="vs">vs</span>
 
-        <span class="team-container">
+        <!--<span class="team-container">-->
             <span class="logo" [routerLink]="['/teams', game.team2.teamId]">
             <img [src]="'http://localhost:8080/icons/' + game.team2.iconSmall">
             </span>
-            <span class="spacer"></span>
+            <!--<span class="spacer"></span>-->
             <span class="team-block" [routerLink]="['/teams', game.team2.teamId]">
 
                 <div class="tag">
                     {{game.team2.tag}}
                 </div>
 
-                <div [class]="gameResultClass(2)">
+                <div [ngClass]="{'ignore': !this.game.complete, 'victory': isTeamWinner(2), 'defeat': !isTeamWinner(2)}">
                     {{gameResultText(2)}}
                 </div>
 
@@ -64,14 +69,18 @@
                 </div>
             </span>
 
-            <span *ngIf="!compact || tentative" [class]="teamNameClass(2)" [routerLink]="['/teams', game.team2.teamId]">
+            <span *ngIf="!compact || tentative || true"
+                  [ngClass]="{'team-name': true,
+                  'compact': compact,
+                  'victory': this.game.complete && isTeamWinner(1),
+                  'defeat': this.game.complete && !isTeamWinner(1)}"
+                  [routerLink]="['/teams', game.team2.teamId]">
                 {{game.team2.name}}
             </span>
-            <span class="spacer"></span>
-        </span>
+            <!--<span class="spacer"></span>-->
+        <!--</span>-->
 
     </span>
-
 
 
 </div>

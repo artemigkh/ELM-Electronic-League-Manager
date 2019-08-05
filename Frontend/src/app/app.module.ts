@@ -258,6 +258,7 @@ import {GenericStatsPage} from "./stats/statsPage/generic-stats-page";
 import {LeagueOfLegendsStatsPage} from "./stats/statsPage/league-of-legends-stats-page";
 import {LeagueOfLegendsStatsService} from "./httpServices/league-of-legends-stats.service";
 import {TournamentRegistrationComponent} from "./tournamentRegistration/tournament-registration";
+import {TournamentCodePopup} from "./manage/games/league-of-legends/tournament-code-popup";
 
 @NgModule({
     declarations: [
@@ -304,6 +305,7 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
         ManageAvailabilityPopup,
         ManageGamePopup,
         ReportGamePopup,
+        TournamentCodePopup,
         WarningPopup
     ],
     imports: [
@@ -363,6 +365,7 @@ import {TournamentRegistrationComponent} from "./tournamentRegistration/tourname
         ManageAvailabilityPopup,
         ManageGamePopup,
         ReportGamePopup,
+        TournamentCodePopup,
         WarningPopup
     ]
 })

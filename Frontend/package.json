@@ -28,7 +28,7 @@
     "core-js": "^2.5.4",
     "font-awesome": "^4.7.0",
     "material-time-control": "github:SteveDunlap13/MaterialTimeControl",
-    "moment": "^2.22.2",
+    "moment": "^2.29.2",
     "ngx-logger": "^3.3.13",
     "ngx-markdown": "^7.1.3",
     "ngx-markdown-editor": "^1.1.11",
